@@ -1,0 +1,13 @@
+<FindBugsFilter>
+	<Match>
+		<Class name="~.*\.Test.*" />
+	</Match>
+	<Match>
+		<!-- <Bug category="DLS_DEAD_LOCAL_STORE" /> -->
+		<Bug code="DLS" />
+	</Match>
+	<Match>
+		<!-- <Bug category="NP_ALWAYS_NULL" /> -->
+		<Bug code="NP" />
+	</Match>
+</FindBugsFilter>

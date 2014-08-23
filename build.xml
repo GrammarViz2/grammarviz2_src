@@ -1,0 +1,80 @@
+<project name="build" default="compile">
+  <description>
+  	The basic build file for the GrammarViz system.
+  </description>
+
+  <!-- Always make environment variables available with the "env." prefix. -->
+  <property environment="env" />
+
+  <!-- Make sure we're running a Java 5 or better. -->
+  <condition property="java.7.available">
+    <or>
+      <contains string="${java.version}" substring="1.7" />
+      <contains string="${java.version}" substring="1.8" />
+    </or>
+  </condition>
+  <fail message="This package requires Java 7+." unless="java.7.available" />
+
+  <!-- Make sure we're running Ant 1.8. -->
+  <condition property="ant.1.8.available">
+    <contains string="${ant.version}" substring="1.8" />
+  </condition>
+  <condition property="ant.available" value="yes">
+    <isset property="ant.1.8.available" />
+  </condition>
+  <fail message="This package requires Ant 1.8." unless="ant.available" />
+
+  <!-- Make sure that a compatible version of JUnit is installed. -->
+  <!-- You can override the version. For example: 'ant -Djunit.version=4.1 -f junit.build.xml' -->
+  <property name="junit.version" value="4.10" />
+  <property name="junit.jar" location="${env.JUNIT_HOME}/junit-${junit.version}.jar" />
+  <available file="${junit.jar}" type="file" property="junit.available" />
+  <fail message="This package requires JUNIT_HOME to be defined and ${junit.jar} available" unless="junit.available" />
+
+  <!-- Basic properties for this system. -->
+  <property name="system.name" value="grammarviz" />
+  <property name="majorVersionNumber" value="2" />
+  <property name="minorVersionNumber" value="0" />
+  <tstamp>
+    <format property="DAYSTAMP" pattern="Mdd" />
+  </tstamp>
+  <property name="version" value="${majorVersionNumber}.${minorVersionNumber}.${DAYSTAMP}" />
+
+  <!-- Basic directory structure. -->
+  <property name="src.dir" location="${basedir}/src" />
+  <property name="lib.dir" location="${basedir}/lib" />
+  <property name="build.dir" location="${basedir}/build" />
+
+
+  <!-- The compile classpath  -->
+  <path id="compile.classpath">
+    <fileset file="${env.JUNIT_HOME}/junit-${junit.version}.jar" />
+    <fileset file="${lib.dir}/DTW/fast-dtw.jar" />
+    <fileset dir="${lib.dir}/JFreeChart" />
+    <fileset dir="${lib.dir}/time" />
+    <fileset dir="${lib.dir}/logger" />
+  </path>
+
+  <target name="compile" description="Compiles the code.">
+    <!-- Now compile the code into build/classes -->
+    <mkdir dir="${build.dir}/classes" />
+    <javac srcdir="${src.dir}" destdir="${build.dir}/classes" source="1.7" target="1.7" debug="on" includeAntRuntime="no">
+      <classpath refid="compile.classpath" />
+      <compilerarg value="-Xlint:all" />
+      <!-- <compilerarg value="-Werror" /> -->
+    </javac>
+  </target>
+
+  <target name="clean" description="Delete build/ directory and top-level jar files.">
+    <delete>
+      <fileset dir="${basedir}" includes="*.jar" />
+    </delete>
+    <delete dir="${build.dir}" />
+    <delete dir="${basedir}/sandbox" />
+  </target>
+
+  <target name="convertLineEndings" description="Makes line endings compatible with host platform.">
+    <fixcrlf srcdir="${basedir}" includes="*.build.xml" />
+  </target>
+
+</project>

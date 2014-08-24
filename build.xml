@@ -24,13 +24,6 @@
   </condition>
   <fail message="This package requires Ant 1.8." unless="ant.available" />
 
-  <!-- Make sure that a compatible version of JUnit is installed. -->
-  <!-- You can override the version. For example: 'ant -Djunit.version=4.1 -f junit.build.xml' -->
-  <property name="junit.version" value="4.10" />
-  <property name="junit.jar" location="${env.JUNIT_HOME}/junit-${junit.version}.jar" />
-  <available file="${junit.jar}" type="file" property="junit.available" />
-  <fail message="This package requires JUNIT_HOME to be defined and ${junit.jar} available" unless="junit.available" />
-
   <!-- Basic properties for this system. -->
   <property name="system.name" value="grammarviz" />
   <property name="majorVersionNumber" value="2" />
@@ -54,6 +47,33 @@
     <fileset dir="${lib.dir}/time" />
     <fileset dir="${lib.dir}/logger" />
   </path>
+
+  <path id="classpath.test">
+    <pathelement location="lib/junit-4.11.jar" />
+    <pathelement location="lib/hamcrest-core-1.3.jar" />
+    <pathelement location="${main.build.dir}" />
+    <path refid="classpath.base" />
+  </path>
+
+  <target name="test" depends="compile" description="Run JUnit tests.">
+
+    <mkdir dir="${junit.dir}" />
+    <!-- Run the tests, which are all classes whose name starts with 'Test'. -->
+    <!-- Fork is on until I can figure out how to stop the sensorbase and unbind the port. -->
+    <!-- Note that emma is forking in its JUnit as well. -->
+    <junit printsummary="withOutAndErr" haltonfailure="${junit.haltonfailure}" fork="yes" failureproperty="junit.failed">
+      <classpath>
+        <pathelement location="${build.dir}/classes" />
+        <path refid="classpath.test" />
+      </classpath>
+      <sysproperty key="user.dir" value="${basedir}" />
+      <formatter type="xml" />
+      <batchtest todir="${junit.dir}">
+        <fileset dir="${src.dir}" includes="**/Test*.java" />
+      </batchtest>
+    </junit>
+  </target>
+
 
   <target name="compile" description="Compiles the code.">
     <!-- Now compile the code into build/classes -->

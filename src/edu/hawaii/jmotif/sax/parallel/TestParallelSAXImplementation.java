@@ -26,8 +26,8 @@ public class TestParallelSAXImplementation {
   private static final String ts1StrRep9 = "bcggfddba";
   private static final int ts1Length = 15;
 
-  private static final String filenameTEK14 = "data/TEK/TEK14.txt";
-  private static final int THREADS_NUM = 3;
+  private static final String filenameTEK14 = "test/data/TEK14.txt";
+  private static final int THREADS_NUM = 6;
 
   private static Timeseries ts1;
 
@@ -149,6 +149,7 @@ public class TestParallelSAXImplementation {
     for (int i : parallelRes.getIndexes()) {
       String entrySerial = sequentialRes.getPositionsAndWords().get(i);
       String entryParallel = String.valueOf(parallelRes.getByIndex(i).getPayload());
+      System.out.println("index: " + i);
       assertTrue(entrySerial.equalsIgnoreCase(entryParallel));
     }
 

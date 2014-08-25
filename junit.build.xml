@@ -19,7 +19,6 @@
    <classpath>
     <pathelement location="${build.dir}/classes" />
     <path refid="compile.classpath" />
-    <pathelement location="${lib.dir}/uricache" />
    </classpath>
    <sysproperty key="user.dir" value="${basedir}" />
    <formatter type="xml" />

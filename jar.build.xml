@@ -24,19 +24,15 @@
   <unjar src="${lib.dir}/JFreeChart/jfreechart-1.0.13.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/SwingX/swingx-all-1.6.4.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/miglayout/miglayout-4.0.jar" dest="${tmp.dir}" />
-  <unjar src="${lib.dir}/commons/commons-lang3-3.1.jar" dest="${tmp.dir}" />
-  <unjar src="${lib.dir}/uzaygezen/core-0.2.jar" dest="${tmp.dir}" />
-  <unjar src="${lib.dir}/guava/guava-15.0.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/DTW/fast-dtw.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/logger/logback-classic-1.1.2.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/logger/logback-core-1.1.2.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/logger/slf4j-api-1.7.7.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/time/joda-time-2.1.jar" dest="${tmp.dir}" />
-  <unjar src="${lib.dir}/trove/trove-3.0.3.jar" dest="${tmp.dir}" />
 
-  <jar destfile="${basedir}/sequitur.jar" basedir="${tmp.dir}">
+  <jar destfile="${basedir}/grammarviz${majorVersionNumber}${minorVersionNumber}.jar" basedir="${tmp.dir}">
    <manifest>
-    <attribute name="Implementation-Title" value="JMotif" />
+    <attribute name="Implementation-Title" value="GrammarViz" />
     <attribute name="Implementation-Version" value="${version}" />
     <attribute name="Implementation-Vendor" value="Collaborative Software Development Laboratory, University of Hawaii" />
     <attribute name="Main-Class" value="edu.hawaii.jmotif.sequitur.Sequitur" />

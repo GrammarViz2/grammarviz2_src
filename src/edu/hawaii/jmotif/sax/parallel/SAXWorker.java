@@ -31,7 +31,7 @@ public class SAXWorker implements Callable<SAXRecords> {
   // logging stuff
   //
   private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.DEBUG;
+  private static Level LOGGING_LEVEL = Level.INFO;
 
   // static block - we instantiate the logger
   //

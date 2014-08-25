@@ -1,7 +1,7 @@
 grammarviz
 ==========
 
-GrammarViz public repo
+GrammarViz 2.0 source code public repository. For the documentation, please visit http://seninp.github.io/grammarviz_2.0.
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

@@ -1,6 +1,6 @@
 <project name="junit" default="junit">
  <description>
-  Provides the JUnit tool and the Hackystat JUnit sensor.
+  Provides the full JUnit task.
   </description>
 
  <import file="build.xml" />

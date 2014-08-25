@@ -60,7 +60,7 @@ public final class MatrixFactory {
     if ((rowsA == rowsB) && (colsA == colsB)) {
       for (int i = 0; i < rowsA; i++) {
         for (int j = 0; j < colsA; j++) {
-          if (a[i][j] != b[i][j]) {
+          if (a[i][j] != b[i][j] && !(Double.isNaN(a[i][j]) && Double.isNaN(b[i][j]))) {
             return false;
           }
         }

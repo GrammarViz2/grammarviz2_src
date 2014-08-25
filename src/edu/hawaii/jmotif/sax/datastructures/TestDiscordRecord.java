@@ -31,7 +31,7 @@ public class TestDiscordRecord {
   @Test
   public void testDiscordRecord() {
     DiscordRecord dr = new DiscordRecord();
-    assertEquals("Test constructor", 0D, dr.getNNDistance(), precision);
+    assertEquals("Test constructor", -1.0D, dr.getNNDistance(), precision);
     assertEquals("Test constructor", idx, (Integer) dr.getPosition());
   }
 
@@ -52,8 +52,8 @@ public class TestDiscordRecord {
     dr = new DiscordRecord(idx1, dist1);
     DiscordRecord dr2 = new DiscordRecord(idx1, dist2);
 
-    assertTrue("Testing compareTo", dr.compareTo(dr2) < 0);
-    assertTrue("Testing compareTo", dr2.compareTo(dr) > 0);
+    assertTrue("Testing compareTo", dr.compareTo(dr2) > 0);
+    assertTrue("Testing compareTo", dr2.compareTo(dr) < 0);
     assertFalse("Test hash", dr.hashCode() == dr2.hashCode());
     assertFalse("Test hash", dr.equals(dr2));
 

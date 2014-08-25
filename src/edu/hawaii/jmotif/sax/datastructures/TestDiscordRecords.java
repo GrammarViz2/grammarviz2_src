@@ -59,7 +59,7 @@ public class TestDiscordRecords {
 
     ds.add(discord2);
     assertEquals("Test constructor", 2, ds.getTopHits(10).size());
-    assertSame("Test constructor", discord2, ds.getTopHits(2).get(1));
+    assertSame("Test constructor", discord1, ds.getTopHits(2).get(1));
 
     // this part reproduces the error found by Sergey & Christian, thank you guys!
     // was fixed 30-05-2012
@@ -67,7 +67,7 @@ public class TestDiscordRecords {
     ds.add(discord4);
     List<DiscordRecord> topHits = ds.getTopHits(2);
     assertEquals("Test constructor", 2, topHits.size());
-    assertSame("Test constructor", discord4, topHits.get(0));
+    assertSame("Test constructor", discord2, topHits.get(0));
 
   }
 
@@ -84,7 +84,7 @@ public class TestDiscordRecords {
     assertSame("Test constructor", discord1, ds.getTopHits(10).get(0));
 
     ds.add(discord2);
-    assertEquals("Test constructor", 1, ds.getTopHits(10).size());
+    assertEquals("Test constructor", 2, ds.getTopHits(10).size());
     assertSame("Test constructor", discord2, ds.getTopHits(10).get(0));
   }
 
@@ -97,7 +97,7 @@ public class TestDiscordRecords {
     ds.add(discord1);
     ds.add(discord2);
     ds.add(discord3);
-    assertEquals("Test constructor", ds1Dist, ds.getMinDistance(), precision);
+    assertEquals("Test constructor", ds3Dist, ds.getMinDistance(), precision);
   }
 
 }

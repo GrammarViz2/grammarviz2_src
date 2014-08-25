@@ -9,7 +9,7 @@ import edu.hawaii.jmotif.timeseries.TSUtils;
 
 public class TestSAXRecords {
 
-  private static final String filenameTEK14 = "data/TEK/TEK14.txt";
+  private static final String filenameTEK14 = "test/data/TEK14.txt";
 
   private double[] ts1;
 

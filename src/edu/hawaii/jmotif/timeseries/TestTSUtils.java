@@ -21,14 +21,14 @@ import edu.hawaii.jmotif.sax.alphabet.UniversalTelemetryAlphabet;
  */
 public class TestTSUtils {
 
-  private static final String ts1File = "RCode/data/timeseries01.csv";
-  private static final String ts2File = "RCode/data/timeseries02.csv";
+  private static final String ts1File = "test/data/timeseries01.csv";
+  private static final String ts2File = "test/data/timeseries02.csv";
 
-  private static final String ts1NormFile = "RCode/data/timeseries01.norm.csv";
-  private static final String ts2NormFile = "RCode/data/timeseries02.norm.csv";
+  private static final String ts1NormFile = "test/data/timeseries01.norm.csv";
+  private static final String ts2NormFile = "test/data/timeseries02.norm.csv";
 
-  private static final String ts1PAAFile = "RCode/data/timeseries01.PAA10.csv";
-  private static final String ts2PAAFile = "RCode/data/timeseries02.PAA10.csv";
+  private static final String ts1PAAFile = "test/data/timeseries01.PAA10.csv";
+  private static final String ts2PAAFile = "test/data/timeseries02.PAA10.csv";
 
   private static final String attribute = "value0";
 

@@ -27,7 +27,7 @@ public class TestParallelSAXImplementation {
   private static final int ts1Length = 15;
 
   private static final String filenameTEK14 = "test/data/TEK14.txt";
-  private static final int THREADS_NUM = 7;
+  private static final int THREADS_NUM = 6;
 
   private static Timeseries ts1;
 
@@ -146,12 +146,13 @@ public class TestParallelSAXImplementation {
 
     assertTrue(sequentialString.equalsIgnoreCase(parallelRes.getSAXString(" ")));
 
-//    for (int i : parallelRes.getIndexes()) {
-//      String entrySerial = sequentialRes.getPositionsAndWords().get(i);
-//      String entryParallel = String.valueOf(parallelRes.getByIndex(i).getPayload());
-//      System.out.println("index: " + i);
-//      assertTrue(entrySerial.equalsIgnoreCase(entryParallel));
-//    }
+    for (int i : parallelRes.getIndexes()) {
+      String entrySerial = sequentialRes.getPositionsAndWords().get(i);
+      String entryParallel = String.valueOf(parallelRes.getByIndex(i).getPayload());
+      // System.out.println("index: " + i + ", serial: " + entrySerial + ", parallel: "
+      // + entryParallel);
+      assertTrue(entrySerial.equalsIgnoreCase(entryParallel));
+    }
 
     SAXFrequencyData sequentialRes2 = SAXFactory.data2sax(ts, 100, 8, 4);
     String sequentialString2 = sequentialRes2.getSAXString(" ");
@@ -161,11 +162,11 @@ public class TestParallelSAXImplementation {
         NumerosityReductionStrategy.EXACT, 0.005);
     assertTrue(sequentialString2.equalsIgnoreCase(parallelRes2.getSAXString(" ")));
 
-//    for (int i : parallelRes2.getIndexes()) {
-//      String entrySerial = sequentialRes2.getPositionsAndWords().get(i);
-//      String entryParallel = String.valueOf(parallelRes2.getByIndex(i).getPayload());
-//        assertTrue(entrySerial.equalsIgnoreCase(entryParallel));
-//    }
+    for (int i : parallelRes2.getIndexes()) {
+      String entrySerial = sequentialRes2.getPositionsAndWords().get(i);
+      String entryParallel = String.valueOf(parallelRes2.getByIndex(i).getPayload());
+      assertTrue(entrySerial.equalsIgnoreCase(entryParallel));
+    }
 
     // System.out.println(sequentialString);
     // System.out.println(sequentialRes.getAllIndices());

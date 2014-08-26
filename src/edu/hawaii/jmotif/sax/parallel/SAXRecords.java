@@ -198,7 +198,7 @@ public class SAXRecords implements Iterable<SaxRecord> {
    */
   public String getSAXString(String separatorToken) {
     StringBuffer sb = new StringBuffer();
-    ArrayList<Integer> index = new ArrayList<>();
+    ArrayList<Integer> index = new ArrayList<Integer>();
     index.addAll(this.realTSindex.keySet());
     Collections.sort(index, new Comparator<Integer>() {
       public int compare(Integer int1, Integer int2) {

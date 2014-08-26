@@ -1778,7 +1778,7 @@ public final class SAXFactory {
    * @return the clone.
    */
   private static ArrayList<RuleInterval> cloneIntervals(ArrayList<RuleInterval> source) {
-    ArrayList<RuleInterval> res = new ArrayList<>();
+    ArrayList<RuleInterval> res = new ArrayList<RuleInterval>();
     for (RuleInterval r : source) {
       res.add(new RuleInterval(r.getId(), r.getStartPos(), r.getEndPos(), r.getCoverage()));
     }

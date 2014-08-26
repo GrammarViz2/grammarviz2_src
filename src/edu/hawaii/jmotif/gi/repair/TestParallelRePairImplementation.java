@@ -1,0 +1,87 @@
+package edu.hawaii.jmotif.gi.repair;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+import java.util.Date;
+import org.junit.Test;
+import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
+import edu.hawaii.jmotif.sax.SAXFactory;
+import edu.hawaii.jmotif.sax.parallel.ParallelSAXImplementation;
+import edu.hawaii.jmotif.sax.parallel.SAXRecords;
+import edu.hawaii.jmotif.sax.parallel.SaxRecord;
+import edu.hawaii.jmotif.timeseries.TSUtils;
+
+public class TestParallelRePairImplementation {
+
+  private static final String filenameTEK14 = "data/SDM15/ecg0606_1.csv";
+  // private static final String filenameTEK14 =
+  // "/media/Stock/SDM15/mitdbx_mitdbx_108/mitdbx_mitdbx_108_trace1.csv";
+  // private static final String filenameTEK14 = "/media/Stock/SDM15/300/300_signal1.txt";
+
+  private static final Integer WINDOW_SIZE = 2220;
+  private static final Integer PAA_SIZE = 10;
+  private static final Integer ALPHABET_SIZE = 4;
+
+  private static final int THREADS_NUM = 3;
+
+  private double[] ts1;
+
+  /**
+   * Test the simple SAX conversion.
+   * 
+   * @throws Exception if error occurs.
+   */
+  @Test
+  public void testParallelRePairFullRun() throws Exception {
+
+    ts1 = TSUtils.readFileColumn(filenameTEK14, 0, 0);
+
+    ParallelSAXImplementation ps = new ParallelSAXImplementation();
+    SAXRecords saxData = ps.process(ts1, 3, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+        NumerosityReductionStrategy.EXACT, 0.05);
+
+    String inputString = saxData.getSAXString(" ");
+    // System.out.println("Input string:\n" + inputString);
+    saxData.buildIndex();
+
+    Date start = new Date();
+    ParallelGrammarKeeper grammar = toGrammarKeeper(saxData);
+    ParallelRePairImplementation pr = new ParallelRePairImplementation();
+    ParallelGrammarKeeper res = pr.buildGrammar(grammar, THREADS_NUM);
+    Date grammarEnd = new Date();
+
+    // System.out.println("RePair grammar:\n" + res.toGrammarRules());
+    // System.out.println("Recovered string:\n" + res.r0ExpandedString);
+
+    System.out.println("Grammar built in  "
+        + SAXFactory.timeToString(start.getTime(), grammarEnd.getTime()));
+
+    assertNotNull(res);
+    res.expandR0();
+    assertTrue(inputString.trim().equalsIgnoreCase(res.r0ExpandedString.trim()));
+
+  }
+
+  private ParallelGrammarKeeper toGrammarKeeper(SAXRecords saxData) {
+    ArrayList<Symbol> string = new ArrayList<Symbol>();
+    for (int i = 0; i < saxData.size(); i++) {
+      SaxRecord r = saxData.getByIndex(saxData.mapStringIndexToTSPosition(i));
+      Symbol symbol = new Symbol(r, i);
+      string.add(symbol);
+    }
+    System.out.println("Converted str: " + stringToDisplay(string));
+
+    ParallelGrammarKeeper gk = new ParallelGrammarKeeper(0);
+    gk.setWorkString(string);
+    return gk;
+  }
+
+  private static String stringToDisplay(ArrayList<Symbol> string) {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < string.size(); i++) {
+      sb.append(string.get(i).toString()).append(" ");
+    }
+    return sb.toString();
+  }
+}

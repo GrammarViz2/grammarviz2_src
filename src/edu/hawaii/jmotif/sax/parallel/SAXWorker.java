@@ -11,6 +11,12 @@ import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.timeseries.TSException;
 
+/**
+ * A callable worker class that will translate a given interval of the timeseries into SAX.
+ * 
+ * @author psenin
+ * 
+ */
 public class SAXWorker implements Callable<SAXRecords> {
 
   /** The latin alphabet, lower case letters a-z. */
@@ -18,14 +24,31 @@ public class SAXWorker implements Callable<SAXRecords> {
       'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
   private static final Alphabet normalA = new NormalAlphabet();
 
+  /** The worker ID. */
   private long id;
+
+  /** The input timeseries. */
   private double[] data;
+
+  /** The conversion start index. */
   private int intervalStart;
+
+  /** The conversion end index. */
   private int intervalEnd;
+
+  /** The SAX discretization sliding window parameter size. */
   private int saxWindowSize;
+
+  /** The SAX discretization PAA size. */
   private int saxPAASize;
+
+  /** The SAX discretization alphabet size. */
   private int saxAlphabetSize;
+
+  /** The SAX discretization sliding window parameter size. */
   private NumerosityReductionStrategy numerosityReductionStrategy;
+
+  /** The SAX discretization normalization threshold. */
   private double normalizationThreshold;
 
   // logging stuff

@@ -13,7 +13,7 @@ import java.util.TreeMap;
 import edu.hawaii.jmotif.logic.JmotifMapEntry;
 
 /**
- * The collection for SAXRecords.
+ * The collection for SAXRecords. This datastructure is used in the parallel SAX implementation.
  * 
  * @author psenin
  * 
@@ -216,7 +216,6 @@ public class SAXRecords implements Iterable<SaxRecord> {
    * 
    * @return all the indexes.
    */
-  @SuppressWarnings("unchecked")
   public SortedSet<Integer> getAllIndices() {
     return (SortedSet<Integer>) this.realTSindex.keySet();
   }
@@ -272,10 +271,22 @@ public class SAXRecords implements Iterable<SaxRecord> {
     }
   }
 
-  public Integer mapStringIndexToTSPosition(int i) {
-    return this.stringPosToRealPos.get(i);
+  /**
+   * This maps an index of the word in the output string to the real position in time-series.
+   * 
+   * @param idx the index to map.
+   * @return the position in the time-series.
+   */
+  public Integer mapStringIndexToTSPosition(int idx) {
+    return this.stringPosToRealPos.get(idx);
   }
 
+  /**
+   * Get a SAX record by the string key.
+   * 
+   * @param str The query string.
+   * @return the record if exists.
+   */
   public SaxRecord getByWord(String str) {
     return records.get(str);
   }

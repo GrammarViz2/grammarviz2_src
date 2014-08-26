@@ -136,9 +136,9 @@ public class SAXWorker implements Callable<SAXRecords> {
       }
 
       previousString = currentString;
-      // res.add(currentString, i + offset);
+
       res.add(currentString, i);
-      // System.out.println(this.id + ", " + String.valueOf(currentString) + ", " + i);
+      consoleLogger.trace(this.id + ", " + String.valueOf(currentString) + ", " + i);
 
     }
 
@@ -266,6 +266,13 @@ public class SAXWorker implements Callable<SAXRecords> {
     return res;
   }
 
+  /**
+   * Converts the real valued number into a character according to the alphabet cuts.
+   * 
+   * @param value the value to convert.
+   * @param cuts the cuts set.
+   * @return a character that corresponds to a number.
+   */
   private char num2char(double value, double[] cuts) {
     int count = 0;
     while ((count < cuts.length) && (cuts[count] <= value)) {

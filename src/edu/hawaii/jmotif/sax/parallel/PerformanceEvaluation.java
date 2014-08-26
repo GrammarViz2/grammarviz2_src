@@ -1,20 +1,31 @@
 package edu.hawaii.jmotif.sax.parallel;
 
-import java.io.IOException;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
-import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.sax.datastructures.SAXFrequencyData;
-import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.timeseries.TSUtils;
-import edu.hawaii.jmotif.timeseries.Timeseries;
 
+/**
+ * This runs the performance evaluation code - we are looking on the speedup.
+ * 
+ * @author psenin
+ * 
+ */
 public class PerformanceEvaluation {
 
   private static final Integer NRUNS = 10;
 
-  public static void main(String[] args) throws TSException, CloneNotSupportedException,
-      NumberFormatException, IOException {
+  private static final Integer MIN_CPUS = 2;
+
+  private static final Integer MAX_CPUS = 16;
+
+  /**
+   * Runs the evaluation.
+   * 
+   * @param args some accepted, see the code.
+   * @throws Exception thrown if an error occured.
+   */
+  public static void main(String[] args) throws Exception {
 
     String dataFileName = args[0];
     Integer slidingWindowSize = Integer.valueOf(args[1]);
@@ -27,39 +38,29 @@ public class PerformanceEvaluation {
     System.out.println("SAX parameters: sliding window size " + slidingWindowSize + ", PAA size "
         + paaSize + ", alphabet size " + alphabetSize);
 
-    System.out.println("Performing " + NRUNS + " SAX runs for each algorithm implementation ... ");
+    System.out.println("Will be performing " + NRUNS
+        + " SAX runs for each algorithm implementation ... ");
 
     // conventional
     //
-    SAXFrequencyData sequentialRes = null;
     long tstamp1 = System.currentTimeMillis();
     for (int i = 0; i < NRUNS; i++) {
-      sequentialRes = SAXFactory.ts2saxZNorm(new Timeseries(ts), slidingWindowSize, paaSize,
-          new NormalAlphabet(), alphabetSize);
+      @SuppressWarnings("unused")
+      SAXFrequencyData sequentialRes2 = SAXFactory.data2sax(ts, slidingWindowSize, paaSize,
+          alphabetSize);
     }
-    String str = sequentialRes.getSAXString(" ");
     long tstamp2 = System.currentTimeMillis();
-    System.out.println("conventional conversion " + SAXFactory.timeToString(tstamp1, tstamp2));
-
-    // conventional 2
-    //
-    SAXFrequencyData sequentialRes2 = null;
-    tstamp1 = System.currentTimeMillis();
-    for (int i = 0; i < NRUNS; i++) {
-      sequentialRes2 = SAXFactory.data2sax(ts, slidingWindowSize, paaSize, alphabetSize);
-    }
-    tstamp2 = System.currentTimeMillis();
-    str = sequentialRes2.getSAXString(" ");
     System.out
         .println("conversion with optimized PAA " + SAXFactory.timeToString(tstamp1, tstamp2));
 
-    SAXRecords parallelRes = null;
-    for (int threadsNum = 2; threadsNum < 11; threadsNum++) {
+    // parallel
+    for (int threadsNum = MIN_CPUS; threadsNum < MAX_CPUS; threadsNum++) {
       tstamp1 = System.currentTimeMillis();
       for (int i = 0; i < NRUNS; i++) {
         ParallelSAXImplementation ps = new ParallelSAXImplementation();
-        parallelRes = ps.process(ts, threadsNum, slidingWindowSize, paaSize, alphabetSize,
-            NumerosityReductionStrategy.EXACT, 0.5);
+        @SuppressWarnings("unused")
+        SAXRecords parallelRes = ps.process(ts, threadsNum, slidingWindowSize, paaSize,
+            alphabetSize, NumerosityReductionStrategy.EXACT, 0.005);
       }
       tstamp2 = System.currentTimeMillis();
       System.out.println("parallel conversion using " + threadsNum + " threads: "

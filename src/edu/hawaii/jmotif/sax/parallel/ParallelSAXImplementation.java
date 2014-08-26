@@ -18,6 +18,12 @@ import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.StackTrace;
 
+/**
+ * Implements a parallel SAX factory class.
+ * 
+ * @author psenin
+ * 
+ */
 public class ParallelSAXImplementation {
 
   // locale, charset, etc
@@ -41,17 +47,17 @@ public class ParallelSAXImplementation {
   }
 
   /**
-   * Builds a SAX representation.
+   * Discretizes a time series using N threads.
    * 
-   * @param timeseries
-   * @param threadsNum
-   * @param slidingWindowSize
-   * @param paaSize
-   * @param alphabetSize
-   * @param nrStrategy
-   * @param normalizationThreshold
-   * @return
-   * @throws TSException
+   * @param timeseries the input time series.
+   * @param threadsNum the number of threads to allocate for conversion.
+   * @param slidingWindowSize the SAX sliding window size.
+   * @param paaSize the SAX PAA size.
+   * @param alphabetSize the SAX alphabet size.
+   * @param nrStrategy the SAX numerosity reduction strategy.
+   * @param normalizationThreshold the normalization threshold.
+   * @return a SAX representation of the input time series.
+   * @throws TSException if error occurs.
    */
   public SAXRecords process(double[] timeseries, int threadsNum, int slidingWindowSize,
       int paaSize, int alphabetSize, NumerosityReductionStrategy nrStrategy,

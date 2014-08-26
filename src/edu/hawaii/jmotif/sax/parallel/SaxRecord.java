@@ -1,7 +1,6 @@
 package edu.hawaii.jmotif.sax.parallel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Implement a data container for the parallel SAX.
@@ -26,7 +25,7 @@ public class SaxRecord {
   /** The allowed constructor. */
   public SaxRecord(char[] str, int idx) {
     super();
-    this.saxString = Arrays.copyOf(str, str.length);
+    this.saxString = str.clone();
     this.occurrences = new ArrayList<Integer>();
     this.addIndex(idx);
   }

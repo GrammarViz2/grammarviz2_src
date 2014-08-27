@@ -1,9 +1,14 @@
 package edu.hawaii.jmotif.timeseries;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,7 +66,8 @@ public final class TSUtils {
    */
   public static Timeseries readTS(String filename, int sizeLimit) throws NumberFormatException,
       IOException, TSException {
-    BufferedReader br = new BufferedReader(new FileReader(new File(filename)));
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filename),
+        "UTF-8"));
     String line = null;
     double[] values = new double[sizeLimit];
     long[] tstamps = new long[sizeLimit];
@@ -89,7 +95,8 @@ public final class TSUtils {
    */
   public static double[] readFileColumn(String filename, int columnIdx, int sizeLimit)
       throws NumberFormatException, IOException, TSException {
-    BufferedReader br = new BufferedReader(new FileReader(new File(filename)));
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filename),
+        "UTF-8"));
 
     ArrayList<Double> preRes = new ArrayList<Double>();
     int lineCounter = 0;

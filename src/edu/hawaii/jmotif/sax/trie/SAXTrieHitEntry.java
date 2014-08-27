@@ -11,7 +11,7 @@ import java.util.TreeSet;
  * @author Pavel Senin.
  * 
  */
-public class SAXTrieHitEntry implements Cloneable, Comparable<SAXTrieHitEntry> {
+public final class SAXTrieHitEntry implements Cloneable, Comparable<SAXTrieHitEntry> {
 
   private int position;
   private char[] payload;

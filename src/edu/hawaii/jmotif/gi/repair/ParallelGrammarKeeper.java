@@ -117,7 +117,8 @@ public class ParallelGrammarKeeper {
   }
 
   public void expandR0() {
-    String finalString = this.r0String.substring(0);
+    // string is immutable it will get copied
+    String finalString = this.r0String;
     int currentSearchStart = finalString.indexOf("R");
     while (currentSearchStart >= 0) {
 

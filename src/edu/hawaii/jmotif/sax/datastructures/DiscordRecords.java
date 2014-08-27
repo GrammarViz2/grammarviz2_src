@@ -66,9 +66,7 @@ public class DiscordRecords implements Iterable<DiscordRecord> {
     for (int i = 0; i < discords.size(); i++) {
       DiscordRecord record = discords.get(i);
       if (record.getPayload().isEmpty()) {
-        // brute force discord info
-        //
-        sb.append("discord #" + i + " \"" + record.getPayload() + "\", at " + record.getPosition()
+        sb.append("discord #" + i + " \"\", at " + record.getPosition()
             + " distance to closest neighbor: " + record.getNNDistance() + "\"\n");
       }
       else {

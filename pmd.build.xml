@@ -9,7 +9,7 @@
 	<import file="build.xml" />
 	<property environment="env" />
 	<property name="pmd.dir" location="${build.dir}/pmd" />
-	<property name="pmd.version" value="5.0.5" />
+	<property name="pmd.version" value="5.1.2" />
 	<property name="pmd.jar" value="pmd-${pmd.version}.jar" />
 
 	<target name="pmd" depends="pmd.tool, pmd.report" description="Runs the PMD tool and report." />

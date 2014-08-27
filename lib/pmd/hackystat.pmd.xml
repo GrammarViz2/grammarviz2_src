@@ -20,5 +20,6 @@
   </rule>
   <rule ref="rulesets/java/strings.xml">
     <exclude name="AvoidDuplicateLiterals" />
+    <exclude name="UselessStringValueOf" />
   </rule>
 </ruleset>

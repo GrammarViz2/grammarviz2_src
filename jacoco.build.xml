@@ -22,7 +22,6 @@
  <!-- Step 2: Wrap test execution with the JaCoCo coverage task -->
  <target name="jacoco.tool" depends="clean, compile" description="Cleans, compiles, collects coverage.">
   <mkdir dir="${jacoco.dir}" />
-  <mkdir dir="${jacoco.classes.dir}" />
 
   <jacoco:coverage destfile="${jacoco.exec.file}" excludes="**/Test*.java">
    <junit maxmemory="512M" printsummary="withOutAndErr" haltonfailure="${junit.haltonfailure}" fork="yes">

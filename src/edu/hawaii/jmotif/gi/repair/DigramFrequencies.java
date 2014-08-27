@@ -66,7 +66,7 @@ public class DigramFrequencies {
     // findout the old bucket and remove this entry
     ArrayList<DigramFrequencyEntry> oldBucket = this.bucketsToEntries.get(entry.getFrequency());
     oldBucket.remove(entry);
-    if (0 == oldBucket.size() || oldBucket.isEmpty()) {
+    if (oldBucket.isEmpty()) {
       this.bucketsToEntries.remove(entry.getFrequency());
     }
 

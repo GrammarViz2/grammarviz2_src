@@ -10,6 +10,9 @@ import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
 
 public class RePairRule {
 
+  private static final char THE_R = 'R';
+  private static final char SPACE = ' ';
+
   /** This is static - the global rule enumerator counter. */
   protected static AtomicInteger numRules = new AtomicInteger(1);
 
@@ -64,7 +67,7 @@ public class RePairRule {
     if (00 == this.ruleNumber) {
       return r0String;
     }
-    return this.first.toString() + " " + this.second.toString() + " ";
+    return this.first.toString() + SPACE + this.second.toString() + SPACE;
   }
 
   public void addPosition(int currentIndex) {
@@ -87,10 +90,10 @@ public class RePairRule {
       RePairRule rr = theRules.get(currentPositionIndex);
       String resultString = rr.toRuleString();
 
-      int currentSearchStart = resultString.indexOf("R");
+      int currentSearchStart = resultString.indexOf(THE_R);
       while (currentSearchStart >= 0) {
 
-        int spaceIdx = resultString.indexOf(" ", currentSearchStart);
+        int spaceIdx = resultString.indexOf(SPACE, currentSearchStart);
 
         String ruleName = resultString.substring(currentSearchStart, spaceIdx + 1);
         Integer ruleId = Integer.valueOf(ruleName.substring(1, ruleName.length() - 1));
@@ -101,7 +104,7 @@ public class RePairRule {
             resultString = resultString.replaceAll(ruleName, rule.expandedRuleString);
           }
           else {
-            resultString = resultString.replaceAll(ruleName, rule.expandedRuleString + " ");
+            resultString = resultString.replaceAll(ruleName, rule.expandedRuleString + SPACE);
           }
         }
 
@@ -116,9 +119,9 @@ public class RePairRule {
     //
     String resultString = r0String;
 
-    int currentSearchStart = resultString.indexOf("R");
+    int currentSearchStart = resultString.indexOf(THE_R);
     while (currentSearchStart >= 0) {
-      int spaceIdx = resultString.indexOf(" ", currentSearchStart);
+      int spaceIdx = resultString.indexOf(SPACE, currentSearchStart);
       String ruleName = resultString.substring(currentSearchStart, spaceIdx + 1);
       Integer ruleId = Integer.valueOf(ruleName.substring(1, ruleName.length() - 1));
       RePairRule rule = theRules.get(ruleId);
@@ -127,7 +130,7 @@ public class RePairRule {
           resultString = resultString.replaceAll(ruleName, rule.expandedRuleString);
         }
         else {
-          resultString = resultString.replaceAll(ruleName, rule.expandedRuleString + " ");
+          resultString = resultString.replaceAll(ruleName, rule.expandedRuleString + SPACE);
         }
       }
       currentSearchStart = resultString.indexOf("R", spaceIdx);
@@ -269,7 +272,7 @@ public class RePairRule {
     System.out.println("R0 -> " + r0String);
     for (int i = 1; i < theRules.size(); i++) {
       RePairRule r = theRules.get(i);
-      sb.append("R").append(r.ruleNumber).append(" -> ").append(r.toRuleString()).append(" : ")
+      sb.append(THE_R).append(r.ruleNumber).append(" -> ").append(r.toRuleString()).append(" : ")
           .append(r.expandedRuleString).append(", ").append(r.positions).append("\n");
     }
     return sb.toString();

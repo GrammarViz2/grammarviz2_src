@@ -17,6 +17,7 @@
   <rule ref="rulesets/java/junit.xml">
     <exclude name="UseAssertEqualsInsteadOfAssertTrue" />
     <exclude name="UseAssertSameInsteadOfAssertTrue" />
+    <exclude name="JUnitTestContainsTooManyAsserts" />
   </rule>
   <rule ref="rulesets/java/strings.xml">
     <exclude name="AvoidDuplicateLiterals" />

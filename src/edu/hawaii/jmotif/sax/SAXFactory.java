@@ -588,7 +588,7 @@ public final class SAXFactory {
     //
     SAXTrie trie = new SAXTrie(series.length - windowSize, alphabetSize);
 
-    StringBuilder sb = new StringBuilder();
+    StringBuilder sb = new StringBuilder(128);
     sb.append("data size: ").append(series.length);
 
     double max = TSUtils.max(series);
@@ -812,7 +812,7 @@ public final class SAXFactory {
     int distanceCalls = 0;
 
     // while not all sequences are considered
-    while (frequencies.size() > 0) {
+    while (!frequencies.isEmpty()) {
       iterationCounter++;
 
       // the head of this array has the rarest word
@@ -1102,7 +1102,7 @@ public final class SAXFactory {
     // + "_discordrun.csv")));
 
     // while not all sequences are considered
-    while (frequencies.size() > 0) {
+    while (!frequencies.isEmpty()) {
       iterationCounter++;
 
       // the head of this array has the rarest word
@@ -1506,7 +1506,7 @@ public final class SAXFactory {
     int iterationCounter = 0;
     int distanceCalls = 0;
     // int limit = frequencies.size();
-    while (intervals.size() > 0) {
+    while (!intervals.isEmpty()) {
 
       // count iterations
       iterationCounter++;
@@ -1600,7 +1600,7 @@ public final class SAXFactory {
         }
       }
 
-      if (!(Double.MAX_VALUE == nearestNeighborDist)) {
+      if (Double.MAX_VALUE != nearestNeighborDist) {
         consoleLogger.trace("rule occurrence loop finished. For current rule "
             + "occurrences, smallest nearest neighbor distance: " + nearestNeighborDist);
       }

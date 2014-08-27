@@ -243,7 +243,7 @@ public class SAXRecords implements Iterable<SaxRecord> {
 
       StringBuffer sb = new StringBuffer();
 
-      sb.append(previousSAXWord.getValue().getPayload()).append(" ")
+      sb.append(previousSAXWord.getValue().getPayload()).append(' ')
           .append(currentEntry.getValue().getPayload());
 
       JmotifMapEntry<String, ArrayList<Integer>> entry = res.get(sb.toString());

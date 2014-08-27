@@ -11,13 +11,17 @@ import edu.hawaii.jmotif.timeseries.TSUtils;
  * @author psenin
  * 
  */
-public class PerformanceEvaluation {
+public final class PerformanceEvaluation {
 
   private static final Integer NRUNS = 10;
 
   private static final Integer MIN_CPUS = 2;
 
   private static final Integer MAX_CPUS = 16;
+
+  private PerformanceEvaluation() {
+    assert true;
+  }
 
   /**
    * Runs the evaluation.
@@ -46,8 +50,7 @@ public class PerformanceEvaluation {
     long tstamp1 = System.currentTimeMillis();
     for (int i = 0; i < NRUNS; i++) {
       @SuppressWarnings("unused")
-      SAXRecords sequentialRes2 = SAXFactory.data2sax(ts, slidingWindowSize, paaSize,
-          alphabetSize);
+      SAXRecords sequentialRes2 = SAXFactory.data2sax(ts, slidingWindowSize, paaSize, alphabetSize);
     }
     long tstamp2 = System.currentTimeMillis();
     System.out

@@ -11,7 +11,9 @@ import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
 import edu.hawaii.jmotif.sax.datastructures.SaxRecord;
 
-public class RePairFactory {
+public final class RePairFactory {
+
+  private static final char SPACE = ' ';
 
   // logging stuff
   //
@@ -20,6 +22,13 @@ public class RePairFactory {
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(RePairFactory.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
+  }
+
+  /**
+   * Disable constructor.
+   */
+  private RePairFactory() {
+    assert true;
   }
 
   public static RePairRule buildGrammar(SAXRecords saxRecords) {
@@ -60,7 +69,7 @@ public class RePairFactory {
       if (stringPositionCounter > 0) {
 
         StringBuffer digramStr = new StringBuffer();
-        digramStr.append(string.get(stringPositionCounter - 1).toString()).append(" ")
+        digramStr.append(string.get(stringPositionCounter - 1).toString()).append(SPACE)
             .append(string.get(stringPositionCounter).toString());
 
         DigramFrequencyEntry entry = digramFrequencies.get(digramStr.toString());
@@ -92,7 +101,7 @@ public class RePairFactory {
 
       consoleLogger.debug("Going to substitute the digram " + entry.getDigram()
           + " first occurring at position " + entry.getFirstOccurrence() + " with frequency "
-          + entry.getFrequency() + ", '" + string.get(entry.getFirstOccurrence()) + " "
+          + entry.getFrequency() + ", '" + string.get(entry.getFirstOccurrence()) + SPACE
           + string.get(entry.getFirstOccurrence() + 1) + "'");
 
       // create new rule
@@ -109,12 +118,12 @@ public class RePairFactory {
       while (currentIndex < string.size() - 1) {
 
         StringBuffer currentDigram = new StringBuffer();
-        currentDigram.append(string.get(currentIndex).toString()).append(" ")
+        currentDigram.append(string.get(currentIndex).toString()).append(SPACE)
             .append(string.get(currentIndex + 1).toString());
 
         if (digramToSubstitute.equalsIgnoreCase(currentDigram.toString())) {
           consoleLogger.debug(" next digram occurrence is at  " + currentIndex + ", '"
-              + string.get(currentIndex) + " " + string.get(currentIndex + 1) + "'");
+              + string.get(currentIndex) + SPACE + string.get(currentIndex + 1) + "'");
 
           // correct entries at left and right
           if (currentIndex > 0) {
@@ -158,7 +167,7 @@ public class RePairFactory {
     // create entry for two new digram
     //
     StringBuffer digram = new StringBuffer();
-    digram.append(string.get(currentIndex).toString()).append(" ")
+    digram.append(string.get(currentIndex).toString()).append(SPACE)
         .append(string.get(currentIndex + 1));
 
     consoleLogger.debug("  substituting the digram " + digram + " at " + currentIndex + " with "
@@ -175,7 +184,7 @@ public class RePairFactory {
     //
     if (currentIndex > 0) {
       StringBuffer newDigram = new StringBuffer();
-      newDigram.append(string.get(currentIndex - 1).toString()).append(" ").append(g.toString());
+      newDigram.append(string.get(currentIndex - 1).toString()).append(SPACE).append(g.toString());
       consoleLogger.debug("   updating the frequency entry for digram " + newDigram.toString());
       DigramFrequencyEntry entry = digramFrequencies.get(newDigram.toString());
       if (null == entry) {
@@ -193,7 +202,7 @@ public class RePairFactory {
     //
     if (currentIndex < string.size() - 2) {
       StringBuffer newDigram = new StringBuffer();
-      newDigram.append(g.toString()).append(" ").append(string.get(currentIndex + 2));
+      newDigram.append(g.toString()).append(SPACE).append(string.get(currentIndex + 2));
       consoleLogger.debug("   updating the frequency entry for digram " + newDigram.toString());
       DigramFrequencyEntry entry = digramFrequencies.get(newDigram.toString());
       if (null == entry) {
@@ -225,7 +234,8 @@ public class RePairFactory {
         consoleLogger.debug("    this was an index entry, finding another digram index...");
         for (int i = currentIndex + 1; i < string.size() - 1; i++) {
           StringBuffer cDigram = new StringBuffer();
-          cDigram.append(string.get(i).toString()).append(" ").append(string.get(i + 1).toString());
+          cDigram.append(string.get(i).toString()).append(SPACE)
+              .append(string.get(i + 1).toString());
           if (digram.toString().equals(cDigram.toString())) {
             consoleLogger.debug("   for digram " + cDigram.toString() + " new index " + i);
             entry.setFirstOccurrence(i);
@@ -262,7 +272,7 @@ public class RePairFactory {
       DigramFrequencies digramFrequencies) {
 
     StringBuffer digramToRemove = new StringBuffer();
-    digramToRemove.append(string.get(index).toString()).append(" ")
+    digramToRemove.append(string.get(index).toString()).append(SPACE)
         .append(string.get(index + 1).toString());
 
     DigramFrequencyEntry digramEntry = digramFrequencies.get(digramToRemove.toString());
@@ -281,7 +291,8 @@ public class RePairFactory {
         consoleLogger.debug("  this was an index entry, finding another digram index...");
         for (int i = index + 1; i < string.size() - 1; i++) {
           StringBuffer cDigram = new StringBuffer();
-          cDigram.append(string.get(i).toString()).append(" ").append(string.get(i + 1).toString());
+          cDigram.append(string.get(i).toString()).append(SPACE)
+              .append(string.get(i + 1).toString());
           if (digramToRemove.toString().equals(cDigram.toString())) {
             consoleLogger.debug("   for digram " + cDigram.toString() + " new index " + i);
             digramEntry.setFirstOccurrence(i);
@@ -296,7 +307,7 @@ public class RePairFactory {
   private static String stringToDisplay(ArrayList<Symbol> string) {
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < string.size(); i++) {
-      sb.append(string.get(i).toString()).append(" ");
+      sb.append(string.get(i).toString()).append(SPACE);
     }
     return sb.toString();
   }

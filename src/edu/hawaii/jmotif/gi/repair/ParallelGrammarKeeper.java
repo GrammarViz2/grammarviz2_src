@@ -14,6 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ParallelGrammarKeeper {
 
+  private static final char SPACE = ' ';
+  private static final char THE_R = 'R';
+
   // rule 0 gets a separate treatment, so we start from 1
   //
   protected AtomicInteger numRules = new AtomicInteger(1);
@@ -73,7 +76,7 @@ public class ParallelGrammarKeeper {
       ParallelRePairRule rr = theRules.get(key);
       String resultString = rr.toRuleString();
 
-      int currentSearchStart = resultString.indexOf("R");
+      int currentSearchStart = resultString.indexOf(THE_R);
       while (currentSearchStart >= 0) {
         int spaceIdx = resultString.indexOf(" ", currentSearchStart);
         // if (spaceIdx < 0) {
@@ -88,11 +91,11 @@ public class ParallelGrammarKeeper {
             resultString = resultString.replaceAll(ruleName, rule.expandedRuleString);
           }
           else {
-            resultString = resultString.replaceAll(ruleName, rule.expandedRuleString + " ");
+            resultString = resultString.replaceAll(ruleName, rule.expandedRuleString + SPACE);
           }
         }
 
-        currentSearchStart = resultString.indexOf("R", spaceIdx);
+        currentSearchStart = resultString.indexOf(THE_R, spaceIdx);
       }
 
       rr.setExpandedRule(resultString.trim());
@@ -119,7 +122,7 @@ public class ParallelGrammarKeeper {
   public void expandR0() {
     // string is immutable it will get copied
     String finalString = this.r0String;
-    int currentSearchStart = finalString.indexOf("R");
+    int currentSearchStart = finalString.indexOf(THE_R);
     while (currentSearchStart >= 0) {
 
       int spaceIdx = finalString.indexOf(" ", currentSearchStart + 1);
@@ -133,10 +136,10 @@ public class ParallelGrammarKeeper {
       }
       else {
         finalString = finalString.replaceAll(ruleName, theRules.get(ruleId).expandedRuleString
-            + " ");
+            + SPACE);
       }
 
-      currentSearchStart = finalString.indexOf("R");
+      currentSearchStart = finalString.indexOf(THE_R);
     }
     this.r0ExpandedString = finalString;
   }

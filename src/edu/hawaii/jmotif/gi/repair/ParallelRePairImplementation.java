@@ -18,6 +18,7 @@ import edu.hawaii.jmotif.util.StackTrace;
 
 public class ParallelRePairImplementation {
 
+  private static final char SPACE = ' ';
   // locale, charset, etc
   //
   // private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
@@ -216,8 +217,8 @@ public class ParallelRePairImplementation {
                       + ruleNumToRecord.get(num));
                   int newRuleNum = ruleNumToRecord.size() + 1;
                   r.ruleNumber = newRuleNum;
-                  R0String = R0String.replaceAll(String.valueOf("R" + num + " "),
-                      String.valueOf("@" + newRuleNum + " "));
+                  R0String = R0String.replaceAll(String.valueOf("R" + num + SPACE),
+                      String.valueOf("@" + newRuleNum + SPACE));
                   consoleLogger.trace(" .. performed rename, R" + num + " -> " + r.getRuleName());
                 }
                 // save the record
@@ -249,7 +250,7 @@ public class ParallelRePairImplementation {
                 // the very first rule
                 //
                 if (R0String.charAt(0) == 'R') {
-                  int nextSpaceIdx = R0String.indexOf(" ", 1);
+                  int nextSpaceIdx = R0String.indexOf(SPACE, 1);
                   int ruleNum = Integer.parseInt(R0String.substring(1, nextSpaceIdx));
                   if (num == ruleNum) {
                     R0sb.replace(0, nextSpaceIdx, "@" + newRuleNum);
@@ -329,8 +330,9 @@ public class ParallelRePairImplementation {
         try {
           if (!executorService.awaitTermination(4, TimeUnit.HOURS)) {
             executorService.shutdownNow(); // Cancel currently executing tasks
-            if (!executorService.awaitTermination(30, TimeUnit.MINUTES))
+            if (!executorService.awaitTermination(30, TimeUnit.MINUTES)) {
               System.err.println("Pool did not terminate... FATAL ERROR");
+            }
           }
         }
         catch (InterruptedException ie) {
@@ -377,7 +379,7 @@ public class ParallelRePairImplementation {
           if (stringPositionCounter > 0) {
 
             StringBuffer digramStr = new StringBuffer();
-            digramStr.append(string.get(stringPositionCounter - 1).toString()).append(" ")
+            digramStr.append(string.get(stringPositionCounter - 1).toString()).append(SPACE)
                 .append(string.get(stringPositionCounter).toString());
 
             DigramFrequencyEntry entry = digramFrequencies.get(digramStr.toString());
@@ -411,7 +413,7 @@ public class ParallelRePairImplementation {
 
           // consoleLogger.debug("Going to substitute the digram " + entry.getDigram()
           // + " first occurring at position " + entry.getFirstOccurrence() + " with frequency "
-          // + entry.getFrequency() + ", '" + string.get(entry.getFirstOccurrence()) + " "
+          // + entry.getFrequency() + ", '" + string.get(entry.getFirstOccurrence()) + SPACE
           // + string.get(entry.getFirstOccurrence() + 1) + "'");
 
           // create new rule
@@ -428,12 +430,12 @@ public class ParallelRePairImplementation {
           while (currentIndex < string.size() - 1) {
 
             StringBuffer currentDigram = new StringBuffer();
-            currentDigram.append(string.get(currentIndex).toString()).append(" ")
+            currentDigram.append(string.get(currentIndex).toString()).append(SPACE)
                 .append(string.get(currentIndex + 1).toString());
 
             if (digramToSubstitute.equalsIgnoreCase(currentDigram.toString())) {
               // consoleLogger.debug(" next digram occurrence is at  " + currentIndex + ", '"
-              // + string.get(currentIndex) + " " + string.get(currentIndex + 1) + "'");
+              // + string.get(currentIndex) + SPACE + string.get(currentIndex + 1) + "'");
 
               // correct entries at left and right
               if (currentIndex > 0) {
@@ -487,7 +489,7 @@ public class ParallelRePairImplementation {
   private static String stringToDisplay(ArrayList<Symbol> string) {
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < string.size(); i++) {
-      sb.append(string.get(i).toString()).append(" ");
+      sb.append(string.get(i).toString()).append(SPACE);
     }
     return sb.toString();
   }
@@ -498,7 +500,7 @@ public class ParallelRePairImplementation {
     // create entry for two new digram
     //
     StringBuffer digram = new StringBuffer();
-    digram.append(string.get(currentIndex).toString()).append(" ")
+    digram.append(string.get(currentIndex).toString()).append(SPACE)
         .append(string.get(currentIndex + 1));
 
     // consoleLogger.debug("  substituting the digram " + digram + " at " + currentIndex + " with "
@@ -515,7 +517,7 @@ public class ParallelRePairImplementation {
     // //
     // if (currentIndex > 0) {
     // StringBuffer newDigram = new StringBuffer();
-    // newDigram.append(string.get(currentIndex - 1).toString()).append(" ")
+    // newDigram.append(string.get(currentIndex - 1).toString()).append(SPACE)
     // .append(guard.toString());
     // // consoleLogger.debug("   updating the frequency entry for digram " + newDigram.toString());
     // DigramFrequencyEntry entry = digramFrequencies.get(newDigram.toString());
@@ -538,7 +540,7 @@ public class ParallelRePairImplementation {
     // //
     // if (currentIndex < string.size() - 2) {
     // StringBuffer newDigram = new StringBuffer();
-    // newDigram.append(guard.toString()).append(" ").append(string.get(currentIndex + 2));
+    // newDigram.append(guard.toString()).append(SPACE).append(string.get(currentIndex + 2));
     // // consoleLogger.debug("   updating the frequency entry for digram " + newDigram.toString());
     // DigramFrequencyEntry entry = digramFrequencies.get(newDigram.toString());
     // if (null == entry) {
@@ -573,7 +575,8 @@ public class ParallelRePairImplementation {
         // consoleLogger.debug("    this was an index entry, finding another digram index...");
         for (int i = currentIndex + 1; i < string.size() - 1; i++) {
           StringBuffer cDigram = new StringBuffer();
-          cDigram.append(string.get(i).toString()).append(" ").append(string.get(i + 1).toString());
+          cDigram.append(string.get(i).toString()).append(SPACE)
+              .append(string.get(i + 1).toString());
           if (digram.toString().equals(cDigram.toString())) {
             // consoleLogger.debug("   for digram " + cDigram.toString() + " new index " + i);
             entry.setFirstOccurrence(i);
@@ -610,7 +613,7 @@ public class ParallelRePairImplementation {
       DigramFrequencies digramFrequencies) {
 
     StringBuffer digramToRemove = new StringBuffer();
-    digramToRemove.append(string.get(index).toString()).append(" ")
+    digramToRemove.append(string.get(index).toString()).append(SPACE)
         .append(string.get(index + 1).toString());
 
     // if (digramToRemove.indexOf("R") >= 0) {
@@ -637,7 +640,8 @@ public class ParallelRePairImplementation {
         // consoleLogger.debug("  this was an index entry, finding another digram index...");
         for (int i = index + 1; i < string.size() - 1; i++) {
           StringBuffer cDigram = new StringBuffer();
-          cDigram.append(string.get(i).toString()).append(" ").append(string.get(i + 1).toString());
+          cDigram.append(string.get(i).toString()).append(SPACE)
+              .append(string.get(i + 1).toString());
           if (digramToRemove.toString().equals(cDigram.toString())) {
             // consoleLogger.debug("   for digram " + cDigram.toString() + " new index " + i);
             digramEntry.setFirstOccurrence(i);

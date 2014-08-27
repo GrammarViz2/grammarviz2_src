@@ -12,9 +12,9 @@ import org.junit.Test;
 
 /**
  * test the trie structure.
- *
+ * 
  * @author Pavel Senin
- *
+ * 
  */
 public class TestTrieTree {
 
@@ -25,7 +25,7 @@ public class TestTrieTree {
 
   /**
    * Test setup.
-   *
+   * 
    * @throws Exception if error occurs.
    */
   @Before
@@ -38,19 +38,19 @@ public class TestTrieTree {
    */
   @Test
   public void testTrieSetUp() {
-    SAXTrieTree testTrie1 = null;
+    testTrie = null;
     try {
-      testTrie1 = new SAXTrieTree(1024);
+      testTrie = new SAXTrieTree(1024);
       fail("Exception is not thrown here.");
     }
     catch (TrieException e) {
-      assertNull("Testing a trie, is null?", testTrie1);
+      assertNull("Testing a trie, is null?", testTrie);
     }
   }
 
   /**
    * Test the structure.
-   *
+   * 
    * @throws TrieException if error occurs.
    */
   @Test
@@ -86,7 +86,7 @@ public class TestTrieTree {
 
   /**
    * Test a shallow tree, optimized for speed.
-   *
+   * 
    * @throws TrieException if goes wrong.
    */
   @Test

@@ -6,17 +6,34 @@ import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+/**
+ * Implements the digram frequency queue.
+ * 
+ * @author psenin
+ * 
+ */
 public class DigramFrequencies {
 
+  /** A map of strings to digram frequencies. */
   private HashMap<String, DigramFrequencyEntry> digramsToEntries;
+
+  /** A map of buckets, each bucket is the frequency number pointing on the collection of entries. */
   private SortedMap<Integer, ArrayList<DigramFrequencyEntry>> bucketsToEntries;
 
+  /**
+   * Constructor. Inits data structures.
+   */
   public DigramFrequencies() {
     super();
     digramsToEntries = new HashMap<String, DigramFrequencyEntry>();
     bucketsToEntries = new TreeMap<Integer, ArrayList<DigramFrequencyEntry>>();
   }
 
+  /**
+   * Puts the digram into collection, it overrides the old entry.
+   * 
+   * @param digramFrequencyEntry The digram entry.
+   */
   public void put(DigramFrequencyEntry digramFrequencyEntry) {
     this.digramsToEntries.put(digramFrequencyEntry.getDigram(), digramFrequencyEntry);
     Integer freq = digramFrequencyEntry.getFrequency();
@@ -28,21 +45,36 @@ public class DigramFrequencies {
     bucket.add(digramFrequencyEntry);
   }
 
+  /**
+   * get the frequency entry by the digram string key.
+   * 
+   * @param string the string key.
+   * @return the digram frequency entry if exists.
+   */
   public DigramFrequencyEntry get(String string) {
     return this.digramsToEntries.get(string);
   }
 
-  public void incrementFrequency(DigramFrequencyEntry entry, int index) {
+  /**
+   * Increments a frequency counter for a digram.
+   * 
+   * @param entry the entry.
+   * @param increment the increment value.
+   */
+  public void incrementFrequency(DigramFrequencyEntry entry, int increment) {
 
+    // findout the old bucket and remove this entry
     ArrayList<DigramFrequencyEntry> oldBucket = this.bucketsToEntries.get(entry.getFrequency());
     oldBucket.remove(entry);
     if (0 == oldBucket.size() || oldBucket.isEmpty()) {
       this.bucketsToEntries.remove(entry.getFrequency());
     }
 
-    int newFreq = entry.getFrequency() + index;
+    // get the increment added
+    int newFreq = entry.getFrequency() + increment;
     entry.setFrequency(newFreq);
 
+    // put into the new bucket
     ArrayList<DigramFrequencyEntry> bucket = this.bucketsToEntries.get(newFreq);
     if (null == bucket) {
       bucket = new ArrayList<DigramFrequencyEntry>();
@@ -51,6 +83,11 @@ public class DigramFrequencies {
     bucket.add(entry);
   }
 
+  /**
+   * Gets the most frequent entry.
+   * 
+   * @return the most frequent entry.
+   */
   public DigramFrequencyEntry getTop() {
     // System.out.println("** calling top on collection "
     // + Arrays.toString(bucketsToEntries.keySet().toArray(
@@ -59,22 +96,38 @@ public class DigramFrequencies {
       return null;
     }
     else {
+      // by the default there are no empty buckets
       Integer maxBucket = Collections.max(bucketsToEntries.keySet());
       return bucketsToEntries.get(maxBucket).get(0);
     }
   }
 
-  public void remove(String digram) {
-    DigramFrequencyEntry entry = this.digramsToEntries.get(digram);
-    int freq = entry.getFrequency();
-    ArrayList<DigramFrequencyEntry> bucket = this.bucketsToEntries.get(freq);
-    if (!bucket.remove(entry)) {
-      throw (new RuntimeException("There was an error!"));
+  /**
+   * Removes the digram frequency entry from the collection.
+   * 
+   * @param digramStr the digram string.
+   */
+  public void remove(String digramStr) {
+    // get the entry
+    DigramFrequencyEntry entry = this.digramsToEntries.get(digramStr);
+    if (null == entry) {
+      return;
     }
-    if (0 == bucket.size() || bucket.isEmpty()) {
-      this.bucketsToEntries.remove(entry.getFrequency());
+    else {
+      // get its frequency and the corresponding bucket
+      int freq = entry.getFrequency();
+      ArrayList<DigramFrequencyEntry> bucket = this.bucketsToEntries.get(freq);
+      if (!bucket.remove(entry)) {
+        throw (new RuntimeException("There was an error!"));
+      }
+      // check if the bucket left empty after deletion
+      if (bucket.isEmpty()) {
+        this.bucketsToEntries.remove(freq);
+      }
+      // now clean-up the second map
+      this.digramsToEntries.remove(digramStr);
     }
-    this.digramsToEntries.remove(entry);
+    // and drop the entry itself
     entry = null;
   }
 

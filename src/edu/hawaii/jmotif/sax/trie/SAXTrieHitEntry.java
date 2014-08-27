@@ -61,11 +61,7 @@ public class SAXTrieHitEntry implements Cloneable, Comparable<SAXTrieHitEntry> {
    * @param str the string payload.
    */
   public void setStr(char[] str) {
-    int i = 0;
-    while (i < str.length && i < this.payload.length) {
-      this.payload[i] = str[i];
-      i++;
-    }
+    this.payload = str.clone();
   }
 
   /**

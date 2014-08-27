@@ -1,11 +1,8 @@
 package edu.hawaii.jmotif.sax.datastructures;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import edu.hawaii.jmotif.logic.SortedArrayList;
 
 /**
  * The discord records collection.
@@ -16,13 +13,13 @@ import java.util.List;
 public class DiscordRecords implements Iterable<DiscordRecord> {
 
   /** Storage container. */
-  private final ArrayList<DiscordRecord> discords;
+  private final SortedArrayList<DiscordRecord> discords;
 
   /**
    * Constructor.
    */
   public DiscordRecords() {
-    this.discords = new ArrayList<DiscordRecord>();
+    this.discords = new SortedArrayList<DiscordRecord>();
   }
 
   /**
@@ -32,8 +29,7 @@ public class DiscordRecords implements Iterable<DiscordRecord> {
    * @return if the discord got added.
    */
   public void add(DiscordRecord discord) {
-    this.discords.add(discord);
-    Collections.sort(discords);
+    this.discords.insertSorted(discord);
   }
 
   /**
@@ -44,7 +40,6 @@ public class DiscordRecords implements Iterable<DiscordRecord> {
    * @return the top discord hits.
    */
   public List<DiscordRecord> getTopHits(Integer num) {
-    Collections.sort(discords);
     if (num >= this.discords.size()) {
       return this.discords;
     }
@@ -89,48 +84,21 @@ public class DiscordRecords implements Iterable<DiscordRecord> {
     return this.discords.iterator();
   }
 
+  /**
+   * Get the collection size.
+   * 
+   * @return the discords collection size.
+   */
   public int getSize() {
     return this.discords.size();
   }
 
-  public double getWorstDistance() {
-    if (this.discords.isEmpty()) {
-      return 0D;
-    }
-    double res = Double.MAX_VALUE;
-    for (DiscordRecord r : discords) {
-      if (r.getNNDistance() < res) {
-        res = r.getNNDistance();
-      }
-    }
-    return res;
-  }
-
-  public String toCoordinates() {
-    StringBuffer sb = new StringBuffer();
-    for (DiscordRecord r : discords) {
-      sb.append(r.getPosition() + ",");
-    }
-    return sb.delete(sb.length() - 1, sb.length()).toString();
-  }
-
-  public String toPayloads() {
-    StringBuffer sb = new StringBuffer();
-    for (DiscordRecord r : discords) {
-      sb.append("\"" + r.getPayload() + "\",");
-    }
-    return sb.delete(sb.length() - 1, sb.length()).toString();
-  }
-
-  public String toDistances() {
-    NumberFormat nf = new DecimalFormat("##0.####");
-    StringBuffer sb = new StringBuffer();
-    for (DiscordRecord r : discords) {
-      sb.append(nf.format(r.getNNDistance()) + ",");
-    }
-    return sb.delete(sb.length() - 1, sb.length()).toString();
-  }
-
+  /**
+   * Get a discord record by its index.
+   * 
+   * @param i the index.
+   * @return the discord record.
+   */
   public DiscordRecord get(int i) {
     return this.discords.get(i);
   }

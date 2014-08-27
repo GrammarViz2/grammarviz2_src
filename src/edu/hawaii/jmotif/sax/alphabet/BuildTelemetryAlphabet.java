@@ -4,9 +4,9 @@ import edu.hawaii.jmotif.timeseries.TSException;
 
 /**
  * Implements alphabet component for SAX.
- *
+ * 
  * @author Pavel Senin
- *
+ * 
  */
 public final class BuildTelemetryAlphabet extends Alphabet {
 
@@ -35,8 +35,7 @@ public final class BuildTelemetryAlphabet extends Alphabet {
       -0.418996, -0.3782755, -0.316293, -0.189843, -0.13982050000000001, 0.0532246, 0.268463,
       0.679712, 1.66716 };
   private static final double[] case15 = { -0.834708, -0.682417, -0.576046, -0.501368, -0.424264,
-      -0.397728, -0.360898, -0.291386, -0.18622, -0.0386586, 0.0887098, 0.364898,
-      0.760286, 1.67477 };
+      -0.397728, -0.360898, -0.291386, -0.18622, -0.0386586, 0.0887098, 0.364898, 0.760286, 1.67477 };
   private static final double[] case16 = { -0.836314, -0.690725, -0.610888, -0.504457, -0.469042,
       -0.406979, -0.373166, -0.316293, -0.21748, -0.18622, -0.00251944, 0.111364, 0.456325,
       0.8328025, 1.76271 };
@@ -119,7 +118,6 @@ public final class BuildTelemetryAlphabet extends Alphabet {
 
   @Override
   public double[][] getDistanceMatrix(Integer size) throws TSException {
-    // TODO Auto-generated method stub
     double[][] res = new double[0][0];
     return res;
   }

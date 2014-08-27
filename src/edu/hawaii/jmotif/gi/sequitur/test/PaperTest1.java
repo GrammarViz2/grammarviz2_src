@@ -13,9 +13,10 @@ public class PaperTest1 {
 
   public static void main(String[] args) throws TSException {
 
+    @SuppressWarnings("unused")
     SAXRule r = SequiturFactory.runSequitur(input);
 
-    System.out.println(r.getRules());
+    System.out.println(SAXRule.getRules());
 
   }
 

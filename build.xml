@@ -48,6 +48,8 @@
   <fileset dir="${lib.dir}/JFreeChart" />
   <fileset dir="${lib.dir}/time" />
   <fileset dir="${lib.dir}/logger" />
+  <fileset dir="${lib.dir}/SwingX" />
+  <fileset dir="${lib.dir}/miglayout" />
  </path>
 
  <!-- The Travis CI-specific system test, so far I have only JUnit here.  -->

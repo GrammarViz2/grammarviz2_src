@@ -10,10 +10,11 @@ public class PaperTest3 {
 
   public static void main(String[] args) throws TSException {
     
-    SAXRule r = SequiturFactory.runSequiturWithEditDistanceThreshold(input, null, null);
+    @SuppressWarnings("unused")
+    SAXRule r = SequiturFactory.runSequitur(input);
 
-    System.out.println(r.getRules());
-    
+    System.out.println(SAXRule.getRules());
+
   }
 
 }

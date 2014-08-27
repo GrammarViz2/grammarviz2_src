@@ -15,12 +15,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.gi.GrammarRuleRecord;
 import edu.hawaii.jmotif.gi.GrammarRules;
+import edu.hawaii.jmotif.grammarviz.logic.SequiturDiscordRecord;
 import edu.hawaii.jmotif.logic.RuleInterval;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
-import edu.hawaii.jmotif.sequitur.logic.SequiturDiscordRecord;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 

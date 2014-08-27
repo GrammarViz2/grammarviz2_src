@@ -20,13 +20,13 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.gi.GrammarRuleRecord;
 import edu.hawaii.jmotif.gi.GrammarRules;
+import edu.hawaii.jmotif.grammarviz.model.SequiturModel;
 import edu.hawaii.jmotif.logic.RuleInterval;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
 import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
-import edu.hawaii.jmotif.sequitur.model.SequiturModel;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 import edu.hawaii.jmotif.util.StackTrace;
 

@@ -1,12 +1,10 @@
-package edu.hawaii.jmotif.sax.parallel;
+package edu.hawaii.jmotif.sax.datastructures;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
 import org.junit.Test;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
-import edu.hawaii.jmotif.sax.datastructures.SaxRecord;
+import edu.hawaii.jmotif.sax.parallel.ParallelSAXImplementation;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 
 public class TestSAXRecords {
@@ -14,10 +12,6 @@ public class TestSAXRecords {
   private static final String filenameTEK14 = "test/data/TEK14.txt";
 
   private double[] ts1;
-
-  @Before
-  public void setUp() throws Exception {
-  }
 
   /**
    * Test the simple SAX conversion.
@@ -36,7 +30,7 @@ public class TestSAXRecords {
 
     parallelRes.buildIndex();
 
-    String str1 = new String();
+    String str1 = "";
 
     for (int i = 11; i < 47; i++) {
       SaxRecord r = parallelRes.getByIndex(parallelRes.mapStringIndexToTSPosition(i));

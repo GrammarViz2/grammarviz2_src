@@ -42,17 +42,17 @@ public class TestParallelRePairImplementation {
     // System.out.println("Input string:\n" + inputString);
     saxData.buildIndex();
 
-    Date start = new Date();
+    // Date start = new Date();
     ParallelGrammarKeeper grammar = toGrammarKeeper(saxData);
     ParallelRePairImplementation pr = new ParallelRePairImplementation();
     ParallelGrammarKeeper res = pr.buildGrammar(grammar, THREADS_NUM);
-    Date grammarEnd = new Date();
+    // Date grammarEnd = new Date();
 
     // System.out.println("RePair grammar:\n" + res.toGrammarRules());
     // System.out.println("Recovered string:\n" + res.r0ExpandedString);
 
-    System.out.println("Grammar built in  "
-        + SAXFactory.timeToString(start.getTime(), grammarEnd.getTime()));
+    // System.out.println("Grammar built in  "
+    // + SAXFactory.timeToString(start.getTime(), grammarEnd.getTime()));
 
     assertNotNull(res);
     res.expandR0();

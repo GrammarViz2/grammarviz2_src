@@ -38,13 +38,13 @@ public class TestRePairImplementation {
     // System.out.println("Input string:\n" + inputString);
     saxData.buildIndex();
 
-    Date start = new Date();
+    // Date start = new Date();
 
     RePairRule grammar = RePairFactory.buildGrammar(saxData);
-    Date grammarEnd = new Date();
+    // Date grammarEnd = new Date();
 
     RePairRule.expandRules();
-    Date expandEnd = new Date();
+    // Date expandEnd = new Date();
 
     String recoveredString = RePairRule.recoverString();
 
@@ -52,15 +52,14 @@ public class TestRePairImplementation {
 
     // System.out.println("Recovered string:\n" + recoveredString);
 
-    System.out.println("Grammar built in  "
-        + SAXFactory.timeToString(start.getTime(), grammarEnd.getTime()));
+    // System.out.println("Grammar built in  "
+    // + SAXFactory.timeToString(start.getTime(), grammarEnd.getTime()));
 
-    System.out.println("Rules exanded in "
-        + SAXFactory.timeToString(grammarEnd.getTime(), expandEnd.getTime()));
-    
+    // System.out.println("Rules exanded in "
+    // + SAXFactory.timeToString(grammarEnd.getTime(), expandEnd.getTime()));
+
     assertNotNull(grammar);
     assertTrue(inputString.trim().equalsIgnoreCase(recoveredString.trim()));
-
 
   }
 

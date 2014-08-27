@@ -35,9 +35,11 @@ public class SAXRecords implements Iterable<SaxRecord> {
   /**
    * Disable this.
    */
-  @SuppressWarnings("unused")
-  private SAXRecords() {
+  public SAXRecords() {
     super();
+    this.id = System.currentTimeMillis();
+    this.records = new HashMap<String, SaxRecord>();
+    this.realTSindex = new TreeMap<Integer, SaxRecord>();
   }
 
   /**

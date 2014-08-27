@@ -1,7 +1,5 @@
 package edu.hawaii.jmotif.gi.repair;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,8 +20,8 @@ public class ParallelRePairImplementation {
 
   // locale, charset, etc
   //
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-  private static final Object CR = "\n";
+  // private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+  // private static final Object CR = "\n";
 
   // logging stuff
   //
@@ -252,7 +250,7 @@ public class ParallelRePairImplementation {
                 //
                 if (R0String.charAt(0) == 'R') {
                   int nextSpaceIdx = R0String.indexOf(" ", 1);
-                  int ruleNum = Integer.valueOf(R0String.substring(1, nextSpaceIdx));
+                  int ruleNum = Integer.parseInt(R0String.substring(1, nextSpaceIdx));
                   if (num == ruleNum) {
                     R0sb.replace(0, nextSpaceIdx, "@" + newRuleNum);
                     ParallelRePairGuard el = (ParallelRePairGuard) chunkWorkStrings.get(
@@ -264,7 +262,7 @@ public class ParallelRePairImplementation {
                 while ((spaceIdx = R0sb.indexOf(" ", spaceIdx + 1)) >= 0) {
                   if ((spaceIdx < R0sb.length() - 1) && (R0sb.charAt(spaceIdx + 1) == 'R')) {
                     int nextSpaceIdx = R0sb.indexOf(" ", spaceIdx + 1);
-                    int ruleNum = Integer.valueOf(R0sb.substring(spaceIdx + 2, nextSpaceIdx));
+                    int ruleNum = Integer.parseInt(R0sb.substring(spaceIdx + 2, nextSpaceIdx));
                     if (num == ruleNum) {
                       R0sb.replace(spaceIdx + 1, nextSpaceIdx, "@" + newRuleNum);
                       ParallelRePairGuard el = (ParallelRePairGuard) chunkWorkStrings.get(
@@ -651,6 +649,13 @@ public class ParallelRePairImplementation {
 
   }
 
+  /**
+   * Counts spaces in the string.
+   * 
+   * @param str the string to process.
+   * @return number of spaces found.
+   */
+  @SuppressWarnings("unused")
   private static int countSpaces(String str) {
     if (null == str) {
       return -1;

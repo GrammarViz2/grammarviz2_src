@@ -4,17 +4,17 @@ import java.util.List;
 
 /**
  * Implements the magic trie structure.
- *
+ * 
  * @author Pavel Senin.
- *
+ * 
  */
 public class SAXTrieTree {
 
   /**
    * Constants for the alphabet. Where it starts and ends. English.
    */
-  private static final Integer aStart = 97;
-  private static final Integer aEnd = 122;
+  private static final Integer ALPHABET_CODE_START = 97;
+  private static final Integer ALPHABET_CODE_END = 122;
 
   /** The root of the tree. */
   private TrieInnerNode root;
@@ -24,12 +24,13 @@ public class SAXTrieTree {
 
   /**
    * Constructor.
-   *
+   * 
    * @param alphabetSize The alphabet size.
    * @throws TrieException If wrong parameters specified.
    */
   public SAXTrieTree(Integer alphabetSize) throws TrieException {
-    if ((null != alphabetSize) && (alphabetSize > 0) && (alphabetSize < (aEnd - aStart))) {
+    if ((null != alphabetSize) && (alphabetSize > 0)
+        && (alphabetSize < (ALPHABET_CODE_END - ALPHABET_CODE_START))) {
       this.alphabetSize = alphabetSize;
       root = new TrieInnerNode("root");
       buildTrie(root, alphabetSize, alphabetSize);
@@ -42,7 +43,7 @@ public class SAXTrieTree {
 
   /**
    * Traverse the tree following the string and get occurrences list.
-   *
+   * 
    * @param string The query string.
    * @return The occurrences array.
    * @throws TrieException If error occurs - wrong string length provided etc.
@@ -76,7 +77,7 @@ public class SAXTrieTree {
 
   /**
    * Add the occurrence into the table.
-   *
+   * 
    * @param str The string.
    * @param idx The occurrence index.
    * @return the full list of occurrences.
@@ -125,7 +126,7 @@ public class SAXTrieTree {
 
   /**
    * Build the actual trie.
-   *
+   * 
    * @param root The root of the current tree.
    * @param alphabetSize The alphabet size.
    * @param depth2Go The depth of the tree left.
@@ -139,7 +140,7 @@ public class SAXTrieTree {
       // create nodes for the alphabet size and recursively call further
       for (int i = 0; i < alphabetSize; i++) {
         // this char is the one from aStart + a value between 0 and the alphabet size
-        char curChar = (char) (i + aStart);
+        char curChar = (char) (i + ALPHABET_CODE_START);
         // instantiate and add the node to the descendants list
         TrieInnerNode node = new TrieInnerNode(String.valueOf(curChar));
         ((TrieInnerNode) root).addNext(node);
@@ -153,7 +154,7 @@ public class SAXTrieTree {
       //
       // nodes after this one must be leafs
       for (int i = 0; i < alphabetSize; i++) {
-        char curChar = (char) (i + aStart);
+        char curChar = (char) (i + ALPHABET_CODE_START);
         // so we put them at place
         TrieLeafNode node = new TrieLeafNode(String.valueOf(curChar));
         ((TrieInnerNode) root).addNext(node);
@@ -163,7 +164,7 @@ public class SAXTrieTree {
 
   /**
    * Internal method used for the tree traversal.
-   *
+   * 
    * @param root The current node, IT IS NOT ROOT NODE, we just call it root here due to context.
    * @param str The string to use for traversal from this node.
    * @return list of found occurrences.
@@ -188,12 +189,12 @@ public class SAXTrieTree {
 
   /**
    * The string validator - check if string has only proper letters.
-   *
+   * 
    * @param str The string to check.
    * @return True if string contains only acceptable (valid) symbols.
    */
   private boolean containsWrongSymbols(String str) {
-    int maxSymbol = aStart + alphabetSize;
+    int maxSymbol = ALPHABET_CODE_START + alphabetSize;
     for (int i = 0; i < str.length(); i++) {
       if (((int) str.charAt(i)) >= maxSymbol) {
         return true;

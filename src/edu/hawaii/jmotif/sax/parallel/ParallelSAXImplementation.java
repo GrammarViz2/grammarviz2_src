@@ -316,8 +316,9 @@ public class ParallelSAXImplementation {
       try {
         if (!executorService.awaitTermination(4, TimeUnit.HOURS)) {
           executorService.shutdownNow(); // Cancel currently executing tasks
-          if (!executorService.awaitTermination(30, TimeUnit.MINUTES))
+          if (!executorService.awaitTermination(30, TimeUnit.MINUTES)) {
             System.err.println("Pool did not terminate... FATAL ERROR");
+          }
         }
       }
       catch (InterruptedException ie) {

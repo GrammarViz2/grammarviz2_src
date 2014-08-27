@@ -112,9 +112,9 @@ public class RePairRule {
 
     }
 
-    // and the r0
+    // and the r0, String is immutable in Java
     //
-    String resultString = r0String.substring(0);
+    String resultString = r0String;
 
     int currentSearchStart = resultString.indexOf("R");
     while (currentSearchStart >= 0) {
@@ -255,6 +255,11 @@ public class RePairRule {
     return res / count;
   }
 
+  /**
+   * Get all the rules as the map.
+   * 
+   * @return all the rules.
+   */
   public Hashtable<Integer, RePairRule> getRules() {
     return theRules;
   }

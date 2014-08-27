@@ -3,8 +3,10 @@ package edu.hawaii.jmotif.gi.repair;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -135,8 +137,8 @@ public class TS2RePairGrammar {
     //
     try {
       String currentPath = new File(".").getCanonicalPath();
-      BufferedWriter bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
-          + outputPrefix + "_REPAIR_density_curve.txt")));
+      BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
+          currentPath + File.separator + outputPrefix + "_REPAIR_density_curve.txt"), "UTF-8"));
       for (int c : coverageArray) {
         bw.write(String.valueOf(c) + "\n");
       }

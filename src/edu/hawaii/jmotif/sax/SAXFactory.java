@@ -21,7 +21,6 @@ import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.sax.datastructures.DiscordRecord;
 import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
-import edu.hawaii.jmotif.sax.datastructures.DiscordsAndMotifs;
 import edu.hawaii.jmotif.sax.datastructures.MotifRecord;
 import edu.hawaii.jmotif.sax.datastructures.MotifRecords;
 import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
@@ -697,87 +696,6 @@ public final class SAXFactory {
         + timeToString(start.getTime(), end.getTime()));
 
     return discords;
-  }
-
-  /**
-   * Builds two collections - collection of "discords" - the surprise or unique patterns and the
-   * collection of the motifs - most frequent patterns. This method leveraging the Trie structure -
-   * so the sliding window size will be translated into the alphabet size by using PAA.
-   * 
-   * @param series The data series.
-   * @param windowSize The sliding window size.
-   * @param alphabetSize The alphabet size.
-   * @param discordCollectionSize The size of the discord collection - how many top discords we want
-   * to keep.
-   * @param motifsCollectionSize The size of the motif collection - how many top motifs we want to
-   * keep.
-   * @return All what was promised if finishes.
-   * 
-   * @throws TrieException if error occurs.
-   * @throws TSException if error occurs.
-   */
-  public static DiscordsAndMotifs series2DiscordsAndMotifs(double[] series, int windowSize,
-      int alphabetSize, int discordCollectionSize, int motifsCollectionSize,
-      SlidingWindowMarkerAlgorithm markerAlgorithm) throws TrieException, TSException {
-
-    // init the SAX structures
-    //
-    DiscordsAndMotifs res = new DiscordsAndMotifs(discordCollectionSize, motifsCollectionSize);
-    SAXTrie trie = new SAXTrie(series.length - windowSize, alphabetSize);
-
-    StringBuilder sb = new StringBuilder();
-    sb.append("data size: ").append(series.length);
-
-    double max = TSUtils.max(series);
-    sb.append("; max: ").append(max);
-
-    double min = TSUtils.min(series);
-    sb.append("; min: ").append(min);
-
-    double mean = TSUtils.mean(series);
-    sb.append("; mean: ").append(mean);
-
-    int nans = TSUtils.countNaN(series);
-    sb.append("; NaNs: ").append(nans);
-
-    consoleLogger.debug(sb.toString());
-    consoleLogger.debug("window size: " + windowSize + ", alphabet size: " + alphabetSize
-        + ", SAX Trie size: " + (series.length - windowSize));
-
-    Alphabet normalA = new NormalAlphabet();
-
-    Date start = new Date();
-    // build the trie
-    //
-    int currPosition = 0;
-    while ((currPosition + windowSize) < series.length) {
-      // get the window SAX representation
-      double[] subSeries = TSUtils.subseriesByCopy(series, currPosition, currPosition + windowSize);
-      char[] saxVals = getSaxVals(subSeries, windowSize, normalA.getCuts(alphabetSize));
-      // add result to the structure
-      trie.put(String.valueOf(saxVals), currPosition);
-      // increment the position
-      currPosition++;
-    }
-    Date end = new Date();
-    consoleLogger.debug("trie built in: " + timeToString(start.getTime(), end.getTime()));
-
-    start = new Date();
-    MotifRecords motifs = getMotifs(trie, motifsCollectionSize);
-    end = new Date();
-
-    consoleLogger.debug("motifs retrieved in: " + timeToString(start.getTime(), end.getTime()));
-
-    start = new Date();
-    DiscordRecords discords = getDiscords(series, windowSize, trie, discordCollectionSize,
-        markerAlgorithm);
-    end = new Date();
-    consoleLogger.debug("discords collected in: " + timeToString(start.getTime(), end.getTime()));
-
-    res.addDiscords(discords);
-    res.addMotifs(motifs);
-
-    return res;
   }
 
   /**

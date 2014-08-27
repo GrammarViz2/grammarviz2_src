@@ -204,7 +204,7 @@ public class SAXRecords implements Iterable<SaxRecord> {
     index.addAll(this.realTSindex.keySet());
     Collections.sort(index, new Comparator<Integer>() {
       public int compare(Integer int1, Integer int2) {
-        return Integer.valueOf(int1).compareTo(Integer.valueOf(int2));
+        return int1.compareTo(int2);
       }
     });
     for (int i : index) {

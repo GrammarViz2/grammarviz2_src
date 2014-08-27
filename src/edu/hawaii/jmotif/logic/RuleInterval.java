@@ -101,4 +101,37 @@ public class RuleInterval implements Comparable<RuleInterval> {
     return id;
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(coverage);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + endPos;
+    result = prime * result + id;
+    result = prime * result + startPos;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    RuleInterval other = (RuleInterval) obj;
+    if (Double.doubleToLongBits(coverage) != Double.doubleToLongBits(other.coverage))
+      return false;
+    if (endPos != other.endPos)
+      return false;
+    if (id != other.id)
+      return false;
+    if (startPos != other.startPos)
+      return false;
+    return true;
+  }
+
 }

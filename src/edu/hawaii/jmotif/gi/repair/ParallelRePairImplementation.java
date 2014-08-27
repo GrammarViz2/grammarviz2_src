@@ -1,7 +1,5 @@
 package edu.hawaii.jmotif.gi.repair;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,8 +20,8 @@ public class ParallelRePairImplementation {
 
   // locale, charset, etc
   //
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-  private static final Object CR = "\n";
+  // private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+  // private static final Object CR = "\n";
 
   // logging stuff
   //
@@ -651,6 +649,13 @@ public class ParallelRePairImplementation {
 
   }
 
+  /**
+   * Counts spaces in the string.
+   * 
+   * @param str the string to process.
+   * @return number of spaces found.
+   */
+  @SuppressWarnings("unused")
   private static int countSpaces(String str) {
     if (null == str) {
       return -1;

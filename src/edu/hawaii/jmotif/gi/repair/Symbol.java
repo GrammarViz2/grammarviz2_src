@@ -80,10 +80,6 @@ public class Symbol {
     this.stringPosition = saxStringPosition;
   }
 
-  public String toString() {
-    return String.valueOf(this.string);
-  }
-
   /**
    * This will be overridden in the non-Terminal symbol, i.e. guard.
    * 
@@ -91,6 +87,10 @@ public class Symbol {
    */
   public int getLevel() {
     return 0;
+  }
+
+  public String toString() {
+    return String.valueOf(this.string);
   }
 
 }

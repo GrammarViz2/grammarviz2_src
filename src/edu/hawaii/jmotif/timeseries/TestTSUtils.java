@@ -30,8 +30,6 @@ public class TestTSUtils {
   private static final String ts1PAAFile = "test/data/timeseries01.PAA10.csv";
   private static final String ts2PAAFile = "test/data/timeseries02.PAA10.csv";
 
-  private static final String attribute = "value0";
-
   private static final int length = 15;
   private static final int PAAlength = 10;
   private static final double delta = 0.000001;

@@ -186,6 +186,8 @@ public final class MatrixFactory {
       sb.append(CR);
     }
 
+    formatter.close();
+
     return sb.toString();
   }
 
@@ -210,6 +212,8 @@ public final class MatrixFactory {
       sb.delete(sb.length() - 2, sb.length());
       sb.append("}," + CR);
     }
+
+    formatter.close();
 
     return sb.toString();
   }

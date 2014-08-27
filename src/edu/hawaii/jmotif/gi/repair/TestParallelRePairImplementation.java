@@ -74,6 +74,7 @@ public class TestParallelRePairImplementation {
     return gk;
   }
 
+  @SuppressWarnings("unused")
   private static String stringToDisplay(ArrayList<Symbol> string) {
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < string.size(); i++) {

@@ -1,7 +1,7 @@
 grammarviz2
 ==========
 
-GrammarViz 2.0 source code public repository. For the documentation, please visit http://seninp.github.io/grammarviz_2.0.
+GrammarViz 2.0 source code public repository. For the documentation, please visit http://grammarviz2.github.io/grammarviz2_site/.
 
 
 <script>

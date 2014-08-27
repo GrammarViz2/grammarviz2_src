@@ -18,16 +18,6 @@ public class TestSAXDataStructures {
   private static final String str11 = "abggfecbb";
 
   /**
-   * Test the SAX entry structure.
-   */
-  @Test
-  public void testSAXEntry() {
-    SAXDataEntry se = new SAXDataEntry(str11, iNum1);
-    assertEquals("Testing SAXEntry.", iNum1, se.getIdx());
-    assertEquals("Testing SAXEntry.", str11, se.getStr());
-  }
-
-  /**
    * Test the SAX frequency structure.
    */
   @Test

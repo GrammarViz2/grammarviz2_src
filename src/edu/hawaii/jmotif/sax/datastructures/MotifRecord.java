@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * The motif data record. Kind of useful of keeping information concerning a motif occurrence etc...
+ * The motif data record. Kind of useful of keeping information concerning a motif occurrence etc.
  * 
  * @author Pavel Senin
  * 

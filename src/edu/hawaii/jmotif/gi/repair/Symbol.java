@@ -1,7 +1,7 @@
 package edu.hawaii.jmotif.gi.repair;
 
 import java.util.Arrays;
-import edu.hawaii.jmotif.sax.parallel.SaxRecord;
+import edu.hawaii.jmotif.sax.datastructures.SaxRecord;
 
 /**
  * The symbol class.

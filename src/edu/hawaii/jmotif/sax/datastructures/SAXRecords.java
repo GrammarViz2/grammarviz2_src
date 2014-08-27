@@ -1,5 +1,8 @@
-package edu.hawaii.jmotif.sax.parallel;
+package edu.hawaii.jmotif.sax.datastructures;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -290,4 +293,5 @@ public class SAXRecords implements Iterable<SaxRecord> {
   public SaxRecord getByWord(String str) {
     return records.get(str);
   }
+
 }

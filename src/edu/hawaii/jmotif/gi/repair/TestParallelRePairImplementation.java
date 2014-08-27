@@ -7,9 +7,9 @@ import java.util.Date;
 import org.junit.Test;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
+import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
+import edu.hawaii.jmotif.sax.datastructures.SaxRecord;
 import edu.hawaii.jmotif.sax.parallel.ParallelSAXImplementation;
-import edu.hawaii.jmotif.sax.parallel.SAXRecords;
-import edu.hawaii.jmotif.sax.parallel.SaxRecord;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 
 public class TestParallelRePairImplementation {

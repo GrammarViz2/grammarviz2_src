@@ -14,6 +14,7 @@ import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.sax.datastructures.SAXFrequencyData;
+import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 import edu.hawaii.jmotif.timeseries.Timeseries;
 import edu.hawaii.jmotif.util.StackTrace;

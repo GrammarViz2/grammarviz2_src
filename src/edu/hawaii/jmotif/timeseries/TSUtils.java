@@ -245,6 +245,22 @@ public final class TSUtils {
   }
 
   /**
+   * Computes the mean for integer series.
+   * 
+   * @param series
+   * @return
+   */
+  public static Integer mean(int[] series) {
+    int res = 0;
+    int count = 0;
+    for (int tp : series) {
+      res += tp;
+      count += 1;
+    }
+    return res / count;
+  }
+
+  /**
    * Speed-optimized implementation.
    * 
    * @param series The timeseries.

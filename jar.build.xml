@@ -6,7 +6,7 @@
  <import file="build.xml" />
  <property name="tmp.dir" location="${basedir}/tmp" />
 
- <target name="jar" depends="clean, compile" description="Create jmotif.lib.jar containing SAX code.">
+ <target name="jar" depends="clean, compile" description="Create the grammarviz20.jar.">
 
   <!-- make sure to include dependencies into dep.jar -->
   <delete dir="${tmp.dir}" />
@@ -35,7 +35,7 @@
     <attribute name="Implementation-Title" value="GrammarViz" />
     <attribute name="Implementation-Version" value="${version}" />
     <attribute name="Implementation-Vendor" value="Collaborative Software Development Laboratory, University of Hawaii" />
-    <attribute name="Main-Class" value="edu.hawaii.jmotif.sequitur.Sequitur" />
+    <attribute name="Main-Class" value="edu.hawaii.jmotif.grammarviz.GrammarVizGUI" />
    </manifest>
   </jar>
   <delete dir="${tmp.dir}" />

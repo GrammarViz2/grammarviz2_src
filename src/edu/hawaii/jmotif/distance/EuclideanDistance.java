@@ -200,6 +200,13 @@ public final class EuclideanDistance {
     }
   }
 
+  /**
+   * This is DTW distance which we get using the FastDTW library.
+   * 
+   * @param series1 the series A.
+   * @param series2 the series B.
+   * @return the DTW distance value.
+   */
   public static double getDTWDist(double[] series1, double[] series2) {
 
     // final TimeSeries tsI = new TimeSeries(args[0], false, false, ',');

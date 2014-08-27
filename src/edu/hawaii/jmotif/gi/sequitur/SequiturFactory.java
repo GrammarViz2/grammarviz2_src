@@ -30,7 +30,7 @@ import edu.hawaii.jmotif.timeseries.TSUtils;
  * @author psenin
  * 
  */
-public class SequiturFactory {
+public final class SequiturFactory {
 
   /** Chunking/Sliding switch action key. */
   protected static final String USE_SLIDING_WINDOW_ACTION_KEY = "sliding_window_key";
@@ -46,6 +46,13 @@ public class SequiturFactory {
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(SequiturFactory.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
+  }
+
+  /**
+   * Disabling the constructor.
+   */
+  private SequiturFactory() {
+    assert true;
   }
 
   /**
@@ -348,8 +355,7 @@ public class SequiturFactory {
 
     }
 
-    String res = saxFrequencyData.getSAXString(" ");
-    res = null;
+    saxFrequencyData.buildIndex();
 
     GrammarRules rules = grammar.toGrammarRulesData();
 
@@ -589,7 +595,7 @@ public class SequiturFactory {
         lengths[0] = originalTimeSeries.length;
       }
       ruleContainer.setRuleIntervals(resultIntervals);
-      ruleContainer.setMeanLength(mean(lengths));
+      ruleContainer.setMeanLength(TSUtils.mean(lengths));
       ruleContainer.setMinMaxLength(lengths);
     }
 
@@ -650,20 +656,10 @@ public class SequiturFactory {
         lengths[0] = originalTimeSeries.length;
       }
       ruleContainer.setRuleIntervals(resultIntervals);
-      ruleContainer.setMeanLength(mean(lengths));
+      ruleContainer.setMeanLength(TSUtils.mean(lengths));
       ruleContainer.setMinMaxLength(lengths);
     }
 
-  }
-
-  private static Integer mean(int[] series) {
-    int res = 0;
-    int count = 0;
-    for (int tp : series) {
-      res += tp;
-      count += 1;
-    }
-    return res / count;
   }
 
   /**

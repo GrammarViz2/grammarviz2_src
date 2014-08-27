@@ -18,7 +18,7 @@ public class DiscordRecord implements Comparable<DiscordRecord> {
   private double nnDistance;
 
   /** The Rule - useful for SAXSequitur. */
-  private int rule;
+  private int ruleId;
 
   /** The payload - auxiliary variable. */
   private String payload;
@@ -30,6 +30,7 @@ public class DiscordRecord implements Comparable<DiscordRecord> {
    * Constructor.
    */
   public DiscordRecord() {
+    this.ruleId = -1;
     this.position = -1;
     this.length = -1;
     this.nnDistance = -1.0D;
@@ -42,6 +43,7 @@ public class DiscordRecord implements Comparable<DiscordRecord> {
    * @param dist The distance from other sequences.
    */
   public DiscordRecord(int index, double dist) {
+    this.ruleId = -1;
     this.position = index;
     this.nnDistance = dist;
     this.payload = "";
@@ -55,6 +57,7 @@ public class DiscordRecord implements Comparable<DiscordRecord> {
    * @param payload The payload.
    */
   public DiscordRecord(int index, double dist, String payload) {
+    this.ruleId = -1;
     this.position = index;
     this.nnDistance = dist;
     this.payload = payload;
@@ -114,33 +117,63 @@ public class DiscordRecord implements Comparable<DiscordRecord> {
     return this.nnDistance;
   }
 
+  /**
+   * Sets an auxiliary info string.
+   * 
+   * @param info the data to save.
+   */
   public void setInfo(String info) {
     this.info = info;
   }
 
+  /**
+   * Get an auxiliary info string.
+   * 
+   * @return the saved data.
+   */
   public String getInfo() {
     return info;
   }
 
+  /**
+   * Set the length.
+   * 
+   * @param length the length value.
+   */
   public void setLength(int length) {
     this.length = length;
   }
 
+  /**
+   * Get the length.
+   * 
+   * @return the length.
+   */
   public Integer getLength() {
     return this.length;
   }
 
-  public void setRule(int rule) {
-    this.rule = rule;
-  }
-
-  public int getRule() {
-    return rule;
+  /**
+   * Set the rule ID.
+   * 
+   * @param ruleId the rule ID.
+   */
+  public void setRule(int ruleId) {
+    this.ruleId = ruleId;
   }
 
   /**
-   * The simple comparator based on the distance. Note that discord is better if the distance is
-   * greater.
+   * Get the rule.
+   * 
+   * @return the rule Id.
+   */
+  public int getRuleId() {
+    return ruleId;
+  }
+
+  /**
+   * The simple comparator based on the distance. Note that discord is "better" if the NN distance
+   * is greater.
    * 
    * @param other The discord record this one is compared to.
    * @return True if equals.

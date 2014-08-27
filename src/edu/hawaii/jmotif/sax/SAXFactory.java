@@ -24,7 +24,7 @@ import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
 import edu.hawaii.jmotif.sax.datastructures.DiscordsAndMotifs;
 import edu.hawaii.jmotif.sax.datastructures.MotifRecord;
 import edu.hawaii.jmotif.sax.datastructures.MotifRecords;
-import edu.hawaii.jmotif.sax.datastructures.SAXFrequencyData;
+import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
 import edu.hawaii.jmotif.sax.trie.SAXTrie;
 import edu.hawaii.jmotif.sax.trie.SAXTrieHitEntry;
 import edu.hawaii.jmotif.sax.trie.TrieException;
@@ -74,11 +74,11 @@ public final class SAXFactory {
    * @throws CloneNotSupportedException
    */
 
-  public static SAXFrequencyData ts2saxZnormByCutsNoSkip(Timeseries ts, int windowSize,
-      int paaSize, double[] cuts) throws TSException, CloneNotSupportedException {
+  public static SAXRecords ts2saxZnormByCutsNoSkip(Timeseries ts, int windowSize, int paaSize,
+      double[] cuts) throws TSException, CloneNotSupportedException {
 
     // Initialize symbolic result data
-    SAXFrequencyData res = new SAXFrequencyData();
+    SAXRecords res = new SAXRecords();
 
     // scan across the time series extract sub sequences, and converting
     // them to strings
@@ -102,7 +102,7 @@ public final class SAXFactory {
       // Convert the PAA to a string.
       char[] currentString = TSUtils.ts2StringWithNaNByCuts(paa, cuts);
 
-      res.put(currentString, i);
+      res.add(currentString, i);
     }
     return res;
   }
@@ -121,11 +121,11 @@ public final class SAXFactory {
    * @throws CloneNotSupportedException
    */
 
-  public static SAXFrequencyData ts2saxZnormByCuts(Timeseries ts, int windowSize, int paaSize,
+  public static SAXRecords ts2saxZnormByCuts(Timeseries ts, int windowSize, int paaSize,
       double[] cuts) throws TSException, CloneNotSupportedException {
 
     // Initialize symbolic result data
-    SAXFrequencyData res = new SAXFrequencyData();
+    SAXRecords res = new SAXRecords();
     String previousString = "";
 
     // scan across the time series extract sub sequences, and converting
@@ -165,7 +165,7 @@ public final class SAXFactory {
         continue;
       }
       previousString = new String(currentString);
-      res.put(currentString, i);
+      res.add(currentString, i);
     }
     return res;
   }
@@ -182,7 +182,7 @@ public final class SAXFactory {
    * @throws TSException If error occurs.
    * @throws CloneNotSupportedException
    */
-  public static SAXFrequencyData ts2saxZnormByCutsNoSkip(double[] s, int windowSize, int paaSize,
+  public static SAXRecords ts2saxZnormByCutsNoSkip(double[] s, int windowSize, int paaSize,
       double[] cuts) throws TSException, CloneNotSupportedException {
     long[] ticks = new long[s.length];
     for (int i = 0; i < s.length; i++) {
@@ -205,8 +205,8 @@ public final class SAXFactory {
    * @throws TSException If error occurs.
    * @throws CloneNotSupportedException
    */
-  public static SAXFrequencyData ts2saxZnormByCuts(double[] s, int windowSize, int paaSize,
-      double[] cuts) throws TSException, CloneNotSupportedException {
+  public static SAXRecords ts2saxZnormByCuts(double[] s, int windowSize, int paaSize, double[] cuts)
+      throws TSException, CloneNotSupportedException {
     long[] ticks = new long[s.length];
     for (int i = 0; i < s.length; i++) {
       ticks[i] = i;
@@ -228,11 +228,11 @@ public final class SAXFactory {
    * @throws TSException If error occurs.
    * @throws CloneNotSupportedException
    */
-  public static SAXFrequencyData ts2saxZnormByCutsNoSliding(double[] s, int windowSize,
-      int paaSize, double[] cuts) throws TSException, CloneNotSupportedException {
+  public static SAXRecords ts2saxZnormByCutsNoSliding(double[] s, int windowSize, int paaSize,
+      double[] cuts) throws TSException, CloneNotSupportedException {
 
     // Initialize symbolic result data
-    SAXFrequencyData res = new SAXFrequencyData();
+    SAXRecords res = new SAXRecords();
     String previousString = "";
 
     // scan across the time series extract sub sequences, and converting
@@ -260,7 +260,7 @@ public final class SAXFactory {
       }
 
       previousString = new String(currentString);
-      res.put(currentString, i);
+      res.add(currentString, i);
 
       // dont forget the counter
       //
@@ -285,11 +285,11 @@ public final class SAXFactory {
    * @throws TSException If error occurs.
    * @throws CloneNotSupportedException
    */
-  public static SAXFrequencyData ts2saxZnormByCutsNoSlidingNoSkip(double[] s, int windowSize,
+  public static SAXRecords ts2saxZnormByCutsNoSlidingNoSkip(double[] s, int windowSize,
       int paaSize, double[] cuts) throws TSException, CloneNotSupportedException {
 
     // Initialize symbolic result data
-    SAXFrequencyData res = new SAXFrequencyData();
+    SAXRecords res = new SAXRecords();
 
     // scan across the time series extract sub sequences, and converting
     // them to strings
@@ -307,7 +307,7 @@ public final class SAXFactory {
       // Convert the PAA to a string.
       char[] currentString = TSUtils.ts2String(paa, cuts);
 
-      res.put(currentString, i);
+      res.add(currentString, i);
 
       // dont forget the counter
       //
@@ -330,11 +330,11 @@ public final class SAXFactory {
    * @throws TSException If error occurs.
    */
 
-  public static SAXFrequencyData ts2saxNoZnormByCuts(Timeseries ts, int windowSize, int paaSize,
+  public static SAXRecords ts2saxNoZnormByCuts(Timeseries ts, int windowSize, int paaSize,
       double[] cuts) throws TSException {
 
     // Initialize symbolic result data
-    SAXFrequencyData res = new SAXFrequencyData();
+    SAXRecords res = new SAXRecords();
     String previousString = "";
 
     // scan across the time series extract sub sequences, and converting
@@ -366,7 +366,7 @@ public final class SAXFactory {
         continue;
       }
       previousString = new String(currentString);
-      res.put(currentString, i);
+      res.add(currentString, i);
     }
     return res;
   }
@@ -384,7 +384,7 @@ public final class SAXFactory {
    * @throws CloneNotSupportedException
    */
 
-  public static SAXFrequencyData ts2saxZNorm(Timeseries ts, int windowSize, int paaSize,
+  public static SAXRecords ts2saxZNorm(Timeseries ts, int windowSize, int paaSize,
       Alphabet alphabet, int alphabetSize) throws TSException, CloneNotSupportedException {
 
     if (alphabetSize > alphabet.getMaxSize()) {
@@ -407,7 +407,7 @@ public final class SAXFactory {
    * @throws TSException If error occurs.
    */
 
-  public static SAXFrequencyData ts2saxNoZnorm(Timeseries ts, int windowSize, int paaSize,
+  public static SAXRecords ts2saxNoZnorm(Timeseries ts, int windowSize, int paaSize,
       Alphabet alphabet, int alphabetSize) throws TSException {
 
     if (alphabetSize > alphabet.getMaxSize()) {
@@ -418,11 +418,11 @@ public final class SAXFactory {
 
   }
 
-  public static SAXFrequencyData data2sax(double[] ts, int slidingWindowSize, int paaSize,
+  public static SAXRecords data2sax(double[] ts, int slidingWindowSize, int paaSize,
       int alphabetSize) throws TSException {
     NormalAlphabet normalA = new NormalAlphabet();
     String previousString = "";
-    SAXFrequencyData res = new SAXFrequencyData();
+    SAXRecords res = new SAXRecords();
     for (int i = 0; i < ts.length - (slidingWindowSize - 1); i++) {
       double[] subSection = Arrays.copyOfRange(ts, i, i + slidingWindowSize);
       if (TSUtils.stDev(subSection) > NORMALIZATION_THRESHOLD) {
@@ -434,7 +434,7 @@ public final class SAXFactory {
         continue;
       }
       previousString = new String(currentString);
-      res.put(currentString, i);
+      res.add(currentString, i);
     }
     return res;
   }
@@ -1191,7 +1191,6 @@ public final class SAXFactory {
       SAXTrieHitEntry currentEntry = frequencies.get(0);
       String currentWord = String.valueOf(currentEntry.getStr());
       int outerLoopCandidatePosition = currentEntry.getPosition();
-      int currentFrequency = currentEntry.getFrequency();
 
       frequencies.remove(0);
       currentEntry = null;

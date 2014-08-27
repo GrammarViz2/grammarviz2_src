@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.sax.parallel.SAXRecords;
-import edu.hawaii.jmotif.sax.parallel.SaxRecord;
+import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
+import edu.hawaii.jmotif.sax.datastructures.SaxRecord;
 
 public class RePairFactory {
 

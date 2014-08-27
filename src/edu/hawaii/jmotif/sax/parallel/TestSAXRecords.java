@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
+import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
+import edu.hawaii.jmotif.sax.datastructures.SaxRecord;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 
 public class TestSAXRecords {

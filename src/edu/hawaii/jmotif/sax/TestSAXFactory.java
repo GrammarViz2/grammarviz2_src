@@ -2,14 +2,15 @@ package edu.hawaii.jmotif.sax;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import java.util.Iterator;
 import org.junit.Test;
 import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
-import edu.hawaii.jmotif.sax.datastructures.SAXFrequencyData;
-import edu.hawaii.jmotif.sax.datastructures.SAXFrequencyEntry;
+import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
+import edu.hawaii.jmotif.sax.datastructures.SaxRecord;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 import edu.hawaii.jmotif.timeseries.Timeseries;
@@ -94,17 +95,17 @@ public class TestSAXFactory {
     String ts2str_3 = SAXFactory.ts2string(ts2.subsection(3, 7), 5, normalA, 10);
     String ts2str_7 = SAXFactory.ts2string(ts2.subsection(7, 11), 5, normalA, 10);
 
-    SAXFrequencyData ts2SAX = SAXFactory.ts2saxZNorm(TSUtils.zNormalize(ts2), 5, 5, normalA, 10);
+    SAXRecords ts2SAX = SAXFactory.ts2saxZNorm(TSUtils.zNormalize(ts2), 5, 5, normalA, 10);
 
-    assertEquals("Testing ts2saxOptimized", (Integer) (ts2.size() - 5 + 1), ts2SAX.size());
+    assertEquals("Testing ts2saxOptimized", ts2.size() - 5 + 1, ts2SAX.size());
 
-    assertTrue("Testing ts2sax", ts2SAX.contains(ts2str_0));
-    assertTrue("Testing ts2sax", ts2SAX.contains(ts2str_3));
-    assertTrue("Testing ts2sax", ts2SAX.contains(ts2str_7));
+    assertNotNull("Testing ts2sax", ts2SAX.getByWord(ts2str_0));
+    assertNotNull("Testing ts2sax", ts2SAX.getByWord(ts2str_3));
+    assertNotNull("Testing ts2sax", ts2SAX.getByWord(ts2str_7));
 
-    assertSame("Testing ts2sax", ts2SAX.get(ts2str_0).getEntries().get(0), 0);
-    assertSame("Testing ts2sax", ts2SAX.get(ts2str_3).getEntries().get(0), 3);
-    assertSame("Testing ts2sax", ts2SAX.get(ts2str_7).getEntries().get(0), 7);
+    assertSame("Testing ts2sax", ts2SAX.getByWord(ts2str_0).getIndexes().get(0), 0);
+    assertSame("Testing ts2sax", ts2SAX.getByWord(ts2str_3).getIndexes().get(0), 3);
+    assertSame("Testing ts2sax", ts2SAX.getByWord(ts2str_7).getIndexes().get(0), 7);
 
   }
 
@@ -173,20 +174,18 @@ public class TestSAXFactory {
     // convert to sax with 2 letters alphabet and internal normalization
 
     double[] cut = { 0.0D };
-    SAXFrequencyData sax = SAXFactory.ts2saxZnormByCuts(ts1, 14, 10, cut);
-    Iterator<SAXFrequencyEntry> i = sax.iterator();
-    SAXFrequencyEntry entry0 = i.next();
+    SAXRecords sax = SAXFactory.ts2saxZnormByCuts(ts1, 14, 10, cut);
+    Iterator<SaxRecord> i = sax.iterator();
+    SaxRecord entry0 = i.next();
     assertTrue("Testing SAX routines",
-        String.valueOf(entry0.getSubstring()).equalsIgnoreCase("aabbbbaaaa"));
+        String.valueOf(entry0.getPayload()).equalsIgnoreCase("aabbbbaaaa"));
 
     sax = SAXFactory.ts2saxZnormByCuts(ts1, 2, 2, cut);
     i = sax.iterator();
     entry0 = i.next();
-    SAXFrequencyEntry entry1 = i.next();
-    assertFalse(
-        "Testing SAX routines",
-        String.valueOf(entry0.getSubstring()).equalsIgnoreCase(
-            String.valueOf(entry1.getSubstring())));
+    SaxRecord entry1 = i.next();
+    assertFalse("Testing SAX routines",
+        String.valueOf(entry0.getPayload()).equalsIgnoreCase(String.valueOf(entry1.getPayload())));
 
     // test double[] version here
     double[] data = new double[ts1.size()];
@@ -198,7 +197,7 @@ public class TestSAXFactory {
     i = sax.iterator();
     entry0 = i.next();
     assertTrue("Testing SAX routines",
-        String.valueOf(entry0.getSubstring()).equalsIgnoreCase("aabbbbaaaa"));
+        String.valueOf(entry0.getPayload()).equalsIgnoreCase("aabbbbaaaa"));
 
   }
 
@@ -217,11 +216,11 @@ public class TestSAXFactory {
     //
     // convert to sax with 2 letters alphabet and internal normalization
     double[] cut = { 0.0D };
-    SAXFrequencyData sax = SAXFactory.ts2saxNoZnormByCuts(ts1, 14, 10, cut);
-    Iterator<SAXFrequencyEntry> i = sax.iterator();
-    SAXFrequencyEntry entry0 = i.next();
+    SAXRecords sax = SAXFactory.ts2saxNoZnormByCuts(ts1, 14, 10, cut);
+    Iterator<SaxRecord> i = sax.iterator();
+    SaxRecord entry0 = i.next();
     assertTrue("Testing SAX routines",
-        String.valueOf(entry0.getSubstring()).equalsIgnoreCase("bbbbbbbbbb"));
+        String.valueOf(entry0.getPayload()).equalsIgnoreCase("bbbbbbbbbb"));
 
     //
     // now add two negatives
@@ -231,18 +230,16 @@ public class TestSAXFactory {
     i = sax.iterator();
     entry0 = i.next();
     assertTrue("Testing SAX routines",
-        String.valueOf(entry0.getSubstring()).equalsIgnoreCase("bbabbbbbbb"));
+        String.valueOf(entry0.getPayload()).equalsIgnoreCase("bbbabbbbbb"));
 
     //
     //
     sax = SAXFactory.ts2saxNoZnormByCuts(ts1, 2, 2, cut);
     i = sax.iterator();
     entry0 = i.next();
-    SAXFrequencyEntry entry1 = i.next();
-    assertFalse(
-        "Testing SAX routines",
-        String.valueOf(entry0.getSubstring()).equalsIgnoreCase(
-            String.valueOf(entry1.getSubstring())));
+    SaxRecord entry1 = i.next();
+    assertFalse("Testing SAX routines",
+        String.valueOf(entry0.getPayload()).equalsIgnoreCase(String.valueOf(entry1.getPayload())));
   }
 
   /**

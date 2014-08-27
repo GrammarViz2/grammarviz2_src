@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.sax.parallel;
+package edu.hawaii.jmotif.sax.datastructures;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,9 +35,11 @@ public class SAXRecords implements Iterable<SaxRecord> {
   /**
    * Disable this.
    */
-  @SuppressWarnings("unused")
-  private SAXRecords() {
+  public SAXRecords() {
     super();
+    this.id = System.currentTimeMillis();
+    this.records = new HashMap<String, SaxRecord>();
+    this.realTSindex = new TreeMap<Integer, SaxRecord>();
   }
 
   /**
@@ -290,4 +292,5 @@ public class SAXRecords implements Iterable<SaxRecord> {
   public SaxRecord getByWord(String str) {
     return records.get(str);
   }
+
 }

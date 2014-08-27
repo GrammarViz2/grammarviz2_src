@@ -2,7 +2,7 @@ package edu.hawaii.jmotif.sax.parallel;
 
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
-import edu.hawaii.jmotif.sax.datastructures.SAXFrequencyData;
+import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 
 /**
@@ -46,7 +46,7 @@ public class PerformanceEvaluation {
     long tstamp1 = System.currentTimeMillis();
     for (int i = 0; i < NRUNS; i++) {
       @SuppressWarnings("unused")
-      SAXFrequencyData sequentialRes2 = SAXFactory.data2sax(ts, slidingWindowSize, paaSize,
+      SAXRecords sequentialRes2 = SAXFactory.data2sax(ts, slidingWindowSize, paaSize,
           alphabetSize);
     }
     long tstamp2 = System.currentTimeMillis();

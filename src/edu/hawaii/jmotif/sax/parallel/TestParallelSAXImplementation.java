@@ -13,7 +13,7 @@ import org.junit.Test;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
-import edu.hawaii.jmotif.sax.datastructures.SAXFrequencyData;
+import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 import edu.hawaii.jmotif.timeseries.Timeseries;
 import edu.hawaii.jmotif.util.StackTrace;
@@ -135,7 +135,7 @@ public class TestParallelSAXImplementation {
 
     double[] ts = TSUtils.readFileColumn(filenameTEK14, 0, 0);
 
-    SAXFrequencyData sequentialRes = SAXFactory.ts2saxZNorm(new Timeseries(ts), 128, 7,
+    SAXRecords sequentialRes = SAXFactory.ts2saxZNorm(new Timeseries(ts), 128, 7,
         new NormalAlphabet(), 7);
 
     String sequentialString = sequentialRes.getSAXString(" ");
@@ -147,14 +147,14 @@ public class TestParallelSAXImplementation {
     assertTrue(sequentialString.equalsIgnoreCase(parallelRes.getSAXString(" ")));
 
     for (int i : parallelRes.getIndexes()) {
-      String entrySerial = sequentialRes.getPositionsAndWords().get(i);
+      String entrySerial = String.valueOf(sequentialRes.getByIndex(i).getPayload());
       String entryParallel = String.valueOf(parallelRes.getByIndex(i).getPayload());
       // System.out.println("index: " + i + ", serial: " + entrySerial + ", parallel: "
       // + entryParallel);
       assertTrue(entrySerial.equalsIgnoreCase(entryParallel));
     }
 
-    SAXFrequencyData sequentialRes2 = SAXFactory.data2sax(ts, 100, 8, 4);
+    SAXRecords sequentialRes2 = SAXFactory.data2sax(ts, 100, 8, 4);
     String sequentialString2 = sequentialRes2.getSAXString(" ");
     // 3 threads
     ParallelSAXImplementation ps2 = new ParallelSAXImplementation();
@@ -163,7 +163,7 @@ public class TestParallelSAXImplementation {
     assertTrue(sequentialString2.equalsIgnoreCase(parallelRes2.getSAXString(" ")));
 
     for (int i : parallelRes2.getIndexes()) {
-      String entrySerial = sequentialRes2.getPositionsAndWords().get(i);
+      String entrySerial = String.valueOf(sequentialRes2.getByIndex(i).getPayload());
       String entryParallel = String.valueOf(parallelRes2.getByIndex(i).getPayload());
       assertTrue(entrySerial.equalsIgnoreCase(entryParallel));
     }

@@ -15,7 +15,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.gi.GrammarRuleRecord;
 import edu.hawaii.jmotif.gi.GrammarRules;
-import edu.hawaii.jmotif.grammarviz.logic.SequiturDiscordRecord;
 import edu.hawaii.jmotif.logic.RuleInterval;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
@@ -185,69 +184,7 @@ public final class SequiturFactory {
 
     return resRule;
   }
-
-  public static List<SequiturDiscordRecord> series2Discords(double[] timeseries, int saxWindowSize,
-      int saxPAASize, int saxAlphabetSize) throws TSException, IOException {
-
-    SAXRecords saxFrequencyData = discretize(timeseries, NumerosityReductionStrategy.EXACT,
-        saxWindowSize, saxPAASize, saxAlphabetSize, NORMALIZATION_THRESHOLD);
-
-    // this is a string we are about to feed into Sequitur
-    //
-    String saxDisplayString = saxFrequencyData.getSAXString(" ");
-
-    // reset Sequitur structures
-    //
-    SAXRule.numRules = new AtomicInteger(0);
-    SAXSymbol.theDigrams.clear();
-
-    SAXRule grammar = new SAXRule();
-    // SAXRule.arrayRuleStrings = new ArrayList<String>();
-    SAXRule.arrRuleRecords = new ArrayList<GrammarRuleRecord>();
-
-    StringTokenizer st = new StringTokenizer(saxDisplayString, " ");
-    int currentPosition = 0;
-    while (st.hasMoreTokens()) {
-      grammar.last().insertAfter(new SAXTerminal(st.nextToken(), currentPosition));
-      grammar.last().p.check();
-      currentPosition++;
-    }
-
-    // System.out.println(grammar.getRules());
-
-    int[] coverage = new int[timeseries.length];
-
-    for (GrammarRuleRecord r : grammar.getRuleRecords()) {
-      if (0 == r.ruleNumber()) {
-        continue;
-      }
-      ArrayList<RuleInterval> intervals = getRulePositionsByRuleNum(r.ruleNumber(), grammar,
-          saxFrequencyData, timeseries, saxWindowSize);
-      for (RuleInterval interval : intervals) {
-        for (int j = interval.getStartPos(); j < interval.getEndPos(); j++) {
-          coverage[j]++;
-        }
-      }
-    }
-
-    // looking for empty spaces in the coverage
-    //
-    List<SequiturDiscordRecord> discords = new ArrayList<SequiturDiscordRecord>();
-    for (int i = 0; i < coverage.length; i++) {
-      if (0 == coverage[i]) {
-        int j = i;
-        while ((j < coverage.length) && (0 == coverage[j])) {
-          j++;
-        }
-        SequiturDiscordRecord dr = new SequiturDiscordRecord(i, j);
-        discords.add(dr);
-        i = j;
-      }
-    }
-
-    return discords;
-  }
-
+ 
   /**
    * Recovers start and stop coordinates of a rule subsequences.
    * 

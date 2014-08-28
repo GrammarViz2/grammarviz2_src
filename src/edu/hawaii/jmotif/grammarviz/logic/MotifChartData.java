@@ -1015,7 +1015,7 @@ public class MotifChartData extends Observable implements Observer {
    * @throws TSException
    */
   public void findAnomalies() throws TSException {
-    SAXSequiturAnomalyFinder finder = new SAXSequiturAnomalyFinder(this);
+    GrammarVizAnomalyFinder finder = new GrammarVizAnomalyFinder(this);
     finder.addObserver(this);
     finder.run();
   }

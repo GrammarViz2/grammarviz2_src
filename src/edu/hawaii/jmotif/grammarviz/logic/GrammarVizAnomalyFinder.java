@@ -16,11 +16,11 @@ import edu.hawaii.jmotif.sax.trie.VisitRegistry;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.StackTrace;
 
-public class SAXSequiturAnomalyFinder extends Observable implements Runnable {
+public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
   private MotifChartData chartData;
 
-  public SAXSequiturAnomalyFinder(MotifChartData motifChartData) {
+  public GrammarVizAnomalyFinder(MotifChartData motifChartData) {
     super();
     this.chartData = motifChartData;
   }

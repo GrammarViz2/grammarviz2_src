@@ -119,7 +119,6 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
    */
   public SequiturChartPanel(MotifChartData chartData) {
     this.chartData = chartData;
-    resetChartPanel();
   }
 
   /**

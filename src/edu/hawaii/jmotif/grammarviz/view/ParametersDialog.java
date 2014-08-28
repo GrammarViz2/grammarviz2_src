@@ -95,6 +95,6 @@ class ParametersDialog extends JDialog implements ActionListener, PropertyChange
   }
 
   public double getNormalizationThresholdValue() {
-    return Double.valueOf(this.normalizationThreshold);
+    return this.normalizationThreshold;
   }
 }

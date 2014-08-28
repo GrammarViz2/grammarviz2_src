@@ -125,7 +125,7 @@ public class SequiturModel extends Observable {
       // set the lines limit
       long loadLimit = 0l;
       if (!(null == limitStr) && !(limitStr.isEmpty())) {
-        loadLimit = Long.valueOf(limitStr);
+        loadLimit = Long.parseLong(limitStr);
       }
 
       // open the reader

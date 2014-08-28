@@ -230,7 +230,7 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
     // find the anomaly
     timeseriesPlot.clearDomainMarkers();
     DiscordRecord dr = this.chartData.getAnomalies().get(Integer.valueOf(newlySelectedRaw));
-    addPeriodMarker(timeseriesPlot, dr.getPosition(), dr.getPosition() + dr.getLength());
+    addAnomalyMarker(timeseriesPlot, dr.getPosition(), dr.getPosition() + dr.getLength());
   }
 
   /**
@@ -479,11 +479,37 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
   }
 
   /**
+   * Adds a periodicity marker.
+   * 
    * @param plot plot for the marker
    * @param startVal start postion
    * @param endVal end position
    */
   protected void addPeriodMarker(XYPlot plot, int startVal, int endVal) {
+
+    IntervalMarker marker = new IntervalMarker(startVal, endVal);
+
+    marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
+    marker.setPaint(new Color(134, 254, 225));
+    marker.setAlpha((float) 0.60);
+    marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+    marker.setLabelPaint(Color.blue);
+    marker.setLabelAnchor(RectangleAnchor.TOP_LEFT);
+    marker.setLabelTextAnchor(TextAnchor.TOP_LEFT);
+
+    marker.setPaint(Color.blue);
+
+    plot.addDomainMarker(marker, Layer.BACKGROUND);
+  }
+
+  /**
+   * Adds an anomaly marker.
+   * 
+   * @param plot plot for the marker
+   * @param startVal start postion
+   * @param endVal end position
+   */
+  protected void addAnomalyMarker(XYPlot plot, int startVal, int endVal) {
 
     IntervalMarker marker = new IntervalMarker(startVal, endVal);
 
@@ -498,13 +524,6 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
     marker.setPaint(Color.pink);
 
     plot.addDomainMarker(marker, Layer.BACKGROUND);
-
-    // ValueMarker markStart = new ValueMarker(startVal, new Color(31, 254, 225),
-    // new BasicStroke(2.0f));
-    // ValueMarker markEnd = new ValueMarker(endVal, new Color(31, 254, 225), new
-    // BasicStroke(2.0f));
-    // plot.addDomainMarker(markStart, Layer.BACKGROUND);
-    // plot.addDomainMarker(markEnd, Layer.BACKGROUND);
   }
 
   /**

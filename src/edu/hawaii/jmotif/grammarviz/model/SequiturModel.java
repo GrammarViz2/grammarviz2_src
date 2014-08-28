@@ -201,12 +201,22 @@ public class SequiturModel extends Observable {
     }
     else {
 
-      String message = "setting up GI with params: sliding window " + useSlidingWindow
-          + ", numerosity reduction " + numerosityReductionStrategy.toString() + ", SAX window "
-          + windowSize + ", PAA " + paaSize + ", Alphabet " + alphabetSize;
-      consoleLogger.info(message);
-
-      this.log(message);
+      // the logging block
+      //
+      StringBuffer sb = new StringBuffer("setting up GI with params: ");
+      if (0 == algorithm) {
+        sb.append("algorithm: Sequitur, ");
+      }
+      else {
+        sb.append("algorithm: RePair, ");
+      }
+      sb.append("sliding window ").append(useSlidingWindow);
+      sb.append(", numerosity reduction ").append(numerosityReductionStrategy.toString());
+      sb.append(", SAX window ").append(windowSize);
+      sb.append(", PAA ").append(paaSize);
+      sb.append(", Alphabet ").append(alphabetSize);
+      consoleLogger.info(sb.toString());
+      this.log(sb.toString());
 
       consoleLogger.debug("creating ChartDataStructure");
       this.chartData = new MotifChartData(this.dataFileName, this.ts, useSlidingWindow,
@@ -241,6 +251,7 @@ public class SequiturModel extends Observable {
           SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
               NumerosityReductionStrategy.EXACT, normalizationThreshold);
 
+          @SuppressWarnings("unused")
           RePairRule rePairGrammar = RePairFactory.buildGrammar(parallelRes);
 
           RePairRule.expandRules();

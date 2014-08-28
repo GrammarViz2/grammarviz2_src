@@ -48,7 +48,7 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
   }
 
   /**
-   * create the chart for the original time series
+   * Create the chart for the original time series.
    * 
    * @return a JFreeChart object of the chart
    * @throws TSException
@@ -109,6 +109,14 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
 
   }
 
+  /**
+   * Converts an array to a normalized XYSeries to be digested with JFreeChart.
+   * 
+   * @param index
+   * @param series
+   * @return
+   * @throws TSException
+   */
   private XYSeries toSeries(int index, double[] series) throws TSException {
     double[] normalizedSubseries = TSUtils.zNormalize(series);
     XYSeries res = new XYSeries("series" + String.valueOf(index));
@@ -119,62 +127,53 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
   }
 
   /**
-   * highlight the original time series sequences of a rule
+   * Highlight the original time series sequences of a rule.
    * 
-   * @param index index of the rule in the sequitur table
+   * @param index index of the rule in the sequitur table.
    */
   protected void chartIntervalsForRule(String rule) {
-
     try {
-
       ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(Integer.valueOf(rule));
-
       ArrayList<double[]> intervals = new ArrayList<double[]>();
-
       for (RuleInterval saxPos : arrPos) {
         intervals.add(extractInterval(saxPos.getStartPos(), saxPos.getEndPos()));
       }
-
       chartIntervals(intervals);
-
     }
     catch (TSException e) {
       System.err.println(StackTrace.toString(e));
     }
-
   }
 
   /**
-   * highlight the original time series sequences of a sub-sequences class
+   * Highlight the original time series sequences of a sub-sequences class.
    * 
-   * @param index index of the class in the sub-sequences class table
+   * @param index index of the class in the sub-sequences class table.
    */
   protected void chartIntervalsForClass(String classIndex) {
-
     try {
-
       ArrayList<RuleInterval> arrPos = chartData.getSubsequencesPositionsByClassNum(Integer
           .valueOf(classIndex));
-
       ArrayList<double[]> intervals = new ArrayList<double[]>();
-
       for (RuleInterval saxPos : arrPos) {
         intervals.add(extractInterval(saxPos.getStartPos(), saxPos.getEndPos()));
       }
-
       chartIntervals(intervals);
-
     }
     catch (TSException e) {
       System.err.println(StackTrace.toString(e));
     }
-
   }
 
-  private void chartIntervalForAnomaly(String newlySelectedRaw) {
+  /**
+   * Charts a subsequence for a selected row in the anomaly table.
+   * 
+   * @param selectedRow
+   */
+  private void chartIntervalForAnomaly(String selectedRow) {
     // find the anomaly
     try {
-      DiscordRecord dr = this.chartData.getAnomalies().get(Integer.valueOf(newlySelectedRaw));
+      DiscordRecord dr = this.chartData.getAnomalies().get(Integer.valueOf(selectedRow));
       ArrayList<double[]> intervals = new ArrayList<double[]>();
       intervals.add(extractInterval(dr.getPosition(), dr.getPosition() + dr.getLength()));
       chartIntervals(intervals);
@@ -184,6 +183,14 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
     }
   }
 
+  /**
+   * Extracts a subsequence of the original time series.
+   * 
+   * @param startPos the start position.
+   * @param endPos the end position.
+   * @return the subsequence.
+   * @throws TSException if error occurs.
+   */
   private double[] extractInterval(int startPos, int endPos) throws TSException {
     if (this.chartData.getOriginalTimeseries().length <= (endPos - startPos)) {
       return Arrays.copyOf(this.chartData.getOriginalTimeseries(),

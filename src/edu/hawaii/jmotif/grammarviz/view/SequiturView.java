@@ -60,6 +60,8 @@ public class SequiturView implements Observer, ActionListener {
 
   // String is the king - constants for actions
   //
+  /** Select data file action key. */
+  private static final String SELECT_FILE = "select_file";
   /** Load data action key. */
   private static final String LOAD_DATA = "load_data";
   /** Process data action key. */
@@ -305,6 +307,15 @@ public class SequiturView implements Observer, ActionListener {
     JMenu fileMenu = new JMenu("File");
     fileMenu.setMnemonic(KeyEvent.VK_F);
     fileMenu.getAccessibleContext().setAccessibleDescription("The file menu");
+    // Open file item
+    JMenuItem openFileItem = new JMenuItem("Select", KeyEvent.VK_O);
+    openFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+    openFileItem.getAccessibleContext().setAccessibleDescription("Open a data file");
+    openFileItem.setActionCommand(SELECT_FILE);
+    openFileItem.addActionListener(this);
+    fileMenu.add(openFileItem);
+    // add a separator
+    fileMenu.addSeparator();
     // an exit item
     JMenuItem exitItem = new JMenuItem("Exit", KeyEvent.VK_X);
     exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
@@ -316,7 +327,7 @@ public class SequiturView implements Observer, ActionListener {
     //
     //
     JMenu settingsMenu = new JMenu("Settings");
-    settingsMenu.setMnemonic(KeyEvent.VK_O);
+    settingsMenu.setMnemonic(KeyEvent.VK_S);
     settingsMenu.getAccessibleContext().setAccessibleDescription("Settings menu");
     // an exit item
     JMenuItem optionsItem = new JMenuItem("GrammarViz options", KeyEvent.VK_P);
@@ -620,7 +631,7 @@ public class SequiturView implements Observer, ActionListener {
     logTextArea.setCaretPosition(logTextArea.getDocument().getLength());
     logTextPane.setBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED));
     logTextPane.setAutoscrolls(true);
-    log(Level.INFO, "running Sequitur Demo... ");
+    log(Level.INFO, "running GrammarViz 2.0 demo");
   }
 
   /**
@@ -734,7 +745,7 @@ public class SequiturView implements Observer, ActionListener {
     String command = arg.getActionCommand();
 
     if (OPTIONS_MENU_ITEM.equalsIgnoreCase(command)) {
-
+      log(Level.INFO, "options menu action performed");
       CoverageCountStrategy currentStrategy = this.dataChartPane.getCoverageCountStrategy();
       int currentAlgorithm = this.currentGIAlgorithmSelection;
 
@@ -749,7 +760,13 @@ public class SequiturView implements Observer, ActionListener {
       this.normalizationThreshold = parametersDialog.getNormalizationThresholdValue();
     }
 
+    if (SELECT_FILE.equalsIgnoreCase(command)) {
+      log(Level.INFO, "select file action performed");
+      controller.getBrowseFilesListener().actionPerformed(null);
+    }
+
     if (LOAD_DATA.equalsIgnoreCase(command)) {
+      log(Level.INFO, "load data action performed");
       this.isTimeSeriesLoaded = false;
       if (this.dataFilePathField.getText().isEmpty()) {
         raiseValidationError("The file is not yet selected.");
@@ -761,6 +778,7 @@ public class SequiturView implements Observer, ActionListener {
     }
 
     else if (PROCESS_DATA.equalsIgnoreCase(command)) {
+      log(Level.INFO, "process data action performed");
       if (this.isTimeSeriesLoaded) {
         Boolean useSlidingWindow = this.useSlidingWindowCheckBox.isSelected();
         NumerosityReductionStrategy numerosityReductionStrategy = this.selectedNumerosityReductionStrategy;
@@ -780,6 +798,7 @@ public class SequiturView implements Observer, ActionListener {
     }
 
     else if (DISPLAY_CHART.equalsIgnoreCase(command)) {
+      log(Level.INFO, "display chart action performed");
       if (null == this.chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
@@ -791,6 +810,7 @@ public class SequiturView implements Observer, ActionListener {
     }
 
     else if (DISPLAY_DENSITY_DATA.equalsIgnoreCase(command)) {
+      log(Level.INFO, "display density plot action performed");
       if (null == this.chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
@@ -801,6 +821,7 @@ public class SequiturView implements Observer, ActionListener {
     }
 
     else if (DISPLAY_LENGTH_HISTOGRAM.equalsIgnoreCase(command)) {
+      log(Level.INFO, "display rule length histogram action performed");
       if (null == this.chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
@@ -811,6 +832,7 @@ public class SequiturView implements Observer, ActionListener {
     }
 
     else if (DISPLAY_ANOMALIES_DATA.equalsIgnoreCase(command)) {
+      log(Level.INFO, "find/display anomalies action performed");
       if (null == this.chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
@@ -835,6 +857,7 @@ public class SequiturView implements Observer, ActionListener {
     }
 
     else if (SAVE_CHART.equalsIgnoreCase(command)) {
+      log(Level.INFO, "save chart action performed");
       if (null == this.chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
@@ -844,10 +867,12 @@ public class SequiturView implements Observer, ActionListener {
     }
 
     else if (FIND_PERIODICITY.equalsIgnoreCase(command)) {
+      log(Level.INFO, "find periodicity action performed");
       this.dataChartPane.actionPerformed(new ActionEvent(this, 3, FIND_PERIODICITY));
     }
 
     else if (CLUSTER_RULES.equalsIgnoreCase(command)) {
+      log(Level.INFO, "cluster/prune rules action performed");
       if (null == this.chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
@@ -888,6 +913,7 @@ public class SequiturView implements Observer, ActionListener {
     }
 
     else if (USE_SLIDING_WINDOW_ACTION_KEY.equalsIgnoreCase(command)) {
+      log(Level.INFO, "sliding window toggled");
       if (this.useSlidingWindowCheckBox.isSelected()) {
         this.windowSizeLabel.setText("Window size:");
         this.windowSizeLabel.setEnabled(true);
@@ -910,10 +936,12 @@ public class SequiturView implements Observer, ActionListener {
     else if (NumerosityReductionStrategy.NONE.toString().equalsIgnoreCase(command)
         || NumerosityReductionStrategy.EXACT.toString().equalsIgnoreCase(command)
         || NumerosityReductionStrategy.MINDIST.toString().equalsIgnoreCase(command)) {
+      log(Level.INFO, "numerosity reduction option toggled");
       this.selectedNumerosityReductionStrategy = NumerosityReductionStrategy.fromString(command);
     }
 
     else if ("Exit".equalsIgnoreCase(command)) {
+      log(Level.INFO, "Exit selected, shutting down, bye! ");
       shutdown();
     }
   }

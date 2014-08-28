@@ -13,8 +13,6 @@ import edu.hawaii.jmotif.gi.sequitur.SAXMotif;
 import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
 import edu.hawaii.jmotif.logic.RuleInterval;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.sax.alphabet.Alphabet;
-import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.SAXFileIOHelper;
@@ -28,14 +26,6 @@ import edu.hawaii.jmotif.util.SAXFileIOHelper;
  */
 public class MotifChartData extends Observable implements Observer {
 
-  /** The threshold to be used for the snippets window. */
-  private static final double NORMALIZATION_THRESHOLD = 0.005;
-
-  /** Alphabet instance we'll use. */
-  private static final Alphabet normalA = new NormalAlphabet();
-
-  private static final String CR = "\n";
-
   /** SAX conversion parameters. */
   protected final boolean slidingWindowOn;
   protected final NumerosityReductionStrategy numerosityReductionStrategy;
@@ -44,6 +34,7 @@ public class MotifChartData extends Observable implements Observer {
   protected final int saxPAASize;
 
   /** Original data file name. */
+  @SuppressWarnings("unused")
   private final String fname;
 
   /** Original data which will be used for the chart. */
@@ -93,14 +84,20 @@ public class MotifChartData extends Observable implements Observer {
     this.saxAlphabetSize = alphabetSize;
   }
 
-  // public void setSAXFrequencyData(SAXFrequencyData saxFrequencyData) {
-  // this.saxFrequencyData = saxFrequencyData;
-  // }
-
+  /**
+   * Sets the grammar rules data.
+   * 
+   * @param rules the grammar rules collection.
+   */
   public void setGrammarRules(GrammarRules rules) {
     this.grammarRules = rules;
   }
 
+  /**
+   * Get the grammar rules.
+   * 
+   * @return the grammar rules collection.
+   */
   public GrammarRules getGrammarRules() {
     return this.grammarRules;
   }
@@ -135,220 +132,20 @@ public class MotifChartData extends Observable implements Observer {
     return saxPAASize;
   }
 
-  // /**
-  // * @return SAX frequency data
-  // */
-  // public SAXFrequencyData getFreqData() {
-  // return saxFrequencyData;
-  // }
-
-  // /**
-  // * Builds (1) SAX frequency data structure respecting all the parameters, (2) runs Sequitur.
-  // */
-  // public void buildSAX() {
-  //
-  // this.saxFrequencyData = new SAXFrequencyData();
-  //
-  // try {
-  //
-  // String previousString = "";
-  //
-  // if (this.slidingWindowOn) {
-  //
-  // // scan across the time series extract sub sequences, and convert
-  // // them to strings
-  // for (int i = 0; i < this.originalTimeSeries.length - (this.saxWindowSize - 1); i++) {
-  //
-  // // fix the current subsection
-  // double[] subSection = Arrays.copyOfRange(this.originalTimeSeries, i, i
-  // + this.saxWindowSize);
-  //
-  // // Z normalize it
-  // if (TSUtils.stDev(subSection) > NORMALIZATION_THRESHOLD) {
-  // subSection = TSUtils.zNormalize(subSection);
-  // }
-  //
-  // // perform PAA conversion if needed
-  // double[] paa = TSUtils.optimizedPaa(subSection, this.saxPAASize);
-  //
-  // // Convert the PAA to a string.
-  // char[] currentString = TSUtils.ts2String(paa, normalA.getCuts(this.saxAlphabetSize));
-  //
-  // // NumerosityReduction
-  // if (!previousString.isEmpty()) {
-  //
-  // if ((NumerosityReductionStrategy.MINDIST == this.numerosityReductionStrategy)
-  // && (0.0 == SAXFactory.saxMinDist(previousString.toCharArray(), currentString,
-  // normalA.getDistanceMatrix(this.saxAlphabetSize)))) {
-  // continue;
-  // }
-  // else if ((NumerosityReductionStrategy.EXACT == this.numerosityReductionStrategy)
-  // && previousString.equalsIgnoreCase(new String(currentString))) {
-  // continue;
-  // }
-  // }
-  //
-  // previousString = new String(currentString);
-  // this.saxFrequencyData.put(currentString, i);
-  // }
-  // }
-  // else {
-  //
-  // double[] normalizedSeries = TSUtils.zNormalize(this.originalTimeSeries);
-  //
-  // double[] paa = TSUtils.optimizedPaa(normalizedSeries, this.saxPAASize);
-  //
-  // char[] currentString = TSUtils.ts2String(paa, normalA.getCuts(this.saxAlphabetSize));
-  //
-  // for (int i = 0; i < currentString.length; i++) {
-  // char[] cc = { currentString[i] };
-  // // NumerosityReduction
-  // if (!previousString.isEmpty()) {
-  // if ((NumerosityReductionStrategy.MINDIST == this.numerosityReductionStrategy)
-  // && (0.0 == SAXFactory.saxMinDist(previousString.toCharArray(), cc,
-  // normalA.getDistanceMatrix(this.saxAlphabetSize)))) {
-  // continue;
-  // }
-  // else if ((NumerosityReductionStrategy.EXACT == this.numerosityReductionStrategy)
-  // && previousString.equalsIgnoreCase(new String(cc))) {
-  // continue;
-  // }
-  // }
-  // previousString = new String(cc);
-  // this.saxFrequencyData.put(cc, i);
-  //
-  // }
-  // }
-  //
-  // // get a whole series representation as SAX words
-  // //
-  // this.saxDisplayString = this.saxFrequencyData.getSAXString(" ");
-  // String currentPath = new File(".").getCanonicalPath();
-  // BufferedWriter bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
-  // + "sequitur_str.txt")));
-  // StringTokenizer st = new StringTokenizer(this.saxDisplayString, " ");
-  // int currentNum = 1;
-  // HashMap<String, Integer> dictionary = new HashMap<String, Integer>();
-  // while (st.hasMoreTokens()) {
-  // String token = st.nextToken();
-  // Integer key = dictionary.get(token);
-  // if (null == key) {
-  // key = currentNum;
-  // dictionary.put(token, currentNum);
-  // currentNum = currentNum + 1;
-  // }
-  // bw.write(key + " ");
-  // }
-  // bw.close();
-  //
-  // bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
-  // + "sequitur_dictionary.txt")));
-  // for (Entry<String, Integer> e : dictionary.entrySet()) {
-  // bw.write(e.getKey() + " " + e.getValue() + "\n");
-  // }
-  // bw.close();
-  //
-  // // writing the frequency data
-  // //
-  // bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
-  // + "frequencyData.ser")));
-  // this.saxFrequencyData.save(bw);
-  // bw.close();
-  //
-  // // System.out.println("SAX Display String: " + saxDisplayString);
-  //
-  // // weird conversion to numbers begins
-  // //
-  // // _NumericSAX = saxDisplayString;
-  // // boolean bPavel = true;
-  // // if (bPavel) {
-  // // for (int i = 0; i < saxAlphabetSize; i++) {
-  // // char c1 = (char) ('a' + i);
-  // // char c2 = (char) ('1' + i);
-  // // _NumericSAX = _NumericSAX.replace(c1, c2);
-  // // }
-  // // }
-  // // else {
-  // // for (int i = 0; i < saxAlphabetSize; i++) {
-  // // char c1 = (char) ('a' + saxAlphabetSize - i - 1);
-  // // char c2 = (char) ('1' + i);
-  // // _NumericSAX = _NumericSAX.replace(c1, c2);
-  // //
-  // // }
-  // // }
-  // // weird conversion to numbers ends
-  // //
-  //
-  // // call to Sequitur
-  // runSequitur(saxDisplayString);
-  //
-  // // //System.out.println("SAX Numeric String: " + _NumericSAX);
-  // }
-  // catch (Exception ex) {
-  // ex.printStackTrace();
-  // }
-  //
-  // // this.grammar.getRules();
-  // }
-
-  // /**
-  // * Runs the sequitur algorithm for SAX
-  // *
-  // * @param strSAX string of SAX subsequences
-  // * @return the sequitur rules as string
-  // * @throws TSException
-  // */
-  // private void runSequitur(String strSAX) throws TSException {
-  //
-  // SAXRule.numRules = new AtomicInteger(0);
-  // SAXSymbol.theDigrams.clear();
-  // SAXSymbol.theSubstituteTable.clear();
-  //
-  // grammar = new SAXRule();
-  // // SAXRule.arrayRuleStrings = new ArrayList<String>();
-  // SAXRule.arrRuleRecords = new ArrayList<SAXRuleRecord>();
-  //
-  // StringTokenizer st = new StringTokenizer(strSAX, " ");
-  // int currentPosition = 0;
-  // while (st.hasMoreTokens()) {
-  //
-  // String token = st.nextToken();
-  //
-  // // boolean merged = false;
-  // // for (String str : SAXSymbol.theSubstituteTable.keySet()) {
-  // // double dist = SAXFactory.saxMinDist(str.toCharArray(), token.toCharArray(),
-  // // normalA.getDistanceMatrix(this.saxAlphabetSize));
-  // // if (dist < 2) {
-  // // merged = true;
-  // // SAXSymbol.theSubstituteTable.get(str).put(token.substring(0), currentPosition);
-  // // token = str;
-  // // }
-  // // }
-  // // if (!(merged)) {
-  // // SAXSymbol.theSubstituteTable.put(token, new Hashtable<String, Integer>());
-  // // }
-  //
-  // grammar.last().insertAfter(new SAXTerminal(token, currentPosition));
-  // grammar.last().p.check();
-  // currentPosition++;
-  // }
-  //
-  // // System.out.println("\nSequitur finished...\n " + grammar.getRules() +
-  // // "\nExpanding rules...\n");
-  //
-  // // *** IMPORTANT: this fills up structure for all rules
-  // // grammar.getRules();
-  // grammar.getSAXRules();
-  // // *** IMPORTANT: this collects stats
-  // collectMotifStats();
-  //
-  // // grammar.getSAXRules();
-  // }
-
+  /**
+   * Get the collection of transformed rule records.
+   * 
+   * @return the collection of transformed rules.
+   */
   public ArrayList<PackedRuleRecord> getArrPackedRuleRecords() {
     return arrPackedRuleRecords;
   }
 
+  /**
+   * Set the collection of transformed rule records.
+   * 
+   * @param arrPackedRuleRecords the collection of transformed rules.
+   */
   public void setArrPackedRuleRecords(ArrayList<PackedRuleRecord> arrPackedRuleRecords) {
     this.arrPackedRuleRecords = arrPackedRuleRecords;
   }
@@ -383,29 +180,6 @@ public class MotifChartData extends Observable implements Observer {
     saxDisplayString = SAXDisplay;
   }
 
-  // /**
-  // * @return SAX string in numerical format
-  // */
-  // public String getNumericSAX() {
-  // return _NumericSAX;
-  // }
-  //
-  // /**
-  // * @param numericSAX SAX string in numerical format
-  // */
-  // public void setNumericSAX(String numericSAX) {
-  // _NumericSAX = numericSAX;
-  // }
-
-  // /**
-  // * Get the grammar.
-  // *
-  // * @return the built by Sequitur grammar.
-  // */
-  // public SAXRule getGrammar() {
-  // return grammar;
-  // }
-
   /**
    * Recovers start and stop coordinates ofRule's subsequences.
    * 
@@ -417,6 +191,12 @@ public class MotifChartData extends Observable implements Observer {
     return ruleRec.getRuleIntervals();
   }
 
+  /**
+   * Get the rule-corresponding subsequences from a class.
+   * 
+   * @param clsIdx the class index.
+   * @return the class-associated subsequences.
+   */
   public ArrayList<RuleInterval> getSubsequencesPositionsByClassNum(Integer clsIdx) {
 
     // this will be the result
@@ -456,191 +236,6 @@ public class MotifChartData extends Observable implements Observer {
     SAXFileIOHelper.writeFileXYSeries(path, fileName, positionFileName, data, positions);
 
     return positions;
-  }
-
-  // private String collectMotifStats() {
-  //
-  // // start collecting stats
-  // //
-  // // System.out.println("Collecting stats:");
-  //
-  // // basic stats
-  // //
-  // // System.out.println("Series length: " + this.originalTimeSeries.length);
-  // // System.out.println("SAX params: w: " + this.saxWindowSize + ", paa: " + this.saxPAASize
-  // // + ", a: " + this.saxAlphabetSize);
-  // // System.out.println("SAX params: use sliding window: " + slidingWindowOn
-  // // + ", numerosity reduction: " + this.numerosityReductionStrategy);
-  //
-  // // SAX transform statistics
-  // //
-  // // System.out.println("Total SAX words seen: " + this.saxDisplayString.split(" ").length);
-  // // System.out.println("Unique SAX words seen: " + this.saxFrequencyData.size());
-  // // for (SAXFrequencyEntry sfe : this.saxFrequencyData.getSortedFrequencies()) {
-  // // System.out.println("  " + sfe.getSubstring() + ", seen " + sfe.getEntries().size()
-  // // + " times.");
-  // // }
-  //
-  // // Sequitur rules statistics
-  // //
-  // // System.out.println("Sequitur rules built: " +
-  // // this.getGrammar().getSAXContainerList().size());
-  //
-  // boolean fileOpen = false;
-  // BufferedWriter bw = null;
-  // try {
-  // String currentPath = new File(".").getCanonicalPath();
-  // bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
-  // + "grammar_stats.txt")));
-  // StringBuffer sb = new StringBuffer();
-  // sb.append("# filename: ").append(this.fname).append(CR);
-  // sb.append("# sliding window: ").append(this.saxWindowSize).append(CR);
-  // if (this.slidingWindowOn) {
-  // sb.append("# window size: ").append(this.slidingWindowOn).append(CR);
-  // }
-  // sb.append("# paa size: ").append(this.saxPAASize).append(CR);
-  // sb.append("# alphabet size: ").append(this.saxAlphabetSize).append(CR);
-  // bw.write(sb.toString());
-  // fileOpen = true;
-  // }
-  // catch (IOException e) {
-  // System.err.print("Encountered an error while writing stats file: \n" + StackTrace.toString(e)
-  // + "\n");
-  // }
-  //
-  // ArrayList<int[]> ruleLengths = new ArrayList<int[]>();
-  //
-  // for (GrammarRuleRecord ruleRecord : this.grammarRules) {
-  //
-  // StringBuffer sb = new StringBuffer();
-  // sb.append("/// ").append(ruleRecord.getRuleName()).append(CR);
-  // sb.append(ruleRecord.getRuleName()).append(" -> \'")
-  // .append(ruleRecord.getRuleString().trim()).append("\', expanded rule string: \'")
-  // .append(ruleRecord.getExpandedRuleString()).append("\'").append(CR);
-  //
-  // // the original indexes of all SAX words
-  // ArrayList<Integer> indices = saxFrequencyData.getAllIndices();
-  //
-  // // expand all rules which built this particular rule
-  // // expandedSAXwordsRule = rule.expandRules();
-  // // System.out.println(container.getRuleName() + " -> " + container.getRuleString() + ", "
-  // // + container.getExpandedRuleString());
-  //
-  // ArrayList<RuleInterval> positions = new ArrayList<RuleInterval>();
-  // String[] split = ruleRecord.getExpandedRuleString().split(" ");
-  // // rule.expandRules();
-  //
-  // // TODO: some sort of dirty hack here
-  // if (this.slidingWindowOn) {
-  // for (Integer s : ruleRecord.getOccurrences()) {
-  // if ((s + split.length) >= indices.size()) {
-  // positions.add(new RuleInterval(indices.get(s), this.originalTimeSeries.length - 1));
-  // }
-  // else {
-  // positions.add(new RuleInterval(indices.get(s), indices.get(s + split.length) - 1
-  // + saxWindowSize));
-  // }
-  // }
-  // }
-  // else {
-  // double step = (double) this.originalTimeSeries.length / (double) this.saxPAASize;
-  // for (Integer s : ruleRecord.getOccurrences()) {
-  // Long start = Math.round(indices.get(s) * step);
-  // Long end = 0L;
-  // if ((s + split.length) >= indices.size()) {
-  // end = (long) this.originalTimeSeries.length;
-  // }
-  // else {
-  // end = Math.round(indices.get(s + split.length) * step);
-  // }
-  // positions.add(new RuleInterval(start.intValue(), end.intValue()));
-  //
-  // }
-  // }
-  //
-  // if (positions.size() > 0) {
-  // int[] starts = new int[positions.size()];
-  // int[] lengths = new int[positions.size()];
-  // int i = 0;
-  // for (RuleInterval sp : positions) {
-  // starts[i] = sp.getStartPos();
-  // lengths[i] = (sp.endPos - sp.startPos);
-  // i++;
-  // }
-  // sb.append("subsequences starts: ").append(Arrays.toString(starts)).append(CR)
-  // .append("subsequences lengths: ").append(Arrays.toString(lengths)).append(CR);
-  // ruleLengths.add(lengths);
-  // ruleRecord.setMeanLength(getMeanLength(lengths));
-  // ruleRecord.setMinMaxLength(lengths);
-  // // here kicks in the periodicity stat
-  // //
-  // double meanPeriod = getMeanPeriod(starts);
-  // ruleRecord.setPeriod(meanPeriod);
-  // ruleRecord.setPeriodError(getPeriodError(starts, meanPeriod));
-  // }
-  //
-  // sb.append("rule occurrence frequency ").append(positions.size()).append(CR);
-  // sb.append("rule use frequency ").append(ruleRecord.getRuleUseFrequency()).append(CR);
-  // sb.append("min length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[0]).append(CR);
-  // sb.append("max length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[1]).append(CR);
-  // sb.append("mean length ").append(ruleRecord.getMeanLength()).append(CR);
-  // // sb.append("period ").append(container.getPeriod()).append(CR);
-  // // sb.append("period error ").append(container.getPeriodError()).append(CR);
-  //
-  // if (fileOpen) {
-  // try {
-  // bw.write(sb.toString());
-  // }
-  // catch (IOException e) {
-  // System.err.print("Encountered an error while writing stats file: \n"
-  // + StackTrace.toString(e) + "\n");
-  // }
-  // }
-  // }
-  //
-  // // for (int i = 0; i < ruleLengths.size(); i++) {
-  // // System.out.println("R" + (i + 1) + "," + getFrequency(ruleLengths.get(i)) + ","
-  // // + getMax(ruleLengths.get(i)) + "," + getMaxVariation(ruleLengths.get(i)) + ","
-  // // + Arrays.toString(ruleLengths.get(i)).replace("[", "").replace("]", ""));
-  // // }
-  //
-  // // try to write stats into the file
-  // if (fileOpen) {
-  // try {
-  // bw.close();
-  // }
-  // catch (IOException e) {
-  // System.err.print("Encountered an error while writing stats file: \n"
-  // + StackTrace.toString(e) + "\n");
-  // }
-  // }
-  //
-  // return null;
-  // }
-
-  private double getPeriodError(int[] starts, double meanPeriod) {
-    double sqd = 0.0;
-    for (int i = 1; i < starts.length; i++) {
-      double periodDiff = ((double) starts[i] - starts[i - 1]) - meanPeriod;
-      sqd = sqd + periodDiff * periodDiff;
-    }
-    return Math.sqrt(sqd / (starts.length - 1));
-  }
-
-  private double getMeanPeriod(int[] starts) {
-    int sum = 0;
-    for (int i = 1; i < starts.length; i++) {
-      sum = sum + starts[i] - starts[i - 1];
-    }
-    return ((double) sum) / (double) (starts.length - 1);
-  }
-
-  private Integer getMeanLength(int[] lengths) {
-    int sum = 0;
-    for (int l : lengths) {
-      sum = sum + l;
-    }
-    return sum / lengths.length;
   }
 
   public int getRulesNumber() {
@@ -1034,6 +629,34 @@ public class MotifChartData extends Observable implements Observer {
 
   public GrammarRuleRecord getRule(Integer ruleIndex) {
     return this.grammarRules.get(ruleIndex);
+  }
+
+  @SuppressWarnings("unused")
+  private double getPeriodError(int[] starts, double meanPeriod) {
+    double sqd = 0.0;
+    for (int i = 1; i < starts.length; i++) {
+      double periodDiff = ((double) starts[i] - starts[i - 1]) - meanPeriod;
+      sqd = sqd + periodDiff * periodDiff;
+    }
+    return Math.sqrt(sqd / (starts.length - 1));
+  }
+
+  @SuppressWarnings("unused")
+  private double getMeanPeriod(int[] starts) {
+    int sum = 0;
+    for (int i = 1; i < starts.length; i++) {
+      sum = sum + starts[i] - starts[i - 1];
+    }
+    return ((double) sum) / (double) (starts.length - 1);
+  }
+
+  @SuppressWarnings("unused")
+  private Integer getMeanLength(int[] lengths) {
+    int sum = 0;
+    for (int l : lengths) {
+      sum = sum + l;
+    }
+    return sum / lengths.length;
   }
 
 }

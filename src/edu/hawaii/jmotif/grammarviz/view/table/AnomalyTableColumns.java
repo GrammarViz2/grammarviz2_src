@@ -14,7 +14,7 @@ public enum AnomalyTableColumns {
   ANOMALY_POSITION("Position"),
   ANOMALY_LENGTH("Length"),
   ANOMALY_NNDISTANCE("NN Distance"),
-  ANOMALY_RULE("Rule");
+  ANOMALY_RULE("Grammar Rule");
 
   private final String columnName;
 

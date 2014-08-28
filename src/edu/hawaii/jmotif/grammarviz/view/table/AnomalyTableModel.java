@@ -35,7 +35,7 @@ public class AnomalyTableModel extends SequiturRulesTableDataModel {
         item[nColumn++] = rowIndex;
         item[nColumn++] = discords.get(rowIndex).getPosition();
         item[nColumn++] = discords.get(rowIndex).getLength();
-        item[nColumn++] = discords.get(rowIndex).getNNDistance();
+        item[nColumn++] = Double.valueOf(discords.get(rowIndex).getNNDistance());
         item[nColumn++] = discords.get(rowIndex).getRuleId();
         rows.add(item);
       }

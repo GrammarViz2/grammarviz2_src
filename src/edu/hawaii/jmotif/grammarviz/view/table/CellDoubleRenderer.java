@@ -5,13 +5,20 @@ import java.text.NumberFormat;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
+/**
+ * Implements a cell renderer for a Double class.
+ * 
+ * @author psenin
+ * 
+ */
 public class CellDoubleRenderer extends DefaultTableCellRenderer {
 
-  /**
-   * 
-   */
+  /** A fancy serial. */
   private static final long serialVersionUID = 3040778303718817255L;
 
+  /**
+   * Constructor.
+   */
   public CellDoubleRenderer() {
     super();
   }
@@ -23,7 +30,7 @@ public class CellDoubleRenderer extends DefaultTableCellRenderer {
       Number numberValue = (Number) aValue;
       NumberFormat formatter = NumberFormat.getNumberInstance();
       DecimalFormat df = (DecimalFormat) formatter;
-      df.applyPattern("#####0.00");
+      df.applyPattern("##0.00000");
       result = df.format(numberValue.doubleValue());
     }
     super.setValue(result);

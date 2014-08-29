@@ -23,7 +23,9 @@ References:
 Building
 ==========
 
-We use Ant for our builds. To compile the code, simply run
+We use Ant for our builds. The code is also continously built by [Travis CI](https://travis-ci.org/GrammarViz2/grammarviz2_src).
+
+Once you have ant running, to compile the code, simply run:
 
 <pre>
 $ ant

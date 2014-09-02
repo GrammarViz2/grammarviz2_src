@@ -84,7 +84,11 @@ public class SequiturView implements Observer, ActionListener {
   /** Chunking/Sliding switch action key. */
   protected static final String USE_SLIDING_WINDOW_ACTION_KEY = "sliding_window_key";
 
+  /** The action command for Options dialog. */
   private static final String OPTIONS_MENU_ITEM = "menu_item_options";
+
+  /** The action command for About dialog. */
+  private static final String ABOUT_MENU_ITEM = "menu_item_about";
 
   /** Frame for the GUI. */
   private static final JFrame frame = new JFrame(APPLICATION_VERSION);
@@ -351,8 +355,13 @@ public class SequiturView implements Observer, ActionListener {
     // an about item
     JMenuItem aboutItem = new JMenuItem("About", KeyEvent.VK_A);
     aboutItem.getAccessibleContext().setAccessibleDescription("About the app.");
-    exitItem.addActionListener(controller);
+    aboutItem.setActionCommand(ABOUT_MENU_ITEM);
+    aboutItem.addActionListener(this);
     helpMenu.add(aboutItem);
+
+    // make sure that controller is connected with Exit item
+    //
+    exitItem.addActionListener(controller);
 
     menuBar.add(fileMenu);
     menuBar.add(settingsMenu);
@@ -742,8 +751,12 @@ public class SequiturView implements Observer, ActionListener {
   @Override
   public void actionPerformed(ActionEvent arg) {
 
+    // get the action command code
+    //
     String command = arg.getActionCommand();
 
+    // treating options
+    //
     if (OPTIONS_MENU_ITEM.equalsIgnoreCase(command)) {
       log(Level.INFO, "options menu action performed");
       CoverageCountStrategy currentStrategy = this.dataChartPane.getCoverageCountStrategy();
@@ -758,6 +771,16 @@ public class SequiturView implements Observer, ActionListener {
           .getSelectedStrategyValue()));
       this.currentGIAlgorithmSelection = parametersDialog.getSelectedAlgorithmValue();
       this.normalizationThreshold = parametersDialog.getNormalizationThresholdValue();
+    }
+
+    // showing up the about dialog
+    //
+    if (ABOUT_MENU_ITEM.equalsIgnoreCase(command)) {
+      log(Level.INFO, "about menu action performed");
+
+      AboutGrammarVizDialog dlg = new AboutGrammarVizDialog(frame);
+
+      dlg.clearAndHide();
     }
 
     if (SELECT_FILE.equalsIgnoreCase(command)) {

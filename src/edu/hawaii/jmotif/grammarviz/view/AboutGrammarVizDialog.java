@@ -52,7 +52,7 @@ public class AboutGrammarVizDialog extends JDialog implements ActionListener {
 
     getContentPane().setLayout(mainFrameLayout);
 
-    getContentPane().add(aboutTextPane, "h 200:300:,w 400:500:,growx,growy,wrap");
+    getContentPane().add(editorScrollPane, "h 200:300:,w 400:500:,growx,growy,wrap");
 
     JPanel buttonPane = new JPanel();
     JButton okButton = new JButton(OK_BUTTON_TEXT);

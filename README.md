@@ -1,7 +1,7 @@
 GrammarViz 2.0
 ==========
 
-GrammarViz 2.0 source code public repository. For the documentation, please visit http://grammarviz2.github.io/grammarviz2_site.
+GrammarViz 2.0 source code public repository. For the documentation, please visit http://grammarviz2.github.io/grammarviz2_site. The software is released under [GPL v.2.0.](http://www.gnu.org/licenses/gpl-2.0.html)
 
 GrammarViz 2.0 implements in Java:
 

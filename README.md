@@ -25,7 +25,19 @@ Building
 
 We use Ant for our builds. The code is also continously built by [Travis CI](https://travis-ci.org/GrammarViz2/grammarviz2_src).
 
-Once you have ant running, to compile the code, simply run:
+First, make sure that Java and Ant are installed and running. My current dev. environment shows the next:
+
+<pre>
+$ java -version
+java version "1.8.0_20"
+Java(TM) SE Runtime Environment (build 1.8.0_20-b26)
+Java HotSpot(TM) 64-Bit Server VM (build 25.20-b23, mixed mode)
+
+$ ant -version
+Apache Ant(TM) version 1.8.2 compiled on December 20 2010
+</pre>
+
+In order to compile the code, simply run:
 
 <pre>
 $ ant

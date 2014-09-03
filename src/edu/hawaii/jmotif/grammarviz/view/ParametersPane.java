@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.NumberFormatter;
@@ -60,6 +61,18 @@ public class ParametersPane extends JPanel {
   public static final JFormattedTextField normalizationThresholdField = new JFormattedTextField(
       new NumberFormatter(NumberFormat.getNumberInstance(Locale.US)));
 
+  //
+  // Output options section
+  //
+  public static final String OUTPUT_RULE_DENSITY_CURVE_LABEL = "Rule density curve filename:";
+  public static final JTextField outputRuleDensityFName = new JTextField();
+
+  public static final String OUTPUT_GRAMMAR_LABEL = "Grammar filename:";
+  public static final JTextField outputGrammarFName = new JTextField();
+
+  public static final String OUTPUT_ANOMALY_LABEL = "Anomalies filename:";
+  public static final JTextField outputAnomalyFName = new JTextField();
+
   public ParametersPane() {
 
     super(new MigLayout("fill", "[grow]", "[grow]"));
@@ -68,13 +81,17 @@ public class ParametersPane extends JPanel {
 
     // the count strategy pane
     //
-    tabbedPane.addTab("Coverage Count Strategy", null, buildStrategyPanel(),
+    tabbedPane.addTab("Coverage Strategy", null, buildStrategyPanel(),
         "Coverage Count Strategy selection");
 
     // the GI Implementation pane
     //
     tabbedPane.addTab("GI Implementation", null, buildGIImplementationPanel(),
         "GI Implementation selection");
+
+    // the Output pane
+    //
+    tabbedPane.addTab("Output", null, buildOutputFilesPanel(), "Output configuration");
 
     // the Auxiliary parameters pane pane
     //
@@ -84,6 +101,11 @@ public class ParametersPane extends JPanel {
 
   }
 
+  /**
+   * Builds the other options panel.
+   * 
+   * @return
+   */
   private Component buildOptionsPanel() {
     // the resulting panel
     //
@@ -110,49 +132,6 @@ public class ParametersPane extends JPanel {
     optionsPanel.add(normalizationThresholdField, "wrap");
 
     res.add(optionsPanel, "pad 0 0 0 0");
-
-    return res;
-  }
-
-  private Component buildGIImplementationPanel() {
-    // the resulting panel
-    //
-    JPanel res = new JPanel(
-        new MigLayout("insets 0 0 0 0", "[fill,grow]", "[5:5:5][fill,grow 100]"));
-
-    // the "spacer"
-    res.add(new JLabel(), "wrap");
-
-    // Create the GI radio components.
-    //
-    JPanel giOptionPanel = new JPanel();
-
-    giOptionPanel.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Set the GI implementation",
-        TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
-
-    MigLayout buttonsPaneLayout = new MigLayout("insets 0 0 0 0", "[]", "[][]");
-
-    giOptionPanel.setLayout(buttonsPaneLayout);
-
-    giRadioButtons[0] = new JRadioButton("Sequitur");
-    giRadioButtons[0].setActionCommand(GI_SEQUITUR);
-
-    giRadioButtons[1] = new JRadioButton("Re-Pair");
-    giRadioButtons[1].setActionCommand(GI_REPAIR);
-
-    for (int i = 0; i < GI_BUTTONS_NUM; i++) {
-      giRadioGroup.add(giRadioButtons[i]);
-    }
-    giRadioButtons[0].setSelected(true);
-
-    int numChoices = giRadioButtons.length;
-
-    for (int i = 0; i < numChoices; i++) {
-      giOptionPanel.add(giRadioButtons[i], "wrap");
-    }
-
-    res.add(giOptionPanel, "pad 0 0 0 0");
 
     return res;
   }
@@ -208,6 +187,79 @@ public class ParametersPane extends JPanel {
     }
 
     res.add(strategyPanel, "pad 0 0 0 0");
+    return res;
+  }
+
+  private Component buildGIImplementationPanel() {
+    // the resulting panel
+    //
+    JPanel res = new JPanel(
+        new MigLayout("insets 0 0 0 0", "[fill,grow]", "[5:5:5][fill,grow 100]"));
+
+    // the "spacer"
+    res.add(new JLabel(), "wrap");
+
+    // Create the GI radio components.
+    //
+    JPanel giOptionPanel = new JPanel();
+
+    giOptionPanel.setBorder(BorderFactory.createTitledBorder(
+        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Set the GI implementation",
+        TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
+
+    MigLayout buttonsPaneLayout = new MigLayout("insets 0 0 0 0", "[]", "[][]");
+
+    giOptionPanel.setLayout(buttonsPaneLayout);
+
+    giRadioButtons[0] = new JRadioButton("Sequitur");
+    giRadioButtons[0].setActionCommand(GI_SEQUITUR);
+
+    giRadioButtons[1] = new JRadioButton("Re-Pair");
+    giRadioButtons[1].setActionCommand(GI_REPAIR);
+
+    for (int i = 0; i < GI_BUTTONS_NUM; i++) {
+      giRadioGroup.add(giRadioButtons[i]);
+    }
+    giRadioButtons[0].setSelected(true);
+
+    int numChoices = giRadioButtons.length;
+
+    for (int i = 0; i < numChoices; i++) {
+      giOptionPanel.add(giRadioButtons[i], "wrap");
+    }
+
+    res.add(giOptionPanel, "pad 0 0 0 0");
+
+    return res;
+  }
+
+  private Component buildOutputFilesPanel() {
+    // the resulting panel
+    //
+    JPanel res = new JPanel(
+        new MigLayout("insets 0 0 0 0", "[fill,grow]", "[5:5:5][fill,grow 100]"));
+
+    // the "spacer"
+    res.add(new JLabel(), "wrap");
+
+    // Create the GI radio components.
+    //
+    JPanel outputConfigurationPanel = new JPanel();
+
+    outputConfigurationPanel.setBorder(BorderFactory.createTitledBorder(
+        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Configure the output filenames",
+        TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
+
+    MigLayout filenamesLayout = new MigLayout("insets 0 0 0 0", "[]", "10[]10[]10[]");
+
+    outputConfigurationPanel.setLayout(filenamesLayout);
+
+    outputConfigurationPanel.add(new JLabel(OUTPUT_RULE_DENSITY_CURVE_LABEL), "wrap");
+    outputConfigurationPanel.add(new JLabel(OUTPUT_GRAMMAR_LABEL), "wrap");
+    outputConfigurationPanel.add(new JLabel(OUTPUT_ANOMALY_LABEL), "wrap");
+
+    res.add(outputConfigurationPanel, "pad 0 0 0 0");
+
     return res;
   }
 

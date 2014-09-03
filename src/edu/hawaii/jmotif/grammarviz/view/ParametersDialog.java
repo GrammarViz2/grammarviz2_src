@@ -24,7 +24,7 @@ class ParametersDialog extends JDialog implements ActionListener, PropertyChange
 
   private int strategy;
   private int algorithm;
-  private Double normalizationThreshold;
+  private Double normalizationThreshold = 0.05;
 
   /** Creates the reusable dialog. */
   public ParametersDialog(JFrame parentFrame, JPanel optionPanel) {
@@ -66,7 +66,9 @@ class ParametersDialog extends JDialog implements ActionListener, PropertyChange
     assert true;
   }
 
-  /** This method handles events for the text field. */
+  //
+  // Handles events for the text field.
+  //
   @Override
   public void actionPerformed(ActionEvent e) {
     if (OK_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {
@@ -81,19 +83,36 @@ class ParametersDialog extends JDialog implements ActionListener, PropertyChange
     this.dispose();
   }
 
-  /** This method clears the dialog and hides it. */
+  /**
+   * Clears the dialog and hides it.
+   */
   public void clearAndHide() {
     setVisible(false);
   }
 
+  /**
+   * Get the selected strategy value.
+   * 
+   * @return the strategy value.
+   */
   public int getSelectedStrategyValue() {
     return this.strategy;
   }
 
+  /**
+   * get the GI algorithm selection.
+   * 
+   * @return the selected algorithm.
+   */
   public int getSelectedAlgorithmValue() {
     return this.algorithm;
   }
 
+  /**
+   * Get the normalization threshold value.
+   * 
+   * @return the field's value.
+   */
   public double getNormalizationThresholdValue() {
     return this.normalizationThreshold;
   }

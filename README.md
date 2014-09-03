@@ -20,8 +20,7 @@ References:
 
 [4] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**GrammarViz 2.0: a tool for grammar-based pattern discovery in time series**](http://www2.hawaii.edu/~senin/assets/papers/grammarviz2.pdf), ECML/PKDD Conference, 2014.
 
-Building
-==========
+## Building
 
 We use Ant for our builds. The code is also continously built by [Travis CI](https://travis-ci.org/GrammarViz2/grammarviz2_src).
 
@@ -82,4 +81,6 @@ BUILD SUCCESSFUL
 Total time: 22 seconds
 </pre>
 
-To run the GrammarViz 2.0 GUI use `edu.hawaii.jmotif.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar grammarviz20.jar`.
+## Running 
+
+To run the GrammarViz 2.0 GUI use `edu.hawaii.jmotif.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar grammarviz20.jar` (here I have allocated max of 2Gb of memory for the software).

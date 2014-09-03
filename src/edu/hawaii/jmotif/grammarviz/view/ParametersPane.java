@@ -73,6 +73,9 @@ public class ParametersPane extends JPanel {
   public static final String OUTPUT_ANOMALY_LABEL = "Anomalies filename:";
   public static final JTextField outputAnomalyFName = new JTextField();
 
+  public static final String OUTPUT_CHARTS_LABEL = "Charts folder:";
+  public static final JTextField outputChartsFName = new JTextField();
+
   public ParametersPane() {
 
     super(new MigLayout("fill", "[grow]", "[grow]"));
@@ -250,13 +253,21 @@ public class ParametersPane extends JPanel {
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Configure the output filenames",
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
 
-    MigLayout filenamesLayout = new MigLayout("insets 0 0 0 0", "[]", "10[]10[]10[]");
+    MigLayout filenamesLayout = new MigLayout("insets 0 0 0 0", "[][grow,fill]", "10[]10[]10[]");
 
     outputConfigurationPanel.setLayout(filenamesLayout);
 
-    outputConfigurationPanel.add(new JLabel(OUTPUT_RULE_DENSITY_CURVE_LABEL), "wrap");
-    outputConfigurationPanel.add(new JLabel(OUTPUT_GRAMMAR_LABEL), "wrap");
-    outputConfigurationPanel.add(new JLabel(OUTPUT_ANOMALY_LABEL), "wrap");
+    outputConfigurationPanel.add(new JLabel(OUTPUT_RULE_DENSITY_CURVE_LABEL));
+    outputConfigurationPanel.add(outputRuleDensityFName, "wrap");
+
+    outputConfigurationPanel.add(new JLabel(OUTPUT_GRAMMAR_LABEL));
+    outputConfigurationPanel.add(outputGrammarFName, "wrap");
+
+    outputConfigurationPanel.add(new JLabel(OUTPUT_ANOMALY_LABEL));
+    outputConfigurationPanel.add(outputAnomalyFName, "wrap");
+
+    outputConfigurationPanel.add(new JLabel(OUTPUT_CHARTS_LABEL));
+    outputConfigurationPanel.add(outputChartsFName, "wrap");
 
     res.add(outputConfigurationPanel, "pad 0 0 0 0");
 

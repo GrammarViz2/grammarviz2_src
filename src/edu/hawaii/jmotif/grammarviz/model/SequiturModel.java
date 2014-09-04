@@ -1,7 +1,11 @@
 package edu.hawaii.jmotif.grammarviz.model;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -9,16 +13,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Observable;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import edu.hawaii.jmotif.gi.GrammarRuleRecord;
 import edu.hawaii.jmotif.gi.GrammarRules;
 import edu.hawaii.jmotif.gi.repair.RePairFactory;
 import edu.hawaii.jmotif.gi.repair.RePairRule;
 import edu.hawaii.jmotif.gi.sequitur.SAXRule;
 import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
 import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
+import edu.hawaii.jmotif.logic.RuleInterval;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
 import edu.hawaii.jmotif.sax.parallel.ParallelSAXImplementation;
@@ -36,6 +43,7 @@ public class SequiturModel extends Observable {
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private static final String SPACE = " ";
+  private static final String CR = "\n";
 
   /** The data filename. */
   private String dataFileName;
@@ -285,6 +293,86 @@ public class SequiturModel extends Observable {
   private void log(String message) {
     this.setChanged();
     notifyObservers(new SequiturMessage(SequiturMessage.STATUS_MESSAGE, "model: " + message));
+  }
+
+  private void saveGrammarStats(MotifChartData data) {
+
+    boolean fileOpen = false;
+
+    BufferedWriter bw = null;
+    try {
+      String currentPath = new File(".").getCanonicalPath();
+      bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(currentPath
+          + File.separator + "grammar_stats.txt"), "UTF-8"));
+      StringBuffer sb = new StringBuffer();
+      sb.append("# filename: ").append(this.dataFileName).append(CR);
+      sb.append("# sliding window: ").append(data.getSAXWindowSize()).append(CR);
+      if (data.isSlidingWindowOn()) {
+        sb.append("# window size: ").append(data.getSAXWindowSize()).append(CR);
+      }
+      sb.append("# paa size: ").append(data.getSAXPaaSize()).append(CR);
+      sb.append("# alphabet size: ").append(data.getSAXAlphabetSize()).append(CR);
+      bw.write(sb.toString());
+      fileOpen = true;
+    }
+    catch (IOException e) {
+      System.err.print("Encountered an error while writing stats file: \n" + StackTrace.toString(e)
+          + "\n");
+    }
+
+    ArrayList<int[]> ruleLengths = new ArrayList<int[]>();
+
+    for (GrammarRuleRecord ruleRecord : data.getGrammarRules()) {
+
+      StringBuffer sb = new StringBuffer();
+      sb.append("/// ").append(ruleRecord.getRuleName()).append(CR);
+      sb.append(ruleRecord.getRuleName()).append(" -> \'")
+          .append(ruleRecord.getRuleString().trim()).append("\', expanded rule string: \'")
+          .append(ruleRecord.getExpandedRuleString()).append("\'").append(CR);
+
+      if (ruleRecord.getRuleIntervals().size() > 0) {
+
+        int[] starts = new int[ruleRecord.getRuleIntervals().size()];
+        int[] lengths = new int[ruleRecord.getRuleIntervals().size()];
+        int i = 0;
+        for (RuleInterval sp : ruleRecord.getRuleIntervals()) {
+          starts[i] = sp.getStartPos();
+          lengths[i] = (sp.endPos - sp.startPos);
+          i++;
+        }
+        sb.append("subsequences starts: ").append(Arrays.toString(starts)).append(CR)
+            .append("subsequences lengths: ").append(Arrays.toString(lengths)).append(CR);
+      }
+
+      sb.append("rule occurrence frequency ").append(ruleRecord.getRuleIntervals().size())
+          .append(CR);
+      sb.append("rule use frequency ").append(ruleRecord.getRuleUseFrequency()).append(CR);
+      sb.append("min length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[0]).append(CR);
+      sb.append("max length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[1]).append(CR);
+      sb.append("mean length ").append(ruleRecord.getMeanLength()).append(CR);
+
+      if (fileOpen) {
+        try {
+          bw.write(sb.toString());
+        }
+        catch (IOException e) {
+          System.err.print("Encountered an error while writing stats file: \n"
+              + StackTrace.toString(e) + "\n");
+        }
+      }
+    }
+
+    // try to write stats into the file
+    if (fileOpen) {
+      try {
+        bw.close();
+      }
+      catch (IOException e) {
+        System.err.print("Encountered an error while writing stats file: \n"
+            + StackTrace.toString(e) + "\n");
+      }
+    }
+
   }
 
 }

@@ -659,4 +659,8 @@ public class MotifChartData extends Observable implements Observer {
     return sum / lengths.length;
   }
 
+  public boolean isSlidingWindowOn() {
+    return this.slidingWindowOn;
+  }
+
 }

@@ -496,7 +496,7 @@ public class SequiturView implements Observer, ActionListener {
 
     processPane = new JPanel();
     processPane.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Hit to run Sequitur",
+        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Hit to run GI",
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
     // insets: T, L, B, R.
     MigLayout processPaneLayout = new MigLayout("insets 3 2 4 2", "5[]5", "[]");
@@ -530,8 +530,8 @@ public class SequiturView implements Observer, ActionListener {
     MigLayout sequiturPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
     sequiturRulesPane.setLayout(sequiturPaneLayout);
 
-    tabbedRulesPane.addTab("Sequitur rules", null, sequiturRulesPane,
-        "Shows unprocessed Sequitur rules");
+    tabbedRulesPane.addTab("Grammar rules", null, sequiturRulesPane,
+        "Shows grammar rules");
     // tabbedRulesPane.addTab("Sequitur", sequiturRulesPane);
     // tabbedRulesPane.setIgnoreRepaint(false);
 
@@ -557,14 +557,14 @@ public class SequiturView implements Observer, ActionListener {
     anomaliesPane = new AnomaliesPanel();
     MigLayout anomaliesPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
     anomaliesPane.setLayout(anomaliesPaneLayout);
-    tabbedRulesPane.addTab("SAXSequitur anomalies", null, anomaliesPane,
+    tabbedRulesPane.addTab("GrammarViz anomalies", null, anomaliesPane,
         "Shows anomalous subsequences");
 
     // now format the tabbed pane
     //
     tabbedRulesPane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
-        "Sequitur rules (search in list by clicking into list and pressing CTRL-F)",
+        "Grammar rules (search in list by clicking into list and pressing CTRL-F)",
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
     // MigLayout tabbedPaneLayout = new MigLayout(",insets 0 0 0 2", "[fill,grow]", "[fill,grow]");
     // tabbedRulesPane.setLayout(tabbedPaneLayout);
@@ -595,7 +595,7 @@ public class SequiturView implements Observer, ActionListener {
     clusterRulesButton.setActionCommand(CLUSTER_RULES);
     clusterRulesButton.addActionListener(this);
 
-    displayChartButton = new JButton("Sequitur rules");
+    displayChartButton = new JButton("Grammar rules");
     displayChartButton.setMnemonic('R');
     displayChartButton.setActionCommand(DISPLAY_CHART);
     displayChartButton.addActionListener(this);

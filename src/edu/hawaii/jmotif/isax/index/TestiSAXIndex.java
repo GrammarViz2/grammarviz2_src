@@ -58,9 +58,9 @@ public class TestiSAXIndex {
     p.arWildBits.add(1);
     p.arWildBits.add(1);
 
-    InternalNode root_node = new InternalNode(A, p, NodeType.ROOT);
+//    InternalNode root_node = new InternalNode(A, p, NodeType.ROOT);
 
-    System.out.println("root > masked rep > " + root_node.getMaskedRepresentation());
+//    System.out.println("root > masked rep > " + root_node.getMaskedRepresentation());
 
   }
 
@@ -180,13 +180,13 @@ public class TestiSAXIndex {
     // the one we change
     ts.add(new TPoint(1.0, 7));
 
-    System.out.println("------- Inserting -----------");
+//    System.out.println("------- Inserting -----------");
     for (int x = 0; x < 5; x++) {
 
       // ts.elementAt(3).setValue(10 - x);
       ts.elementAt(7).setValue(x);
 
-      System.out.println("ts: " + ts);
+//      System.out.println("ts: " + ts);
 
       // TimeseriesInstance tsi_A = new TimeseriesInstance( ts );
 
@@ -194,7 +194,7 @@ public class TestiSAXIndex {
 
     }
 
-    System.out.println("------- Inserting -----------");
+//    System.out.println("------- Inserting -----------");
 
     Timeseries ts_2 = new Timeseries();
 
@@ -215,7 +215,7 @@ public class TestiSAXIndex {
     TimeseriesInstance result = index.ApproxSearch(ts_2);
 
     if (result == null) {
-      System.out.println("Approx Search > no result found!");
+//      System.out.println("Approx Search > no result found!");
       assertEquals("null check", true, false);
     }
 
@@ -256,7 +256,7 @@ public class TestiSAXIndex {
   @Test
   public void testRandomInsert() {
 
-    System.out.println("\ntestISAXIndex_RandomInsert_0");
+//    System.out.println("\ntestISAXIndex_RandomInsert_0");
 
     iSAXIndex index = new iSAXIndex(4, 4, 8);
 
@@ -270,9 +270,9 @@ public class TestiSAXIndex {
       index.InsertSequence(ts_insert, "ts.txt", 1000 + x * 20);
     }
 
-    System.out.println(" ----- done -------");
+//    System.out.println(" ----- done -------");
 
-    System.out.println("Searching for: " + search_ts);
+//    System.out.println("Searching for: " + search_ts);
 
     // index.InsertSequence(ts_2, "genome.txt", 104526 );
     long start = System.currentTimeMillis();

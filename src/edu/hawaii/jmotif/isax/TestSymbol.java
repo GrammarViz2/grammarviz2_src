@@ -7,12 +7,14 @@ import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 
 /**
  * 
- * @author Josh Patterson
+ * @author Josh Patterson, seninp
  * 
  * Testing the Symbol class.
  * 
  */
 public class TestSymbol {
+
+  private static final double TEST_PRESISION = 0.01D;
 
   /**
    * 
@@ -28,30 +30,30 @@ public class TestSymbol {
 
     // System.out.println( "isax > bit rep > '" + bits + "' " );
 
-    assertEquals("bit rep test", "10", bits);
+    assertEquals("bit rep test", "010", bits);
 
     Symbol B = new Symbol(2, 8);
-    assertEquals("bit rep test", "010", B.getiSAXBitRepresentation(0));
+    assertEquals("bit rep test", "0010", B.getiSAXBitRepresentation(0));
 
     Symbol C = new Symbol(4, 8);
-    assertEquals("bit rep test", "100", C.getiSAXBitRepresentation(0));
+    assertEquals("bit rep test", "0100", C.getiSAXBitRepresentation(0));
 
     Symbol D = new Symbol(4, 16);
     // System.out.println( "wild: " + D.getiSAXBitRepresentation(0) );
-    assertEquals("bit rep test", "0100", D.getiSAXBitRepresentation(0));
+    assertEquals("bit rep test", "00100", D.getiSAXBitRepresentation(0));
 
     Symbol E = new Symbol(4, 16);
     // System.out.println( "wild: " + E.getiSAXBitRepresentation(1) );
-    assertEquals("bit rep test", "010*", E.getiSAXBitRepresentation(1));
+    assertEquals("bit rep test", "0010*", E.getiSAXBitRepresentation(1));
 
     // Symbol F = new Symbol( 4, 16 );
-    assertEquals("bit rep test", "01**", E.getiSAXBitRepresentation(2));
+    assertEquals("bit rep test", "001**", E.getiSAXBitRepresentation(2));
 
-    assertEquals("bit rep test", "0***", E.getiSAXBitRepresentation(3));
+    assertEquals("bit rep test", "00***", E.getiSAXBitRepresentation(3));
 
     Symbol F = new Symbol(4, 32);
     // System.out.println( "wild: " + E.getiSAXBitRepresentation(1) );
-    assertEquals("bit rep test", "0010*", F.getiSAXBitRepresentation(1));
+    assertEquals("bit rep test", "00010*", F.getiSAXBitRepresentation(1));
 
   }
 
@@ -230,7 +232,7 @@ public class TestSymbol {
       e.printStackTrace();
     }
 
-    assertEquals("testSAXDistanceTable2", (Double) val2, (Double) 0.67D);
+    assertEquals("testSAXDistanceTable2", (Double) val2, (Double) 0.67D, TEST_PRESISION);
 
     /*
      * dist(t1,s1) = dist(11,00) = 1.34 dist(t2,s2) = dist(11,01) = 0.67 dist(t3,s3) = dist(01,11) =
@@ -249,7 +251,7 @@ public class TestSymbol {
       e.printStackTrace();
     }
 
-    assertEquals("testSAXDistanceTable3", (Double) val3, (Double) 1.34D);
+    assertEquals("testSAXDistanceTable3", (Double) val3, (Double) 1.34D, TEST_PRESISION);
 
     Symbol a4 = new Symbol(3, 4);
     Symbol b4 = new Symbol(1, 4);
@@ -263,7 +265,7 @@ public class TestSymbol {
       e.printStackTrace();
     }
 
-    assertEquals("testSAXDistanceTable4", (Double) val4, (Double) 0.67D);
+    assertEquals("testSAXDistanceTable4", (Double) val4, (Double) 0.67D, TEST_PRESISION);
 
     Symbol a5 = new Symbol(1, 4);
     Symbol b5 = new Symbol(3, 4);
@@ -277,7 +279,7 @@ public class TestSymbol {
       e.printStackTrace();
     }
 
-    assertEquals("testSAXDistanceTable5", (Double) val5, (Double) 0.67D);
+    assertEquals("testSAXDistanceTable5", (Double) val5, (Double) 0.67D, TEST_PRESISION);
 
     Symbol a6 = new Symbol(0, 4);
     Symbol b6 = new Symbol(3, 4);
@@ -291,7 +293,7 @@ public class TestSymbol {
       e.printStackTrace();
     }
 
-    assertEquals("testSAXDistanceTable6", (Double) val6, (Double) 1.34D);
+    assertEquals("testSAXDistanceTable6", (Double) val6, (Double) 1.34D, TEST_PRESISION);
 
   }
 

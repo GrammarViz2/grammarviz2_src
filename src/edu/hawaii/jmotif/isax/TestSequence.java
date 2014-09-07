@@ -1,7 +1,6 @@
 package edu.hawaii.jmotif.isax;
 
 import static org.junit.Assert.assertEquals;
-import java.text.DecimalFormat;
 import org.junit.Before;
 import org.junit.Test;
 import edu.hawaii.jmotif.sax.SAXException;
@@ -11,7 +10,7 @@ import edu.hawaii.jmotif.sax.SAXException;
  * Testing the iSAX Sequence class to make sure values computed match values in the equations from
  * the iSAX paper.
  * 
- * @author Josh Patterson
+ * @author Josh Patterson, seninp
  * 
  */
 public class TestSequence {
@@ -117,7 +116,7 @@ public class TestSequence {
 
     System.out.println(" TestSequence > dist( 00, 10 ) == " + localDist);
 
-    assertEquals("dist( 00, 10 )", (Double) 0.67D, (Double) localDist);
+    assertEquals("dist( 00, 10 )", 0.67D, localDist, 0.01D);
 
   }
 
@@ -283,15 +282,9 @@ public class TestSequence {
 
     System.out.println("dist: " + val);
 
-    double actual = 4.237D;
+    double actual = 4.265D;
 
-    DecimalFormat twoDForm = new DecimalFormat("#.###");
-
-    // assertEquals( "paper example MINDIST test",(Double)Double.valueOf(twoDForm.format( val )),
-    // (Double)actual );
-
-    assertEquals("paper example MINDIST test", Double.valueOf(twoDForm.format(val)),
-        (Double) actual);
+    assertEquals("paper example MINDIST test", val, (Double) actual, 0.001D);
 
   }
 
@@ -406,7 +399,7 @@ public class TestSequence {
 
     System.out.println("card bits > " + Symbol.numberBitsInCardinality(A_s1.cardinality));
 
-    assertEquals("does this match bits sizes", 2, Symbol.numberBitsInCardinality(A_s1.cardinality));
+    assertEquals("does this match bits sizes", 3, Symbol.numberBitsInCardinality(A_s1.cardinality));
 
     Symbol B_s1 = new Symbol();
     B_s1.cardinality = 16; // 2 bits
@@ -417,21 +410,21 @@ public class TestSequence {
 
     System.out.println("card bits > " + Symbol.numberBitsInCardinality(B_s1.cardinality));
 
-    assertEquals("does this match bits sizes", 4, Symbol.numberBitsInCardinality(B_s1.cardinality));
+    assertEquals("does this match bits sizes", 5, Symbol.numberBitsInCardinality(B_s1.cardinality));
 
     Symbol B_wild_0 = new Symbol(2, 16, 1);
 
     System.out.println("wildcard rep > " + B_wild_0.getiSAXBitRepresentation());
 
-    assertEquals("wildcard sax bit rep test", "001*", B_wild_0.getiSAXBitRepresentation());
+    assertEquals("wildcard sax bit rep test", "0001*", B_wild_0.getiSAXBitRepresentation());
 
     Symbol B_wild_1 = new Symbol(2, 16, 2);
-    assertEquals("wildcard sax bit rep test", "00**", B_wild_1.getiSAXBitRepresentation());
+    assertEquals("wildcard sax bit rep test", "000**", B_wild_1.getiSAXBitRepresentation());
 
     Symbol B_wild_2 = new Symbol(2, 16, 3);
     System.out.println("wildcard rep > " + B_wild_2.getiSAXBitRepresentation());
 
-    assertEquals("wildcard sax bit rep test", "0***", B_wild_2.getiSAXBitRepresentation());
+    assertEquals("wildcard sax bit rep test", "00***", B_wild_2.getiSAXBitRepresentation());
 
   }
 

@@ -1,7 +1,7 @@
 package edu.hawaii.jmotif.isax;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 import edu.hawaii.jmotif.sax.SAXException;
 import edu.hawaii.jmotif.sax.SAXFactory;
@@ -13,7 +13,7 @@ import edu.hawaii.jmotif.util.StackTrace;
  * The iSAX data point implementation. In SAX we used a series of letters based on a cardinality;
  * Here we use a series of integers each with its own cardinality.
  * 
- * @author Josh Patterson
+ * @author Josh Patterson, seninp
  * 
  */
 public class Symbol implements Cloneable, Comparable<Symbol> {
@@ -182,33 +182,33 @@ public class Symbol implements Cloneable, Comparable<Symbol> {
       throw new SAXException("invalid cardinality!");
     }
 
-    consoleLogger.log(LOGGING_LEVEL, "pre-target: " + getBits(SAXNumber));
-    consoleLogger.log(LOGGING_LEVEL, "pre-local : " + getBits(this.saxCharacter));
+    consoleLogger.debug("pre-target: " + getBits(SAXNumber));
+    consoleLogger.debug("pre-local : " + getBits(this.saxCharacter));
 
     // 2. figure out how many bits to shift up
     int iNewBits = cardinalityBitDelta(this.cardinality, iCardinality);
 
     s.cardinality = iCardinality;
 
-    consoleLogger.log(LOGGING_LEVEL, "bit diff: " + iNewBits);
+    consoleLogger.debug("bit diff: " + iNewBits);
 
     // lets compare the prefix of both
     int iTargetSAXNumber_Prefix = (SAXNumber >> iNewBits) << iNewBits;
 
     int iLocalSAXNumber_Prefix = (this.saxCharacter << iNewBits);
 
-    consoleLogger.log(LOGGING_LEVEL, "target: " + getBits(iTargetSAXNumber_Prefix));
-    consoleLogger.log(LOGGING_LEVEL, "local : " + getBits(iLocalSAXNumber_Prefix));
+    consoleLogger.debug("target: " + getBits(iTargetSAXNumber_Prefix));
+    consoleLogger.debug("local : " + getBits(iLocalSAXNumber_Prefix));
 
     // if the original bits match up (the non-projected ones), forming a "prefix", then
     // we simply copy over the bits from the target symbol
 
     if (iTargetSAXNumber_Prefix == iLocalSAXNumber_Prefix) {
-      consoleLogger.log(LOGGING_LEVEL, "PREFIX are equal!");
+      consoleLogger.debug("PREFIX are equal!");
       s.saxCharacter = SAXNumber;
     }
     else if (iTargetSAXNumber_Prefix > iLocalSAXNumber_Prefix) {
-      consoleLogger.log(LOGGING_LEVEL, "PREFIX are LESS THAN!");
+      consoleLogger.debug("PREFIX are LESS THAN!");
 
       // if this symbol's compared bits are lexographically SMALLER than the bits in the target
       // symbol, then we use all 1's to fill out the promoted symbol we'll return from the function
@@ -224,7 +224,7 @@ public class Symbol implements Cloneable, Comparable<Symbol> {
     }
     else if (iTargetSAXNumber_Prefix < iLocalSAXNumber_Prefix) {
 
-      consoleLogger.log(LOGGING_LEVEL, "PREFIX are GREATER THAN!");
+      consoleLogger.debug("PREFIX are GREATER THAN!");
 
       // if this symbol's compared bits are lexographically LARGER than the bits in the target
       // symbol,
@@ -245,8 +245,8 @@ public class Symbol implements Cloneable, Comparable<Symbol> {
 
     }
 
-    consoleLogger.log(LOGGING_LEVEL, "post-target: " + getBits(SAXNumber));
-    consoleLogger.log(LOGGING_LEVEL, "post-local : " + getBits(this.saxCharacter));
+    consoleLogger.debug("post-target: " + getBits(SAXNumber));
+    consoleLogger.debug("post-local : " + getBits(this.saxCharacter));
 
     return s;
   }

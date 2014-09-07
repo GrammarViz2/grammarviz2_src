@@ -10,6 +10,12 @@ import edu.hawaii.jmotif.timeseries.TPoint;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.timeseries.Timeseries;
 
+/**
+ * Test hash parameters.
+ * 
+ * @author Josh Patterson, psenin
+ * 
+ */
 public class TestIndexHashParams {
 
   @Test
@@ -47,7 +53,7 @@ public class TestIndexHashParams {
 
     System.out.println("rep : '" + rep + "' ");
 
-    assertEquals("wildbits test 0", "**, **, **, **, ", rep);
+    assertEquals("wildbits test 0", "0**, 0**, 0**, 0**, ", rep);
 
   }
 
@@ -89,7 +95,7 @@ public class TestIndexHashParams {
 
     System.out.println("rep : '" + rep + "' ");
 
-    assertEquals("wildbits test 0", "0*, **, **, **, ", rep);
+    assertEquals("wildbits test 0", "00*, 0**, 0**, 0**, ", rep);
 
   }
 

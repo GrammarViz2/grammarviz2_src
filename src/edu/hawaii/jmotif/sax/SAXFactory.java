@@ -44,7 +44,7 @@ public final class SAXFactory {
   public static final int DEFAULT_COLLECTION_SIZE = 50;
 
   private static Logger consoleLogger;
-  private static final Level LOGGING_LEVEL = Level.DEBUG;
+  private static final Level LOGGING_LEVEL = Level.INFO;
 
   private static final double NORMALIZATION_THRESHOLD = 0.005D;
 

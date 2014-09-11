@@ -263,7 +263,7 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
       if (0 == r.ruleNumber()) {
         continue;
       }
-      ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(r.ruleNumber());
+      ArrayList<RuleInterval> arrPos = r.getRuleIntervals();
       for (RuleInterval saxPos : arrPos) {
         int start = saxPos.getStartPos();
         int end = saxPos.getEndPos();
@@ -713,6 +713,7 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
       // this.paintTheChart();
 
       ChartUtilities.saveChartAsPNG(new File(fileName), this.chart, 1000, 400);
+
     }
     catch (IOException e) {
       e.printStackTrace();

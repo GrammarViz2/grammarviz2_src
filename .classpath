@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="lib/logger/logback-core-1.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/logger/slf4j-api-1.7.7.jar"/>
 	<classpathentry kind="lib" path="lib/time/joda-time-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons/commons-lang3-3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.discord;
+package edu.hawaii.jmotif.experiments;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -67,7 +67,7 @@ public class SearchExperiment {
   // static block - we instantiate the logger
   //
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizParametersExperiment.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(SearchExperiment.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 

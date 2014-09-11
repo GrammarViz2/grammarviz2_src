@@ -1,10 +1,5 @@
 package edu.hawaii.jmotif.distance;
 
-import com.dtw.TimeWarpInfo;
-import com.timeseries.TimeSeries;
-import com.timeseries.TimeSeriesPoint;
-import com.util.DistanceFunction;
-import com.util.DistanceFunctionFactory;
 import edu.hawaii.jmotif.timeseries.TSException;
 
 /**
@@ -198,34 +193,6 @@ public final class EuclideanDistance {
     else {
       throw new TSException("Exception in Euclidean distance: array lengths are not equal");
     }
-  }
-
-  /**
-   * This is DTW distance which we get using the FastDTW library.
-   * 
-   * @param series1 the series A.
-   * @param series2 the series B.
-   * @return the DTW distance value.
-   */
-  public static double getDTWDist(double[] series1, double[] series2) {
-
-    // final TimeSeries tsI = new TimeSeries(args[0], false, false, ',');
-    final TimeSeries tsI = new TimeSeries(1);
-    for (int i = 0; i < series1.length; i++) {
-      tsI.addLast(i, new TimeSeriesPoint(new double[] { series1[i] }));
-    }
-
-    // final TimeSeries tsJ = new TimeSeries(args[1], false, false, ',');
-    final TimeSeries tsJ = new TimeSeries(1);
-    for (int i = 0; i < series2.length; i++) {
-      tsJ.addLast(i, new TimeSeriesPoint(new double[] { series2[i] }));
-    }
-
-    DistanceFunction distFn = DistanceFunctionFactory.getDistFnByName("EuclideanDistance");
-
-    final TimeWarpInfo info = com.dtw.FastDTW.getWarpInfoBetween(tsI, tsJ, 15, distFn);
-
-    return info.getDistance();
   }
 
 }

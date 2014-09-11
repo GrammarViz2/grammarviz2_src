@@ -7,13 +7,9 @@ package edu.hawaii.jmotif.sampler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Handler;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.ArrayUtils;
 import edu.hawaii.jmotif.text.SAXCollectionStrategy;
-import edu.hawaii.jmotif.util.BriefFormatter;
 
 /**
  * Simple solver encapsulating the optimization method calculation and checking method stop

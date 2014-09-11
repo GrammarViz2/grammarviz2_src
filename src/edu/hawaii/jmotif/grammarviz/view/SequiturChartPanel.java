@@ -256,6 +256,7 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
 
     // find the rule density value
     int maxObservedCoverage = 0;
+    int minObservedCoverage = Integer.MAX_VALUE;
     int[] coverageArray = new int[chartData.getOriginalTimeseries().length];
 
     for (GrammarRuleRecord r : chartData.getGrammarRules()) {
@@ -267,6 +268,9 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
         int start = saxPos.getStartPos();
         int end = saxPos.getEndPos();
         for (int j = start; j < end; j++) {
+
+          // compute a coverage value
+          //
           if (CoverageCountStrategy.COUNT == this.ruleCoverageCountStrategy) {
             coverageArray[j] = coverageArray[j] + 1;
           }
@@ -282,8 +286,14 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
           else if (CoverageCountStrategy.PRODUCT == this.ruleCoverageCountStrategy) {
             coverageArray[j] = coverageArray[j] + r.getRuleLevel() * r.getOccurrences().size();
           }
+
+          // update the min and max coverage values
+          //
           if (maxObservedCoverage < coverageArray[j]) {
             maxObservedCoverage = coverageArray[j];
+          }
+          if (minObservedCoverage > coverageArray[j]) {
+            minObservedCoverage = coverageArray[j];
           }
         }
       }
@@ -306,7 +316,7 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
 
     // since we know the maximal coverage value, we can compute the increment for a single coverage
     // interval
-    double covIncrement = 1. / (double) maxObservedCoverage;
+    double covIncrement = 1. / (double) (maxObservedCoverage - minObservedCoverage);
 
     for (int i = 0; i < rulesNum; i++) {
       GrammarRuleRecord r = chartData.getRule(i);
@@ -333,7 +343,7 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
           marker.setAlpha((float) covIncrement * r.getRuleYield());
         }
         else if (CoverageCountStrategy.PRODUCT == this.ruleCoverageCountStrategy) {
-          marker.setAlpha((float) covIncrement * (r.getRuleLevel() * r.getOccurrences().size()));
+          marker.setAlpha((float) covIncrement * r.getRuleLevel() * r.getOccurrences().size());
         }
         marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         marker.setLabelPaint(Color.green);

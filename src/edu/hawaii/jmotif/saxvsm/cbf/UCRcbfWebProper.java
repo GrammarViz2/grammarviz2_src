@@ -19,8 +19,8 @@ public class UCRcbfWebProper extends UCRGenericClassifier {
 
   // data locations
   //
-  private static final String TRAINING_DATA = "data/CBF/CBF_TRAIN";
-  private static final String TEST_DATA = "data/CBF/CBF_TEST";
+  private static final String TRAINING_DATA = "data/cbf/CBF_TRAIN";
+  private static final String TEST_DATA = "data/cbf/CBF_TEST";
 
   // SAX parameters to iterate over
   //

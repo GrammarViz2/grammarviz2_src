@@ -77,7 +77,7 @@ public class UCRcbfKNNThreaded extends UCRGenericClassifier {
         strategyPrefix = "classic";
       }
     }
-    consoleLogger.fine("strategy: " + strategyPrefix + ", leaving out: " + LEAVE_OUT_NUM);
+    consoleLogger.debug("strategy: " + strategyPrefix + ", leaving out: " + LEAVE_OUT_NUM);
 
     // make up window sizes
     int[] window_sizes = makeArray(WINDOW_MIN, WINDOW_MAX, WINDOW_INCREMENT);
@@ -95,17 +95,17 @@ public class UCRcbfKNNThreaded extends UCRGenericClassifier {
 
 //    Map<String, List<double[]>> trainData = generateSample(5);
 
-    consoleLogger.fine("trainData classes: " + trainData.size() + ", series length: "
+    consoleLogger.debug("trainData classes: " + trainData.size() + ", series length: "
         + trainData.entrySet().iterator().next().getValue().get(0).length);
     for (Entry<String, List<double[]>> e : trainData.entrySet()) {
-      consoleLogger.fine(" training class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" training class: " + e.getKey() + " series: " + e.getValue().size());
     }
 
     int totalTestSample = 0;
     Map<String, List<double[]>> testData = UCRUtils.readUCRData(TEST_DATA);
-    consoleLogger.fine("testData classes: " + testData.size());
+    consoleLogger.debug("testData classes: " + testData.size());
     for (Entry<String, List<double[]>> e : testData.entrySet()) {
-      consoleLogger.fine(" test class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" test class: " + e.getKey() + " series: " + e.getValue().size());
       totalTestSample = totalTestSample + e.getValue().size();
     }
 

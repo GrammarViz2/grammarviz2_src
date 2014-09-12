@@ -96,11 +96,11 @@ public class UCRGenericDirectSampler extends UCRGenericClassifier {
     consoleLogger.info("Holding out: " + HOLD_OUT_NUM);
 
     Map<String, List<double[]>> trainData = UCRUtils.readUCRData(TRAINING_DATA);
-    consoleLogger.fine("reading file: " + TRAINING_DATA);
-    consoleLogger.fine("trainData classes: " + trainData.size() + ", series length: "
+    consoleLogger.debug("reading file: " + TRAINING_DATA);
+    consoleLogger.debug("trainData classes: " + trainData.size() + ", series length: "
         + trainData.entrySet().iterator().next().getValue().get(0).length);
     for (Entry<String, List<double[]>> e : trainData.entrySet()) {
-      consoleLogger.fine(" training class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" training class: " + e.getKey() + " series: " + e.getValue().size());
     }
 
     double[] parametersLowest = { Double.valueOf(WINDOW_MIN), Double.valueOf(PAA_MIN),

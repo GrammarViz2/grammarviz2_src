@@ -18,7 +18,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.text.Bigram;
 import edu.hawaii.jmotif.text.BigramBag;
 import edu.hawaii.jmotif.text.SAXCollectionStrategy;
@@ -48,7 +50,14 @@ public class UCRGenericClassifier {
   // logger
   //
   protected static Logger consoleLogger;
-  private static String LOGGING_LEVEL = "FINE";
+  private static Level LOGGING_LEVEL = Level.INFO;
+
+  // static block - we instantiate the logger
+  //
+  static {
+    consoleLogger = (Logger) LoggerFactory.getLogger(UCRGenericClassifier.class);
+    consoleLogger.setLevel(LOGGING_LEVEL);
+  }
 
   /**
    * This implements k-leave out classification. It iterates over possible sets of parameters
@@ -326,7 +335,7 @@ public class UCRGenericClassifier {
           double error = Integer.valueOf(missclassifiedSamples).doubleValue()
               / Integer.valueOf(totalSamples).doubleValue();
           results.add(toLogStr(params, 1.0D - error, error));
-          consoleLogger.fine(toLogStr(params, 1.0D - error, error));
+          consoleLogger.debug(toLogStr(params, 1.0D - error, error));
 
         }
       }
@@ -346,16 +355,16 @@ public class UCRGenericClassifier {
     // reading training and test collections
     //
     Map<String, List<double[]>> trainData = UCRUtils.readUCRData(trainingDataName);
-    consoleLogger.fine("trainData classes: " + trainData.size() + ", series length: "
+    consoleLogger.debug("trainData classes: " + trainData.size() + ", series length: "
         + trainData.entrySet().iterator().next().getValue().get(0).length);
     for (Entry<String, List<double[]>> e : trainData.entrySet()) {
-      consoleLogger.fine(" training class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" training class: " + e.getKey() + " series: " + e.getValue().size());
     }
 
     Map<String, List<double[]>> testData = UCRUtils.readUCRData(testDataName);
-    consoleLogger.fine("testData classes: " + testData.size());
+    consoleLogger.debug("testData classes: " + testData.size());
     for (Entry<String, List<double[]>> e : testData.entrySet()) {
-      consoleLogger.fine(" test class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" test class: " + e.getKey() + " series: " + e.getValue().size());
     }
 
     for (int paaSize : paa_sizes) {
@@ -400,7 +409,7 @@ public class UCRGenericClassifier {
             + error;
 
         bw.write(str + CR);
-        consoleLogger.fine(str);
+        consoleLogger.debug(str);
 
       }
     }
@@ -416,16 +425,16 @@ public class UCRGenericClassifier {
     // reading training and test collections
     //
     Map<String, List<double[]>> trainData = UCRUtils.readUCRData(trainingDataName);
-    consoleLogger.fine("trainData classes: " + trainData.size() + ", series length: "
+    consoleLogger.debug("trainData classes: " + trainData.size() + ", series length: "
         + trainData.entrySet().iterator().next().getValue().get(0).length);
     for (Entry<String, List<double[]>> e : trainData.entrySet()) {
-      consoleLogger.fine(" training class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" training class: " + e.getKey() + " series: " + e.getValue().size());
     }
 
     Map<String, List<double[]>> testData = UCRUtils.readUCRData(testDataName);
-    consoleLogger.fine("testData classes: " + testData.size());
+    consoleLogger.debug("testData classes: " + testData.size());
     for (Entry<String, List<double[]>> e : testData.entrySet()) {
-      consoleLogger.fine(" test class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" test class: " + e.getKey() + " series: " + e.getValue().size());
     }
 
     for (int paaSize : paa_sizes) {
@@ -469,7 +478,7 @@ public class UCRGenericClassifier {
             + error;
 
         bw.write(str + CR);
-        consoleLogger.fine(str);
+        consoleLogger.debug(str);
 
       }
     }
@@ -513,7 +522,7 @@ public class UCRGenericClassifier {
     }
     HashMap<String, HashMap<String, Double>> tfidf = TextUtils.computeTFIDF(trainBags);
     tfidf = TextUtils.normalizeToUnitVectors(tfidf);
-    consoleLogger.fine("TFIDF statistics table is built in "
+    consoleLogger.debug("TFIDF statistics table is built in "
         + timeToString(start, System.currentTimeMillis()));
 
     // ################ begin classification
@@ -527,7 +536,7 @@ public class UCRGenericClassifier {
     for (Entry<String, List<double[]>> querySet : testData.entrySet()) {
       for (double[] querySeries : querySet.getValue()) {
 
-        consoleLogger.fine("classifying query " + queryCounter + " of class " + querySet.getKey());
+        consoleLogger.debug("classifying query " + queryCounter + " of class " + querySet.getKey());
 
         // this holds the closest neighbor out of all training data with its class
         //
@@ -544,7 +553,7 @@ public class UCRGenericClassifier {
           if (similarity > bestDistance) {
             bestDistance = similarity;
             bestClass = neighbor.getKey();
-            consoleLogger.fine(" + closest class: " + bestClass + " distance: " + bestDistance);
+            consoleLogger.debug(" + closest class: " + bestClass + " distance: " + bestDistance);
           }
         }
 
@@ -552,10 +561,10 @@ public class UCRGenericClassifier {
 
         if (bestClass.substring(0, bestClass.indexOf('_')).equalsIgnoreCase(querySet.getKey())) {
           totalPositiveTests++;
-          consoleLogger.fine(" * hit!");
+          consoleLogger.debug(" * hit!");
         }
         else {
-          consoleLogger.fine(" ? miss!");
+          consoleLogger.debug(" ? miss!");
         }
 
         queryCounter++;
@@ -577,17 +586,17 @@ public class UCRGenericClassifier {
     // reading training and test collections
     //
     Map<String, List<double[]>> trainData = UCRUtils.readUCRData(trainingDataName);
-    consoleLogger.fine("trainData classes: " + trainData.size() + ", series length: "
+    consoleLogger.debug("trainData classes: " + trainData.size() + ", series length: "
         + trainData.entrySet().iterator().next().getValue().get(0).length);
     for (Entry<String, List<double[]>> e : trainData.entrySet()) {
-      consoleLogger.fine(" training class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" training class: " + e.getKey() + " series: " + e.getValue().size());
     }
 
     int totalTestSample = 0;
     Map<String, List<double[]>> testData = UCRUtils.readUCRData(testDataName);
-    consoleLogger.fine("testData classes: " + testData.size());
+    consoleLogger.debug("testData classes: " + testData.size());
     for (Entry<String, List<double[]>> e : testData.entrySet()) {
-      consoleLogger.fine(" test class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" test class: " + e.getKey() + " series: " + e.getValue().size());
       totalTestSample = totalTestSample + e.getValue().size();
     }
 
@@ -733,7 +742,7 @@ public class UCRGenericClassifier {
                   + String.valueOf(alphabetSize),
               new KNNStackEntry<Double, int[][]>(TSUtils.mean(errors), params));
 
-          consoleLogger.fine("params " + Arrays.toString(params[0]) + ", max. error: "
+          consoleLogger.debug("params " + Arrays.toString(params[0]) + ", max. error: "
               + TSUtils.max(errors) + ", mean error: " + TSUtils.mean(errors) + ", min. error: "
               + TSUtils.min(errors));
 

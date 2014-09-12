@@ -7,9 +7,11 @@ package edu.hawaii.jmotif.sampler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.LoggerFactory;
 import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Simple solver encapsulating the optimization method calculation and checking method stop
@@ -21,6 +23,7 @@ import edu.hawaii.jmotif.text.SAXCollectionStrategy;
 // description="Simple solver encapsulating the optimization method calculation and checking method stop condition together with a max iteration stop condition.")
 public class UCRSolver implements Solver, Callable<List<String>> {
   private static final Object COMMA = ",";
+  private static final Level LOGGING_LEVEL = Level.ALL;
   // static final Logger logger = Logger.getLogger(BasicSolver.class);
 
   private Function function;
@@ -61,7 +64,7 @@ public class UCRSolver implements Solver, Callable<List<String>> {
   // @Property(name="Delay between steps",description="How many miniseconds should this solver wait before doing another optimization step")
   // @Range(from=0,to=Integer.MAX_VALUE)
   private int milisDelay;
-  private Logger consoleLogger;
+  private static Logger consoleLogger;
 
   public int getMilisDelay() {
     return milisDelay;
@@ -84,6 +87,8 @@ public class UCRSolver implements Solver, Callable<List<String>> {
   public UCRSolver(int maxIterations) {
     assert maxIterations > 0;
     this.maxIterations = maxIterations;
+    consoleLogger = (Logger) LoggerFactory.getLogger(UCRSolver.class);
+    consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
   @SuppressWarnings("unchecked")

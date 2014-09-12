@@ -23,6 +23,9 @@ import edu.hawaii.jmotif.saxvsm.UCRLOOCVErrorFunction;
 import edu.hawaii.jmotif.saxvsm.UCRUtils;
 import edu.hawaii.jmotif.text.SAXCollectionStrategy;
 import edu.hawaii.jmotif.util.StackTrace;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Helper-runner for CBF test.
@@ -38,7 +41,7 @@ public class UCRcbfDirectSampler extends UCRGenericClassifier {
 
   // data
   //
-  private static final String TRAINING_DATA = "data/CBF/CBF_TRAIN";
+  private static final String TRAINING_DATA = "data/cbf/CBF_TRAIN";
 
   // output prefix
   //
@@ -77,11 +80,11 @@ public class UCRcbfDirectSampler extends UCRGenericClassifier {
     args = argsLine;
 
     Map<String, List<double[]>> trainData = UCRUtils.readUCRData(TRAINING_DATA);
-    consoleLogger.fine("reading file: " + TRAINING_DATA);
-    consoleLogger.fine("trainData classes: " + trainData.size() + ", series length: "
+    consoleLogger.debug("reading file: " + TRAINING_DATA);
+    consoleLogger.debug("trainData classes: " + trainData.size() + ", series length: "
         + trainData.entrySet().iterator().next().getValue().get(0).length);
     for (Entry<String, List<double[]>> e : trainData.entrySet()) {
-      consoleLogger.fine(" training class: " + e.getKey() + " series: " + e.getValue().size());
+      consoleLogger.debug(" training class: " + e.getKey() + " series: " + e.getValue().size());
     }
 
     // fix the bounds for the highest and the lowest possible parameters

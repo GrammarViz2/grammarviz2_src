@@ -44,7 +44,6 @@ public class ParametersPane extends JPanel {
   private static final int STRATEGY_BUTTONS_NUM = 5;
   private static final JRadioButton[] strategyRadioButtons = new JRadioButton[STRATEGY_BUTTONS_NUM];
   private static final ButtonGroup strategyRadioGroup = new ButtonGroup();
-
   //
   // The GI algorithm variables
   //
@@ -53,29 +52,30 @@ public class ParametersPane extends JPanel {
   private static final int GI_BUTTONS_NUM = 2;
   private static final JRadioButton[] giRadioButtons = new JRadioButton[GI_BUTTONS_NUM];
   private static final ButtonGroup giRadioGroup = new ButtonGroup();
-
   //
-  // Other options section
+  // Normalization threshold option
   //
   public static final String SAX_NORMALIZATION_THRESHOLD_LABEL = "Normalization threshold:";
   public static final JFormattedTextField normalizationThresholdField = new JFormattedTextField(
       new NumberFormatter(NumberFormat.getNumberInstance(Locale.US)));
-
   //
   // Output options section
   //
   public static final String OUTPUT_RULE_DENSITY_CURVE_LABEL = "Rule density curve filename:";
-  public static final JTextField outputRuleDensityFName = new JTextField();
-
+  public static final JTextField outputRuleCoverageFilename = new JTextField();
+  //
   public static final String OUTPUT_GRAMMAR_LABEL = "Grammar filename:";
-  public static final JTextField outputGrammarFName = new JTextField();
-
+  public static final JTextField outputGrammarFileName = new JTextField();
+  //
   public static final String OUTPUT_ANOMALY_LABEL = "Anomalies filename:";
-  public static final JTextField outputAnomalyFName = new JTextField();
-
+  public static final JTextField outputAnomalyFileName = new JTextField();
+  //
   public static final String OUTPUT_CHARTS_LABEL = "Charts folder:";
-  public static final JTextField outputChartsFName = new JTextField();
+  public static final JTextField outputChartsFolderName = new JTextField();
 
+  /**
+   * Constructor.
+   */
   public ParametersPane() {
 
     super(new MigLayout("fill", "[grow]", "[grow]"));
@@ -258,16 +258,16 @@ public class ParametersPane extends JPanel {
     outputConfigurationPanel.setLayout(filenamesLayout);
 
     outputConfigurationPanel.add(new JLabel(OUTPUT_RULE_DENSITY_CURVE_LABEL));
-    outputConfigurationPanel.add(outputRuleDensityFName, "wrap");
+    outputConfigurationPanel.add(outputRuleCoverageFilename, "wrap");
 
     outputConfigurationPanel.add(new JLabel(OUTPUT_GRAMMAR_LABEL));
-    outputConfigurationPanel.add(outputGrammarFName, "wrap");
+    outputConfigurationPanel.add(outputGrammarFileName, "wrap");
 
     outputConfigurationPanel.add(new JLabel(OUTPUT_ANOMALY_LABEL));
-    outputConfigurationPanel.add(outputAnomalyFName, "wrap");
+    outputConfigurationPanel.add(outputAnomalyFileName, "wrap");
 
     outputConfigurationPanel.add(new JLabel(OUTPUT_CHARTS_LABEL));
-    outputConfigurationPanel.add(outputChartsFName, "wrap");
+    outputConfigurationPanel.add(outputChartsFolderName, "wrap");
 
     res.add(outputConfigurationPanel, "pad 0 0 0 0");
 
@@ -311,8 +311,48 @@ public class ParametersPane extends JPanel {
     return 0;
   }
 
+  /**
+   * Normalization threshold getter.
+   * 
+   * @return The normalization threshold value.
+   */
   public Double getNormalizationThreshold() {
     return Double.valueOf(normalizationThresholdField.getText());
   }
 
+  /**
+   * Get the rule coverage output filename.
+   * 
+   * @return
+   */
+  public String getRuleCoverageFileName() {
+    return outputRuleCoverageFilename.getText();
+  }
+
+  /**
+   * Get the rule coverage output filename.
+   * 
+   * @return
+   */
+  public String getGrammarOutputFileName() {
+    return outputGrammarFileName.getText();
+  }
+
+  /**
+   * Get the rule coverage output filename.
+   * 
+   * @return
+   */
+  public String getChartsFolderName() {
+    return outputChartsFolderName.getText();
+  }
+
+  /**
+   * Get the rule coverage output filename.
+   * 
+   * @return
+   */
+  public String getAnomalyOutputFileName() {
+    return outputAnomalyFileName.getText();
+  }
 }

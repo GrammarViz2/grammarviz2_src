@@ -9,17 +9,27 @@ import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
+import edu.hawaii.jmotif.grammarviz.logic.UserSession;
 import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
 import edu.hawaii.jmotif.grammarviz.model.SequiturModel;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 
+/**
+ * Implements the Controler component for GrammarViz2 GUI MVC.
+ * 
+ * @author psenin
+ * 
+ */
 public class SequiturController extends Observable implements ActionListener {
 
   private SequiturModel model;
 
+  private UserSession session;
+
   public SequiturController(SequiturModel model) {
     super();
     this.model = model;
+    this.session = new UserSession();
   }
 
   /**
@@ -54,41 +64,6 @@ public class SequiturController extends Observable implements ActionListener {
     return selectDataActionListener;
   }
 
-  /**
-   * This listener is not functional.
-   * 
-   * @return
-   */
-  public DocumentListener getDataFileNameListener() {
-
-    DocumentListener filenamedocumentListener = new DocumentListener() {
-      public void changedUpdate(DocumentEvent e) {
-        handleDocumentEvent(e);
-      }
-
-      public void removeUpdate(DocumentEvent e) {
-        handleDocumentEvent(e);
-      }
-
-      public void insertUpdate(DocumentEvent e) {
-        handleDocumentEvent(e);
-      }
-
-      private void handleDocumentEvent(DocumentEvent e) {
-        @SuppressWarnings("unused")
-        String filename = null;
-        try {
-          filename = e.getDocument().getText(0, e.getDocument().getLength());
-        }
-        catch (BadLocationException ble) {
-
-        }
-        // model.setDataSource(filename);
-      }
-    };
-    return filenamedocumentListener;
-  }
-
   public ActionListener getLoadFileListener() {
     ActionListener loadDataActionListener = new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -119,7 +94,7 @@ public class SequiturController extends Observable implements ActionListener {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
-        
+
       }
     };
     return loadDataActionListener;
@@ -131,4 +106,14 @@ public class SequiturController extends Observable implements ActionListener {
     notifyObservers(new SequiturMessage(SequiturMessage.STATUS_MESSAGE,
         "controller: Unknown action performed " + e.getActionCommand()));
   }
+
+  /**
+   * Gets the current session.
+   * 
+   * @return
+   */
+  public UserSession getSession() {
+    return session;
+  }
+
 }

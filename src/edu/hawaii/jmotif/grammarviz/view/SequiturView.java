@@ -399,7 +399,7 @@ public class SequiturView implements Observer, ActionListener {
     // add the action listener
     //
     selectFileButton.addActionListener(controller.getBrowseFilesListener());
-    dataFilePathField.getDocument().addDocumentListener(controller.getDataFileNameListener());
+    // dataFilePathField.getDocument().addDocumentListener(controller.getDataFileNameListener());
 
     // data rows interval section
     //
@@ -496,8 +496,8 @@ public class SequiturView implements Observer, ActionListener {
 
     processPane = new JPanel();
     processPane.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Hit to run GI",
-        TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
+        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Hit to run GI", TitledBorder.LEFT,
+        TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
     // insets: T, L, B, R.
     MigLayout processPaneLayout = new MigLayout("insets 3 2 4 2", "5[]5", "[]");
     processPane.setLayout(processPaneLayout);
@@ -530,8 +530,7 @@ public class SequiturView implements Observer, ActionListener {
     MigLayout sequiturPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
     sequiturRulesPane.setLayout(sequiturPaneLayout);
 
-    tabbedRulesPane.addTab("Grammar rules", null, sequiturRulesPane,
-        "Shows grammar rules");
+    tabbedRulesPane.addTab("Grammar rules", null, sequiturRulesPane, "Shows grammar rules");
     // tabbedRulesPane.addTab("Sequitur", sequiturRulesPane);
     // tabbedRulesPane.setIgnoreRepaint(false);
 
@@ -765,12 +764,10 @@ public class SequiturView implements Observer, ActionListener {
       ParametersPane parametersPanel = new ParametersPane();
       parametersPanel.setValues(currentStrategy.index(), currentAlgorithm, normalizationThreshold);
 
-      ParametersDialog parametersDialog = new ParametersDialog(frame, parametersPanel);
+      ParametersDialog parametersDialog = new ParametersDialog(frame, parametersPanel,
+          this.controller.getSession());
 
-      this.dataChartPane.setCoverageCountStrategy(CoverageCountStrategy.fromValue(parametersDialog
-          .getSelectedStrategyValue()));
-      this.currentGIAlgorithmSelection = parametersDialog.getSelectedAlgorithmValue();
-      this.normalizationThreshold = parametersDialog.getNormalizationThresholdValue();
+      this.dataChartPane.setCoverageCountStrategy(this.controller.getSession().getCountStrategy());
     }
 
     // showing up the about dialog

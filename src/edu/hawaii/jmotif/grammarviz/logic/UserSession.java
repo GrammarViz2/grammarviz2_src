@@ -15,6 +15,7 @@ public class UserSession {
 
   /** Default GI algorithm implementation. */
   public static final int DEFAULT_GI_ALGORITHM = 0;
+  public static final CoverageCountStrategy DEFAULT_COUNT_STRATEGY = CoverageCountStrategy.COUNT;
 
   public static boolean DEFAULT_SLIDING_WINDOW = true;
 
@@ -40,6 +41,7 @@ public class UserSession {
     super();
     this.normalizationThreshold = DEFAULT_NORMALIZATION_THRESHOLD_VALUE;
     this.giAlgorithm = DEFAULT_GI_ALGORITHM;
+    this.countStrategy = DEFAULT_COUNT_STRATEGY;
     this.useSlidingWindow = DEFAULT_SLIDING_WINDOW;
     this.saxWindow = DEFAULT_SAX_WINDOW;
     this.saxPAA = DEFAULT_SAX_PAA;

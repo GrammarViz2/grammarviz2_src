@@ -6,9 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 import javax.swing.JFileChooser;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
 import edu.hawaii.jmotif.grammarviz.logic.UserSession;
 import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
 import edu.hawaii.jmotif.grammarviz.model.SequiturModel;
@@ -114,7 +111,7 @@ public class SequiturController extends Observable implements ActionListener {
    * @return
    */
   public UserSession getSession() {
-    return session;
+    return this.session;
   }
 
 }

@@ -76,19 +76,20 @@ public class SequiturController extends Observable implements ActionListener {
   public ActionListener getProcessDataListener() {
     ActionListener loadDataActionListener = new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        String[] split = e.getActionCommand().split(",");
-        int algorithm = Integer.parseInt(split[0]);
-        boolean useSlidingWindow = Boolean.parseBoolean(split[1]);
-        NumerosityReductionStrategy numerosityReductionStrategy = NumerosityReductionStrategy
-            .fromString(split[2]);
-        int windowSize = Integer.parseInt(split[3]);
-        int paaSize = Integer.parseInt(split[4]);
-        int alphabetSize = Integer.parseInt(split[5]);
-        double normalizationThreshold = Double.parseDouble(split[6]);
+
+        int algorithm = session.getGiAlgorithm();
+        boolean useSlidingWindow = session.isUseSlidingWindow();
+        NumerosityReductionStrategy numerosityReductionStrategy = session
+            .getNumerosityReductionStrategy();
+        int windowSize = session.getSaxWindow();
+        int paaSize = session.getSaxPAA();
+        int alphabetSize = session.getSaxAlphabet();
+        double normalizationThreshold = session.getNormalizationThreshold();
+        String outputFileName = session.getGrammarOutputFileName();
 
         try {
           model.processData(algorithm, useSlidingWindow, numerosityReductionStrategy, windowSize,
-              paaSize, alphabetSize, normalizationThreshold);
+              paaSize, alphabetSize, normalizationThreshold, outputFileName);
         }
         catch (IOException e1) {
           // TODO Auto-generated catch block

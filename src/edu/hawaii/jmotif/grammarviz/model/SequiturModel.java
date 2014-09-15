@@ -196,11 +196,13 @@ public class SequiturModel extends Observable {
    * @param paaSize The SAX PAA size.
    * @param alphabetSize The SAX alphabet size.
    * @param normalizationThreshold The normalization threshold.
+   * @param grammarOutputFileName The file name to where save the grammar.
    * @throws IOException
    */
   public synchronized void processData(int algorithm, boolean useSlidingWindow,
       NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
-      int alphabetSize, double normalizationThreshold) throws IOException {
+      int alphabetSize, double normalizationThreshold, String grammarOutputFileName)
+      throws IOException {
 
     // check if the data is loaded
     //

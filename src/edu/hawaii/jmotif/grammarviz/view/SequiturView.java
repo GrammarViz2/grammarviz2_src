@@ -166,10 +166,6 @@ public class SequiturView implements Observer, ActionListener {
 
   private boolean isTimeSeriesLoaded = false;
 
-  private int currentGIAlgorithmSelection = 0;
-
-  private double normalizationThreshold = 0.05;
-
   // logging area
   //
   private static final JTextArea logTextArea = new JTextArea();
@@ -431,20 +427,22 @@ public class SequiturView implements Observer, ActionListener {
         "[][]10[][fill,grow]10[][fill,grow]10[][fill,grow]", "[]");
     saxParametersPane.setLayout(saxPaneLayout);
 
+    // the sliding window parameter
     JLabel slideWindowLabel = new JLabel("Slide the window");
     useSlidingWindowCheckBox = new JCheckBox();
-    useSlidingWindowCheckBox.setSelected(true);
+    useSlidingWindowCheckBox.setSelected(this.controller.getSession().isUseSlidingWindow());
     useSlidingWindowCheckBox.setActionCommand(USE_SLIDING_WINDOW_ACTION_KEY);
     useSlidingWindowCheckBox.addActionListener(this);
 
     windowSizeLabel = new JLabel("Window size:");
-    SAXwindowSizeField = new JTextField("160");
+    SAXwindowSizeField = new JTextField(String.valueOf(this.controller.getSession().getSaxWindow()));
 
     paaSizeLabel = new JLabel("PAA size:");
-    SAXpaaSizeField = new JTextField("4");
+    SAXpaaSizeField = new JTextField(String.valueOf(this.controller.getSession().getSaxPAA()));
 
     JLabel alphabetSizeLabel = new JLabel("Alphabet size:");
-    SAXalphabetSizeField = new JTextField("3");
+    SAXalphabetSizeField = new JTextField(String.valueOf(this.controller.getSession()
+        .getSaxAlphabet()));
 
     saxParametersPane.add(slideWindowLabel);
     saxParametersPane.add(useSlidingWindowCheckBox);
@@ -485,6 +483,7 @@ public class SequiturView implements Observer, ActionListener {
     numerosityReductionMINDISTButton.addActionListener(this);
     numerosityReductionPane.add(numerosityReductionMINDISTButton);
 
+    this.controller.getSession().setNumerosityReductionStrategy(NumerosityReductionStrategy.EXACT);
     numerosityReductionExactButton.setSelected(true);
 
     // PROCESS button
@@ -758,11 +757,11 @@ public class SequiturView implements Observer, ActionListener {
     //
     if (OPTIONS_MENU_ITEM.equalsIgnoreCase(command)) {
       log(Level.INFO, "options menu action performed");
-      CoverageCountStrategy currentStrategy = this.dataChartPane.getCoverageCountStrategy();
-      int currentAlgorithm = this.currentGIAlgorithmSelection;
 
       ParametersPane parametersPanel = new ParametersPane();
-      parametersPanel.setValues(currentStrategy.index(), currentAlgorithm, normalizationThreshold);
+      parametersPanel.setValues(this.controller.getSession().getCountStrategy().index(),
+          this.controller.getSession().getGiAlgorithm(), this.controller.getSession()
+              .getNormalizationThreshold());
 
       ParametersDialog parametersDialog = new ParametersDialog(frame, parametersPanel,
           this.controller.getSession());
@@ -774,9 +773,7 @@ public class SequiturView implements Observer, ActionListener {
     //
     if (ABOUT_MENU_ITEM.equalsIgnoreCase(command)) {
       log(Level.INFO, "about menu action performed");
-
       AboutGrammarVizDialog dlg = new AboutGrammarVizDialog(frame);
-
       dlg.clearAndHide();
     }
 
@@ -800,17 +797,7 @@ public class SequiturView implements Observer, ActionListener {
     else if (PROCESS_DATA.equalsIgnoreCase(command)) {
       log(Level.INFO, "process data action performed");
       if (this.isTimeSeriesLoaded) {
-        Boolean useSlidingWindow = this.useSlidingWindowCheckBox.isSelected();
-        NumerosityReductionStrategy numerosityReductionStrategy = this.selectedNumerosityReductionStrategy;
-        String window = this.SAXwindowSizeField.getText();
-        String paa = this.SAXpaaSizeField.getText();
-        String alpphabet = this.SAXalphabetSizeField.getText();
-        String algorithm = Integer.valueOf(currentGIAlgorithmSelection).toString();
-        String normalizationThresholdValue = Double.valueOf(normalizationThreshold).toString();
-        this.controller.getProcessDataListener().actionPerformed(
-            new ActionEvent(this, 2, algorithm + COMMA + useSlidingWindow + COMMA
-                + numerosityReductionStrategy.toString() + COMMA + window + COMMA + paa + COMMA
-                + alpphabet + COMMA + normalizationThresholdValue));
+        this.controller.getProcessDataListener().actionPerformed(new ActionEvent(this, 2, null));
       }
       else {
         raiseValidationError("The timeseries is not loaded yet.");

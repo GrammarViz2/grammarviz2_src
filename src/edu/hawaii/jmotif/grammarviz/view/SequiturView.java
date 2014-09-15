@@ -35,7 +35,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.swing.MigLayout;
 import edu.hawaii.jmotif.grammarviz.controller.SequiturController;
-import edu.hawaii.jmotif.grammarviz.logic.CoverageCountStrategy;
 import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
 import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
@@ -797,6 +796,12 @@ public class SequiturView implements Observer, ActionListener {
     else if (PROCESS_DATA.equalsIgnoreCase(command)) {
       log(Level.INFO, "process data action performed");
       if (this.isTimeSeriesLoaded) {
+        // check the values for window/paa/alphabet, etc.
+        this.controller.getSession().setSaxWindow(
+            Integer.valueOf(this.SAXwindowSizeField.getText()));
+        this.controller.getSession().setSaxPAA(Integer.valueOf(this.SAXpaaSizeField.getText()));
+        this.controller.getSession().setSaxAlphabet(
+            Integer.valueOf(this.SAXalphabetSizeField.getText()));
         this.controller.getProcessDataListener().actionPerformed(new ActionEvent(this, 2, null));
       }
       else {
@@ -922,15 +927,18 @@ public class SequiturView implements Observer, ActionListener {
     else if (USE_SLIDING_WINDOW_ACTION_KEY.equalsIgnoreCase(command)) {
       log(Level.INFO, "sliding window toggled");
       if (this.useSlidingWindowCheckBox.isSelected()) {
+        this.controller.getSession().setUseSlidingWindow(true);
         this.windowSizeLabel.setText("Window size:");
         this.windowSizeLabel.setEnabled(true);
         this.windowSizeLabel.setVisible(true);
-        this.SAXwindowSizeField.setText("100");
+        this.SAXwindowSizeField
+            .setText(String.valueOf(this.controller.getSession().getSaxWindow()));
         this.SAXwindowSizeField.setEnabled(true);
         this.SAXwindowSizeField.setVisible(true);
         this.paaSizeLabel.setText("PAA size:");
       }
       else {
+        this.controller.getSession().setUseSlidingWindow(false);
         this.windowSizeLabel.setText("");
         this.windowSizeLabel.setEnabled(false);
         this.windowSizeLabel.setVisible(false);
@@ -944,7 +952,8 @@ public class SequiturView implements Observer, ActionListener {
         || NumerosityReductionStrategy.EXACT.toString().equalsIgnoreCase(command)
         || NumerosityReductionStrategy.MINDIST.toString().equalsIgnoreCase(command)) {
       log(Level.INFO, "numerosity reduction option toggled");
-      this.selectedNumerosityReductionStrategy = NumerosityReductionStrategy.fromString(command);
+      this.controller.getSession().setNumerosityReductionStrategy(
+          NumerosityReductionStrategy.fromString(command));
     }
 
     else if ("Exit".equalsIgnoreCase(command)) {

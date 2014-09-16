@@ -28,7 +28,7 @@ public class TestSymbol {
 
     String bits = A.getiSAXBitRepresentation(0);
 
-    // System.out.println( "isax > bit rep > '" + bits + "' " );
+    // // System.out.println( "isax > bit rep > '" + bits + "' " );
 
     assertEquals("bit rep test", "010", bits);
 
@@ -39,11 +39,11 @@ public class TestSymbol {
     assertEquals("bit rep test", "0100", C.getiSAXBitRepresentation(0));
 
     Symbol D = new Symbol(4, 16);
-    // System.out.println( "wild: " + D.getiSAXBitRepresentation(0) );
+    // // System.out.println( "wild: " + D.getiSAXBitRepresentation(0) );
     assertEquals("bit rep test", "00100", D.getiSAXBitRepresentation(0));
 
     Symbol E = new Symbol(4, 16);
-    // System.out.println( "wild: " + E.getiSAXBitRepresentation(1) );
+    // // System.out.println( "wild: " + E.getiSAXBitRepresentation(1) );
     assertEquals("bit rep test", "0010*", E.getiSAXBitRepresentation(1));
 
     // Symbol F = new Symbol( 4, 16 );
@@ -52,7 +52,7 @@ public class TestSymbol {
     assertEquals("bit rep test", "00***", E.getiSAXBitRepresentation(3));
 
     Symbol F = new Symbol(4, 32);
-    // System.out.println( "wild: " + E.getiSAXBitRepresentation(1) );
+    // // System.out.println( "wild: " + E.getiSAXBitRepresentation(1) );
     assertEquals("bit rep test", "00010*", F.getiSAXBitRepresentation(1));
 
   }
@@ -82,7 +82,7 @@ public class TestSymbol {
     assertEquals("check low out SAX", a_0.saxCharacter, A_low.saxCharacter);
     assertEquals("check high out SAX", a_1.saxCharacter, A_high.saxCharacter);
 
-    System.out.println("Symbol > " + a_1.saxCharacter);
+    // System.out.println("Symbol > " + a_1.saxCharacter);
 
   }
 
@@ -93,7 +93,7 @@ public class TestSymbol {
   @Test
   public void testPromoteSymbol() {
 
-    System.out.println("testing promote symbol.");
+    // System.out.println("testing promote symbol.");
 
     Symbol A_in = new Symbol(0, 2);
 
@@ -118,7 +118,7 @@ public class TestSymbol {
 
     assertEquals("testPromoteSymbol_assert_3", B_out.saxCharacter, 1);
 
-    System.out.println("testing promote symbol part 2.");
+    // System.out.println("testing promote symbol part 2.");
 
     A_in = new Symbol(6, 8);
 
@@ -143,7 +143,7 @@ public class TestSymbol {
 
     assertEquals("testPromoteSymbol_assert_7", B_out.saxCharacter, 3);
 
-    System.out.println("testing promote symbol part 3.");
+    // System.out.println("testing promote symbol part 3.");
 
     A_in = new Symbol(1, 2);
 
@@ -168,7 +168,7 @@ public class TestSymbol {
 
     assertEquals("testPromoteSymbol_assert_11", B_out.saxCharacter, 3);
 
-    System.out.println("testing promote symbol part 4.");
+    // System.out.println("testing promote symbol part 4.");
 
     A_in = new Symbol(1, 2);
 
@@ -216,7 +216,7 @@ public class TestSymbol {
       e.printStackTrace();
     }
 
-    // System.out.println( "val: " + val );
+    // // System.out.println( "val: " + val );
 
     assertEquals("testSAXDistanceTable", (Double) val, (Double) 0.0D);
 

@@ -114,7 +114,7 @@ public class TestSequence {
       e.printStackTrace();
     }
 
-    System.out.println(" TestSequence > dist( 00, 10 ) == " + localDist);
+    // System.out.println(" TestSequence > dist( 00, 10 ) == " + localDist);
 
     assertEquals("dist( 00, 10 )", 0.67D, localDist, 0.01D);
 
@@ -161,7 +161,7 @@ public class TestSequence {
    * 
    * assertEquals("dist( 00, 01 )", (Double) 0.0D, (Double) localDist );
    * 
-   * System.out.println( "test > dist( 00, 01 ) = " + localDist ); }
+   * // System.out.println( "test > dist( 00, 01 ) = " + localDist ); }
    */
 
   /**
@@ -208,7 +208,7 @@ public class TestSequence {
     // iSAX(T,4,8) = T8 = {110,110,011,000} = {68,68,38,08}
     // iSAX(S,4,2) = S2 = {0 ,0 ,1 ,1 } = {02,02,12,12}
 
-    System.out.println("testing example full Sequence promotion");
+    // System.out.println("testing example full Sequence promotion");
 
     Sequence A = new Sequence(16); // T, 4, 8
     A.getSymbols().add(new Symbol(6, 8));
@@ -228,7 +228,7 @@ public class TestSequence {
 
     Sequence.PerformPromotion(A, B, A_out, B_out);
 
-    // System.out.println( "len: " + B.getSymbols().size() );
+    // // System.out.println( "len: " + B.getSymbols().size() );
 
     for (int x = 0; x < B_out.getSymbols().size(); x++) {
 
@@ -255,7 +255,7 @@ public class TestSequence {
      * SAX(T,4,4) = T4 = {11,11,01,00}, and therefore SAX(S,4,4) = S4 = {00,01,11,11}.
      */
 
-    System.out.println("testing MINDIST function");
+    // System.out.println("testing MINDIST function");
 
     Sequence A = new Sequence(16); // T, 4, 8
     A.getSymbols().add(new Symbol(3, 4));
@@ -280,7 +280,7 @@ public class TestSequence {
       e.printStackTrace();
     }
 
-    System.out.println("dist: " + val);
+    // System.out.println("dist: " + val);
 
     double actual = 4.265D;
 
@@ -352,7 +352,7 @@ public class TestSequence {
 
     byte[] ser = A.getBytes();
 
-    System.out.println("SerDe size: " + ser.length);
+    // System.out.println("SerDe size: " + ser.length);
 
     assertEquals("Serialize size", 40, ser.length);
 
@@ -376,12 +376,12 @@ public class TestSequence {
 
     String hash = A.getIndexHash();
 
-    System.out.println("hash: " + hash);
+    // System.out.println("hash: " + hash);
 
     Sequence B = new Sequence(0);
     B.parseFromIndexHash(hash);
 
-    // System.out.println( B.getIndexHash());
+    // // System.out.println( B.getIndexHash());
 
     assertEquals("index hash test", A.getIndexHash(), B.getIndexHash());
 
@@ -397,7 +397,7 @@ public class TestSequence {
     Sequence w1 = new Sequence(16);
     w1.getSymbols().add(A_s1);
 
-    System.out.println("card bits > " + Symbol.numberBitsInCardinality(A_s1.cardinality));
+    // System.out.println("card bits > " + Symbol.numberBitsInCardinality(A_s1.cardinality));
 
     assertEquals("does this match bits sizes", 3, Symbol.numberBitsInCardinality(A_s1.cardinality));
 
@@ -408,13 +408,13 @@ public class TestSequence {
     // Sequence w1 = new Sequence( 16 );
     // w1.getSymbols().add( A_s1 );
 
-    System.out.println("card bits > " + Symbol.numberBitsInCardinality(B_s1.cardinality));
+    // System.out.println("card bits > " + Symbol.numberBitsInCardinality(B_s1.cardinality));
 
     assertEquals("does this match bits sizes", 5, Symbol.numberBitsInCardinality(B_s1.cardinality));
 
     Symbol B_wild_0 = new Symbol(2, 16, 1);
 
-    System.out.println("wildcard rep > " + B_wild_0.getiSAXBitRepresentation());
+    // System.out.println("wildcard rep > " + B_wild_0.getiSAXBitRepresentation());
 
     assertEquals("wildcard sax bit rep test", "0001*", B_wild_0.getiSAXBitRepresentation());
 
@@ -422,7 +422,7 @@ public class TestSequence {
     assertEquals("wildcard sax bit rep test", "000**", B_wild_1.getiSAXBitRepresentation());
 
     Symbol B_wild_2 = new Symbol(2, 16, 3);
-    System.out.println("wildcard rep > " + B_wild_2.getiSAXBitRepresentation());
+    // System.out.println("wildcard rep > " + B_wild_2.getiSAXBitRepresentation());
 
     assertEquals("wildcard sax bit rep test", "00***", B_wild_2.getiSAXBitRepresentation());
 
@@ -436,7 +436,7 @@ public class TestSequence {
     Sequence w1 = new Sequence(16);
     w1.getSymbols().add(A_s1);
 
-    // System.out.println( "card bits > " + A_s1.getiSAXBitRepresentation() );
+    // // System.out.println( "card bits > " + A_s1.getiSAXBitRepresentation() );
 
     Symbol A_s2 = new Symbol(2, 8, 1);
 
@@ -445,7 +445,7 @@ public class TestSequence {
     Sequence nk1 = new Sequence(16);
     nk1.getSymbols().add(A_s2);
 
-    System.out.println("string rep > " + nk1.getBitStringRepresentation());
+    // System.out.println("string rep > " + nk1.getBitStringRepresentation());
 
     assertEquals("Contains Sequence", nk1.ContainsSequence(w1), true);
 
@@ -466,7 +466,7 @@ public class TestSequence {
     w1.getSymbols().add(A_s2);
     w1.getSymbols().add(A_s3);
 
-    System.out.println("testSequenceMembership_1 > w1  > " + w1.getBitStringRepresentation());
+    // System.out.println("testSequenceMembership_1 > w1  > " + w1.getBitStringRepresentation());
 
     Symbol A_nk1 = new Symbol(2, 8, 1);
     Symbol A_nk2 = new Symbol(2, 8, 1);
@@ -477,7 +477,7 @@ public class TestSequence {
     nk1.getSymbols().add(A_nk2);
     nk1.getSymbols().add(A_nk3);
 
-    System.out.println("testSequenceMembership_1 > nk1 > " + nk1.getBitStringRepresentation());
+    // System.out.println("testSequenceMembership_1 > nk1 > " + nk1.getBitStringRepresentation());
 
     assertEquals("Contains Sequence", nk1.ContainsSequence(w1), true);
 
@@ -498,7 +498,7 @@ public class TestSequence {
     w1.getSymbols().add(A_s2);
     w1.getSymbols().add(A_s3);
 
-    System.out.println("testSequenceMembership_1 > w1  > " + w1.getBitStringRepresentation());
+    // System.out.println("testSequenceMembership_1 > w1  > " + w1.getBitStringRepresentation());
 
     Symbol A_nk1 = new Symbol(2, 8, 1);
     Symbol A_nk2 = new Symbol(2, 8, 1);
@@ -509,7 +509,7 @@ public class TestSequence {
     nk1.getSymbols().add(A_nk2);
     nk1.getSymbols().add(A_nk3);
 
-    System.out.println("testSequenceMembership_1 > nk1 > " + nk1.getBitStringRepresentation());
+    // System.out.println("testSequenceMembership_1 > nk1 > " + nk1.getBitStringRepresentation());
 
     assertEquals("Contains Sequence", nk1.ContainsSequence(w1), true);
 
@@ -530,7 +530,7 @@ public class TestSequence {
     w1.getSymbols().add(A_s2);
     w1.getSymbols().add(A_s3);
 
-    System.out.println("testSequenceMembership_1 > w1  > " + w1.getBitStringRepresentation());
+    // System.out.println("testSequenceMembership_1 > w1  > " + w1.getBitStringRepresentation());
 
     Symbol A_nk1 = new Symbol(2, 8, 1);
     Symbol A_nk2 = new Symbol(2, 8, 1);
@@ -541,7 +541,7 @@ public class TestSequence {
     nk1.getSymbols().add(A_nk2);
     nk1.getSymbols().add(A_nk3);
 
-    System.out.println("testSequenceMembership_1 > nk1 > " + nk1.getBitStringRepresentation());
+    // System.out.println("testSequenceMembership_1 > nk1 > " + nk1.getBitStringRepresentation());
 
     assertEquals("Contains Sequence", nk1.ContainsSequence(w1), false);
 
@@ -562,7 +562,7 @@ public class TestSequence {
     w1.getSymbols().add(A_s2);
     w1.getSymbols().add(A_s3);
 
-    System.out.println("\ntestSequenceMembership_4 > w1  > " + w1.getBitStringRepresentation());
+    // System.out.println("\ntestSequenceMembership_4 > w1  > " + w1.getBitStringRepresentation());
 
     Symbol A_nk1 = new Symbol(2, 8, 2);
     Symbol A_nk2 = new Symbol(2, 8, 3);
@@ -573,7 +573,7 @@ public class TestSequence {
     nk1.getSymbols().add(A_nk2);
     nk1.getSymbols().add(A_nk3);
 
-    System.out.println("testSequenceMembership_4 > nk1 > " + nk1.getBitStringRepresentation());
+    // System.out.println("testSequenceMembership_4 > nk1 > " + nk1.getBitStringRepresentation());
 
     assertEquals("Contains Sequence", nk1.ContainsSequence(w1), false);
 

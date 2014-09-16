@@ -75,7 +75,7 @@ public class TestkNNSearchResults {
 
       TimeseriesInstance out = results.next();
 
-      System.out.println(" count: " + results.count() + ", ts: " + out.getTS());
+      // System.out.println(" count: " + results.count() + ", ts: " + out.getTS());
 
     }
 
@@ -84,7 +84,7 @@ public class TestkNNSearchResults {
   @Test
   public void testBasicQueueSorting_closest_neighbor() {
 
-    System.out.println("\ntestBasicQueueSorting_closest_neighbor");
+    // System.out.println("\ntestBasicQueueSorting_closest_neighbor");
 
     Timeseries ts_search = new Timeseries();
     ts_search.add(new TPoint(1.05, 0));
@@ -135,7 +135,7 @@ public class TestkNNSearchResults {
 
       TimeseriesInstance out = results.next();
 
-      System.out.println(" count: " + results.count() + ", ts: " + out.getTS());
+      // System.out.println(" count: " + results.count() + ", ts: " + out.getTS());
 
     }
 
@@ -144,7 +144,7 @@ public class TestkNNSearchResults {
   @Test
   public void testTailofResults() {
 
-    System.out.println("\ntestTailofResults");
+    // System.out.println("\ntestTailofResults");
 
     Timeseries ts_search = new Timeseries();
     ts_search.add(new TPoint(1.05, 0));
@@ -195,7 +195,7 @@ public class TestkNNSearchResults {
 
       TimeseriesInstance out = results.last();
 
-      System.out.println(" count: " + results.count() + ", ts: " + out.getTS());
+      // System.out.println(" count: " + results.count() + ", ts: " + out.getTS());
 
     }
 
@@ -204,7 +204,7 @@ public class TestkNNSearchResults {
   @Test
   public void testResultsComplete() {
 
-    System.out.println("\ntestResultsComplete");
+    // System.out.println("\ntestResultsComplete");
 
     Timeseries ts_search = new Timeseries();
     ts_search.add(new TPoint(1.05, 0));

@@ -78,7 +78,7 @@ public class TestTimeseriesInstance {
   @Test
   public void testCompareTo_0() {
 
-    System.out.println("\n\n------ testCompareTo() --------");
+    // System.out.println("\n\n------ testCompareTo() --------");
 
     Timeseries ts1 = new Timeseries();
     ts1.add(new TPoint(1.0, 0));
@@ -101,7 +101,7 @@ public class TestTimeseriesInstance {
 
     int comp = A.compareTo(B);
 
-    System.out.println("compareTo: " + comp);
+    // System.out.println("compareTo: " + comp);
 
     assertEquals("testCompareTo", 0, comp);
   }
@@ -109,7 +109,7 @@ public class TestTimeseriesInstance {
   @Test
   public void testCompareTo_1() {
 
-    System.out.println("\n\n------ testCompareTo() 1 --------");
+    // System.out.println("\n\n------ testCompareTo() 1 --------");
 
     Timeseries ts1 = new Timeseries();
     ts1.add(new TPoint(1.0, 0));
@@ -132,7 +132,7 @@ public class TestTimeseriesInstance {
 
     int comp = A.compareTo(B);
 
-    System.out.println("compareTo: " + comp);
+    // System.out.println("compareTo: " + comp);
 
     assertEquals("testCompareTo 1", 1, comp);
 

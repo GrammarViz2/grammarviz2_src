@@ -42,9 +42,9 @@ public class TestISAXUtils {
 
     // now check to see that the symbos in the iSAX sequence match whats expected.
 
-    System.out.println("isax > out > " + isax.getOrigLength());
-    System.out.println("isax > word > " + isax.getSymbols().size());
-    System.out.println("isax > name > " + isax.getIndexHash());
+    // System.out.println("isax > out > " + isax.getOrigLength());
+    // System.out.println("isax > word > " + isax.getSymbols().size());
+    // System.out.println("isax > name > " + isax.getIndexHash());
 
   }
 
@@ -89,18 +89,18 @@ public class TestISAXUtils {
       e.printStackTrace();
     }
 
-    System.out.println("normally: " + isax.getBitStringRepresentation());
+    // System.out.println("normally: " + isax.getBitStringRepresentation());
 
-    System.out.println("out:      " + seq_out.getBitStringRepresentation());
+    // System.out.println("out:      " + seq_out.getBitStringRepresentation());
 
-    System.out.println("\nbased on: " + A.getBitStringRepresentation());
+    // System.out.println("\nbased on: " + A.getBitStringRepresentation());
 
   }
 
   @Test
   public void testISAXSequenceSplitTest_1() {
 
-    System.out.println("\nsplit test 2");
+    // System.out.println("\nsplit test 2");
 
     Timeseries ts = new Timeseries();
     ts.add(new TPoint(1.0, 0));
@@ -148,19 +148,19 @@ public class TestISAXUtils {
       e.printStackTrace();
     }
 
-    // System.out.println( "normally: " + isax.getStringRepresentation() );
+    // // System.out.println( "normally: " + isax.getStringRepresentation() );
 
-    System.out.println("out:      " + seq_out_0.getBitStringRepresentation());
-    System.out.println("out:      " + seq_out_1.getBitStringRepresentation());
+    // System.out.println("out:      " + seq_out_0.getBitStringRepresentation());
+    // System.out.println("out:      " + seq_out_1.getBitStringRepresentation());
 
-    // System.out.println( "\nbased on: " + A.getStringRepresentation() );
+    // // System.out.println( "\nbased on: " + A.getStringRepresentation() );
 
   }
 
   @Test
   public void testISAXSequenceSplitTest_2() {
 
-    System.out.println("\nChild Card Hash Test 0");
+    // System.out.println("\nChild Card Hash Test 0");
 
     Timeseries ts = new Timeseries();
     ts.add(new TPoint(1.0, 0));
@@ -191,11 +191,11 @@ public class TestISAXUtils {
 
     ArrayList<Integer> arCards = A.getCardinalities();
 
-    System.out.println("cards-start: " + arCards);
+    // System.out.println("cards-start: " + arCards);
 
     arCards = IndexHashParams.generateChildCardinality(arCards);
 
-    System.out.println("cards-gen: " + arCards);
+    // System.out.println("cards-gen: " + arCards);
 
     try {
       seq_out_0 = ISAXUtils.CreateiSAXSequenceBasedOnCardinality(ts, arCards); // ( ts, 4, 4 );
@@ -205,13 +205,13 @@ public class TestISAXUtils {
       e.printStackTrace();
     }
 
-    // System.out.println( "seq-hash: " + seq_out_0.getIndexHash() );
-    System.out.println("out:      " + seq_out_0.getBitStringRepresentation());
-    System.out.println("seq-hash: " + seq_out_0.getIndexHash());
+    // // System.out.println( "seq-hash: " + seq_out_0.getIndexHash() );
+    // System.out.println("out:      " + seq_out_0.getBitStringRepresentation());
+    // System.out.println("seq-hash: " + seq_out_0.getIndexHash());
 
     arCards = IndexHashParams.generateChildCardinality(arCards);
 
-    System.out.println("cards-gen: " + arCards);
+    // System.out.println("cards-gen: " + arCards);
 
     try {
       seq_out_0 = ISAXUtils.CreateiSAXSequenceBasedOnCardinality(ts, arCards); // ( ts, 4, 4 );
@@ -221,8 +221,8 @@ public class TestISAXUtils {
       e.printStackTrace();
     }
 
-    System.out.println("out:      " + seq_out_0.getBitStringRepresentation());
-    System.out.println("seq-hash: " + seq_out_0.getIndexHash());
+    // System.out.println("out:      " + seq_out_0.getBitStringRepresentation());
+    // System.out.println("seq-hash: " + seq_out_0.getIndexHash());
 
   }
 
@@ -245,7 +245,7 @@ public class TestISAXUtils {
       e.printStackTrace();
     }
 
-    System.out.println("\n\ndna_to_ts: " + ts);
+    // System.out.println("\n\ndna_to_ts: " + ts);
 
     assertEquals("", true, ts_answer.equals(ts));
 
@@ -270,7 +270,7 @@ public class TestISAXUtils {
       e.printStackTrace();
     }
 
-    System.out.println("\n\ndna_to_ts: " + ts);
+    // System.out.println("\n\ndna_to_ts: " + ts);
 
     assertEquals("", true, ts_answer.equals(ts));
 
@@ -295,7 +295,7 @@ public class TestISAXUtils {
       e.printStackTrace();
     }
 
-    System.out.println("\n\ndna_to_ts: " + ts);
+    // System.out.println("\n\ndna_to_ts: " + ts);
 
     assertEquals("DNA to Timeseries", true, ts_answer.equals(ts));
 
@@ -309,7 +309,7 @@ public class TestISAXUtils {
       e.printStackTrace();
     }
 
-    System.out.println("TS to DNA > " + dna);
+    // System.out.println("TS to DNA > " + dna);
 
     assertEquals("Timeseries back to DNA", true, dna.equals("gatc"));
 
@@ -344,12 +344,12 @@ public class TestISAXUtils {
       e.printStackTrace();
     }
 
-    System.out.println("Dna: " + dna.getBitStringRepresentation() + " == "
-        + A.getBitStringRepresentation());
+    // System.out.println("Dna: " + dna.getBitStringRepresentation() + " == "
+    // + A.getBitStringRepresentation());
 
     assertEquals("dna conversion test", dna.equals(A), true);
 
-    System.out.println("DNA in iSAX: " + dna.getBitStringRepresentation());
+    // System.out.println("DNA in iSAX: " + dna.getBitStringRepresentation());
 
   }
 
@@ -394,7 +394,7 @@ public class TestISAXUtils {
 
     try {
       euc = EuclideanDistance.distance(ts.values(), ts2.values());
-      // System.out.println( "\nEUCLID-DIST:      " + euc );
+      // // System.out.println( "\nEUCLID-DIST:      " + euc );
     }
     catch (TSException e1) {
       // TODO Auto-generated catch block
@@ -434,14 +434,14 @@ public class TestISAXUtils {
 
     if (euc < mindist_paa) {
 
-      System.out.println(">> ERR ");
+      // System.out.println(">> ERR ");
 
     }
 
     if (mindist_paa > sax_dist) {
 
-      System.out.println(">> ERR 2");
-      System.out.println("mindist_paa: " + mindist_paa + " < sax_dist: " + sax_dist + "\n");
+      // System.out.println(">> ERR 2");
+      // System.out.println("mindist_paa: " + mindist_paa + " < sax_dist: " + sax_dist + "\n");
 
     }
 
@@ -450,7 +450,7 @@ public class TestISAXUtils {
   @Test
   public void testCuts() {
 
-    System.out.println("\n\ntestCuts\n");
+    // System.out.println("\n\ntestCuts\n");
 
     for (int x = 0; x < 20; x++) {
 

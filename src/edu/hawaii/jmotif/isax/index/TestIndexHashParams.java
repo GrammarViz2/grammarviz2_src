@@ -47,11 +47,11 @@ public class TestIndexHashParams {
       e.printStackTrace();
     }
 
-    System.out.println("isax: " + isax.getBitStringRepresentation());
+    // System.out.println("isax: " + isax.getBitStringRepresentation());
 
     String rep = p.createMaskedBitSequence(isax);
 
-    System.out.println("rep : '" + rep + "' ");
+    // System.out.println("rep : '" + rep + "' ");
 
     assertEquals("wildbits test 0", "0**, 0**, 0**, 0**, ", rep);
 
@@ -89,11 +89,11 @@ public class TestIndexHashParams {
       e.printStackTrace();
     }
 
-    System.out.println("isax: " + isax.getBitStringRepresentation());
+    // System.out.println("isax: " + isax.getBitStringRepresentation());
 
     String rep = p.createMaskedBitSequence(isax);
 
-    System.out.println("rep : '" + rep + "' ");
+    // System.out.println("rep : '" + rep + "' ");
 
     assertEquals("wildbits test 0", "00*, 0**, 0**, 0**, ", rep);
 
@@ -102,7 +102,7 @@ public class TestIndexHashParams {
   @Test
   public void testWildBitReduction_0() {
 
-    System.out.println("\ntestWildBitReduction_0");
+    // System.out.println("\ntestWildBitReduction_0");
 
     IndexHashParams p = new IndexHashParams();
 
@@ -111,7 +111,7 @@ public class TestIndexHashParams {
     p.addWildBit(2);
     p.addWildBit(2);
 
-    System.out.println("wb: " + p.debugGetWildBits());
+    // System.out.println("wb: " + p.debugGetWildBits());
 
     p.reduceNextWildbit();
     p.reduceNextWildbit();
@@ -119,7 +119,7 @@ public class TestIndexHashParams {
     p.reduceNextWildbit();
     p.reduceNextWildbit();
 
-    System.out.println("wb: " + p.debugGetWildBits());
+    // System.out.println("wb: " + p.debugGetWildBits());
 
     Timeseries ts = new Timeseries();
     ts.add(new TPoint(-1.0, 0));
@@ -141,17 +141,17 @@ public class TestIndexHashParams {
       e.printStackTrace();
     }
 
-    System.out.println("wildbit red > isax: " + isax.getBitStringRepresentation());
+    // System.out.println("wildbit red > isax: " + isax.getBitStringRepresentation());
 
     String rep = p.createMaskedBitSequence(isax);
-    System.out.println("wildbit red > rep : '" + rep + "' ");
+    // System.out.println("wildbit red > rep : '" + rep + "' ");
 
   }
 
   @Test
   public void testWildBitReduction_1() {
 
-    System.out.println("\ntestWildBitReduction_1");
+    // System.out.println("\ntestWildBitReduction_1");
 
     IndexHashParams p = new IndexHashParams();
 
@@ -160,7 +160,7 @@ public class TestIndexHashParams {
     p.addWildBit(2);
     p.addWildBit(2);
 
-    System.out.println("wb: " + p.debugGetWildBits());
+    // System.out.println("wb: " + p.debugGetWildBits());
 
     p.reduceNextWildbit();
     p.reduceNextWildbit();
@@ -175,7 +175,7 @@ public class TestIndexHashParams {
     // extra pass, should change nothing
     p.reduceNextWildbit();
 
-    System.out.println("wb: " + p.debugGetWildBits());
+    // System.out.println("wb: " + p.debugGetWildBits());
 
     Timeseries ts = new Timeseries();
     ts.add(new TPoint(-1.0, 0));
@@ -197,17 +197,17 @@ public class TestIndexHashParams {
       e.printStackTrace();
     }
 
-    System.out.println("wildbit red > isax: " + isax.getBitStringRepresentation());
+    // System.out.println("wildbit red > isax: " + isax.getBitStringRepresentation());
 
     String rep = p.createMaskedBitSequence(isax);
-    System.out.println("wildbit red > rep : '" + rep + "' ");
+    // System.out.println("wildbit red > rep : '" + rep + "' ");
 
   }
 
   @Test
   public void testProgressiveCardPromotion_0() {
 
-    System.out.println("\ntestProgressiveCardPromotion_0");
+    // System.out.println("\ntestProgressiveCardPromotion_0");
 
     IndexHashParams p = new IndexHashParams();
     p.base_card = 4;
@@ -217,7 +217,7 @@ public class TestIndexHashParams {
   @Test
   public void testChildCardGeneration_0() {
 
-    System.out.println("\nChild Card Gen test 0");
+    // System.out.println("\nChild Card Gen test 0");
 
     Timeseries ts = new Timeseries();
     ts.add(new TPoint(1.0, 0));
@@ -245,19 +245,19 @@ public class TestIndexHashParams {
 
     ArrayList<Integer> arCards = IndexHashParams.generateChildCardinality(A);
 
-    System.out.println("" + arCards.toString());
+    // System.out.println("" + arCards.toString());
 
     arCards = IndexHashParams.generateChildCardinality(arCards);
-    System.out.println("" + arCards.toString());
+    // System.out.println("" + arCards.toString());
 
     arCards = IndexHashParams.generateChildCardinality(arCards);
-    System.out.println("" + arCards.toString());
+    // System.out.println("" + arCards.toString());
 
     arCards = IndexHashParams.generateChildCardinality(arCards);
-    System.out.println("" + arCards.toString());
+    // System.out.println("" + arCards.toString());
 
     arCards = IndexHashParams.generateChildCardinality(arCards);
-    System.out.println("" + arCards.toString());
+    // System.out.println("" + arCards.toString());
 
   }
 

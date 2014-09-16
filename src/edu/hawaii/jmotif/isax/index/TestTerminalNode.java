@@ -51,13 +51,13 @@ public class TestTerminalNode {
 
     node.Insert(tsi_B);
 
-    System.out.println(" size: " + node.arInstances.size());
+    // System.out.println(" size: " + node.arInstances.size());
 
     assertEquals("base size test", 1, node.arInstances.size());
 
     node.Insert(tsi_A);
 
-    System.out.println(" size: " + node.arInstances.size());
+    // System.out.println(" size: " + node.arInstances.size());
 
     assertEquals("same instance key insert test", 1, node.arInstances.size());
 
@@ -119,13 +119,13 @@ public class TestTerminalNode {
 
     node.Insert(tsi_B);
 
-    System.out.println(" size: " + node.arInstances.size());
+    // System.out.println(" size: " + node.arInstances.size());
 
     assertEquals("base size test", 1, node.arInstances.size());
 
     node.Insert(tsi_A);
 
-    System.out.println(" size: " + node.arInstances.size());
+    // System.out.println(" size: " + node.arInstances.size());
 
     assertEquals("should not get this ts", 1, node.arInstances.size());
 
@@ -228,27 +228,27 @@ public class TestTerminalNode {
 
     node.Insert(tsi_B);
 
-    System.out.println(" size: " + node.arInstances.size());
+    // System.out.println(" size: " + node.arInstances.size());
 
     assertEquals("base size test", 1, node.arInstances.size());
 
-    System.out.println("split? " + node.IsOverThreshold());
+    // System.out.println("split? " + node.IsOverThreshold());
 
     node.Insert(tsi_A);
 
-    System.out.println(" size: " + node.arInstances.size());
+    // System.out.println(" size: " + node.arInstances.size());
 
     assertEquals("both should be here", 2, node.arInstances.size());
 
-    System.out.println("split? " + node.IsOverThreshold());
+    // System.out.println("split? " + node.IsOverThreshold());
 
     node.Insert(tsi_C);
 
-    System.out.println(" size: " + node.arInstances.size());
+    // System.out.println(" size: " + node.arInstances.size());
 
     assertEquals("3 instances", 3, node.arInstances.size());
 
-    System.out.println("split? " + node.IsOverThreshold());
+    // System.out.println("split? " + node.IsOverThreshold());
 
     node.DebugInstances();
 
@@ -259,13 +259,13 @@ public class TestTerminalNode {
   @Test
   public void testGen() {
 
-    System.out.println("testGen ---------------------");
+    // System.out.println("testGen ---------------------");
 
-    System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
-    System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
-    System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
-    System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
-    System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
+    // System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
+    // System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
+    // System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
+    // System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
+    // System.out.println("genTS: " + ISAXUtils.generateRandomTS(8));
 
   }
 

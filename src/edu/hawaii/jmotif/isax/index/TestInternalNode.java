@@ -42,12 +42,12 @@ public class TestInternalNode {
     // the one we change
     ts.add(new TPoint(1.0, 7));
 
-    System.out.println("------- Inserting -----------");
+    // System.out.println("------- Inserting -----------");
     for (int x = 0; x < 5; x++) {
 
       ts.elementAt(7).setValue(x);
 
-      System.out.println("ts: " + ts);
+      // System.out.println("ts: " + ts);
 
       TimeseriesInstance ts_inst = new TimeseriesInstance(ts);
 
@@ -58,8 +58,8 @@ public class TestInternalNode {
       }
       catch (HashTreeException e) {
 
-        System.out.println("ts: " + ts.toString());
-        System.out.println("ts: " + ts_inst.getTS().toString());
+        // System.out.println("ts: " + ts.toString());
+        // System.out.println("ts: " + ts_inst.getTS().toString());
 
       }
 
@@ -69,17 +69,17 @@ public class TestInternalNode {
 
     kNNSearchResults r = new kNNSearchResults(10, ts);
 
-    System.out.println("Search ---------------------------");
+    // System.out.println("Search ---------------------------");
 
-    System.out.println("search pattern > " + ts);
+    // System.out.println("search pattern > " + ts);
 
     node.kNNSearch(r);
 
-    System.out.println("results: " + r.count());
+    // System.out.println("results: " + r.count());
 
     while (r.hasNext()) {
 
-      System.out.println("> " + r.next().getTS().toString());
+      // System.out.println("> " + r.next().getTS().toString());
 
     }
 
@@ -88,7 +88,7 @@ public class TestInternalNode {
   @Test
   public void testkNNSearchForNode_2() {
 
-    System.out.println("\n\n\ntestkNNSearchForNode_2 ");
+    // System.out.println("\n\n\ntestkNNSearchForNode_2 ");
 
     IndexHashParams p = new IndexHashParams();
     p.base_card = 4;
@@ -115,13 +115,13 @@ public class TestInternalNode {
     // the one we change
     ts.add(new TPoint(1.0, 7));
 
-    System.out.println("------- Inserting -----------");
+    // System.out.println("------- Inserting -----------");
     for (int x = 0; x < 5; x++) {
 
       // ts.elementAt(3).setValue(10 - x);
       ts.elementAt(7).setValue(x);
 
-      System.out.println("ts: " + ts);
+      // System.out.println("ts: " + ts);
 
       // TimeseriesInstance tsi_A = new TimeseriesInstance( ts );
 
@@ -136,8 +136,8 @@ public class TestInternalNode {
       }
       catch (HashTreeException e) {
 
-        System.out.println("ts: " + ts.toString());
-        System.out.println("ts: " + ts_inst.getTS().toString());
+        // System.out.println("ts: " + ts.toString());
+        // System.out.println("ts: " + ts_inst.getTS().toString());
 
       }
 
@@ -165,17 +165,17 @@ public class TestInternalNode {
 
     kNNSearchResults r = new kNNSearchResults(5, ts);
 
-    System.out.println("Search ---------------------------");
+    // System.out.println("Search ---------------------------");
 
-    System.out.println("search pattern > " + ts);
+    // System.out.println("search pattern > " + ts);
 
     node.kNNSearch(r);
 
-    System.out.println("results: " + r.count());
+    // System.out.println("results: " + r.count());
     /*
      * while ( r.hasNext() ) {
      * 
-     * System.out.println( "> " + r.next().getTS().toString() );
+     * // System.out.println( "> " + r.next().getTS().toString() );
      * 
      * }
      */
@@ -205,7 +205,7 @@ public class TestInternalNode {
       e.printStackTrace();
     }
 
-    System.out.println("bytes: " + baos.size());
+    // System.out.println("bytes: " + baos.size());
 
     try {
       out.writeObject(arList);
@@ -215,7 +215,7 @@ public class TestInternalNode {
       e.printStackTrace();
     }
 
-    System.out.println("bytes: " + baos.size());
+    // System.out.println("bytes: " + baos.size());
 
     ObjectInputStream in = null;
     try {
@@ -232,7 +232,7 @@ public class TestInternalNode {
 
       for (int x = 0; x < o.size(); x++) {
 
-        System.out.println(x + " > " + o.get(x));
+        // System.out.println(x + " > " + o.get(x));
 
       }
 

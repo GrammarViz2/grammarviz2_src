@@ -70,6 +70,12 @@ class ParametersDialog extends JDialog implements ActionListener {
 
       this.session.setNormalizationThreshold(this.optionPane.getNormalizationThreshold());
 
+      // the output file names
+      this.session.setGrammarOutputFileName(this.optionPane.getGrammarOutputFileName());
+      this.session.setRuleDensityOutputFileName(this.optionPane.getRuleCoverageFileName());
+      this.session.setAnomaliesOutputFileName(this.optionPane.getAnomalyOutputFileName());
+      this.session.setChartsSaveFolder(this.optionPane.getChartsFolderName());
+
     }
     else if (CANCEL_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {
       assert true;

@@ -46,7 +46,8 @@ public class GrammarVizGUI {
 
     // make sure these two met...
     model.addObserver(view);
-
+    controller.addObserver(view);
+    
     // live!!!
     view.showGUI();
 

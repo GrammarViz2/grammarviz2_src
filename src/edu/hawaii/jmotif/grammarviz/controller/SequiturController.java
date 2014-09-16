@@ -70,6 +70,11 @@ public class SequiturController extends Observable implements ActionListener {
     return loadDataActionListener;
   }
 
+  /**
+   * This provide Process action listener. Gets all the parameters from the session component
+   * 
+   * @return
+   */
   public ActionListener getProcessDataListener() {
     ActionListener loadDataActionListener = new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -114,4 +119,13 @@ public class SequiturController extends Observable implements ActionListener {
     return this.session;
   }
 
+  /**
+   * Performs logging messages distribution.
+   * 
+   * @param message the message to log.
+   */
+  private void log(String message) {
+    this.setChanged();
+    notifyObservers(new SequiturMessage(SequiturMessage.STATUS_MESSAGE, "controller: " + message));
+  }
 }

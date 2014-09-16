@@ -8,7 +8,6 @@ import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -34,12 +33,16 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.swing.MigLayout;
+import edu.hawaii.jmotif.discord.SAXSequiturDiscord;
 import edu.hawaii.jmotif.grammarviz.controller.SequiturController;
 import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
 import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.StackTrace;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * View component of Sequitur MVC GUI.
@@ -50,6 +53,17 @@ import edu.hawaii.jmotif.util.StackTrace;
 public class SequiturView implements Observer, ActionListener {
 
   private static final String APPLICATION_VERSION = "GrammarViz 2.0: visualizing time series grammars";
+
+  // static block - we instantiate the logger
+  //
+  // logging stuff
+  //
+  private static Logger consoleLogger;
+  private static Level LOGGING_LEVEL = Level.INFO;
+  static {
+    consoleLogger = (Logger) LoggerFactory.getLogger(SAXSequiturDiscord.class);
+    consoleLogger.setLevel(LOGGING_LEVEL);
+  }
 
   // relevant string constants go here
   //
@@ -663,6 +677,7 @@ public class SequiturView implements Observer, ActionListener {
       logTextArea.append(dateStr + "view: " + message + CR);
     }
     logTextArea.setCaretPosition(logTextArea.getDocument().getLength());
+    consoleLogger.info(dateStr + message);
   }
 
   @Override
@@ -863,7 +878,7 @@ public class SequiturView implements Observer, ActionListener {
         }
         catch (TSException e) {
           String errorTrace = StackTrace.toString(e);
-          log(Level.SEVERE, errorTrace);
+          log(Level.ALL, errorTrace);
         }
       }
     }

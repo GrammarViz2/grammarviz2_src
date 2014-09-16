@@ -53,7 +53,6 @@ class ParametersDialog extends JDialog implements ActionListener {
     getContentPane().add(buttonPane, "wrap");
 
     pack();
-    setVisible(true);
   }
 
   //

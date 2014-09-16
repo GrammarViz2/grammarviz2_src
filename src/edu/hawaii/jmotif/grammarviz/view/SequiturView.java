@@ -714,7 +714,7 @@ public class SequiturView implements Observer, ActionListener {
         this.chartData = (MotifChartData) message.getPayload();
         // setting the chart first
         //
-        dataChartPane.setChartData(chartData);
+        dataChartPane.setChartData(chartData, this.controller.getSession());
 
         // and the rules pane second
         //
@@ -771,15 +771,12 @@ public class SequiturView implements Observer, ActionListener {
     if (OPTIONS_MENU_ITEM.equalsIgnoreCase(command)) {
       log(Level.INFO, "options menu action performed");
 
-      ParametersPane parametersPanel = new ParametersPane();
-      parametersPanel.setValues(this.controller.getSession().getCountStrategy().index(),
-          this.controller.getSession().getGiAlgorithm(), this.controller.getSession()
-              .getNormalizationThreshold());
+      ParametersPane parametersPanel = new ParametersPane(this.controller.getSession());
 
       ParametersDialog parametersDialog = new ParametersDialog(frame, parametersPanel,
           this.controller.getSession());
 
-      this.dataChartPane.setCoverageCountStrategy(this.controller.getSession().getCountStrategy());
+      parametersDialog.setVisible(true);
     }
 
     // showing up the about dialog

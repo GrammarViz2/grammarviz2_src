@@ -52,6 +52,7 @@ import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.gi.GrammarRuleRecord;
 import edu.hawaii.jmotif.grammarviz.logic.CoverageCountStrategy;
 import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
+import edu.hawaii.jmotif.grammarviz.logic.UserSession;
 import edu.hawaii.jmotif.logic.RuleInterval;
 import edu.hawaii.jmotif.sax.datastructures.DiscordRecord;
 
@@ -93,8 +94,8 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
   /** Position of the previous mouse click in the chart */
   double previousClickPosition = 0;
 
-  /** The rules coverage count strategy. */
-  private CoverageCountStrategy ruleCoverageCountStrategy = CoverageCountStrategy.COUNT;
+  /** The user session var - holds all parameters. */
+  private UserSession session;
 
   // the logger business
   //
@@ -112,23 +113,24 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
     super();
   }
 
-  /**
-   * Constructor.
-   * 
-   * @param chartData the chart data.
-   */
-  public SequiturChartPanel(MotifChartData chartData) {
-    this.chartData = chartData;
-  }
+  // /**
+  // * Constructor.
+  // *
+  // * @param chartData the chart data.
+  // */
+  // public SequiturChartPanel(MotifChartData chartData) {
+  // this.chartData = chartData;
+  // }
 
   /**
    * This sets the chartData and forces the panel to repaint itself showing the new chart.
    * 
    * @param chartData the data to use.
    */
-  public void setChartData(MotifChartData chartData) {
+  public void setChartData(MotifChartData chartData, UserSession session) {
     this.chartData = chartData;
     this.resetChartPanel();
+    this.session = session;
   }
 
   /**
@@ -267,19 +269,19 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
         int start = saxPos.getStartPos();
         int end = saxPos.getEndPos();
         for (int j = start; j < end; j++) {
-          if (CoverageCountStrategy.COUNT == this.ruleCoverageCountStrategy) {
+          if (CoverageCountStrategy.COUNT == this.session.getCountStrategy()) {
             coverageArray[j] = coverageArray[j] + 1;
           }
-          else if (CoverageCountStrategy.LEVEL == this.ruleCoverageCountStrategy) {
+          else if (CoverageCountStrategy.LEVEL == this.session.getCountStrategy()) {
             coverageArray[j] = coverageArray[j] + r.getRuleLevel();
           }
-          else if (CoverageCountStrategy.OCCURRENCE == this.ruleCoverageCountStrategy) {
+          else if (CoverageCountStrategy.OCCURRENCE == this.session.getCountStrategy()) {
             coverageArray[j] = coverageArray[j] + r.getOccurrences().size();
           }
-          else if (CoverageCountStrategy.YIELD == this.ruleCoverageCountStrategy) {
+          else if (CoverageCountStrategy.YIELD == this.session.getCountStrategy()) {
             coverageArray[j] = coverageArray[j] + r.getRuleYield();
           }
-          else if (CoverageCountStrategy.PRODUCT == this.ruleCoverageCountStrategy) {
+          else if (CoverageCountStrategy.PRODUCT == this.session.getCountStrategy()) {
             coverageArray[j] = coverageArray[j] + r.getRuleLevel() * r.getOccurrences().size();
           }
           if (maxObservedCoverage < coverageArray[j]) {
@@ -320,19 +322,19 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
         marker.setPaint(Color.BLUE);
 
         // marker.setAlpha((float) 0.05);
-        if (CoverageCountStrategy.COUNT == this.ruleCoverageCountStrategy) {
+        if (CoverageCountStrategy.COUNT == this.session.getCountStrategy()) {
           marker.setAlpha((float) covIncrement);
         }
-        else if (CoverageCountStrategy.LEVEL == this.ruleCoverageCountStrategy) {
+        else if (CoverageCountStrategy.LEVEL == this.session.getCountStrategy()) {
           marker.setAlpha((float) covIncrement * r.getRuleLevel());
         }
-        else if (CoverageCountStrategy.OCCURRENCE == this.ruleCoverageCountStrategy) {
+        else if (CoverageCountStrategy.OCCURRENCE == this.session.getCountStrategy()) {
           marker.setAlpha((float) covIncrement * r.getOccurrences().size());
         }
-        else if (CoverageCountStrategy.YIELD == this.ruleCoverageCountStrategy) {
+        else if (CoverageCountStrategy.YIELD == this.session.getCountStrategy()) {
           marker.setAlpha((float) covIncrement * r.getRuleYield());
         }
-        else if (CoverageCountStrategy.PRODUCT == this.ruleCoverageCountStrategy) {
+        else if (CoverageCountStrategy.PRODUCT == this.session.getCountStrategy()) {
           marker.setAlpha((float) covIncrement * (r.getRuleLevel() * r.getOccurrences().size()));
         }
         marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -650,7 +652,7 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
     if (SequiturView.DISPLAY_DENSITY_DATA.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_DENSITY + "coverage count strategy: "
-          + this.ruleCoverageCountStrategy.toString() + " ");
+          + this.session.getCountStrategy().toString() + " ");
       this.repaint();
       displayRuleDensity();
     }
@@ -707,14 +709,6 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
     catch (IOException e) {
       e.printStackTrace();
     }
-  }
-
-  public void setCoverageCountStrategy(CoverageCountStrategy result) {
-    this.ruleCoverageCountStrategy = result;
-  }
-
-  public CoverageCountStrategy getCoverageCountStrategy() {
-    return this.ruleCoverageCountStrategy;
   }
 
 }

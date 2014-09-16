@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.NumberFormatter;
+import edu.hawaii.jmotif.grammarviz.logic.UserSession;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -75,8 +76,10 @@ public class ParametersPane extends JPanel {
 
   /**
    * Constructor.
+   * 
+   * @param userSession
    */
-  public ParametersPane() {
+  public ParametersPane(UserSession userSession) {
 
     super(new MigLayout("fill", "[grow]", "[grow]"));
 
@@ -101,6 +104,9 @@ public class ParametersPane extends JPanel {
     tabbedPane.addTab("Options", null, buildOptionsPanel(), "Other GrammarViz options");
 
     this.add(tabbedPane, "grow");
+
+    // set params finally
+    this.setValues(userSession);
 
   }
 
@@ -274,10 +280,10 @@ public class ParametersPane extends JPanel {
     return res;
   }
 
-  public void setValues(int strategyValue, int algorithmValue, double threshold) {
-    strategyRadioButtons[strategyValue].setSelected(true);
-    giRadioButtons[algorithmValue].setSelected(true);
-    normalizationThresholdField.setText(Double.toString(threshold));
+  private void setValues(UserSession userSession) {
+    strategyRadioButtons[userSession.getCountStrategy().index()].setSelected(true);
+    giRadioButtons[userSession.getGiAlgorithm()].setSelected(true);
+    normalizationThresholdField.setText(userSession.getNormalizationThreshold().toString());
   }
 
   public int getSelectedStrategyValue() {

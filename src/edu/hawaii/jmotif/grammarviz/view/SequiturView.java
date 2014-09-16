@@ -33,16 +33,15 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.swing.MigLayout;
-import edu.hawaii.jmotif.discord.SAXSequiturDiscord;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.grammarviz.controller.SequiturController;
 import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
 import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.StackTrace;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 /**
  * View component of Sequitur MVC GUI.
@@ -61,7 +60,7 @@ public class SequiturView implements Observer, ActionListener {
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.INFO;
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SAXSequiturDiscord.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(SequiturView.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 

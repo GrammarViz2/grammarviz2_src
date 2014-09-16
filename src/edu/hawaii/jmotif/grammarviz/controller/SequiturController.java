@@ -87,11 +87,16 @@ public class SequiturController extends Observable implements ActionListener {
         int paaSize = session.getSaxPAA();
         int alphabetSize = session.getSaxAlphabet();
         double normalizationThreshold = session.getNormalizationThreshold();
-        String outputFileName = session.getGrammarOutputFileName();
+        String grammarOutputFileName = session.getGrammarOutputFileName();
+        log("controller: running prcess with settings alg: " + algorithm + ", sliding window: "
+            + useSlidingWindow + ", num.reduction:" + numerosityReductionStrategy.toString()
+            + ", SAX window: " + windowSize + ", SAX paa: " + paaSize + ", SAX alphabet: "
+            + alphabetSize + ", norm.threshold: " + normalizationThreshold + ", grammar filename: "
+            + grammarOutputFileName);
 
         try {
           model.processData(algorithm, useSlidingWindow, numerosityReductionStrategy, windowSize,
-              paaSize, alphabetSize, normalizationThreshold, outputFileName);
+              paaSize, alphabetSize, normalizationThreshold, grammarOutputFileName);
         }
         catch (IOException e1) {
           // TODO Auto-generated catch block

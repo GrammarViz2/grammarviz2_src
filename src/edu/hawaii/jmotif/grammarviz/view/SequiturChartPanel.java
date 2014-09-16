@@ -291,21 +291,6 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
       }
     }
 
-    // write down the coverage array
-    //
-    try {
-      String currentPath = new File(".").getCanonicalPath();
-      BufferedWriter bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
-          + "density_curve.txt")));
-      for (int c : coverageArray) {
-        bw.write(String.valueOf(c) + "\n");
-      }
-      bw.close();
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-    }
-
     // since we know the maximal coverage value, we can compute the increment for a single coverage
     // interval
     double covIncrement = 1. / (double) maxObservedCoverage;
@@ -350,6 +335,27 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
     validate();
     repaint();
 
+    // and finally save the coverage curve
+    //
+
+    this.saveRuleDensityCurve(coverageArray);
+
+  }
+
+  private void saveRuleDensityCurve(int[] coverageArray) {
+    // write down the coverage array
+    //
+    try {
+      String filename = session.getRuleDensityOutputFileName();
+      BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename)));
+      for (int c : coverageArray) {
+        bw.write(String.valueOf(c) + "\n");
+      }
+      bw.close();
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   private void displayRulesLengthHistogram() {

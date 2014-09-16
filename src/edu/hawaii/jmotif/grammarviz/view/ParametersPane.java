@@ -281,9 +281,14 @@ public class ParametersPane extends JPanel {
   }
 
   private void setValues(UserSession userSession) {
+    //
+    // the computation params
     strategyRadioButtons[userSession.getCountStrategy().index()].setSelected(true);
     giRadioButtons[userSession.getGiAlgorithm()].setSelected(true);
     normalizationThresholdField.setText(userSession.getNormalizationThreshold().toString());
+    //
+    // the output parameters
+    outputRuleCoverageFilename.setText(userSession.getRuleDensityOutputFileName());
   }
 
   public int getSelectedStrategyValue() {

@@ -1,6 +1,9 @@
 package edu.hawaii.jmotif.grammarviz.logic;
 
+import java.io.File;
+import java.io.IOException;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
+import edu.hawaii.jmotif.util.StackTrace;
 
 /**
  * Keeps user parameters organized.
@@ -46,6 +49,18 @@ public class UserSession {
     this.saxWindow = DEFAULT_SAX_WINDOW;
     this.saxPAA = DEFAULT_SAX_PAA;
     this.saxAlphabet = DEFAULT_SAX_ALPHABET;
+    //
+    // attempt to fill the rule coverage name automatically
+    String filename = "";
+    try {
+      String currentPath = new File(".").getCanonicalPath();
+      filename = currentPath + File.separator + "density_curve.txt";
+    }
+    catch (IOException e) {
+      System.err.println("Error has been thrown, unable to findout the current path: "
+          + StackTrace.toString(e));
+    }
+    this.ruleDensityOutputFileName = filename;
   }
 
   public String getRuleDensityOutputFileName() {

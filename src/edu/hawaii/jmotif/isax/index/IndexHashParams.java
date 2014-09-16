@@ -54,7 +54,7 @@ public class IndexHashParams {
     ArrayList<Integer> arCards = new ArrayList<Integer>();
 
     if (arSequenceCards.size() < 1) {
-      System.out.println("no symbols");
+      // System.out.println("no symbols");
       return arCards;
     }
 
@@ -114,7 +114,7 @@ public class IndexHashParams {
   public boolean reduceNextWildbit() {
 
     if (this.arWildBits.size() < 1) {
-      System.out.println("no bits");
+      // System.out.println("no bits");
       return false;
     }
 
@@ -133,7 +133,7 @@ public class IndexHashParams {
     }
 
     if (!bFound) {
-      System.out.println("none found");
+      // System.out.println("none found");
       return false;
     }
 

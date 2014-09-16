@@ -150,8 +150,8 @@ public class iSAXIndex {
     }
     catch (HashTreeException e) {
 
-      System.out.println("ts: " + ts.toString());
-      System.out.println("ts: " + ts_inst.getTS().toString());
+      // System.out.println("ts: " + ts.toString());
+      // System.out.println("ts: " + ts_inst.getTS().toString());
 
     }
   }

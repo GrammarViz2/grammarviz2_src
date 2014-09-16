@@ -133,7 +133,7 @@ public class Sequence implements Iterable<Symbol>, Cloneable {
 
       double localDist = distanceMatrix[a.saxCharacter][b.saxCharacter];
 
-      System.out.println("Sequence > sax_distance() == " + localDist);
+      // System.out.println("Sequence > sax_distance() == " + localDist);
 
       sqd_dist = localDist;
 

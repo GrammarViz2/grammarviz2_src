@@ -68,7 +68,7 @@ public class kNNSearchResults {
         e.printStackTrace();
       }
 
-      System.out.println("Debug > Result > " + tsi.getTS() + ", dist: " + my_dist);
+      // System.out.println("Debug > Result > " + tsi.getTS() + ", dist: " + my_dist);
 
     }
 
@@ -80,7 +80,7 @@ public class kNNSearchResults {
 
       while (this.results.size() > this.kNN) {
 
-        System.out.println("Debug > removeExtraResults!");
+        // System.out.println("Debug > removeExtraResults!");
         this.last();
 
       }

@@ -104,7 +104,7 @@ public class InternalNode extends AbstractNode {
 
     if (null == ts_inst) {
 
-      System.out.println("ts_inst came in null!!");
+      // System.out.println("ts_inst came in null!!");
 
       throw new HashTreeException("null ts!");
     }
@@ -134,11 +134,11 @@ public class InternalNode extends AbstractNode {
       try {
 
         if (null == ts_inst.getTS()) {
-          System.out.println("getTS() null");
+          // System.out.println("getTS() null");
         }
 
         if (null == arCards) {
-          System.out.println("arCards null");
+          // System.out.println("arCards null");
         }
 
         ts_isax = ISAXUtils.CreateiSAXSequenceBasedOnCardinality(ts_inst.getTS(), arCards);
@@ -153,7 +153,7 @@ public class InternalNode extends AbstractNode {
 
     if (null == ts_isax) {
       // failed to insert
-      System.out.println(" InternalNode > Insert > Fail > " + ts_inst.getTS());
+      // System.out.println(" InternalNode > Insert > Fail > " + ts_inst.getTS());
       return;
     }
 
@@ -173,7 +173,7 @@ public class InternalNode extends AbstractNode {
 
         if (node.IsOverThreshold() == false) {
 
-          System.out.println(ts_inst + " -> " + isax_hash);
+          // System.out.println(ts_inst + " -> " + isax_hash);
 
           node.Insert(ts_inst); // should be terminal node
 
@@ -188,7 +188,7 @@ public class InternalNode extends AbstractNode {
           Iterator<String> itr = node.getNodeInstancesIterator();
 
           if (itr == null) {
-            System.out.println("ITR > no? type: " + node.getType());
+            // System.out.println("ITR > no? type: " + node.getType());
           }
 
           while (itr.hasNext()) {
@@ -218,7 +218,7 @@ public class InternalNode extends AbstractNode {
       // create a key seqeunce based on the base cardinality
       node = new TerminalNode(ts_isax, this.params);
 
-      System.out.println("inserting new terminal node: " + isax_hash);
+      // System.out.println("inserting new terminal node: " + isax_hash);
 
       node.Insert(ts_inst);
       this.descendants.put(isax_hash, node);
@@ -232,15 +232,15 @@ public class InternalNode extends AbstractNode {
     Iterator<String> i = this.descendants.keySet().iterator();
 
     if (this.getType() == NodeType.ROOT) {
-      System.out.println("Debug > Root Node");
+      // System.out.println("Debug > Root Node");
     }
 
-    System.out.println("DebugKeys > " + this.key.getBitStringRepresentation());
+    // System.out.println("DebugKeys > " + this.key.getBitStringRepresentation());
     while (i.hasNext()) {
 
       String key = i.next();
 
-      System.out.println("Node Key > Debug > " + key);
+      // System.out.println("Node Key > Debug > " + key);
 
     }
   }
@@ -250,16 +250,16 @@ public class InternalNode extends AbstractNode {
     Iterator<String> i = this.descendants.keySet().iterator();
 
     if (this.getType() == NodeType.ROOT) {
-      System.out.println("Debug > Root Node");
+      // System.out.println("Debug > Root Node");
     }
 
-    System.out.println("Debug > This Node's Key > " + this.key.getBitStringRepresentation());
+    // System.out.println("Debug > This Node's Key > " + this.key.getBitStringRepresentation());
     while (i.hasNext()) {
 
       String key = i.next();
 
-      System.out.println("Decendant Node Key > Debug > " + key + ", instances: "
-          + this.descendants.get(key).getNodeInstances().size());
+      // System.out.println("Decendant Node Key > Debug > " + key + ", instances: "
+      // + this.descendants.get(key).getNodeInstances().size());
 
     }
   }
@@ -305,7 +305,7 @@ public class InternalNode extends AbstractNode {
 
     String isax_hash = ts_isax.getIndexHash(); // this.params.createMaskedBitSequence(isax);
 
-    System.out.println("\nSearching For key: " + isax_hash + " from sequence: " + ts + "\n");
+    // System.out.println("\nSearching For key: " + isax_hash + " from sequence: " + ts + "\n");
     this.DebugKeys();
 
     // we want to fan out at a rate of 2^d
@@ -321,7 +321,7 @@ public class InternalNode extends AbstractNode {
 
       // if it does not contain this node
 
-      System.out.println("Debug > no descendant contained a key for this level!");
+      // System.out.println("Debug > no descendant contained a key for this level!");
       return null;
 
     }

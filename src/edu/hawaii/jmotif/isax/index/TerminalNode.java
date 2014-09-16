@@ -50,7 +50,7 @@ public class TerminalNode extends AbstractNode {
   public boolean IsOverThreshold() {
 
     if (this.params.threshold < 1) {
-      System.out.println("bad threshold!");
+      // System.out.println("bad threshold!");
       return false;
     }
 
@@ -68,7 +68,7 @@ public class TerminalNode extends AbstractNode {
 
   public void DebugInstances() {
 
-    System.out.println("TerminalNode > DebugInstances ----- ");
+    // System.out.println("TerminalNode > DebugInstances ----- ");
 
     Iterator<String> itr = this.arInstances.keySet().iterator();
 
@@ -76,12 +76,12 @@ public class TerminalNode extends AbstractNode {
 
       String strKey = itr.next().toString();
 
-      System.out.println("T-node-ts-key: " + strKey);
+      // System.out.println("T-node-ts-key: " + strKey);
 
       if (null == this.arInstances.get(strKey)) {
 
-        System.out.println("TerminalNode > Debug > Null: " + strKey + ", count: "
-            + this.arInstances.size());
+        // System.out.println("TerminalNode > Debug > Null: " + strKey + ", count: "
+        // + this.arInstances.size());
 
       }
       else {
@@ -91,7 +91,7 @@ public class TerminalNode extends AbstractNode {
 
     }
 
-    System.out.println("---------------------------------");
+    // System.out.println("---------------------------------");
 
   }
 
@@ -132,7 +132,7 @@ public class TerminalNode extends AbstractNode {
         // add
         try {
 
-          // System.out.println( "add > key > " + ts_inst.getTS().toString() );
+          // // System.out.println( "add > key > " + ts_inst.getTS().toString() );
 
           this.arInstances.put(ts_inst.getTS().toString(), ts_inst.clone());
         }
@@ -144,12 +144,13 @@ public class TerminalNode extends AbstractNode {
       }
 
       if (this.params.bDebug) {
-        System.out.println("|");
+        // System.out.println("|");
       }
 
       // this.DebugInstances();
 
-      // System.out.println( "TerminalNode > Inserted(instances:" + this.arInstances.size() + ") > "
+      // // System.out.println( "TerminalNode > Inserted(instances:" + this.arInstances.size() +
+      // ") > "
       // + isax_hash + " @ " + this.key.getStringRepresentation() + ", occurrences: " +
       // this.arInstances.get( ts_inst.getTS().toString() ).getOccurences().size() ) ;
 
@@ -158,7 +159,7 @@ public class TerminalNode extends AbstractNode {
 
       // ok, how did we get here?
 
-      System.out.println("Should not have recv'd a ts at this TerminalNode!!!");
+      // System.out.println("Should not have recv'd a ts at this TerminalNode!!!");
 
     }
 
@@ -185,24 +186,25 @@ public class TerminalNode extends AbstractNode {
       e.printStackTrace();
     }
 
-    System.out.println("Terminal Node Debug > Approx Search ");
-    System.out.println("Searching For > Seq: " + ts_isax.getBitStringRepresentation());
-    System.out.println("Searching For > ts: " + ts.toString());
+    // System.out.println("Terminal Node Debug > Approx Search ");
+    // System.out.println("Searching For > Seq: " + ts_isax.getBitStringRepresentation());
+    // System.out.println("Searching For > ts: " + ts.toString());
     this.DebugInstances();
 
     String isax_hash = ts_isax.getIndexHash(); // this.params.createMaskedBitSequence(isax);
 
     // termination check, AKA "is this me?"
 
-    System.out.println("key( " + this.key.getIndexHash() + " ) == search( " + isax_hash + " ) ?");
+    // System.out.println("key( " + this.key.getIndexHash() + " ) == search( " + isax_hash +
+    // " ) ?");
 
     if (this.key.getIndexHash().equals(isax_hash)) {
 
-      System.out.println("found > key > " + isax_hash + ", looking for exact match");
+      // System.out.println("found > key > " + isax_hash + ", looking for exact match");
 
       if (this.arInstances.containsKey(ts.toString())) {
 
-        System.out.println("found match!");
+        // System.out.println("found match!");
 
         return this.arInstances.get(ts.toString());
 
@@ -234,8 +236,8 @@ public class TerminalNode extends AbstractNode {
   @Override
   public void kNNSearch(kNNSearchResults results) {
 
-    System.out.println("Search > Terminal Node > key: " + this.key.getBitStringRepresentation()
-        + ", inst: " + this.arInstances.size());
+    // System.out.println("Search > Terminal Node > key: " + this.key.getBitStringRepresentation()
+    // + ", inst: " + this.arInstances.size());
 
     Iterator<String> itr = this.arInstances.keySet().iterator();
 

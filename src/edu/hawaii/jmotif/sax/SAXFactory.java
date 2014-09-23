@@ -659,7 +659,7 @@ public final class SAXFactory {
     SAXTrie trie = new SAXTrie(series.length - windowSize, alphabetSize);
     Date trieInitEnd = new Date();
 
-    consoleLogger.debug("Trie built in : " + timeToString(start.getTime(), trieInitEnd.getTime()));
+    consoleLogger.info("Trie built in : " + timeToString(start.getTime(), trieInitEnd.getTime()));
 
     // fill the trie with data
     //

@@ -71,7 +71,8 @@ public class DiscordRecords implements Iterable<DiscordRecord> {
       }
       else {
         sb.append("discord #" + i + " \"" + record.getPayload() + "\", at " + record.getPosition()
-            + " distance to closest neighbor: " + record.getNNDistance() + "\"\n");
+            + " distance to closest neighbor: " + record.getNNDistance() + ", info string: \""
+            + record.getInfo() + "\"\n");
       }
     }
     return sb.toString();

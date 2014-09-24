@@ -526,6 +526,29 @@ public final class SAXFactory {
       int distance = 0;
       for (int i = 0; i < a.length; i++) {
         int tDist = Math.abs(Character.getNumericValue(a[i]) - Character.getNumericValue(b[i]));
+        distance += tDist;
+      }
+      return distance;
+    }
+    else {
+      throw new TSException("Unable to compute SAX distance, string lengths are not equal");
+    }
+  }
+
+  /**
+   * Compute the distance between the two strings, this function use the numbers associated with
+   * ASCII codes, i.e. distance between a and b would be 0 but a and c 1.
+   * 
+   * @param a The first string.
+   * @param b The second string.
+   * @return The pairwise distance.
+   * @throws TSException if length are differ.
+   */
+  public static int strSAXMinDistance(char[] a, char[] b) throws TSException {
+    if (a.length == b.length) {
+      int distance = 0;
+      for (int i = 0; i < a.length; i++) {
+        int tDist = Math.abs(Character.getNumericValue(a[i]) - Character.getNumericValue(b[i]));
         if (tDist > 1) {
           distance += tDist;
         }

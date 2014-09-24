@@ -117,9 +117,9 @@ public class TestSAXFactory {
   @Test
   public void testStringDistance() throws TSException {
     assertEquals("testing SAX distance", 0,
-        SAXFactory.strDistance(new char[] { 'a' }, new char[] { 'b' }));
+        SAXFactory.strSAXMinDistance(new char[] { 'a' }, new char[] { 'b' }));
     assertEquals("testing SAX distance", 2,
-        SAXFactory.strDistance(new char[] { 'a', 'a', 'a' }, new char[] { 'b', 'c', 'b' }));
+        SAXFactory.strSAXMinDistance(new char[] { 'a', 'a', 'a' }, new char[] { 'b', 'c', 'b' }));
 
     Alphabet a = new NormalAlphabet();
     assertEquals(

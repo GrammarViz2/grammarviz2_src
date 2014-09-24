@@ -1,7 +1,7 @@
 package edu.hawaii.jmotif.sax;
 
-import static org.junit.Assert.*;
-import java.util.Arrays;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.timeseries.TSException;

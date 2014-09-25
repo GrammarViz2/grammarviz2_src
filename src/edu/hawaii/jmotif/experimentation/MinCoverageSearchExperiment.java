@@ -37,9 +37,10 @@ import edu.hawaii.jmotif.gi.GrammarRuleRecord;
 import edu.hawaii.jmotif.gi.GrammarRules;
 import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
 import edu.hawaii.jmotif.logic.RuleInterval;
+import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.util.StackTrace;
 
-public class SearchExperiment {
+public class MinCoverageSearchExperiment {
 
   // locale, charset, etc
   //
@@ -67,7 +68,7 @@ public class SearchExperiment {
   // static block - we instantiate the logger
   //
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SearchExperiment.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(MinCoverageSearchExperiment.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -84,7 +85,8 @@ public class SearchExperiment {
           // get the TS converted into the rule Intervals
           //
           Date tStart = new Date();
-          GrammarRules rules = SequiturFactory.series2Rules(ts, winSize, paaSize, aSize, 0.05);
+          GrammarRules rules = SequiturFactory.series2SequiturRules(ts, winSize, paaSize, aSize,
+              NumerosityReductionStrategy.EXACT, 0.05);
           Date tRulesEnd = new Date();
 
           // populate all intervals with their coverage

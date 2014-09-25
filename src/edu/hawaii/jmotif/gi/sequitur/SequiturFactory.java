@@ -40,7 +40,7 @@ public final class SequiturFactory {
   // logging stuff
   //
   private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.DEBUG;
+  private static Level LOGGING_LEVEL = Level.INFO;
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(SequiturFactory.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
@@ -183,7 +183,7 @@ public final class SequiturFactory {
 
     return resRule;
   }
- 
+
   /**
    * Recovers start and stop coordinates of a rule subsequences.
    * 
@@ -295,8 +295,8 @@ public final class SequiturFactory {
 
     GrammarRules rules = grammar.toGrammarRulesData();
 
-    // SequiturFactory.updateRuleIntervals(rules, saxFrequencyData, true, originalTimeSeries,
-    // saxWindowSize, saxPaaSize);
+    SequiturFactory.updateRuleIntervals(rules, saxFrequencyData, true, originalTimeSeries,
+        saxWindowSize, saxPaaSize);
 
     int[] coverageArray = new int[originalTimeSeries.length];
 
@@ -317,11 +317,25 @@ public final class SequiturFactory {
     return coverageArray;
   }
 
-  public static GrammarRules series2Rules(double[] timeseries, int saxWindowSize, int saxPAASize,
-      int saxAlphabetSize, double normalizationThreshold) throws TSException, IOException {
+  /**
+   * Translates the time series into the set of rules.
+   * 
+   * @param timeseries
+   * @param saxWindowSize
+   * @param saxPAASize
+   * @param saxAlphabetSize
+   * @param numerosityReductionStrategy
+   * @param normalizationThreshold
+   * @return
+   * @throws TSException
+   * @throws IOException
+   */
+  public static GrammarRules series2SequiturRules(double[] timeseries, int saxWindowSize, int saxPAASize,
+      int saxAlphabetSize, NumerosityReductionStrategy numerosityReductionStrategy,
+      double normalizationThreshold) throws TSException, IOException {
 
     consoleLogger.debug("Discretizing time series...");
-    SAXRecords saxFrequencyData = discretize(timeseries, NumerosityReductionStrategy.EXACT,
+    SAXRecords saxFrequencyData = discretize(timeseries, numerosityReductionStrategy,
         saxWindowSize, saxPAASize, saxAlphabetSize, normalizationThreshold);
 
     consoleLogger.debug("Inferring the grammar...");

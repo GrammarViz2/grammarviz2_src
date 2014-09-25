@@ -23,6 +23,7 @@ import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
 import edu.hawaii.jmotif.grammarviz.logic.CoverageCountStrategy;
 import edu.hawaii.jmotif.logic.RuleInterval;
 import edu.hawaii.jmotif.sax.LargeWindowAlgorithm;
+import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
 import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
 import edu.hawaii.jmotif.sax.trie.TrieException;
@@ -131,119 +132,11 @@ public class SAXSequiturDiscord {
   private static void findSaxSequitur(CoverageCountStrategy strategy) throws IOException,
       TSException {
 
-    // System.in.read();
-
     consoleLogger.info("running SAXSequitur algorithm...");
     Date start = new Date();
 
-    // // coverage curve
-    // //
-    // int[] coverageCurve = new int[ts.length];
-    // int[] dr = SequiturFactory.series2RulesDensity(ts, windowSize, paaSize, alphabetSize);
-    // for (int j = 0; j < dr.length; j++) {
-    // coverageCurve[j] = coverageCurve[j] + dr[j];
-    // }
-    //
-    // // min window
-    // int minCoverageValue = Integer.MAX_VALUE;
-    // int minPos = -1;
-    // for (int i = windowSize; i < (ts.length - windowSize); i++) {
-    // if (minCoverageValue > coverageCurve[i]) {
-    // minCoverageValue = coverageCurve[i];
-    // minPos = i;
-    // }
-    // }
-    //
-    // consoleLogger.info("minimal rules density is " + minCoverageValue + ", at " + minPos);
-    //
-    // // go after intervals here
-    // //
-    // ArrayList<Interval> approxDiscords = new ArrayList<Interval>();
-    // int intervalStart = -1;
-    // int intervalEnd = -1;
-    // for (int i = windowSize; i < (coverageCurve.length - windowSize); i++) {
-    // if (minCoverageValue >= coverageCurve[i]) {
-    // intervalStart = i;
-    // while ((minCoverageValue >= coverageCurve[i]) && (i < (coverageCurve.length - windowSize))) {
-    // i++;
-    // }
-    // intervalEnd = i;
-    // approxDiscords.add(new Interval(intervalStart, intervalEnd, minCoverageValue));
-    // intervalStart = -1;
-    // intervalEnd = -1;
-    // }
-    // }
-    //
-    // StringBuffer sb = new StringBuffer();
-    // sb.append("coverage-based discords, start-end-coverage intervals: ");
-    // for (Interval i : approxDiscords) {
-    // sb.append(i.getStart()).append(" - ").append(i.getEnd()).append(", len ")
-    // .append(i.getLength()).append(", cov ").append(minCoverageValue).append("; ");
-    // }
-    // consoleLogger.info(sb.toString());
-    //
-    // // go after window intervals here
-    // //
-    // double[] windowCoverageArray = new double[ts.length - windowSize];
-    // double minCoverage = Double.MAX_VALUE;
-    // minPos = -1;
-    // for (int i = windowSize; i < (ts.length - windowSize); i++) {
-    // double coverage = TSUtils.mean(subseries(coverageCurve, i, i + windowSize));
-    // windowCoverageArray[i] = coverage;
-    // if (minCoverage > coverage) {
-    // minCoverage = coverage;
-    // minPos = i;
-    // }
-    // }
-    //
-    // approxDiscords = new ArrayList<Interval>();
-    // for (int i = windowSize; i < (coverageCurve.length - windowSize); i++) {
-    // double coverage = TSUtils.mean(subseries(coverageCurve, i, i + windowSize));
-    // if (minCoverage >= coverage) {
-    // intervalStart = i;
-    // while ((minCoverage >= coverage) && (i < (coverageCurve.length - windowSize))) {
-    // i++;
-    // coverage = TSUtils.mean(subseries(coverageCurve, i, i + windowSize));
-    // }
-    // intervalEnd = i;
-    // approxDiscords.add(new Interval(intervalStart, intervalEnd + windowSize, coverage));
-    // intervalStart = -1;
-    // intervalEnd = -1;
-    // }
-    // }
-    //
-    // sb = new StringBuffer();
-    // sb.append("*** Interval coverage-based discords, start-end-coverage intervals: ");
-    // for (Interval i : approxDiscords) {
-    // sb.append(i.getStart()).append(" - ").append(i.getEnd()).append(", len ")
-    // .append(i.getLength()).append(", cov ").append(minCoverage).append("; ");
-    // }
-    //
-    // consoleLogger.info(sb.toString());
-    // consoleLogger.info("starting SAXSequitur search ... ");
-    //
-    // String currentPath = new File(".").getCanonicalPath();
-    // BufferedWriter bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
-    // + "coverage.txt")));
-    // for (int i : coverageCurve) {
-    // bw.write(i + "\n");
-    // }
-    // bw.close();
-    //
-    // bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
-    // + "coverage_intervals.txt")));
-    // for (double i : windowCoverageArray) {
-    // bw.write(i + "\n");
-    // }
-    // bw.close();
-    //
-    // SAX Sequitur exact
-    //
-    //
-    // build an array of rules with their average coverage
-    //
-
-    GrammarRules rules = SequiturFactory.series2Rules(ts, windowSize, paaSize, alphabetSize, 0.05);
+    GrammarRules rules = SequiturFactory.series2SequiturRules(ts, windowSize, paaSize,
+        alphabetSize, NumerosityReductionStrategy.EXACT, 0.05);
 
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
 
@@ -326,14 +219,6 @@ public class SAXSequiturDiscord {
 
   }
 
-  private static double[] subseries(int[] coverageCurve, int start, int end) {
-    double[] res = new double[end - start];
-    for (int i = 0; i < end - start; i++) {
-      res[i] = coverageCurve[start + i];
-    }
-    return res;
-  }
-
   private static void findHotSax() throws TrieException, TSException {
     consoleLogger.info("running HOT SAX Trie-based algorithm...");
 
@@ -414,12 +299,14 @@ public class SAXSequiturDiscord {
 
     StringBuffer sb = new StringBuffer();
 
-    sb.append("SAXSequitur discords/anomaly discovery pre-release, contact: seninp@gmail.com").append(CR);
+    sb.append("SAXSequitur discords/anomaly discovery pre-release, contact: seninp@gmail.com")
+        .append(CR);
 
     sb.append("Expected parameters: ").append(CR);
 
     sb.append(" [1] algorithm to use: 1 - brute force, 2 - HOT SAX, backed by Trie").append(CR);
-    sb.append("                       3 - SAXSequitur approximate, 4 - HOT SAX backed by Hash").append(CR);
+    sb.append("                       3 - SAXSequitur approximate, 4 - HOT SAX backed by Hash")
+        .append(CR);
     sb.append(
         "     *** note, that for HOT SAX paa size will be equal to alphabet size due to the *trie* design")
         .append(CR);

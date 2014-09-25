@@ -439,6 +439,65 @@ public final class SAXFactory {
   }
 
   /**
+   * Computes the distance between approximated values and the real TS.
+   * 
+   * @param ts the timeseries.
+   * @param winSize SAX window size.
+   * @param paaSize SAX PAA size.
+   * @param alphabetSize SAX alphabet size.
+   * @param strategy
+   * @param normThreshold the normalization threshold.
+   * @return the distance value.
+   * @throws TSException if error occurs.
+   */
+  public static double approximationDistance(double[] ts, int winSize, int paaSize,
+      int alphabetSize, NumerosityReductionStrategy strategy, double normThreshold)
+      throws TSException {
+
+    double resDistance = 0d;
+    int windowCounter = 0;
+
+    NormalAlphabet normalA = new NormalAlphabet();
+    char[] previousString = null;
+
+    int pointsPerSegment = winSize / paaSize;
+    for (int i = 0; i < ts.length - (winSize - 1); i++) {
+      double[] subSection = Arrays.copyOfRange(ts, i, i + winSize);
+      if (TSUtils.stDev(subSection) > NORMALIZATION_THRESHOLD) {
+        subSection = TSUtils.zNormalize(subSection);
+      }
+      double[] paa = TSUtils.optimizedPaa(subSection, paaSize);
+
+      // Convert the PAA to a string.
+      char[] currentString = TSUtils.ts2String(paa, normalA.getCuts(alphabetSize));
+
+      if (NumerosityReductionStrategy.EXACT.equals(strategy)
+          && Arrays.equals(previousString, currentString)) {
+        continue;
+      }
+      else if ((null != previousString) && NumerosityReductionStrategy.MINDIST.equals(strategy)) {
+        double dist = saxMinDist(previousString, currentString,
+            normalA.getDistanceMatrix(alphabetSize));
+        if (0.0D == dist) {
+          continue;
+        }
+      }
+
+      previousString = currentString;
+      windowCounter++;
+
+      for (int j = 0; j < subSection.length; j++) {
+        int paaIdx = j / pointsPerSegment;
+        if (paaIdx >= paaSize) {
+          paaIdx = paaSize - 1;
+        }
+        resDistance = resDistance + EuclideanDistance.distance(paa[paaIdx], subSection[j]);
+      }
+    }
+    return resDistance / (double) windowCounter;
+  }
+
+  /**
    * Convert the timeseries into SAX string representation.
    * 
    * @param ts The timeseries given.

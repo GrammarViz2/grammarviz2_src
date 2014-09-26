@@ -29,22 +29,22 @@ public class ParamsSearchExperiment {
   //
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
   private static final Level LOGGING_LEVEL = Level.INFO;
-  private static final String DATA_FILENAME = "data/chfdbchf15_1.csv";
-  private static final String OUT_FILENAME = "RCode/chfdbchf15_1_tmp.txt";
+  private static final String DATA_FILENAME = "data/ecg0606_1.csv";
+  private static final String OUT_FILENAME = "RCode/ecg0606__a5.txt";
 
   private static final double NORMALIZATION_THRESHOLD = 0.08;
   private static final NumerosityReductionStrategy NUMEROSITY_REDUCTION_STRATEGY = NumerosityReductionStrategy.EXACT;
 
-  private static final int MIN_WINDOW_SIZE = 100;
-  private static final int MAX_WINDOW_SIZE = 401;
-  private static final int WINDOW_INCREMENT = 50;
+  private static final int MIN_WINDOW_SIZE = 50;
+  private static final int MAX_WINDOW_SIZE = 201;
+  private static final int WINDOW_INCREMENT = 10;
 
   private static final int MIN_PAA_SIZE = 3;
   private static final int MAX_PAA_SIZE = 18;
   private static final int PAA_INCREMENT = 1;
 
-  private static final int MIN_A_SIZE = 3;
-  private static final int MAX_A_SIZE = 16;
+  private static final int MIN_A_SIZE = 5;
+  private static final int MAX_A_SIZE = 6;
   private static final int A_INCREMENT = 1;
 
   private static Logger consoleLogger;
@@ -63,6 +63,9 @@ public class ParamsSearchExperiment {
     ts = loadData(DATA_FILENAME);
 
     BufferedWriter bw = new BufferedWriter(new FileWriter(new File(OUT_FILENAME)));
+    bw.write("winSize, paaSize, aSize, approximationDistance, "
+        + "minObservedCoverage, maxObservedCoverage, meanCoverage, numZeroRuns, maxZeroRunLength, "
+        + "grammarSize, zeroCoverageLength\n");
 
     for (int winSize = MIN_WINDOW_SIZE; winSize < MAX_WINDOW_SIZE; winSize = winSize
         + WINDOW_INCREMENT) {
@@ -135,6 +138,30 @@ public class ParamsSearchExperiment {
 
           double meanCoverage = TSUtils.mean(coverageArray);
 
+          // find the longest continous zero run
+          //
+          int maxZeroRunLength = 0;
+          int numZeroRuns = 0;
+
+          boolean isRun = false;
+          int currentRun = 0;
+          for (int i = winSize; i < coverageArray.length - winSize; i++) {
+            if (0 == coverageArray[i]) {
+              if (false == isRun) {
+                isRun = true;
+                numZeroRuns++;
+              }
+              currentRun++;
+            }
+            else if (true == isRun) {
+              isRun = false;
+              if (currentRun > maxZeroRunLength) {
+                maxZeroRunLength = currentRun;
+              }
+              currentRun = 0;
+            }
+          }
+
           // get the approximation distance computed
           //
           double approximationDistance = SAXFactory.approximationDistance(ts, winSize, paaSize,
@@ -143,9 +170,10 @@ public class ParamsSearchExperiment {
           // Output
           //
           consoleLogger.info(winSize + ", " + paaSize + ", " + aSize);
-          bw.write(winSize + ", " + paaSize + ", " + aSize + ", " + meanCoverage + ", "
-              + maxObservedCoverage + ", " + minObservedCoverage + ", " + approximationDistance
-              + ", " + grammarSize + ", " + zeroCoverageLength + "\n");
+          bw.write(winSize + ", " + paaSize + ", " + aSize + ", " + approximationDistance + ", "
+              + minObservedCoverage + ", " + maxObservedCoverage + ", " + meanCoverage + ", "
+              + numZeroRuns + ", " + maxZeroRunLength + ", " + grammarSize + ", "
+              + zeroCoverageLength + "\n");
 
         }
       }

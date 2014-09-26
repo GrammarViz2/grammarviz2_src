@@ -30,7 +30,7 @@ public class ParamsSearchExperiment {
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
   private static final Level LOGGING_LEVEL = Level.INFO;
   private static final String DATA_FILENAME = "data/ecg0606_1.csv";
-  private static final String OUT_FILENAME = "RCode/ecg0606__a5.txt";
+  private static final String OUT_FILENAME = "RCode/ecg0606_surface.txt";
 
   private static final double NORMALIZATION_THRESHOLD = 0.08;
   private static final NumerosityReductionStrategy NUMEROSITY_REDUCTION_STRATEGY = NumerosityReductionStrategy.EXACT;
@@ -43,8 +43,8 @@ public class ParamsSearchExperiment {
   private static final int MAX_PAA_SIZE = 18;
   private static final int PAA_INCREMENT = 1;
 
-  private static final int MIN_A_SIZE = 5;
-  private static final int MAX_A_SIZE = 6;
+  private static final int MIN_A_SIZE = 3;
+  private static final int MAX_A_SIZE = 12;
   private static final int A_INCREMENT = 1;
 
   private static Logger consoleLogger;

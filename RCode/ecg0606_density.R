@@ -38,12 +38,3 @@ p1 <- ggplot(density_df, aes(x=time,y=value)) +
 p1  
 
 print(arrangeGrob(p,p1, ncol=1))
-
-
-Cairo(width = 1000, height = 700, 
-      file="PAKDD/Figure3_DutchPD.ps", 
-      type="ps", pointsize=10, 
-      bg = "transparent", canvas = "white", units = "px", dpi = 82)
-print(arrangeGrob(p,p2,p1, ncol=1))
-dev.off()
-

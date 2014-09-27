@@ -23,9 +23,6 @@ import edu.hawaii.jmotif.saxvsm.UCRLOOCVErrorFunction;
 import edu.hawaii.jmotif.saxvsm.UCRUtils;
 import edu.hawaii.jmotif.text.SAXCollectionStrategy;
 import edu.hawaii.jmotif.util.StackTrace;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 /**
  * Helper-runner for CBF test.

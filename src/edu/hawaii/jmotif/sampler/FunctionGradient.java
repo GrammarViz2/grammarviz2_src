@@ -5,6 +5,8 @@
 
 package edu.hawaii.jmotif.sampler;
 
+import edu.hawaii.jmotif.direct.Point;
+
 /**
  * Objects implementing <code>FunctionGradient</code> can be used to calculate
  * a gradient of a function at a certain point.

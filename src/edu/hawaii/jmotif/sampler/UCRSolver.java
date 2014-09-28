@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.LoggerFactory;
+import edu.hawaii.jmotif.direct.ValuePointColored;
 import edu.hawaii.jmotif.text.SAXCollectionStrategy;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

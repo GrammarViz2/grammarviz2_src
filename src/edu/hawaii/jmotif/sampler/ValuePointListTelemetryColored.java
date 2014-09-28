@@ -2,6 +2,8 @@ package edu.hawaii.jmotif.sampler;
 
 import java.util.ArrayList;
 import java.util.List;
+import edu.hawaii.jmotif.direct.Point;
+import edu.hawaii.jmotif.direct.ValuePointColored;
 
 /**
  * Created by IntelliJ IDEA.

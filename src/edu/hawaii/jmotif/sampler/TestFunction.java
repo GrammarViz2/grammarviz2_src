@@ -5,6 +5,7 @@
 
 package edu.hawaii.jmotif.sampler;
 import java.util.Random;
+import edu.hawaii.jmotif.direct.Point;
 import edu.hawaii.jmotif.text.SAXCollectionStrategy;
 
 /**

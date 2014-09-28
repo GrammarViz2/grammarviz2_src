@@ -5,6 +5,8 @@
 
 package edu.hawaii.jmotif.sampler;
 
+import edu.hawaii.jmotif.direct.Point;
+
 /**
  * Determine gradient numerically using central difference.
  * Needs 2*n function evaluations.

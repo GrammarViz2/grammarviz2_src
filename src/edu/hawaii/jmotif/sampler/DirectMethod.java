@@ -3,6 +3,8 @@ package edu.hawaii.jmotif.sampler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import edu.hawaii.jmotif.direct.Point;
+import edu.hawaii.jmotif.direct.ValuePointColored;
 
 
 public class DirectMethod implements OptimizationMethod<ValuePointListTelemetryColored> {

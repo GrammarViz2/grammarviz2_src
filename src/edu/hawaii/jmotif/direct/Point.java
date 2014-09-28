@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.sampler;
+package edu.hawaii.jmotif.direct;
 
 import java.util.Arrays;
 

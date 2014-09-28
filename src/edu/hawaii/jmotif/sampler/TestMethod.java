@@ -5,6 +5,7 @@
 
 package edu.hawaii.jmotif.sampler;
 import java.util.Random;
+import edu.hawaii.jmotif.direct.Point;
 
 /**
  * Simple method demonstrating automatic objective function method call 

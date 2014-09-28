@@ -4,19 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import edu.hawaii.jmotif.sampler.ObjectiveFunction;
-import edu.hawaii.jmotif.sampler.Point;
-import edu.hawaii.jmotif.sampler.SimpleStopCondition;
-import edu.hawaii.jmotif.sampler.ValuePointColored;
-import edu.hawaii.jmotif.sampler.ValuePointListTelemetryColored;
 
 public class DirectSearch {
 
-  // @Property(name = "Parameter Minimum")
-  // @Range(from = -Double.MAX_VALUE, to = Double.MAX_VALUE)
-  private double min = -10.0; // parameter minimum
-
-  // @Property(name = "Parameter Maximum")
-  // @Range(from = -Double.MAX_VALUE, to = Double.MAX_VALUE)
   private ArrayList<Double[]> centerPoints; // array with all rectangle centerpoints
   private ArrayList<Double[]> lengthsSide; // array with all rectangle side lengths in each
                                            // dimension
@@ -35,7 +25,22 @@ public class DirectSearch {
   private double[] maxBounds;
   double[] resultMinimum;
   int b = 0;
+
   ValuePointColored minimum = ValuePointColored.at(Point.at(0), Double.POSITIVE_INFINITY, false);
+
+  public void optimize() {
+    ArrayList<Integer> potentiallyOptimalRectangles;
+    potentiallyOptimalRectangles = identifyPotentiallyRec();
+    // For each potentially optimal rectangle
+    for (int jj = 0; jj < potentiallyOptimalRectangles.size(); jj++) {
+      int j = potentiallyOptimalRectangles.get(jj);
+      samplingPotentialRec(j);
+    }
+
+    update();
+
+    // stopCondition.setValue(minFunctionValue);
+  }
 
   private void update() {
     resultMinimum = minimum(functionValues);
@@ -102,7 +107,6 @@ public class DirectSearch {
    * @param delta
    * @param j
    */
-
   private void devideRec(double[] w, int[] maxSideLengths, double delta, int j) {
     double[][] ab = sort(w);
 
@@ -474,7 +478,7 @@ public class DirectSearch {
   }
 
   /**
-   * conhull returns all points on the convex hull, even redundant ones.
+   * Returns all points on the convex hull, even redundant ones.
    * 
    * @param x
    * @param y

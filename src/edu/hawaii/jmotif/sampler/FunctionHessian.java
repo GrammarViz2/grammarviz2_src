@@ -5,6 +5,8 @@
 
 package edu.hawaii.jmotif.sampler;
 
+import edu.hawaii.jmotif.direct.Point;
+
 /**
  * <code>FunctionHessian</code> is an object that can be used to calculate
  * a hessian of a function at a certain point.

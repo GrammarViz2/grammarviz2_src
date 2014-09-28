@@ -1,4 +1,6 @@
-package edu.hawaii.jmotif.sampler;
+package edu.hawaii.jmotif.direct;
+
+import edu.hawaii.jmotif.sampler.Function;
 
 /**
  * Created by IntelliJ IDEA.

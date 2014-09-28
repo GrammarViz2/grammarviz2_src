@@ -7,6 +7,8 @@ package edu.hawaii.jmotif.sampler;
 
 import java.util.ArrayList;
 import java.util.List;
+import edu.hawaii.jmotif.direct.Point;
+import edu.hawaii.jmotif.direct.ValuePoint;
 
 /**
  * A thread-safe implementation of the <code>Telemetry</code> interface capable

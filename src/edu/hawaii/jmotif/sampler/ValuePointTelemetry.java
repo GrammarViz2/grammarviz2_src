@@ -5,6 +5,8 @@
 
 package edu.hawaii.jmotif.sampler;
 
+import edu.hawaii.jmotif.direct.ValuePoint;
+
 /**
  * A thread-safe implementation of the <code>Telemetry</code> interface capable
  * of externalizing a single <code>ValuePoint</code>.

@@ -7,6 +7,7 @@ package edu.hawaii.jmotif.sampler;
 
 import java.util.List;
 import java.util.Map;
+import edu.hawaii.jmotif.direct.Point;
 import edu.hawaii.jmotif.text.SAXCollectionStrategy;
 
 /**

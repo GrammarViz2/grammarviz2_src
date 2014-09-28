@@ -24,7 +24,7 @@ import edu.hawaii.jmotif.util.StackTrace;
  * 
  * @author psenin
  */
-public class CVErrorFunction {
+public class CVErrorFunction implements ErrorFunction {
 
   /** The latin alphabet, lower case letters a-z. */
   private static final char[] ALPHABET = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',

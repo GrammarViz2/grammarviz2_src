@@ -3,7 +3,6 @@ package edu.hawaii.jmotif.direct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import edu.hawaii.jmotif.sampler.ObjectiveFunction;
 
 public class DirectSearch {
 
@@ -15,18 +14,31 @@ public class DirectSearch {
   private double[] diagonalsMinFunc; // array vector of minimum function value for each distance
   private ArrayList<Double> functionValues; // array with function values
   private ArrayList<ValuePointColored> coordinates; // array with sampled points and function value
+
   private int dimension;
   private int sampledPoints;
   private int rectangleCounter;
   private int indexPotentialBestRec;
   private double minFunctionValue;
-  private ObjectiveFunction function;
   private double[] minBounds;
   private double[] maxBounds;
   double[] resultMinimum;
   int b = 0;
 
   ValuePointColored minimum = ValuePointColored.at(Point.at(0), Double.POSITIVE_INFINITY, false);
+
+  private ErrorFunction function;
+
+  public DirectSearch(ErrorFunction function, int dimensions, int[] minBounds, int[] maxBounds) {
+    this.function = function;
+    this.dimension = dimensions;
+    this.minBounds = new double[minBounds.length];
+    this.maxBounds = new double[maxBounds.length];
+    for (int i = 0; i < minBounds.length; i++) {
+      this.minBounds[i] = (double) minBounds[i];
+      this.maxBounds[i] = (double) maxBounds[i];
+    }
+  }
 
   public void optimize() {
     ArrayList<Integer> potentiallyOptimalRectangles;

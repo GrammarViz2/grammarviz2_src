@@ -2,12 +2,14 @@ package edu.hawaii.jmotif.gi.repair;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.StringTokenizer;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import edu.hawaii.jmotif.gi.sequitur.SAXRule;
 import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
 import edu.hawaii.jmotif.sax.datastructures.SaxRecord;
 
@@ -159,6 +161,144 @@ public final class RePairFactory {
     }
     RePairRule.setRuleString(stringToDisplay(string));
     return theRule;
+  }
+
+  public static RePairRule buildGrammar(String inputString) {
+
+    // consoleLogger.debug("Starting RePair with an input string of " +
+    // saxRecords.getIndexes().size()
+    // + " words.");
+
+    RePairRule.numRules = new AtomicInteger(0);
+    RePairRule.theRules = new Hashtable<Integer, RePairRule>();
+
+    RePairRule theRule = new RePairRule();
+
+    // two data structures
+    //
+    // 1.0. - the string
+    ArrayList<Symbol> string = new ArrayList<Symbol>();
+    // LinkedList<Symbol> string = new LinkedList<Symbol>();
+
+    //
+    // 2.0. - the digram frequency table, digram, frequency, and the first occurrence index
+    DigramFrequencies digramFrequencies = new DigramFrequencies();
+
+    // build data structures
+    // tokenize the input string
+    //
+    StringTokenizer st = new StringTokenizer(inputString, " ");
+
+    int stringPositionCounter = 0;
+
+    // while there are tokens
+    while (st.hasMoreTokens()) {
+
+      String token = st.nextToken();
+
+      Symbol symbol = new Symbol(token, stringPositionCounter);
+      // put it into the string
+      string.add(symbol);
+      // and into the index
+      // take care about digram frequencies
+      if (stringPositionCounter > 0) {
+
+        StringBuffer digramStr = new StringBuffer();
+        digramStr.append(string.get(stringPositionCounter - 1).toString()).append(SPACE)
+            .append(string.get(stringPositionCounter).toString());
+
+        DigramFrequencyEntry entry = digramFrequencies.get(digramStr.toString());
+        if (null == entry) {
+          digramFrequencies.put(new DigramFrequencyEntry(digramStr.toString(), 1,
+              stringPositionCounter - 1));
+        }
+        else {
+          digramFrequencies.incrementFrequency(entry, 1);
+        }
+      }
+      // go on
+      stringPositionCounter++;
+    }
+
+    consoleLogger.debug("String length " + string.size() + " unique digrams "
+        + digramFrequencies.size());
+
+    DigramFrequencyEntry entry;
+    while ((entry = digramFrequencies.getTop()) != null && entry.getFrequency() > 1) {
+
+      // take the most frequent rule
+      //
+      // Entry<String, int[]> entry = entries.get(0);
+      // DigramFrequencyEntry entry = digramFrequencies.getTop();
+
+      consoleLogger.info("re-pair iteration, digram \"" + entry.getDigram() + "\", frequency: "
+          + entry.getFrequency());
+
+      consoleLogger.debug("Going to substitute the digram " + entry.getDigram()
+          + " first occurring at position " + entry.getFirstOccurrence() + " with frequency "
+          + entry.getFrequency() + ", '" + string.get(entry.getFirstOccurrence()) + SPACE
+          + string.get(entry.getFirstOccurrence() + 1) + "'");
+
+      // create new rule
+      //
+      RePairRule r = new RePairRule();
+      r.setFirst(string.get(entry.getFirstOccurrence()));
+      r.setSecond(string.get(entry.getFirstOccurrence() + 1));
+      r.assignLevel();
+
+      // substitute each digram entry with a rule
+      //
+      String digramToSubstitute = entry.getDigram();
+      int currentIndex = entry.getFirstOccurrence();
+      while (currentIndex < string.size() - 1) {
+
+        StringBuffer currentDigram = new StringBuffer();
+        currentDigram.append(string.get(currentIndex).toString()).append(SPACE)
+            .append(string.get(currentIndex + 1).toString());
+
+        if (digramToSubstitute.equalsIgnoreCase(currentDigram.toString())) {
+          consoleLogger.debug(" next digram occurrence is at  " + currentIndex + ", '"
+              + string.get(currentIndex) + SPACE + string.get(currentIndex + 1) + "'");
+
+          // correct entries at left and right
+          if (currentIndex > 0) {
+            // taking care about immediate neighbor
+            removeDigramFrequencyEntry(currentIndex - 1, string, digramFrequencies);
+          }
+          if (currentIndex < string.size() - 2) {
+            removeDigramFrequencyEntry(currentIndex + 1, string, digramFrequencies);
+          }
+
+          // create the new guard to insert
+          RePairGuard g = new RePairGuard(r);
+          g.setStringPosition(string.get(currentIndex).getStringPosition());
+          r.addPosition(string.get(currentIndex).getStringPosition());
+          substituteDigramAt(currentIndex, g, string, digramFrequencies);
+
+        }
+        currentIndex++;
+      }
+
+      // // sort the entries of digram table by the size of indexes
+      // entries = new ArrayList<Entry<String, int[]>>();
+      // entries.addAll(digramFrequencies.entrySet());
+      // Collections.sort(entries, new Comparator<Entry<String, int[]>>() {
+      // @Override
+      // public int compare(Entry<String, int[]> o1, Entry<String, int[]> o2) {
+      // return -Integer.valueOf(o1.getValue()[0]).compareTo(Integer.valueOf(o2.getValue()[0]));
+      // }
+      // });
+
+      consoleLogger.debug("*** iteration finished, top count "
+          + digramFrequencies.getTop().getFrequency());
+    }
+
+    RePairRule.setRuleString(stringToDisplay(string));
+
+    RePairRule.expandRules();
+
+    return theRule;
+
   }
 
   private static void substituteDigramAt(Integer currentIndex, RePairGuard g,

@@ -105,7 +105,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
     // we conduct the search until the number of discords is less than desired
     //
-    while (this.chartData.discords.getSize() < 5) {
+    while (this.chartData.discords.getSize() < 10) {
 
       start = new Date();
       DiscordRecord bestDiscord;

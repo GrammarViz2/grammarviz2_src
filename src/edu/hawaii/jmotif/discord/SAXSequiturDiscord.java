@@ -1,6 +1,9 @@
 package edu.hawaii.jmotif.discord;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
@@ -143,7 +146,10 @@ public class SAXSequiturDiscord {
     // populate all intervals with their coverage
     //
     for (GrammarRuleRecord rule : rules) {
-      if (rule.getRuleYield() > 2) {
+      // if (rule.getRuleYield() > 2) {
+      // continue;
+      // }
+      if (0 == rule.ruleNumber()) {
         continue;
       }
       for (RuleInterval ri : rule.getRuleIntervals()) {
@@ -163,7 +169,33 @@ public class SAXSequiturDiscord {
     System.out.println("Discords found in "
         + SAXFactory.timeToString(start.getTime(), end.getTime()));
 
-    System.exit(10);
+    // System.exit(10);
+
+    // get the coverage array
+    //
+    int[] coverageArray = new int[ts.length];
+
+    for (GrammarRuleRecord r : rules) {
+      if (0 == r.ruleNumber()) {
+        continue;
+      }
+      ArrayList<RuleInterval> arrPos = r.getRuleIntervals();
+      for (RuleInterval saxPos : arrPos) {
+        int startPos = saxPos.getStartPos();
+        int endPos = saxPos.getEndPos();
+        for (int j = startPos; j < endPos; j++) {
+          coverageArray[j] = coverageArray[j] + 1;
+        }
+      }
+    }
+
+    String currentPath = new File(".").getCanonicalPath();
+    BufferedWriter bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
+        + "coverage.txt")));
+    for (int i : coverageArray) {
+      bw.write(i + "\n");
+    }
+    bw.close();
 
     Collections.sort(intervals, new Comparator<RuleInterval>() {
       public int compare(RuleInterval c1, RuleInterval c2) {
@@ -172,7 +204,6 @@ public class SAXSequiturDiscord {
         }
         else if (c1.getStartPos() < c2.getStartPos()) {
           return -1;
-
         }
         return 0;
       }
@@ -209,13 +240,12 @@ public class SAXSequiturDiscord {
       widths[ruleStart] = ri.getLength();
     }
 
-    // currentPath = new File(".").getCanonicalPath();
-    // bw = new BufferedWriter(
-    // new FileWriter(new File(currentPath + File.separator + "distances.txt")));
-    // for (int i = 0; i < distances.length; i++) {
-    // bw.write(i + "," + distances[i] + "," + widths[i] + "\n");
-    // }
-    // bw.close();
+    bw = new BufferedWriter(
+        new FileWriter(new File(currentPath + File.separator + "distances.txt")));
+    for (int i = 0; i < distances.length; i++) {
+      bw.write(i + "," + distances[i] + "," + widths[i] + "\n");
+    }
+    bw.close();
 
   }
 

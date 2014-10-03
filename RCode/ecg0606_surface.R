@@ -3,7 +3,7 @@ require(rgl)
 
 # ECG 0606
 #
-dat = read.table("ecg0606__a5.txt",sep=",",header=T,as.is=T)
+dat = read.table("ECG0606/ecg0606_surface.txt",sep=",",header=T,as.is=T)
 #
 xyz <- with(dat, interp(x=grammarSize,y=approximationDistance,z=maxZeroRunLength, 
                         xo=sort(unique(grammarSize)), duplicate="strip", extrap=FALSE ))

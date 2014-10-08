@@ -159,7 +159,7 @@ public class TestParallelSAXImplementation {
     // 3 threads
     ParallelSAXImplementation ps2 = new ParallelSAXImplementation();
     SAXRecords parallelRes2 = ps2.process(ts, THREADS_NUM, 100, 8, 4,
-        NumerosityReductionStrategy.EXACT, 0.005);
+        NumerosityReductionStrategy.EXACT, 0.05);
     assertTrue(sequentialString2.equalsIgnoreCase(parallelRes2.getSAXString(" ")));
 
     for (int i : parallelRes2.getIndexes()) {

@@ -7,7 +7,7 @@ import edu.hawaii.jmotif.timeseries.TSException;
 public class PaperTest6 {
 
   // private static final String input = "a b a b c a b c d a b c d a a a b a b a c";
-  private static final String input = "abc abc cba XXX abc abc cba";
+  private static final String input = "aac abc abb acd aac abc";
 
   // private static final String input = "a b a b c a b c d a b";
 

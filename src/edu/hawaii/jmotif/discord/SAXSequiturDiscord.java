@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -139,16 +140,17 @@ public class SAXSequiturDiscord {
     Date start = new Date();
 
     GrammarRules rules = SequiturFactory.series2SequiturRules(ts, windowSize, paaSize,
-        alphabetSize, NumerosityReductionStrategy.EXACT, 0.05);
+        alphabetSize, NumerosityReductionStrategy.EXACT, 0.05D);
 
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
 
-    // populate all intervals with their coverage
+    // populate all intervals with their frequency
     //
     for (GrammarRuleRecord rule : rules) {
-      // if (rule.getRuleYield() > 2) {
-      // continue;
-      // }
+      //
+      // TODO: do we care about long rules?
+      //
+      // if (0 == rule.ruleNumber() || rule.getRuleYield() > 2) {
       if (0 == rule.ruleNumber()) {
         continue;
       }
@@ -157,6 +159,35 @@ public class SAXSequiturDiscord {
         ri.setId(rule.ruleNumber());
         intervals.add(ri);
       }
+    }
+
+    // get the coverage array
+    //
+    int[] coverageArray = new int[ts.length];
+    for (GrammarRuleRecord rule : rules) {
+      if (0 == rule.ruleNumber()) {
+        continue;
+      }
+      ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
+      for (RuleInterval saxPos : arrPos) {
+        int startPos = saxPos.getStartPos();
+        int endPos = saxPos.getEndPos();
+        for (int j = startPos; j < endPos; j++) {
+          coverageArray[j] = coverageArray[j] + 1;
+        }
+      }
+    }
+
+    // look for zero-covered intervals and add those to the list
+    //
+    List<RuleInterval> zeros = getZeroIntervals(coverageArray);
+    if (zeros.size() > 0) {
+      consoleLogger.info("found " + zeros.size() + " intervals not covered by rules: "
+          + intervalsToString(zeros));
+      intervals.addAll(getZeroIntervals(coverageArray));
+    }
+    else {
+      consoleLogger.info("Whole timeseries covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set
@@ -171,24 +202,8 @@ public class SAXSequiturDiscord {
 
     // System.exit(10);
 
-    // get the coverage array
+    // write the coverage array
     //
-    int[] coverageArray = new int[ts.length];
-
-    for (GrammarRuleRecord r : rules) {
-      if (0 == r.ruleNumber()) {
-        continue;
-      }
-      ArrayList<RuleInterval> arrPos = r.getRuleIntervals();
-      for (RuleInterval saxPos : arrPos) {
-        int startPos = saxPos.getStartPos();
-        int endPos = saxPos.getEndPos();
-        for (int j = startPos; j < endPos; j++) {
-          coverageArray[j] = coverageArray[j] + 1;
-        }
-      }
-    }
-
     String currentPath = new File(".").getCanonicalPath();
     BufferedWriter bw = new BufferedWriter(new FileWriter(new File(currentPath + File.separator
         + "coverage.txt")));
@@ -247,6 +262,33 @@ public class SAXSequiturDiscord {
     }
     bw.close();
 
+  }
+
+  private static String intervalsToString(List<RuleInterval> zeros) {
+    StringBuilder sb = new StringBuilder();
+    for (RuleInterval i : zeros) {
+      sb.append(i.toString()).append(",");
+    }
+    return sb.toString();
+  }
+
+  private static List<RuleInterval> getZeroIntervals(int[] coverageArray) {
+    ArrayList<RuleInterval> res = new ArrayList<RuleInterval>();
+    int start = -1;
+    boolean inInterval = false;
+    int intervalsCounter = -1;
+    for (int i = 0; i < coverageArray.length; i++) {
+      if (0 == coverageArray[i] && !inInterval) {
+        start = i;
+        inInterval = true;
+      }
+      if (coverageArray[i] > 0 && inInterval) {
+        res.add(new RuleInterval(intervalsCounter, start, i, 0));
+        inInterval = false;
+        intervalsCounter--;
+      }
+    }
+    return res;
   }
 
   private static void findHotSax() throws TrieException, TSException {

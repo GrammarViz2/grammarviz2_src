@@ -78,7 +78,7 @@ public class RuleInterval implements Comparable<RuleInterval> {
    * @see java.lang.Object#toString()
    */
   public String toString() {
-    return "[" + startPos + " - " + endPos + "]";
+    return "[" + startPos + "-" + endPos + "]";
   }
 
   public int getLength() {

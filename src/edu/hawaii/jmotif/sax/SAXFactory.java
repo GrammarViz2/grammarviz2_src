@@ -46,7 +46,7 @@ public final class SAXFactory {
   private static Logger consoleLogger;
   private static final Level LOGGING_LEVEL = Level.INFO;
 
-  private static final double NORMALIZATION_THRESHOLD = 0.005D;
+  private static final double NORMALIZATION_THRESHOLD = 0.05D;
 
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(SAXFactory.class);

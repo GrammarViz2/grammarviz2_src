@@ -33,7 +33,7 @@ public final class SequiturFactory {
   /** Chunking/Sliding switch action key. */
   protected static final String USE_SLIDING_WINDOW_ACTION_KEY = "sliding_window_key";
 
-  private static final double NORMALIZATION_THRESHOLD = 0.01;
+  private static final double NORMALIZATION_THRESHOLD = 0.05D;
 
   private static final NormalAlphabet normalA = new NormalAlphabet();
 

@@ -200,7 +200,7 @@ public class SAXSequiturDiscord {
     System.out.println("Discords found in "
         + SAXFactory.timeToString(start.getTime(), end.getTime()));
 
-    // System.exit(10);
+    System.exit(10);
 
     // write the coverage array
     //

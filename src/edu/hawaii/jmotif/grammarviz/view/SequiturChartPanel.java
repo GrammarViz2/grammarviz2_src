@@ -370,11 +370,12 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
     //
 
     // [1.0] extract all the rules
-    int rulesNum = this.chartData.getRulesNumber();
     ArrayList<Integer> allRules = new ArrayList<Integer>();
-    for (int i = 0; i < rulesNum; i++) {
-      ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(i);
-      for (RuleInterval interval : arrPos) {
+    for (GrammarRuleRecord r : chartData.getGrammarRules()) {
+      if (0 == r.ruleNumber()) {
+        continue;
+      }
+      for (RuleInterval interval : r.getRuleIntervals()) {
         allRules.add(interval.getLength());
       }
     }

@@ -1122,7 +1122,7 @@ public final class TSUtils {
 
     Date start = new Date();
 
-    int distanceCallsCounter = 0;
+    long distanceCallsCounter = 0;
 
     double bestSoFarDistance = -1;
     int bestSoFarPosition = -1;

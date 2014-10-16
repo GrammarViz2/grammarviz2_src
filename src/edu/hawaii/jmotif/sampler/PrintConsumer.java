@@ -2,11 +2,10 @@ package edu.hawaii.jmotif.sampler;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
-import edu.hawaii.jmotif.saxvsm.UCRGenericClassifier;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import edu.hawaii.jmotif.text.SAXCollectionStrategy;
 
 public class PrintConsumer implements Consumer<ValuePointListTelemetryColored> {
 

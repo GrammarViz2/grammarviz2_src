@@ -140,13 +140,6 @@ public class UCRLOOCVErrorFunction implements Function, ObjectiveFunction {
             for (double[] series : e.getValue()) {
               index++;
               if (currentValidationIndexes.contains(index)) {
-                // if (sampleContainsSeries(currentValidationSample, series)) {
-                // System.out.println("bingo! ");
-                // }
-                // else {
-                // System.out.println("Wrong! ");
-                // System.exit(10);
-                // }
                 continue;
               }
               WordBag cb = seriesToWordBag("tmp", series, params, this.saxCollectionStrategy);
@@ -345,22 +338,22 @@ public class UCRLOOCVErrorFunction implements Function, ObjectiveFunction {
         // if this document contains the word - here we go
         if (bagWords.containsKey(word.getKey()) & (totalDocs != word.getValue().intValue())) {
 
-          int wordInBagFrequency = bagWords.get(word.getKey()).intValue();
+          // int wordInBagFrequency = bagWords.get(word.getKey()).intValue();
 
           // compute TF: we take a log and correct for 0 by adding 1
 
-//           double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
+          // double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
 
-//          double tfValue = 1.0D + Math.log(Integer.valueOf(wordInBagFrequency).doubleValue());
-//0.5
-          
-//           double tfValue = normalizedTF(bag, word.getKey());
-//0.46
-      
-           double tfValue = augmentedTF(bag, word.getKey());
-//0.5
-//           double tfValue = logAveTF(bag, word.getKey());
-//0.5
+          // double tfValue = 1.0D + Math.log(Integer.valueOf(wordInBagFrequency).doubleValue());
+          // 0.5
+
+          // double tfValue = normalizedTF(bag, word.getKey());
+          // 0.46
+
+          double tfValue = augmentedTF(bag, word.getKey());
+          // 0.5
+          // double tfValue = logAveTF(bag, word.getKey());
+          // 0.5
           // compute the IDF
           //
           double idfLOGValue = Math.log10(Integer.valueOf(totalDocs).doubleValue()

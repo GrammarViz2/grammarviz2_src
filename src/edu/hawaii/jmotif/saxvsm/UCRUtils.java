@@ -36,7 +36,7 @@ public class UCRUtils {
       if (line.trim().length() == 0) {
         continue;
       }
-      String[] split = line.trim().split(",|\\s+");
+      String[] split = line.trim().split("[,\\s]+|\\s+");
 
       String label = split[0];
       Double num = parseValue(label);

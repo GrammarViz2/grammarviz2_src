@@ -93,15 +93,15 @@ public final class TextUtils {
 
           // compute TF: we take a log and correct for 0 by adding 1
 
-//           double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
+          // double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
 
-//          double tfValue = 1.0D + Math.log(Integer.valueOf(wordInBagFrequency).doubleValue());
+          // double tfValue = 1.0D + Math.log(Integer.valueOf(wordInBagFrequency).doubleValue());
 
-           double tfValue = normalizedTF(bag, word.getKey());
+          double tfValue = normalizedTF(bag, word.getKey());
 
-//           double tfValue = augmentedTF(bag, word.getKey());
+          // double tfValue = augmentedTF(bag, word.getKey());
 
-//           double tfValue = logAveTF(bag, word.getKey());
+          // double tfValue = logAveTF(bag, word.getKey());
 
           // compute the IDF
           //
@@ -121,7 +121,8 @@ public final class TextUtils {
     return res;
   }
 
-  public static synchronized HashMap<String, HashMap<Bigram, Double>> computeTFIDF(List<BigramBag> bags) {
+  public static synchronized HashMap<String, HashMap<Bigram, Double>> computeTFIDF(
+      List<BigramBag> bags) {
 
     // the result. map of document names to the pairs word - tfidf weight
     HashMap<String, HashMap<Bigram, Double>> res = new HashMap<String, HashMap<Bigram, Double>>();
@@ -445,6 +446,20 @@ public final class TextUtils {
     for (Entry<String, Integer> entry : testSample.getWords().entrySet()) {
       if (weightVector.containsKey(entry.getKey())) {
         res = res + entry.getValue().doubleValue() * weightVector.get(entry.getKey()).doubleValue();
+      }
+    }
+    double m1 = magnitude(testSample.getWordsAsDoubles().values());
+    double m2 = magnitude(weightVector.values());
+    return res / (m1 * m2);
+  }
+
+  public static synchronized double cosineSimilarityInstrumented(WordBag testSample,
+      HashMap<String, Double> weightVector, HashMap<String, Double> insight) {
+    double res = 0;
+    for (Entry<String, Integer> entry : testSample.getWords().entrySet()) {
+      if (weightVector.containsKey(entry.getKey())) {
+        res = res + entry.getValue().doubleValue() * weightVector.get(entry.getKey()).doubleValue();
+        insight.put(entry.getKey(), entry.getValue().doubleValue() * weightVector.get(entry.getKey()).doubleValue());
       }
     }
     double m1 = magnitude(testSample.getWordsAsDoubles().values());
@@ -803,7 +818,8 @@ public final class TextUtils {
     return 0;
   }
 
-  public static synchronized String classify(WordBag test, HashMap<String, HashMap<String, Double>> tfidf) {
+  public static synchronized String classify(WordBag test,
+      HashMap<String, HashMap<String, Double>> tfidf) {
 
     // it is Cosine similarity,
     //

@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Random;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Implements a random strategy
@@ -13,6 +16,15 @@ import java.util.Random;
  * 
  */
 public class RandomStartStrategy implements StartStrategy {
+
+  // logger business
+  private static Logger consoleLogger;
+  private static Level LOGGING_LEVEL = Level.INFO;
+
+  static {
+    consoleLogger = (Logger) LoggerFactory.getLogger(RandomStartStrategy.class);
+    consoleLogger.setLevel(LOGGING_LEVEL);
+  }
 
   /**
    * {@inheritDoc}
@@ -35,7 +47,7 @@ public class RandomStartStrategy implements StartStrategy {
       int rand = random.nextInt(keys.size());
       String key = keys.get(rand).substring(0);
       keys.remove(rand);
-      System.out.println("cluster " + i + ", " + key);
+      consoleLogger.info("random cluster " + i + ", center: " + key);
 
       HashMap<String, Double> value = new HashMap<String, Double>();
       for (Entry<String, Double> e : data.get(key).entrySet()) {

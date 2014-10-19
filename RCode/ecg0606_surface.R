@@ -10,6 +10,9 @@ xyz <- with(dat, interp(x=grammarSize,y=approximationDistance,z=maxZeroRunLength
 with(xyz, persp3d(x,y,z, col=heat.colors(length(z))[rank(z)], xlab='grammarSize', 
                   ylab='approximationDistance', zlab='maxZeroRunLength', main=''))
 
+plot(x=dat$grammarSize,y=dat$numZeroRuns)
+qqnorm(x=dat$grammarSize,y=dat$winSize*dat$paaSize*dat$aSize)
+
 # Grammar size 500
 #
 slice=dat[dat$grammarSize>480 & dat$grammarSize<520,]

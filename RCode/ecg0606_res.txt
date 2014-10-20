@@ -1,0 +1,1 @@
+winSize, paaSize, aSize, approximationDistance, minObservedCoverage, maxObservedCoverage, meanCoverage, numZeroRuns, maxZeroRunLength, grammarSize, zeroCoverageLength, r1, r2, r3, r4, r5 

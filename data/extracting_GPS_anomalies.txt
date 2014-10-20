@@ -1,0 +1,81 @@
+$ java -Xmx2G -cp "grammarviz20.jar" edu.hawaii.jmotif.discord.SAXSequiturDiscord 3 data/anomaly_pruned_hilbert_curve_4Sequitur.csv 350 15 4 10
+10:38:04.452 [main] INFO  e.h.j.discord.SAXSequiturDiscord - Parsing param string "[3, data/anomaly_pruned_hilbert_curve_4Sequitur.csv, 350, 15, 4, 10]"
+10:38:04.455 [main] INFO  e.h.j.discord.SAXSequiturDiscord - reading from data/anomaly_pruned_hilbert_curve_4Sequitur.csv
+10:38:04.535 [main] INFO  e.h.j.discord.SAXSequiturDiscord - loaded 17175 points from 17175 lines in data/anomaly_pruned_hilbert_curve_4Sequitur.csv
+10:38:04.535 [main] INFO  e.h.j.discord.SAXSequiturDiscord - Starting discords search with settings: algorithm 3, data "data/anomaly_pruned_hilbert_curve_4Sequitur.csv", window 350, PAA 15, alphabet 4, reporting 10 discords.
+10:38:04.535 [main] INFO  e.h.j.discord.SAXSequiturDiscord - running SAXSequitur algorithm...
+10:38:05.486 [main] INFO  e.h.j.discord.SAXSequiturDiscord - found 1 intervals not covered by rules: [11769-11777],
+params: [3, data/anomaly_pruned_hilbert_curve_4Sequitur.csv, 350, 15, 4, 10]
+discord #0 "pos,calls,len,rule 4659 197271 366 140", at 4659 distance to closest neighbor: 805.6868800295782, info string: "position 4659, length 366, NN distance 805.6868800295782, elapsed time: 0h 0m 0s 700ms, distance calls: 197271"
+discord #1 "pos,calls,len,rule 6574 224476 375 167", at 6574 distance to closest neighbor: 627.507305696294, info string: "position 6574, length 375, NN distance 627.507305696294, elapsed time: 0h 0m 0s 665ms, distance calls: 224476"
+discord #2 "pos,calls,len,rule 14170 237778 374 271", at 14170 distance to closest neighbor: 597.7616379042317, info string: "position 14170, length 374, NN distance 597.7616379042317, elapsed time: 0h 0m 0s 686ms, distance calls: 237778"
+discord #3 "pos,calls,len,rule 7055 276735 359 168", at 7055 distance to closest neighbor: 419.81376890444955, info string: "position 7055, length 359, NN distance 419.81376890444955, elapsed time: 0h 0m 0s 714ms, distance calls: 276735"
+discord #4 "pos,calls,len,rule 7910 272785 363 196", at 7910 distance to closest neighbor: 282.68371656046264, info string: "position 7910, length 363, NN distance 282.68371656046264, elapsed time: 0h 0m 0s 674ms, distance calls: 272785"
+discord #5 "pos,calls,len,rule 10859 313142 363 231", at 10859 distance to closest neighbor: 265.1596662050776, info string: "position 10859, length 363, NN distance 265.1596662050776, elapsed time: 0h 0m 0s 793ms, distance calls: 313142"
+discord #6 "pos,calls,len,rule 1221 192845 381 46", at 1221 distance to closest neighbor: 230.5036062264114, info string: "position 1221, length 381, NN distance 230.5036062264114, elapsed time: 0h 0m 0s 468ms, distance calls: 192845"
+discord #7 "pos,calls,len,rule 5083 357571 360 167", at 5083 distance to closest neighbor: 218.3543700460558, info string: "position 5083, length 360, NN distance 218.3543700460558, elapsed time: 0h 0m 0s 906ms, distance calls: 357571"
+discord #8 "pos,calls,len,rule 12757 410561 387 241", at 12757 distance to closest neighbor: 173.78958709801603, info string: "position 12757, length 387, NN distance 173.78958709801603, elapsed time: 0h 0m 1s 26ms, distance calls: 410561"
+discord #9 "pos,calls,len,rule 9831 377958 356 81", at 9831 distance to closest neighbor: 156.09922418549755, info string: "position 9831, length 356, NN distance 156.09922418549755, elapsed time: 0h 0m 0s 932ms, distance calls: 377958"
+
+Discords found in 0h 0m 8s 522ms
+
+$ sed -n 11769,11777p data/anomaly_pruned.csv >anomaly_00.csv
+$ gpsbabel -D 3 -i xcsv,style=data/anomaly.style -f anomaly_00.csv -x track,pack,title="Rule Density Anomaly" -x transform,trk=wpt,del -o gpx -o gpx -F anomaly_00.gpx
+GPSBabel Version: 1.4.2 
+options: module/option=value: xcsv/style="data/anomaly.style"
+options: module/option=value: xcsv/datum="WGS 84" (=default)
+cet_util: Converting from "US-ASCII" to "UTF-8", done.
+options: module/option=value: track/pack="1"
+options: module/option=value: track/title="Rule Density Anomaly"
+options: module/option=value: transform/trk="wpt"
+options: module/option=value: transform/del="1"
+options: module/option=value: gpx/snlen="32" (=default)
+options: module/option=value: gpx/gpxver="1.0" (=default)
+options: module/option=value: gpx/snlen="32" (=default)
+options: module/option=value: gpx/gpxver="1.0" (=default)
+
+$ sed -n 4659,5025p data/anomaly_pruned.csv >anomaly_01.csv
+$ gpsbabel -D 3 -i xcsv,style=data/anomaly.style -f anomaly_01.csv -x track,pack,title="Best Discord" -x transform,trk=wpt,del -o gpx -o gpx -F anomaly_01.gpx
+GPSBabel Version: 1.4.2 
+options: module/option=value: xcsv/style="data/anomaly.style"
+options: module/option=value: xcsv/datum="WGS 84" (=default)
+cet_util: Converting from "US-ASCII" to "UTF-8", done.
+options: module/option=value: track/pack="1"
+options: module/option=value: track/title="Best Discord"
+options: module/option=value: transform/trk="wpt"
+options: module/option=value: transform/del="1"
+options: module/option=value: gpx/snlen="32" (=default)
+options: module/option=value: gpx/gpxver="1.0" (=default)
+options: module/option=value: gpx/snlen="32" (=default)
+options: module/option=value: gpx/gpxver="1.0" (=default)
+
+$ sed -n 6574,6949p data/anomaly_pruned.csv >anomaly_02.csv
+$ gpsbabel -D 3 -i xcsv,style=data/anomaly.style -f anomaly_02.csv -x track,pack,title="Second discord" -x transform,trk=wpt,del -o gpx -o gpx -F anomaly_02.gpx
+GPSBabel Version: 1.4.2 
+options: module/option=value: xcsv/style="data/anomaly.style"
+options: module/option=value: xcsv/datum="WGS 84" (=default)
+cet_util: Converting from "US-ASCII" to "UTF-8", done.
+options: module/option=value: track/pack="1"
+options: module/option=value: track/title="Second discord"
+options: module/option=value: transform/trk="wpt"
+options: module/option=value: transform/del="1"
+options: module/option=value: gpx/snlen="32" (=default)
+options: module/option=value: gpx/gpxver="1.0" (=default)
+options: module/option=value: gpx/snlen="32" (=default)
+options: module/option=value: gpx/gpxver="1.0" (=default)
+
+$ sed -n 14170,14544p data/anomaly_pruned.csv >anomaly_03.csv
+$ gpsbabel -D 3 -i xcsv,style=data/anomaly.style -f anomaly_03.csv -x track,pack,title="Third discord" -x transform,trk=wpt,del -o gpx -o gpx -F anomaly_03.gpx
+GPSBabel Version: 1.4.2 
+options: module/option=value: xcsv/style="data/anomaly.style"
+options: module/option=value: xcsv/datum="WGS 84" (=default)
+cet_util: Converting from "US-ASCII" to "UTF-8", done.
+options: module/option=value: track/pack="1"
+options: module/option=value: track/title="Third discord"
+options: module/option=value: transform/trk="wpt"
+options: module/option=value: transform/del="1"
+options: module/option=value: gpx/snlen="32" (=default)
+options: module/option=value: gpx/gpxver="1.0" (=default)
+options: module/option=value: gpx/snlen="32" (=default)
+options: module/option=value: gpx/gpxver="1.0" (=default)
+

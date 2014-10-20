@@ -35,6 +35,9 @@ public class Interval {
   }
 
   public boolean overlaps(Interval intervalB) {
+    if (null == intervalB) {
+      return false;
+    }
     if ((this.start <= intervalB.getEnd()) && (this.end >= intervalB.getStart())) {
       return true;
     }

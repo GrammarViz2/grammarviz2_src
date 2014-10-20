@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
@@ -19,10 +18,10 @@ import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.gi.GrammarRuleRecord;
 import edu.hawaii.jmotif.gi.GrammarRules;
 import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
+import edu.hawaii.jmotif.logic.Interval;
 import edu.hawaii.jmotif.logic.RuleInterval;
 import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
 import edu.hawaii.jmotif.sax.SAXFactory;
-import edu.hawaii.jmotif.sax.datastructures.DiscordRecord;
 import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 import edu.hawaii.jmotif.util.StackTrace;
@@ -40,16 +39,16 @@ public class ParamsSearchExperiment2 {
   private static final NumerosityReductionStrategy NUMEROSITY_REDUCTION_STRATEGY = NumerosityReductionStrategy.EXACT;
 
   private static final int MIN_WINDOW_SIZE = 30;
-  private static final int MAX_WINDOW_SIZE = 300;
-  private static final int WINDOW_INCREMENT = 10;
+  private static final int MAX_WINDOW_SIZE = 500;
+  private static final int WINDOW_INCREMENT = 5;
 
   private static final int MIN_PAA_SIZE = 3;
   private static final int MAX_PAA_SIZE = 20;
-  private static final int PAA_INCREMENT = 2;
+  private static final int PAA_INCREMENT = 1;
 
   private static final int MIN_A_SIZE = 3;
-  private static final int MAX_A_SIZE = 14;
-  private static final int A_INCREMENT = 2;
+  private static final int MAX_A_SIZE = 12;
+  private static final int A_INCREMENT = 1;
 
   private static Logger consoleLogger;
 
@@ -69,11 +68,14 @@ public class ParamsSearchExperiment2 {
     BufferedWriter bw = new BufferedWriter(new FileWriter(new File(OUT_FILENAME)));
     bw.write("winSize, paaSize, aSize, approximationDistance, "
         + "minObservedCoverage, maxObservedCoverage, meanCoverage, numZeroRuns, maxZeroRunLength, "
-        + "grammarSize, zeroCoverageLength\n");
+        + "grammarSize, zeroCoverageLength, r1, r2, r3, r4, r5 \n");
 
     for (int winSize = MIN_WINDOW_SIZE; winSize < MAX_WINDOW_SIZE; winSize = winSize
         + WINDOW_INCREMENT) {
       for (int paaSize = MIN_PAA_SIZE; paaSize < MAX_PAA_SIZE; paaSize = paaSize + PAA_INCREMENT) {
+        if (paaSize > winSize) {
+          continue;
+        }
         for (int aSize = MIN_A_SIZE; aSize < MAX_A_SIZE; aSize = aSize + A_INCREMENT) {
 
           // get the TS converted into the rule Intervals
@@ -169,9 +171,27 @@ public class ParamsSearchExperiment2 {
           // find out if global minima hit anomaly
           //
           boolean anomalyHit = false;
+          boolean outsideAnomalyHit = false;
+
+          boolean anomalyZeroHit = false;
+          boolean outsideAnomalyZeroHit = false;
+
           for (int i = winSize; i < coverageArray.length - winSize; i++) {
-            if (minObservedCoverage == coverageArray[i] && ((480 - winSize) < i && i < 480)) {
-              anomalyHit = true;
+            if (minObservedCoverage == coverageArray[i]) {
+              if ((480 - winSize) < i && i < 480) {
+                anomalyHit = true;
+              }
+              else {
+                outsideAnomalyHit = true;
+              }
+            }
+            if (0 == coverageArray[i]) {
+              if ((480 - winSize) < i && i < 480) {
+                anomalyZeroHit = true;
+              }
+              else {
+                outsideAnomalyZeroHit = true;
+              }
             }
           }
 
@@ -180,12 +200,10 @@ public class ParamsSearchExperiment2 {
           double approximationDistance = SAXFactory.approximationDistance(ts, winSize, paaSize,
               aSize, NumerosityReductionStrategy.EXACT, NORMALIZATION_THRESHOLD);
 
-          // get the discord out
-          //
-          intervals = new ArrayList<RuleInterval>();
-
+          // *******************************
           // populate all intervals with their frequency
           //
+          intervals = new ArrayList<RuleInterval>();
           for (GrammarRuleRecord rule : rules) {
             //
             // TODO: do we care about long rules?
@@ -225,13 +243,33 @@ public class ParamsSearchExperiment2 {
             intervals.addAll(getZeroIntervals(coverageArray));
           }
 
+          // run HOTSAX with this intervals set
+          //
+          DiscordRecords discords = SAXFactory.series2SAXSequiturAnomalies(ts, 1, intervals);
+          int discordPos = -1;
+
+          Interval interval = null;
+          Interval trueDiscordInterval = new Interval(480 - winSize / 2, 480 + winSize / 2, 0);
+          if (discords.getSize() > 0) {
+            discordPos = discords.get(0).getPosition();
+            interval = new Interval(discordPos, discordPos + discords.get(0).getLength(), 1);
+          }
+
+          boolean discordHit = false;
+          if (null != interval && trueDiscordInterval.overlaps(interval)) {
+            discordHit = true;
+
+          }
+
           // Output
           //
-          consoleLogger.info(winSize + ", " + paaSize + ", " + aSize + ", " + anomalyHit);
+          consoleLogger.info(winSize + ", " + paaSize + ", " + aSize + ", " + anomalyHit + ", "
+              + discordHit);
           bw.write(winSize + ", " + paaSize + ", " + aSize + ", " + approximationDistance + ", "
               + minObservedCoverage + ", " + maxObservedCoverage + ", " + meanCoverage + ", "
               + numZeroRuns + ", " + maxZeroRunLength + ", " + grammarSize + ", "
-              + zeroCoverageLength + ", " + anomalyHit + "\n");
+              + zeroCoverageLength + ", " + anomalyHit + ", " + outsideAnomalyHit + ", "
+              + anomalyZeroHit + ", " + outsideAnomalyZeroHit + ", " + discordHit + "\n");
 
         }
       }

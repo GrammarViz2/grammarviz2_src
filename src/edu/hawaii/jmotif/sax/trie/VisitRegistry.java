@@ -114,11 +114,12 @@ public class VisitRegistry {
   /**
    * Check if position was visited.
    * 
-   * @param i The position.
+   * @param intervalStart The position.
+   * @param intervalEnd
    * @return True if visited.
    */
-  public boolean isVisited(Integer i) {
-    return (1 == this.registry[i]);
+  public boolean isVisited(Integer intervalStart, int intervalEnd) {
+    return (1 == this.registry[intervalStart] || 1 == this.registry[intervalEnd]);
   }
 
   /**

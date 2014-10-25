@@ -1134,7 +1134,7 @@ public final class TSUtils {
     for (int i : locations) { // outer loop
 
       // check the global visits registry
-      if (globalRegistry.isVisited(i)) {
+      if (globalRegistry.isVisited(i, i + windowSize)) {
         continue;
       }
 

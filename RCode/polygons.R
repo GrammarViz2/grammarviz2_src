@@ -28,7 +28,7 @@ p
 p2=ggplot(dd[dd$densityBasedDiscord=="hit",],aes(approximationDistance,grammarSize)) + 
   #stat_density2d(alpha=0.8, color="cyan",geom="point",aes(size = ..density..),contour=F)+
   stat_density2d(aes(fill = densityBasedDiscord), alpha=0.3, color="cyan3", fill="cyan", geom=c("polygon","density2d"))+
-  scale_x_continuous("Approximation distance",limits=range(dd$approximationDistance)) +
+  scale_x_continuous("Approximation distance",limits=range(c(0,200))) +
   scale_y_continuous("Grammar size", limits=range(dd$grammarSize)) + 
   ggtitle("Area with successful rule density-based\n discovery of the true anomaly")+
   theme_bw() + theme(legend.position="bottom") 
@@ -48,9 +48,9 @@ p3=ggplot(dd,aes(approximationDistance,grammarSize,color=RRA.discord,fill=RRA.di
 p3
 
 p4=ggplot(dd[dd$RRA.discord=="hit",],aes(approximationDistance,grammarSize)) + 
-  stat_density2d(aes(fill = RRA.discord), alpha=0.3, color="grey40", fill="grey50", geom=c("polygon","density2d"))+
-  scale_x_continuous(limits=range(dd$approximationDistance)) +
-  scale_y_continuous(limits=range(dd$grammarSize)) + 
+  stat_density2d(aes(fill = densityBasedDiscord), alpha=0.3, color="cyan3", fill="cyan", geom=c("polygon","density2d"))+
+  scale_x_continuous("Approximation distance",limits=range(c(0,200))) +
+  scale_y_continuous("Grammar size", limits=range(dd$grammarSize)) + 
   ggtitle("Area with successful RRA-based\n discovery of the true anomaly")+
   theme_bw() + theme(legend.position="bottom")
 p4

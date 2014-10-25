@@ -48,8 +48,8 @@ public class TestVisitRegistry {
     assertFalse("Test visit registry", vr.isNotVisited(7));
 
     assertEquals("Test visit registry", 2, vr.getVisited().length);
-    assertTrue("Test visit registry", vr.isVisited(3));
-    assertTrue("Test visit registry", vr.isVisited(7));
+    assertTrue("Test visit registry", vr.isVisited(3, 3));
+    assertTrue("Test visit registry", vr.isVisited(7, 7));
   }
 
   /**
@@ -59,14 +59,14 @@ public class TestVisitRegistry {
   public void testGetNextRandomUnvisitedPosition() {
     int k = vr.getNextRandomUnvisitedPosition();
     assertTrue("Test visit registry", vr.isNotVisited(k));
-    assertFalse("Test visit registry", vr.isVisited(k));
+    assertFalse("Test visit registry", vr.isVisited(k, k));
     vr.markVisited(k);
     assertFalse("Test visit registry", vr.isNotVisited(k));
 
     int i = 0;
     while (0 != vr.getUnvisited().length) {
       k = vr.getNextRandomUnvisitedPosition();
-      assertFalse("Test visit registry", vr.isVisited(k));
+      assertFalse("Test visit registry", vr.isVisited(k, k));
       vr.markVisited(k);
       assertFalse("Test visit registry", vr.isNotVisited(k));
       i++;

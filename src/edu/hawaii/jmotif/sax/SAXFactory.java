@@ -906,7 +906,8 @@ public final class SAXFactory {
       currentEntry = null;
 
       // make sure it is not previously found discord passed through the parameters array
-      if (visitedLocations.isVisited(outerLoopCandidatePosition)) {
+      if (visitedLocations.isVisited(outerLoopCandidatePosition, outerLoopCandidatePosition
+          + windowSize)) {
         continue;
       }
 
@@ -1196,7 +1197,8 @@ public final class SAXFactory {
       currentEntry = null;
 
       // make sure it is not previously found discord passed through the parameters array
-      if (visitedLocations.isVisited(outerLoopCandidatePosition)) {
+      if (visitedLocations.isVisited(outerLoopCandidatePosition, outerLoopCandidatePosition
+          + windowSize)) {
         continue;
       }
 
@@ -1602,7 +1604,7 @@ public final class SAXFactory {
           + ", intervals in collection " + intervals.size());
 
       // make sure it is not previously found discord
-      if (globalTrackVisitRegistry.isVisited(currentEntry.getStartPos())) {
+      if (globalTrackVisitRegistry.isVisited(currentEntry.getStartPos(), currentEntry.getEndPos())) {
         continue;
       }
 

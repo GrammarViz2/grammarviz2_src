@@ -86,6 +86,9 @@ public final class TextUtils {
         //
         double tfidf = 0;
 
+        if (totalDocs != word.getValue().intValue()) {
+          System.out.println("excluded: " + word.getKey());
+        }
         // if this document contains the word - here we go
         if (bagWords.containsKey(word.getKey()) & (totalDocs != word.getValue().intValue())) {
 
@@ -459,7 +462,8 @@ public final class TextUtils {
     for (Entry<String, Integer> entry : testSample.getWords().entrySet()) {
       if (weightVector.containsKey(entry.getKey())) {
         res = res + entry.getValue().doubleValue() * weightVector.get(entry.getKey()).doubleValue();
-        insight.put(entry.getKey(), entry.getValue().doubleValue() * weightVector.get(entry.getKey()).doubleValue());
+        insight.put(entry.getKey(),
+            entry.getValue().doubleValue() * weightVector.get(entry.getKey()).doubleValue());
       }
     }
     double m1 = magnitude(testSample.getWordsAsDoubles().values());

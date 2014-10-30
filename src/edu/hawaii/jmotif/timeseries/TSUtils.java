@@ -32,6 +32,8 @@ public final class TSUtils {
   static final char[] ALPHABET = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
       'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
 
+  private static final double GLOBAL_NORMALIZATION_THRESHOLD = 0.05D;
+
   // logging stuff
   //
   private static Logger consoleLogger;
@@ -550,7 +552,7 @@ public final class TSUtils {
     // another special case, where SD happens to be close to a zero, i.e. they all are the same for
     // example
     //
-    else if (sd <= 0.001D) {
+    else if (sd <= GLOBAL_NORMALIZATION_THRESHOLD) {
 
       // here I assign another magic value - 0.001D which makes to middle band of the normal
       // Alphabet

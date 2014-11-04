@@ -1072,7 +1072,10 @@ public final class TSUtils {
 
     DiscordRecords discords = new DiscordRecords();
 
+    // init new registry to the full length, but marke th end of it
+    //
     VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length);
+    globalTrackVisitRegistry.markVisited(series.length - windowSize, series.length);
 
     int discordCounter = 0;
 

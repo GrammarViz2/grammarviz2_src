@@ -1072,7 +1072,7 @@ public final class TSUtils {
 
     DiscordRecords discords = new DiscordRecords();
 
-    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length - windowSize);
+    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length);
 
     int discordCounter = 0;
 

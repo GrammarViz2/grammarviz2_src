@@ -35,6 +35,12 @@ import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.timeseries.TSUtils;
 import edu.hawaii.jmotif.util.StackTrace;
 
+/**
+ * Main executable wrapping all the discord discovery methods.
+ * 
+ * @author psenin
+ * 
+ */
 public class SAXSequiturDiscord {
 
   // locale, charset, etc
@@ -63,6 +69,7 @@ public class SAXSequiturDiscord {
   private static Integer paaSize;
   private static Integer alphabetSize;
   private static Integer discordsToReport;
+  private static boolean outputRRAresults;
 
   // static block - we instantiate the logger
   //
@@ -82,32 +89,50 @@ public class SAXSequiturDiscord {
     // System.in.read(); // this is used for proper performance evaluation using visual jvm
     argsString = Arrays.toString(args);
 
+    consoleLogger.info("Parameters string: \"" + Arrays.toString(args) + "\"");
+
     // parameters check section
     //
     if (args.length != 6) {
+      //
       // four arguments are used for discords using brute force
       //
       if (args.length == 4) {
         try {
-          consoleLogger.info("Parsing param string \"" + Arrays.toString(args) + "\"");
-
           algorithm = Integer.valueOf(args[0]);
           dataFName = args[1];
           ts = loadData(dataFName);
-
           windowSize = Integer.valueOf(args[2]);
-
           consoleLogger.info("Starting brute force search for " + discordsToReport
               + " discords with settings: algorithm " + algorithm + ", data \"" + dataFName + "\""
               + ", window " + windowSize);
-
         }
         catch (Exception e) {
           System.err.println("error occured while parsing parameters:\n" + StackTrace.toString(e));
           System.exit(-1);
         }
-        // end parsing brute-force parameters
-        //
+      }
+      //
+      // this goes to RRA - 6/7 parameters
+      //
+      else if ((args.length == 7 && 3 == Integer.valueOf(args[0]))
+          || (args.length == 6 && 3 == Integer.valueOf(args[0]))) {
+        try {
+          // the parsing will work anyway
+          setParameters(args);
+          // check the true/false parameter
+          outputRRAresults = false;
+          if (args.length == 7) {
+            String yesNoParam = args[6];
+            if (yesNoParam.equalsIgnoreCase("true") || yesNoParam.equalsIgnoreCase("t")) {
+              outputRRAresults = true;
+            }
+          }
+        }
+        catch (Exception e) {
+          System.err.println("error occured while parsing parameters:\n" + StackTrace.toString(e));
+          System.exit(-1);
+        }
       }
       else {
         System.err.println(getHelp());
@@ -129,6 +154,39 @@ public class SAXSequiturDiscord {
     }
     else if (4 == algorithm) {
       findHotSaxWithHash();
+    }
+
+  }
+
+  /**
+   * This set parameters globally.
+   * 
+   * @param args
+   */
+  private static void setParameters(String[] args) {
+    try {
+
+      consoleLogger.info("Parsing param string \"" + Arrays.toString(args) + "\"");
+
+      algorithm = Integer.valueOf(args[0]);
+
+      dataFName = args[1];
+      ts = loadData(dataFName);
+
+      windowSize = Integer.valueOf(args[2]);
+      paaSize = Integer.valueOf(args[3]);
+      alphabetSize = Integer.valueOf(args[4]);
+
+      discordsToReport = Integer.valueOf(args[5]);
+
+      consoleLogger.info("Starting discords search with settings: algorithm " + algorithm
+          + ", data \"" + dataFName + "\"" + ", window " + windowSize + ", PAA " + paaSize
+          + ", alphabet " + alphabetSize + ", reporting " + discordsToReport + " discords.");
+
+    }
+    catch (Exception e) {
+      System.err.println("error occured while parsing parameters:\n" + StackTrace.toString(e));
+      System.exit(-1);
     }
 
   }
@@ -200,7 +258,12 @@ public class SAXSequiturDiscord {
     System.out.println("Discords found in "
         + SAXFactory.timeToString(start.getTime(), end.getTime()));
 
-    // System.exit(10);
+    // THE DISCORD SEARCH IS DONE RIGHT HERE
+    // BELOW IS THE CODE WHICH WRITES THE CURVE AND THE DISTANCE FILE ON FILESYSTEM
+    //
+    if (!outputRRAresults) {
+      System.exit(10);
+    }
 
     // write the coverage array
     //
@@ -339,52 +402,26 @@ public class SAXSequiturDiscord {
         + SAXFactory.timeToString(start.getTime(), end.getTime()));
   }
 
-  private static void setParameters(String[] args) {
-    try {
-
-      consoleLogger.info("Parsing param string \"" + Arrays.toString(args) + "\"");
-
-      algorithm = Integer.valueOf(args[0]);
-
-      dataFName = args[1];
-      ts = loadData(dataFName);
-
-      windowSize = Integer.valueOf(args[2]);
-      paaSize = Integer.valueOf(args[3]);
-      alphabetSize = Integer.valueOf(args[4]);
-
-      discordsToReport = Integer.valueOf(args[5]);
-
-      consoleLogger.info("Starting discords search with settings: algorithm " + algorithm
-          + ", data \"" + dataFName + "\"" + ", window " + windowSize + ", PAA " + paaSize
-          + ", alphabet " + alphabetSize + ", reporting " + discordsToReport + " discords.");
-
-    }
-    catch (Exception e) {
-      System.err.println("error occured while parsing parameters:\n" + StackTrace.toString(e));
-      System.exit(-1);
-    }
-
-  }
-
+  /**
+   * Prints the command-line help.
+   * 
+   * @return The help string.
+   */
   private static String getHelp() {
 
     StringBuffer sb = new StringBuffer();
 
-    sb.append("SAXSequitur discords/anomaly discovery pre-release, contact: seninp@gmail.com")
-        .append(CR);
+    sb.append("GrammarViz2 release, contact: seninp@gmail.com").append(CR);
 
     sb.append("Expected parameters: ").append(CR);
 
-    sb.append(" [1] algorithm to use: 1 - brute force, 2 - HOT SAX, backed by Trie").append(CR);
-    sb.append("                       3 - SAXSequitur approximate, 4 - HOT SAX backed by Hash")
-        .append(CR);
+    sb.append(" [1] algorithm to use: 1 - brute force, 2 - HOT SAX, backed by a Trie").append(CR);
+    sb.append("                       3 - RRA algorithm, 4 - HOT SAX backed by a Hash").append(CR);
     sb.append(
-        "     *** note, that for HOT SAX paa size will be equal to alphabet size due to the *trie* design")
+        "     *** for algorithm 2, PAA size will be equal to Alphabet size due to the *trie* design")
         .append(CR);
-    sb.append("         if algorithm is 4, HOT SAX will use *hash* and PAA/Alphabet may differ")
-        .append(CR);
-    sb.append("     *** for brute force only sliding window will be used ").append(CR);
+    sb.append("         use algorithm 4 so PAA and Alphabet sizes may differ").append(CR);
+    sb.append("     *** for brute force only sliding window parameter is expected ").append(CR);
 
     sb.append(" [2] dataset input file; ").append(CR);
 
@@ -395,6 +432,8 @@ public class SAXSequiturDiscord {
     sb.append(" [5] alphabet size; ").append(CR);
 
     sb.append(" [6] discords number to report; ").append(CR);
+
+    sb.append(" [7] indicate true/false for RRA algorithm auxiliary output; ").append(CR);
 
     return sb.toString();
   }
@@ -451,19 +490,4 @@ public class SAXSequiturDiscord {
 
   }
 
-  // /**
-  // * This extracts a subsequence.
-  // *
-  // * @param coverageCurve
-  // * @param startPos
-  // * @param endPos
-  // * @return
-  // */
-  // private static double[] subsequence(int[] coverageCurve, int startPos, int endPos) {
-  // double[] res = new double[endPos - startPos];
-  // for (int i = startPos; i < endPos; i++) {
-  // res[i - startPos] = Integer.valueOf(coverageCurve[i]).doubleValue();
-  // }
-  // return res;
-  // }
 }

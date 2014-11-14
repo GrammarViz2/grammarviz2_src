@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.saxvsm.KNNOptimizedStackEntry;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 import edu.hawaii.jmotif.text.WordBag;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.StackTrace;
@@ -29,15 +29,18 @@ public class CVErrorFunction implements ErrorFunction {
   /** The latin alphabet, lower case letters a-z. */
   private static final char[] ALPHABET = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
       'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
-
   private Alphabet a = new NormalAlphabet();
 
+  // the default normalization threshold
   private static final double NORMALIZATION_THRESHOLD = 0.05D;
 
-  private SAXCollectionStrategy saxCollectionStrategy;
+  // the default numerosity strategy
+  private SAXNumerosityReductionStrategy numerosityReductionStrategy;
 
-  private Map<String, List<double[]>> data;
+  // the data
+  private Map<String, List<double[]>> tsData;
 
+  // the hold out sample size
   private int holdOutSampleSize;
 
   /**
@@ -47,10 +50,10 @@ public class CVErrorFunction implements ErrorFunction {
    * @param holdOutSampleSize
    */
   public CVErrorFunction(Map<String, List<double[]>> data, int holdOutSampleSize,
-      SAXCollectionStrategy strategy) {
-    this.data = data;
+      SAXNumerosityReductionStrategy strategy) {
+    this.tsData = data;
     this.holdOutSampleSize = holdOutSampleSize;
-    this.saxCollectionStrategy = strategy;
+    this.numerosityReductionStrategy = strategy;
   }
 
   /**
@@ -78,11 +81,11 @@ public class CVErrorFunction implements ErrorFunction {
       params[0][0] = windowSize;
       params[0][1] = paaSize;
       params[0][2] = alphabetSize;
-      params[0][3] = this.saxCollectionStrategy.index();
+      params[0][3] = this.numerosityReductionStrategy.index();
 
       // push into stack all the samples we are going to validate for
       Stack<KNNOptimizedStackEntry> samples2go = new Stack<KNNOptimizedStackEntry>();
-      for (Entry<String, List<double[]>> e : this.data.entrySet()) {
+      for (Entry<String, List<double[]>> e : this.tsData.entrySet()) {
         String key = e.getKey();
         int index = 0;
         for (double[] sample : e.getValue()) {
@@ -139,7 +142,7 @@ public class CVErrorFunction implements ErrorFunction {
 
         // re-build bags if there is a need or pop them from the stack
         //
-        for (Entry<String, List<double[]>> e : this.data.entrySet()) {
+        for (Entry<String, List<double[]>> e : this.tsData.entrySet()) {
 
           // if there is a hit - need to rebuild that bag and replace it in the cache
           if (e.getKey().equalsIgnoreCase(validationKey)) {
@@ -157,7 +160,7 @@ public class CVErrorFunction implements ErrorFunction {
                 // }
                 continue;
               }
-              WordBag cb = seriesToWordBag("tmp", series, params, this.saxCollectionStrategy);
+              WordBag cb = seriesToWordBag("tmp", series, params, this.numerosityReductionStrategy);
               bag.mergeWith(cb);
             }
             cache.put(validationKey, bag);
@@ -168,7 +171,8 @@ public class CVErrorFunction implements ErrorFunction {
             if (!cache.containsKey(e.getKey())) {
               WordBag bag = new WordBag(e.getKey());
               for (double[] series : e.getValue()) {
-                WordBag cb = seriesToWordBag("tmp", series, params, this.saxCollectionStrategy);
+                WordBag cb = seriesToWordBag("tmp", series, params,
+                    this.numerosityReductionStrategy);
                 bag.mergeWith(cb);
               }
               cache.put(e.getKey(), bag);
@@ -190,7 +194,8 @@ public class CVErrorFunction implements ErrorFunction {
         //
         // is this sample correctly classified?
         for (KNNOptimizedStackEntry e : currentValidationSample) {
-          int res = classify(e.getKey(), e.getValue(), tfidf, params, this.saxCollectionStrategy);
+          int res = classify(e.getKey(), e.getValue(), tfidf, params,
+              this.numerosityReductionStrategy);
           if (0 == res) {
             missclassifiedSamples = missclassifiedSamples + 1;
           }
@@ -361,7 +366,7 @@ public class CVErrorFunction implements ErrorFunction {
   }
 
   private WordBag seriesToWordBag(String label, double[] series, int[][] params,
-      SAXCollectionStrategy strategy) throws IndexOutOfBoundsException, TSException {
+      SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException, TSException {
 
     WordBag resultBag = new WordBag(label);
 
@@ -378,12 +383,12 @@ public class CVErrorFunction implements ErrorFunction {
 
         char[] sax = ts2String(paa, a.getCuts(alphabetSize));
 
-        if (SAXCollectionStrategy.CLASSIC.equals(strategy)) {
+        if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
           if (oldStr.length > 0 && strSaxMinDistance(sax, oldStr) == 0) {
             continue;
           }
         }
-        else if (SAXCollectionStrategy.EXACT.equals(strategy)) {
+        else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
           if (Arrays.equals(oldStr, sax)) {
             continue;
           }
@@ -511,8 +516,8 @@ public class CVErrorFunction implements ErrorFunction {
   }
 
   private int classify(String classKey, double[] series,
-      HashMap<String, HashMap<String, Double>> tfidf, int[][] params, SAXCollectionStrategy strategy)
-      throws IndexOutOfBoundsException, TSException {
+      HashMap<String, HashMap<String, Double>> tfidf, int[][] params,
+      SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException, TSException {
 
     WordBag test = seriesToWordBag("test", series, params, strategy);
 

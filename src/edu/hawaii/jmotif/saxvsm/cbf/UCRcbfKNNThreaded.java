@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import edu.hawaii.jmotif.saxvsm.UCRGenericClassifier;
 import edu.hawaii.jmotif.saxvsm.UCRUtils;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
 /**
  * Helper-runner for CBF test.
@@ -64,16 +64,16 @@ public class UCRcbfKNNThreaded extends UCRGenericClassifier {
 
     // configuring strategy
     //
-    SAXCollectionStrategy strategy = SAXCollectionStrategy.NOREDUCTION;
+    SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.NOREDUCTION;
     String strategyPrefix = "noreduction";
     if (args.length > 0) {
       String strategyP = args[0];
       if ("EXACT".equalsIgnoreCase(strategyP)) {
-        strategy = SAXCollectionStrategy.EXACT;
+        strategy = SAXNumerosityReductionStrategy.EXACT;
         strategyPrefix = "exact";
       }
       if ("CLASSIC".equalsIgnoreCase(strategyP)) {
-        strategy = SAXCollectionStrategy.CLASSIC;
+        strategy = SAXNumerosityReductionStrategy.CLASSIC;
         strategyPrefix = "classic";
       }
     }

@@ -15,7 +15,7 @@ import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.saxvsm.TfIdfEntryComparator;
 import edu.hawaii.jmotif.saxvsm.UCRGenericClassifier;
 import edu.hawaii.jmotif.saxvsm.UCRUtils;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 import edu.hawaii.jmotif.text.TextUtils;
 import edu.hawaii.jmotif.text.WordBag;
 import edu.hawaii.jmotif.timeseries.TSException;
@@ -71,12 +71,12 @@ public class UCRcbfPatternsHunter extends UCRGenericClassifier {
       int WINDOW_SIZE = p[0];
       int PAA_SIZE = p[1];
       int ALPHABET_SIZE = p[2];
-      SAXCollectionStrategy strategy = SAXCollectionStrategy.CLASSIC;
+      SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.CLASSIC;
       if (EXACT == p[3]) {
-        strategy = SAXCollectionStrategy.EXACT;
+        strategy = SAXNumerosityReductionStrategy.EXACT;
       }
       else if (NOREDUCTION == p[3]) {
-        strategy = SAXCollectionStrategy.NOREDUCTION;
+        strategy = SAXNumerosityReductionStrategy.NOREDUCTION;
       }
 
       // making training bags collection

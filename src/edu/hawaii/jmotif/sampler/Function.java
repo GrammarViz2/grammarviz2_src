@@ -6,7 +6,7 @@
 package edu.hawaii.jmotif.sampler;
 
 import edu.hawaii.jmotif.direct.Point;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
 /**
  * A <code>Function</code> is an object that can be queried about its value at
@@ -31,5 +31,5 @@ public interface Function {
      */
     int getDimension();
 
-    SAXCollectionStrategy getSAXSamplingStrategy();
+    SAXNumerosityReductionStrategy getSAXSamplingStrategy();
 }

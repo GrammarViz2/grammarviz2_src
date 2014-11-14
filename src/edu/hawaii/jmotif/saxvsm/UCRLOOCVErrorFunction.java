@@ -25,7 +25,7 @@ import edu.hawaii.jmotif.sampler.Hessian;
 import edu.hawaii.jmotif.sampler.ObjectiveFunction;
 import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 import edu.hawaii.jmotif.text.WordBag;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.StackTrace;
@@ -44,7 +44,7 @@ public class UCRLOOCVErrorFunction implements Function, ObjectiveFunction {
   private int n = 3;
   private double[] upperBounds;
   private double[] lowerBounds;
-  private SAXCollectionStrategy saxCollectionStrategy;
+  private SAXNumerosityReductionStrategy saxCollectionStrategy;
   private Map<String, List<double[]>> data;
   private int holdOutSampleSize;
 
@@ -275,7 +275,7 @@ public class UCRLOOCVErrorFunction implements Function, ObjectiveFunction {
   }
 
   @Override
-  public void setStrategy(SAXCollectionStrategy strategy) {
+  public void setStrategy(SAXNumerosityReductionStrategy strategy) {
     this.saxCollectionStrategy = strategy;
   }
 
@@ -435,7 +435,7 @@ public class UCRLOOCVErrorFunction implements Function, ObjectiveFunction {
   }
 
   private WordBag seriesToWordBag(String label, double[] series, int[][] params,
-      SAXCollectionStrategy strategy) throws IndexOutOfBoundsException, TSException {
+      SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException, TSException {
 
     WordBag resultBag = new WordBag(label);
 
@@ -452,12 +452,12 @@ public class UCRLOOCVErrorFunction implements Function, ObjectiveFunction {
 
         char[] sax = ts2String(paa, a.getCuts(alphabetSize));
 
-        if (SAXCollectionStrategy.CLASSIC.equals(strategy)) {
+        if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
           if (oldStr.length > 0 && strDistance(sax, oldStr) == 0) {
             continue;
           }
         }
-        else if (SAXCollectionStrategy.EXACT.equals(strategy)) {
+        else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
           if (Arrays.equals(oldStr, sax)) {
             continue;
           }
@@ -585,7 +585,7 @@ public class UCRLOOCVErrorFunction implements Function, ObjectiveFunction {
   }
 
   private int classify(String classKey, double[] series,
-      HashMap<String, HashMap<String, Double>> tfidf, int[][] params, SAXCollectionStrategy strategy)
+      HashMap<String, HashMap<String, Double>> tfidf, int[][] params, SAXNumerosityReductionStrategy strategy)
       throws IndexOutOfBoundsException, TSException {
 
     WordBag test = seriesToWordBag("test", series, params, strategy);
@@ -814,7 +814,7 @@ public class UCRLOOCVErrorFunction implements Function, ObjectiveFunction {
   }
 
   @Override
-  public SAXCollectionStrategy getSAXSamplingStrategy() {
+  public SAXNumerosityReductionStrategy getSAXSamplingStrategy() {
     return this.saxCollectionStrategy;
   }
 

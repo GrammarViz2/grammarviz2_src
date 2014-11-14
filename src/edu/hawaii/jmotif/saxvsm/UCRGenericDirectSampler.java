@@ -18,7 +18,7 @@ import edu.hawaii.jmotif.sampler.ObjectiveFunction;
 import edu.hawaii.jmotif.sampler.PrintConsumer;
 import edu.hawaii.jmotif.sampler.Solver;
 import edu.hawaii.jmotif.sampler.UCRSolver;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 import edu.hawaii.jmotif.util.StackTrace;
 
 /**
@@ -116,8 +116,8 @@ public class UCRGenericDirectSampler extends UCRGenericClassifier {
     // create and submit the job for NOREDUCTION
     //
     ObjectiveFunction noredFunction = new UCRLOOCVErrorFunction();
-    noredFunction.setStrategy(SAXCollectionStrategy.NOREDUCTION);
-    PrintConsumer noredConsumer = new PrintConsumer(SAXCollectionStrategy.NOREDUCTION);
+    noredFunction.setStrategy(SAXNumerosityReductionStrategy.NOREDUCTION);
+    PrintConsumer noredConsumer = new PrintConsumer(SAXNumerosityReductionStrategy.NOREDUCTION);
     noredFunction.setUpperBounds(parametersHighest);
     noredFunction.setLowerBounds(parametersLowest);
     noredFunction.setData(trainData, HOLD_OUT_NUM);
@@ -133,8 +133,8 @@ public class UCRGenericDirectSampler extends UCRGenericClassifier {
     // create and submit the job for EXACT
     //
     ObjectiveFunction exactFunction = new UCRLOOCVErrorFunction();
-    exactFunction.setStrategy(SAXCollectionStrategy.EXACT);
-    PrintConsumer exactConsumer = new PrintConsumer(SAXCollectionStrategy.EXACT);
+    exactFunction.setStrategy(SAXNumerosityReductionStrategy.EXACT);
+    PrintConsumer exactConsumer = new PrintConsumer(SAXNumerosityReductionStrategy.EXACT);
     exactFunction.setUpperBounds(parametersHighest);
     exactFunction.setLowerBounds(parametersLowest);
     exactFunction.setData(trainData, HOLD_OUT_NUM);
@@ -150,8 +150,8 @@ public class UCRGenericDirectSampler extends UCRGenericClassifier {
     // create and submit the job for CLASSIC
     //
     ObjectiveFunction classicFunction = new UCRLOOCVErrorFunction();
-    classicFunction.setStrategy(SAXCollectionStrategy.CLASSIC);
-    PrintConsumer classicConsumer = new PrintConsumer(SAXCollectionStrategy.CLASSIC);
+    classicFunction.setStrategy(SAXNumerosityReductionStrategy.CLASSIC);
+    PrintConsumer classicConsumer = new PrintConsumer(SAXNumerosityReductionStrategy.CLASSIC);
     classicFunction.setUpperBounds(parametersHighest);
     classicFunction.setLowerBounds(parametersLowest);
     classicFunction.setData(trainData, HOLD_OUT_NUM);

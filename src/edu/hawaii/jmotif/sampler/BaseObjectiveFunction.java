@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import edu.hawaii.jmotif.direct.Point;
 import edu.hawaii.jmotif.sampler.Statistics.StatisticsBuilder;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
 /**
  * Function decorator (Decorator pattern)
@@ -213,7 +213,7 @@ public class BaseObjectiveFunction implements ObjectiveFunction {
     }
 
     @Override
-    public SAXCollectionStrategy getSAXSamplingStrategy() {
+    public SAXNumerosityReductionStrategy getSAXSamplingStrategy() {
       // TODO Auto-generated method stub
       return null;
     }
@@ -231,7 +231,7 @@ public class BaseObjectiveFunction implements ObjectiveFunction {
     }
 
     @Override
-    public void setStrategy(SAXCollectionStrategy noreduction) {
+    public void setStrategy(SAXNumerosityReductionStrategy noreduction) {
       // TODO Auto-generated method stub
       
     }

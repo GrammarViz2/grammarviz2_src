@@ -23,7 +23,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.text.Bigram;
 import edu.hawaii.jmotif.text.BigramBag;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 import edu.hawaii.jmotif.text.TextUtils;
 import edu.hawaii.jmotif.text.WordBag;
 import edu.hawaii.jmotif.timeseries.TSException;
@@ -77,7 +77,7 @@ public class UCRGenericClassifier {
    * @throws TSException if error occurs.
    */
   protected static List<String> trainKNNFoldJMotifThreaded(int threadsNum, int[] windowSizes,
-      int[] paaSizes, int[] alphabetSizes, SAXCollectionStrategy strategy,
+      int[] paaSizes, int[] alphabetSizes, SAXNumerosityReductionStrategy strategy,
       Map<String, List<double[]>> trainData, int validationSampleSize)
       throws IndexOutOfBoundsException, TSException {
 
@@ -192,7 +192,7 @@ public class UCRGenericClassifier {
    * @throws TSException if error occurs.
    */
   protected static List<String> trainKNNFoldJMotif(int[] windowSizes, int[] paaSizes,
-      int[] alphabetSizes, SAXCollectionStrategy strategy, Map<String, List<double[]>> trainData,
+      int[] alphabetSizes, SAXNumerosityReductionStrategy strategy, Map<String, List<double[]>> trainData,
       int validationSampleSize) throws IndexOutOfBoundsException, TSException {
 
     // make a result map
@@ -347,7 +347,7 @@ public class UCRGenericClassifier {
 
   protected static void run2GrammClassificationExperiment(String trainingDataName,
       String testDataName, int windowSize, int[] paa_sizes, int[] alphabet_sizes,
-      SAXCollectionStrategy strategy, String outFname) throws IOException,
+      SAXNumerosityReductionStrategy strategy, String outFname) throws IOException,
       IndexOutOfBoundsException, TSException {
 
     BufferedWriter bw = new BufferedWriter(new FileWriter(outFname));
@@ -417,7 +417,7 @@ public class UCRGenericClassifier {
   }
 
   protected static void runClassificationExperiment(String trainingDataName, String testDataName,
-      Integer windowSize, int[] paa_sizes, int[] alphabet_sizes, SAXCollectionStrategy strategy,
+      Integer windowSize, int[] paa_sizes, int[] alphabet_sizes, SAXNumerosityReductionStrategy strategy,
       String outFname) throws IOException, IndexOutOfBoundsException, TSException {
 
     BufferedWriter bw = new BufferedWriter(new FileWriter(outFname));
@@ -487,7 +487,7 @@ public class UCRGenericClassifier {
 
   protected static void runKNNExperiment(Map<String, List<double[]>> trainData,
       Map<String, List<double[]>> testData, Integer windowSize, int paaSize, int alphabetSize,
-      SAXCollectionStrategy strategy, String outFname) throws IOException,
+      SAXNumerosityReductionStrategy strategy, String outFname) throws IOException,
       IndexOutOfBoundsException, TSException {
 
     BufferedWriter bw = new BufferedWriter(new FileWriter(outFname));
@@ -580,7 +580,7 @@ public class UCRGenericClassifier {
   }
 
   protected static void runKNNExperiment(String trainingDataName, String testDataName,
-      Integer windowSize, int paa_size, int alphabet_size, SAXCollectionStrategy strategy,
+      Integer windowSize, int paa_size, int alphabet_size, SAXNumerosityReductionStrategy strategy,
       String outFname) throws IOException, IndexOutOfBoundsException, TSException {
 
     // reading training and test collections
@@ -635,7 +635,7 @@ public class UCRGenericClassifier {
    * @throws TSException if error occurs.
    */
   protected static Map<String, Entry<Double, int[][]>> trainKNNFold(int[] windowSizes,
-      int[] paaSizes, int[] alphabetSizes, SAXCollectionStrategy strategy,
+      int[] paaSizes, int[] alphabetSizes, SAXNumerosityReductionStrategy strategy,
       Map<String, List<double[]>> trainData, int validationSampleSize)
       throws IndexOutOfBoundsException, TSException {
 
@@ -884,13 +884,13 @@ public class UCRGenericClassifier {
     return sb.toString();
   }
 
-  protected static String getStrategyPrefix(SAXCollectionStrategy strategy) {
+  protected static String getStrategyPrefix(SAXNumerosityReductionStrategy strategy) {
     String strategyP = "noreduction";
-    if (SAXCollectionStrategy.EXACT.equals(strategy)) {
+    if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
       strategyP = "exact";
     }
-    if (SAXCollectionStrategy.CLASSIC.equals(strategy)) {
-      strategy = SAXCollectionStrategy.CLASSIC;
+    if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
+      strategy = SAXNumerosityReductionStrategy.CLASSIC;
       strategyP = "classic";
     }
     return strategyP;
@@ -898,13 +898,13 @@ public class UCRGenericClassifier {
 
   protected static String toLogStr(int[] p, double accuracy, double error) {
     StringBuffer sb = new StringBuffer();
-    if (SAXCollectionStrategy.CLASSIC.index() == p[3]) {
+    if (SAXNumerosityReductionStrategy.CLASSIC.index() == p[3]) {
       sb.append("CLASSIC,");
     }
-    else if (SAXCollectionStrategy.EXACT.index() == p[3]) {
+    else if (SAXNumerosityReductionStrategy.EXACT.index() == p[3]) {
       sb.append("EXACT,");
     }
-    else if (SAXCollectionStrategy.NOREDUCTION.index() == p[3]) {
+    else if (SAXNumerosityReductionStrategy.NOREDUCTION.index() == p[3]) {
       sb.append("NOREDUCTION,");
     }
     sb.append(p[0]).append(COMMA);
@@ -916,16 +916,16 @@ public class UCRGenericClassifier {
     return sb.toString();
   }
 
-  protected static String toLogStr(int[][] params, SAXCollectionStrategy strategy, double accuracy,
+  protected static String toLogStr(int[][] params, SAXNumerosityReductionStrategy strategy, double accuracy,
       double error) {
     StringBuffer sb = new StringBuffer();
-    if (strategy.equals(SAXCollectionStrategy.CLASSIC)) {
+    if (strategy.equals(SAXNumerosityReductionStrategy.CLASSIC)) {
       sb.append("CLASSIC,");
     }
-    else if (strategy.equals(SAXCollectionStrategy.EXACT)) {
+    else if (strategy.equals(SAXNumerosityReductionStrategy.EXACT)) {
       sb.append("EXACT,");
     }
-    else if (strategy.equals(SAXCollectionStrategy.NOREDUCTION)) {
+    else if (strategy.equals(SAXNumerosityReductionStrategy.NOREDUCTION)) {
       sb.append("NOREDUCTION,");
     }
     sb.append(params[0][0]).append(COMMA);

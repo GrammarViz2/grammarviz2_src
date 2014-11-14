@@ -8,7 +8,7 @@ package edu.hawaii.jmotif.sampler;
 import java.util.List;
 import java.util.Map;
 import edu.hawaii.jmotif.direct.Point;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
 /**
  * @author ytoh
@@ -156,7 +156,7 @@ public class RosenbrockFunction implements Function, FunctionGradient, FunctionH
   }
 
   @Override
-  public void setStrategy(SAXCollectionStrategy noreduction) {
+  public void setStrategy(SAXNumerosityReductionStrategy noreduction) {
     // TODO Auto-generated method stub
     
   }
@@ -168,7 +168,7 @@ public class RosenbrockFunction implements Function, FunctionGradient, FunctionH
   }
 
   @Override
-  public SAXCollectionStrategy getSAXSamplingStrategy() {
+  public SAXNumerosityReductionStrategy getSAXSamplingStrategy() {
     // TODO Auto-generated method stub
     return null;
   }

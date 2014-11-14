@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.direct.ValuePointColored;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
 /**
  * Simple solver encapsulating the optimization method calculation and checking method stop
@@ -134,17 +134,17 @@ public class UCRSolver implements Solver, Callable<List<String>> {
     return resList;
   }
 
-  private String toLogStr(ValuePointColored v, SAXCollectionStrategy saxCollectionStrategy) {
+  private String toLogStr(ValuePointColored v, SAXNumerosityReductionStrategy saxCollectionStrategy) {
     StringBuffer sb = new StringBuffer();
 
     // strategy
-    if (saxCollectionStrategy.equals(SAXCollectionStrategy.CLASSIC)) {
+    if (saxCollectionStrategy.equals(SAXNumerosityReductionStrategy.CLASSIC)) {
       sb.append("CLASSIC,");
     }
-    else if (saxCollectionStrategy.equals(SAXCollectionStrategy.EXACT)) {
+    else if (saxCollectionStrategy.equals(SAXNumerosityReductionStrategy.EXACT)) {
       sb.append("EXACT,");
     }
-    else if (saxCollectionStrategy.equals(SAXCollectionStrategy.NOREDUCTION)) {
+    else if (saxCollectionStrategy.equals(SAXNumerosityReductionStrategy.NOREDUCTION)) {
       sb.append("NOREDUCTION,");
     }
 

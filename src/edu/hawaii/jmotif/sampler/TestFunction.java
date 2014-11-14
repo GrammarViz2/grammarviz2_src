@@ -6,7 +6,7 @@
 package edu.hawaii.jmotif.sampler;
 import java.util.Random;
 import edu.hawaii.jmotif.direct.Point;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
 /**
  * Simple test function without analytical gradient or hessian
@@ -82,7 +82,7 @@ public class TestFunction implements Function, FunctionGradient, FunctionHessian
     }
 
     @Override
-    public SAXCollectionStrategy getSAXSamplingStrategy() {
+    public SAXNumerosityReductionStrategy getSAXSamplingStrategy() {
       // TODO Auto-generated method stub
       return null;
     }

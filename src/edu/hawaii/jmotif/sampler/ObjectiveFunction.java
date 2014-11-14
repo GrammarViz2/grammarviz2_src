@@ -8,7 +8,7 @@ package edu.hawaii.jmotif.sampler;
 import java.util.List;
 import java.util.Map;
 import edu.hawaii.jmotif.direct.Point;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
 /**
  * Function able to calculate its value, gradient and hessian at a certain point
@@ -45,7 +45,7 @@ public interface ObjectiveFunction extends Function, FunctionGradient, FunctionH
 
     void setLowerBounds(double[] parametersLowest);
 
-    void setStrategy(SAXCollectionStrategy noreduction);
+    void setStrategy(SAXNumerosityReductionStrategy noreduction);
 
     void setData(Map<String, List<double[]>> trainData, int i);
 }

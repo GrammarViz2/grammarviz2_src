@@ -5,7 +5,7 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
 public class PrintConsumer implements Consumer<ValuePointListTelemetryColored> {
 
@@ -24,13 +24,13 @@ public class PrintConsumer implements Consumer<ValuePointListTelemetryColored> {
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
-  public PrintConsumer(SAXCollectionStrategy strategy) {
+  public PrintConsumer(SAXNumerosityReductionStrategy strategy) {
     super();
     prefix = "NOREDUCTION";
-    if (strategy.equals(SAXCollectionStrategy.CLASSIC)) {
+    if (strategy.equals(SAXNumerosityReductionStrategy.CLASSIC)) {
       prefix = "CLASSIC";
     }
-    else if (strategy.equals(SAXCollectionStrategy.EXACT)) {
+    else if (strategy.equals(SAXNumerosityReductionStrategy.EXACT)) {
       prefix = "EXACT";
     }
   }

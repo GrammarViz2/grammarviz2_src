@@ -6,7 +6,7 @@ package edu.hawaii.jmotif.text;
  * @author Pavel Senin
  * 
  */
-public enum SAXCollectionStrategy {
+public enum SAXNumerosityReductionStrategy {
   /** Classic - the Lin's and Keogh's MINDIST based strategy. */
   CLASSIC(0),
 
@@ -21,7 +21,7 @@ public enum SAXCollectionStrategy {
 
   private final int index;
 
-  SAXCollectionStrategy(int index) {
+  SAXNumerosityReductionStrategy(int index) {
     this.index = index;
   }
 
@@ -40,14 +40,14 @@ public enum SAXCollectionStrategy {
    * @param value the key value.
    * @return the new Strategy instance.
    */
-  public static SAXCollectionStrategy fromValue(int value) {
+  public static SAXNumerosityReductionStrategy fromValue(int value) {
     switch (value) {
     case 0:
-      return SAXCollectionStrategy.CLASSIC;
+      return SAXNumerosityReductionStrategy.CLASSIC;
     case 1:
-      return SAXCollectionStrategy.EXACT;
+      return SAXNumerosityReductionStrategy.EXACT;
     case 2:
-      return SAXCollectionStrategy.NOREDUCTION;
+      return SAXNumerosityReductionStrategy.NOREDUCTION;
     default:
       throw new RuntimeException("Unknown index:" + value);
     }

@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 import edu.hawaii.jmotif.sax.SAXFactory;
 import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
-import edu.hawaii.jmotif.text.SAXCollectionStrategy;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 import edu.hawaii.jmotif.text.TextUtils;
 import edu.hawaii.jmotif.text.WordBag;
 import edu.hawaii.jmotif.timeseries.TSException;
@@ -25,14 +25,14 @@ public class UCRClassificationSeriesJob implements Callable<String> {
 
   private static final String COMMA = ",";
 
-  private SAXCollectionStrategy strategy;
+  private SAXNumerosityReductionStrategy strategy;
   private int windowSize;
   private int paaSize;
   private int alphabetSize;
   private Map<String, List<double[]>> trainData;
   private Map<String, List<double[]>> testData;
 
-  public UCRClassificationSeriesJob(SAXCollectionStrategy strategy, int windowSize, int paaSize,
+  public UCRClassificationSeriesJob(SAXNumerosityReductionStrategy strategy, int windowSize, int paaSize,
       int alphabetSize, Map<String, List<double[]>> testData, Map<String, List<double[]>> trainData) {
     this.strategy = strategy;
     this.windowSize = windowSize;
@@ -205,20 +205,20 @@ public class UCRClassificationSeriesJob implements Callable<String> {
     return res;
   }
 
-  private String getStrategy(SAXCollectionStrategy strategy) {
+  private String getStrategy(SAXNumerosityReductionStrategy strategy) {
     String strategyP = "noreduction";
-    if (SAXCollectionStrategy.EXACT.equals(strategy)) {
+    if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
       strategyP = "exact";
     }
-    if (SAXCollectionStrategy.CLASSIC.equals(strategy)) {
-      strategy = SAXCollectionStrategy.CLASSIC;
+    if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
+      strategy = SAXNumerosityReductionStrategy.CLASSIC;
       strategyP = "classic";
     }
     return strategyP;
   }
 
   private int classify(String classKey, double[] series,
-      HashMap<String, HashMap<String, Double>> tfidf, int[] params, SAXCollectionStrategy strategy)
+      HashMap<String, HashMap<String, Double>> tfidf, int[] params, SAXNumerosityReductionStrategy strategy)
       throws IndexOutOfBoundsException, TSException {
 
     WordBag test = seriesToWordBag("test", series, params, strategy);
@@ -272,7 +272,7 @@ public class UCRClassificationSeriesJob implements Callable<String> {
   }
 
   private WordBag seriesToWordBag(String label, double[] series, int[] params,
-      SAXCollectionStrategy strategy) throws IndexOutOfBoundsException, TSException {
+      SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException, TSException {
 
     Alphabet a = new NormalAlphabet();
 
@@ -289,12 +289,12 @@ public class UCRClassificationSeriesJob implements Callable<String> {
 
       char[] sax = ts2String(paa, a.getCuts(alphabetSize));
 
-      if (SAXCollectionStrategy.CLASSIC.equals(strategy)) {
+      if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
         if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
           continue;
         }
       }
-      else if (SAXCollectionStrategy.EXACT.equals(strategy)) {
+      else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
         if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
           continue;
         }
@@ -517,16 +517,16 @@ public class UCRClassificationSeriesJob implements Callable<String> {
     return ALPHABET[count];
   }
 
-  protected static String toLogStr(int[] params, SAXCollectionStrategy strategy, double accuracy,
+  protected static String toLogStr(int[] params, SAXNumerosityReductionStrategy strategy, double accuracy,
       double error) {
     StringBuffer sb = new StringBuffer();
-    if (strategy.equals(SAXCollectionStrategy.CLASSIC)) {
+    if (strategy.equals(SAXNumerosityReductionStrategy.CLASSIC)) {
       sb.append("CLASSIC,");
     }
-    else if (strategy.equals(SAXCollectionStrategy.EXACT)) {
+    else if (strategy.equals(SAXNumerosityReductionStrategy.EXACT)) {
       sb.append("EXACT,");
     }
-    else if (strategy.equals(SAXCollectionStrategy.NOREDUCTION)) {
+    else if (strategy.equals(SAXNumerosityReductionStrategy.NOREDUCTION)) {
       sb.append("NOREDUCTION,");
     }
     sb.append(params[0]).append(COMMA);

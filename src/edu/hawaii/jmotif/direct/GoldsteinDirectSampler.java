@@ -18,11 +18,11 @@ public class GoldsteinDirectSampler {
   // array with all rectangle side lengths in each dimension
   private static ArrayList<Double[]> lengthsSide;
 
-  // array with distances from centerpoint to the vertices
-  private static ArrayList<Double> diagonals;
+  // array with distances from center points to the vertices
+  private static ArrayList<Double> diagonalLength;
 
   // array vector of all different distances, sorted
-  private static ArrayList<Double> diagonalsDifferent;
+  private static ArrayList<Double> differentDiagonalLength;
 
   // array vector of minimum function value for each distance
   private static double[] diagonalsMinFunc;
@@ -33,6 +33,7 @@ public class GoldsteinDirectSampler {
   // array with sampled points and function value
   private static ArrayList<ValuePointColored> coordinates;
 
+  private static final double precision = 1E-16;
   private static int b = 0;
   private static double[] resultMinimum;
 
@@ -53,14 +54,14 @@ public class GoldsteinDirectSampler {
 
   public static void main(String[] args) {
 
-    int iterations = 1;
+    int iterations = 15;
 
     // the whole bunch of inits
     //
     centerPoints = new ArrayList<Double[]>();
     lengthsSide = new ArrayList<Double[]>();
-    diagonals = new ArrayList<Double>();
-    diagonalsDifferent = new ArrayList<Double>();
+    diagonalLength = new ArrayList<Double>();
+    differentDiagonalLength = new ArrayList<Double>();
     diagonalsMinFunc = new double[1];
     functionValues = new ArrayList<Double>();
     coordinates = new ArrayList<ValuePointColored>();
@@ -88,7 +89,7 @@ public class GoldsteinDirectSampler {
     centerPoints.add(scaledCenter);
     lengthsSide.add(lTmp);
     dTmp = Math.sqrt(dTmp);
-    diagonals.add(dTmp);
+    diagonalLength.add(dTmp);
     Point startingPoint = Point.at(realCenter);
 
     // sampling center point
@@ -102,11 +103,10 @@ public class GoldsteinDirectSampler {
     coordinates.add(minimum);
     diagonalsMinFunc[0] = minFunctionValue;
     functionValues.add(minFunctionValue);
-    diagonalsDifferent = diagonals;
+    differentDiagonalLength = diagonalLength;
 
     ArrayList<Integer> potentiallyOptimalRectangles = identifyPotentiallyRec();
 
-    System.out.println("whoa");
     // optimization loop
     //
     for (int ctr = 0; ctr < iterations; ctr++) {
@@ -141,33 +141,33 @@ public class GoldsteinDirectSampler {
     double e = Math.max(epsilon * Math.abs(minFunctionValue), 1E-8);
     double[] temporaryArray = new double[functionValues.size()];
     for (int i2 = 0; i2 < functionValues.size(); i2++) {
-      temporaryArray[i2] = (functionValues.get(i2) - minFunctionValue + e) / diagonals.get(i2);
+      temporaryArray[i2] = (functionValues.get(i2) - minFunctionValue + e) / diagonalLength.get(i2);
     }
     indexPotentialBestRec = (int) minimum(temporaryArray)[1];
 
-    diagonalsDifferent = diagonals;
+    differentDiagonalLength = diagonalLength;
     int i1 = 0;
     while (true) {
-      double diagonalTmp = diagonalsDifferent.get(i1);
-      int[] indx = findNegative(diagonalsDifferent, diagonalTmp);
-      ArrayList<Double> diagonalCopy = diagonalsDifferent;
-      diagonalsDifferent = new ArrayList<Double>();
-      diagonalsDifferent.add(diagonalTmp);
+      double diagonalTmp = differentDiagonalLength.get(i1);
+      Integer[] indx = findNonMatches(differentDiagonalLength, diagonalTmp);
+      ArrayList<Double> diagonalCopy = differentDiagonalLength;
+      differentDiagonalLength = new ArrayList<Double>();
+      differentDiagonalLength.add(diagonalTmp);
 
       for (int i2 = 1; i2 < indx.length + 1; i2++) {
-        diagonalsDifferent.add(diagonalCopy.get(indx[i2 - 1]));
+        differentDiagonalLength.add(diagonalCopy.get(indx[i2 - 1]));
       }
-      if (i1 + 1 == diagonalsDifferent.size()) {
+      if (i1 + 1 == differentDiagonalLength.size()) {
         break;
       }
       else {
         i1++;
       }
     }
-    Collections.sort(diagonalsDifferent);
-    diagonalsMinFunc = new double[diagonalsDifferent.size()];
-    for (i1 = 0; i1 < diagonalsDifferent.size(); i1++) {
-      Integer[] indx1 = find(diagonals, diagonalsDifferent.get(i1));
+    Collections.sort(differentDiagonalLength);
+    diagonalsMinFunc = new double[differentDiagonalLength.size()];
+    for (i1 = 0; i1 < differentDiagonalLength.size(); i1++) {
+      Integer[] indx1 = findMatches(diagonalLength, differentDiagonalLength.get(i1));
       ArrayList<Double> fTmp = new ArrayList<Double>();
       for (int i2 = 0; i2 < indx1.length; i2++) {
         fTmp.add(functionValues.get(indx1[i2]));
@@ -184,14 +184,19 @@ public class GoldsteinDirectSampler {
    * @param j
    */
   private static void samplingPotentialRec(int j) {
+
     double max_L = lengthsSide.get(j)[0], delta;
     Integer[] maxSideLengths;
 
+    // get the longest side
+    //
     for (int i1 = 0; i1 < lengthsSide.get(j).length; i1++) {
       max_L = Math.max(max_L, lengthsSide.get(j)[i1]);
     }
+
     // Identify the array maxSideLengths of dimensions with the maximum side length.
-    maxSideLengths = find(lengthsSide.get(j), max_L);
+    //
+    maxSideLengths = findMatches(lengthsSide.get(j), max_L);
     delta = 2 * max_L / 3;
     double[] w = new double[0];
     double i1;
@@ -227,7 +232,7 @@ public class GoldsteinDirectSampler {
       }
       // Transform c_m2 to original search space
       for (int i2 = 0; i2 < c_m2.length; i2++) {
-        x_m2[i2] = lowerBounds[i2] + c_m2[i2] * (upperBounds[i2] - upperBounds[i2]);
+        x_m2[i2] = lowerBounds[i2] + c_m2[i2] * (upperBounds[i2] - lowerBounds[i2]);
       }
 
       // Function value at x_m2
@@ -267,6 +272,7 @@ public class GoldsteinDirectSampler {
    */
 
   private static void devideRec(double[] w, Integer[] maxSideLengths, double delta, int j) {
+    
     double[][] ab = sort(w);
 
     for (int ii = 0; ii < maxSideLengths.length; ii++) {
@@ -303,76 +309,80 @@ public class GoldsteinDirectSampler {
         lengthsSide.set(index2, lTmp2);
       }
 
-      diagonals.set(j, 0.0);
+      diagonalLength.set(j, 0.0);
       Double dTmp;
       for (int i2 = 0; i2 < lengthsSide.get(j).length; i2++) {
-        dTmp = diagonals.get(j) + lengthsSide.get(j)[i2] * lengthsSide.get(j)[i2];
-        diagonals.set(j, dTmp);
+        dTmp = diagonalLength.get(j) + lengthsSide.get(j)[i2] * lengthsSide.get(j)[i2];
+        diagonalLength.set(j, dTmp);
       }
-      diagonals.set(j, Math.sqrt(diagonals.get(j)));
-      dTmp = diagonals.get(j);
-      Double d_kop2 = diagonals.get(j);
-      if (index == diagonals.size() + 2) {
-        diagonals.add(dTmp);
-        diagonals.add(d_kop2);
+      diagonalLength.set(j, Math.sqrt(diagonalLength.get(j)));
+      dTmp = diagonalLength.get(j);
+      Double d_kop2 = diagonalLength.get(j);
+      if (index == diagonalLength.size() + 2) {
+        diagonalLength.add(dTmp);
+        diagonalLength.add(d_kop2);
       }
       else {
         Double dTmp3;
-        int size = diagonals.size();
+        int size = diagonalLength.size();
         for (int i2 = 0; i2 < index - size; i2++) {
           dTmp3 = 0.0;
-          diagonals.add(dTmp3);
+          diagonalLength.add(dTmp3);
         }
-        diagonals.set(index1, diagonals.get(j));
-        diagonals.set(index2, diagonals.get(j));
+        diagonalLength.set(index1, diagonalLength.get(j));
+        diagonalLength.set(index2, diagonalLength.get(j));
       }
     }
     rectangleCounter = rectangleCounter + 2 * maxSideLengths.length;
   }
 
   /**
-   * Identify the set of all potentially optimal rectangles
-   * 
-   * @return
+   * Identify the set of all potentially optimal rectangles.
    */
   private static ArrayList<Integer> identifyPotentiallyRec() {
 
-    double tolle2 = 1E-12;
+    double localPrecision = 1E-12;
 
-    ArrayList<Integer> s_2 = new ArrayList<Integer>();
-    ArrayList<Integer> s_3 = new ArrayList<Integer>();
-
-    Integer[] indx = find(diagonalsDifferent, diagonals.get(indexPotentialBestRec));
+    // find rectangles with the same diagonal
+    //
+    Integer[] sameDiagonalIdxs = findMatches(differentDiagonalLength,
+        diagonalLength.get(indexPotentialBestRec));
 
     ArrayList<Integer> s_1 = new ArrayList<Integer>();
-    Integer[] idx2;
-    for (int i1 = indx[0]; i1 < diagonalsDifferent.size(); i1++) {
-      Integer[] indx3 = (find(functionValues, diagonalsMinFunc[i1]));
-      Integer[] indx4 = (find(diagonals, diagonalsDifferent.get(i1)));
-      idx2 = find(indx3, indx4);
-
+    for (int i = sameDiagonalIdxs[0]; i < differentDiagonalLength.size(); i++) {
+      Integer[] indx3 = findMatches(functionValues, diagonalsMinFunc[i]);
+      Integer[] indx4 = findMatches(diagonalLength, differentDiagonalLength.get(i));
+      Integer[] idx2 = findArrayIntersection(indx3, indx4);
       s_1.addAll(Arrays.asList(idx2));
     }
+
     // s_1 now includes all rectangles i, with diagonals[i] >= diagonals(indexPotentialBestRec)
-    if (diagonalsDifferent.size() - indx[0] > 2) {
-      double a1 = diagonals.get(indexPotentialBestRec), a2 = diagonalsDifferent
-          .get(diagonalsDifferent.size() - 1), b1 = functionValues.get(indexPotentialBestRec), b2 = diagonalsMinFunc[diagonalsDifferent
+    //
+    ArrayList<Integer> s_2 = new ArrayList<Integer>();
+    ArrayList<Integer> s_3 = new ArrayList<Integer>();
+    if (differentDiagonalLength.size() - sameDiagonalIdxs[0] > 2) {
+
+      double a1 = diagonalLength.get(indexPotentialBestRec), a2 = differentDiagonalLength
+          .get(differentDiagonalLength.size() - 1), b1 = functionValues.get(indexPotentialBestRec), b2 = diagonalsMinFunc[differentDiagonalLength
           .size() - 1];
+
       // The line is defined by: y = slope*x + const
       double slope = (b2 - b1) / (a2 - a1);
       double consta = b1 - slope * a1;
+
       for (int i1 = 0; i1 < s_1.size(); i1++) {
         int j = s_1.get(i1).intValue();
-        if (functionValues.get(j) <= slope * diagonals.get(j) + consta + tolle2) {
+        if (functionValues.get(j) <= slope * diagonalLength.get(j) + consta + localPrecision) {
           s_2.add(j);
         }
       }
-      // s_2 now contains all points in S_1 which lies on or below the line
+
+      // s_2 now contains all points in S_1 which lie on or below the line
       // Find the points on the convex hull defined by the points in s_2
       double[] xx = new double[s_2.size()];
       double[] yy = new double[s_2.size()];
       for (int i1 = 0; i1 < xx.length; i1++) {
-        xx[i1] = diagonals.get(s_2.get(i1).intValue());
+        xx[i1] = diagonalLength.get(s_2.get(i1).intValue());
         yy[i1] = functionValues.get(s_2.get(i1).intValue());
       }
       double[] h = conhull(xx, yy);
@@ -387,74 +397,7 @@ public class GoldsteinDirectSampler {
   }
 
   /**
-   * returns array with elements which pole[i]==cislo points sampled.
-   * 
-   * @param array
-   * @param cislo
-   * @return
-   */
-  private static Integer[] find(Double[] array, double value) {
-
-    ArrayList<Integer> res = new ArrayList<Integer>();
-
-    double precision = 1E-16;
-
-    for (int i = 0; i < array.length; i++) {
-      if (Math.abs(array[i] - value) <= precision) {
-        res.add(i);
-      }
-    }
-    return res.toArray(new Integer[res.size()]);
-  }
-
-  /**
-   * Returns an array with elements which pole[i]==cislo points sampled.
-   * 
-   * @param array
-   * @param value
-   * @return
-   */
-  private static Integer[] find(ArrayList<Double> array, double value) {
-
-    ArrayList<Integer> res = new ArrayList<Integer>();
-
-    double precision = 1E-16;
-    for (int i = 0; i < array.size(); i++) {
-      if (Math.abs(array.get(i) - value) <= precision) {
-        res.add(i);
-      }
-    }
-    return res.toArray(new Integer[res.size()]);
-  }
-
-  /**
-   * Returns arrays intersection.
-   * 
-   * @param arr1
-   * @param arr2
-   * @return
-   */
-  private static Integer[] find(Integer[] arr1, Integer[] arr2) {
-
-    ArrayList<Integer> res = new ArrayList<Integer>();
-
-    for (int i1 = 0; i1 < arr1.length; i1++) {
-      for (int i2 = 0; i2 < arr2.length; i2++) {
-        if (arr1[i1] == arr2[i2]) {
-          res.add(arr2[i2]);
-        }
-      }
-    }
-
-    return res.toArray(new Integer[res.size()]);
-  }
-
-  /**
-   * conhull returns all points on the convex hull, even redundant ones.
-   * 
-   * @param x
-   * @param y
-   * @return
+   * Finds all points on the convex hull, even redundant ones.
    */
   private static double[] conhull(double[] x, double[] y) {
     int m = x.length;
@@ -570,19 +513,15 @@ public class GoldsteinDirectSampler {
   }
 
   /**
-   * returns previous point if the first then the last
-   * 
-   * @param v
-   * @param m
-   * @return
+   * M is the size, v is the index, returns the previous index value.
    */
-  private static int pred(int v, int m) {
-    if ((v + 1) == 1) {
-      return m - 1;
+  private static int pred(int idx, int size) {
+    if ((idx + 1) == 1) {
+      return size - 1;
     }
     else {
-      if ((v + 1) > 1) {
-        return (v - 1);
+      if ((idx + 1) > 1) {
+        return (idx - 1);
       }
       else {
         return -1;
@@ -593,94 +532,111 @@ public class GoldsteinDirectSampler {
   /**
    * returns sorted array and the original indicies
    * 
-   * @param pole
+   * @param array
    * @return
    */
-  private static double[][] sort(double[] pole) {
-    double[][] pole1 = new double[3][pole.length];
-    double[][] pole2 = new double[2][pole.length];
-    System.arraycopy(pole, 0, pole1[0], 0, pole.length);
-    Arrays.sort(pole);
-    for (int i = 0; i < pole.length; i++) {
-      for (int i1 = 0; i1 < pole.length; i1++) {
-        if (pole[i] == pole1[0][i1] && pole1[2][i1] != 1) {
-          pole1[2][i1] = 1;
-          pole1[1][i] = i1;
+  private static double[][] sort(double[] array) {
+    double[][] arr1 = new double[3][array.length];
+    double[][] arr2 = new double[2][array.length];
+    System.arraycopy(array, 0, arr1[0], 0, array.length);
+    Arrays.sort(array);
+    for (int i = 0; i < array.length; i++) {
+      for (int i1 = 0; i1 < array.length; i1++) {
+        if (array[i] == arr1[0][i1] && arr1[2][i1] != 1) {
+          arr1[2][i1] = 1;
+          arr1[1][i] = i1;
           break;
         }
       }
     }
-    pole2[0] = pole;
-    pole2[1] = pole1[1];
-    return pole2;
+    arr2[0] = array;
+    arr2[1] = arr1[1];
+    return arr2;
   }
 
   /**
-   * returns array with minimum and the original indicies
-   * 
-   * @param pole
-   * @return
+   * Finds an index and a minimal value of an array.
    */
-  private static double[] minimum(double[] pole) {
-    double[] pole1 = new double[2];
-    double min = pole[0];
-    pole1[1] = 0;
-    pole1[0] = min;
-    for (int i = 0; i < pole.length; i++) {
-      if (min > pole[i]) {
-        min = pole[i];
-        pole1[1] = i;
-        pole1[0] = min;
+  private static double[] minimum(double[] array) {
+    Double min = array[0];
+    double[] res = { min, 0.0 };
+    for (int i = 0; i < array.length; i++) {
+      if (min > array[i]) {
+        min = array[i];
+        res[0] = min;
+        res[1] = i;
       }
     }
-
-    return pole1;
+    return res;
   }
 
   /**
-   * returns array with minimum and the original indicies
-   * 
-   * @param pole
-   * @return
+   * Finds an index and a minimal value of an array.
    */
-  private static double[] minimum(ArrayList<Double> pole) {
-    double[] pole1 = new double[2];
-    double min = pole.get(0);
-    pole1[1] = 0;
-    pole1[0] = min;
-    for (int i = 0; i < pole.size(); i++) {
-      if (min > pole.get(i)) {
-        min = pole.get(i);
-        pole1[1] = i;
-        pole1[0] = min;
+  private static double[] minimum(ArrayList<Double> array) {
+    Double min = array.get(0);
+    double[] res = { min, 0.0 };
+    for (int i = 0; i < array.size(); i++) {
+      if (min > array.get(i)) {
+        min = array.get(i);
+        res[0] = min;
+        res[1] = i;
       }
     }
-
-    return pole1;
+    return res;
   }
 
   /**
-   * returns array with elements which pole[i]!=cislo points sampled.
-   * 
-   * @param pole
-   * @param cislo
-   * @return
+   * Finds matches.
    */
-  private static int[] findNegative(ArrayList<Double> pole, double cislo) {
-    double tolle = 1E-16;
-    int pocet = 0, pom = 0;
-    for (int i = 0; i < pole.size(); i++) {
-      if (Math.abs(pole.get(i) - cislo) > tolle) {
-        pocet++;
+  private static Integer[] findMatches(Double[] array, double value) {
+    ArrayList<Integer> res = new ArrayList<Integer>();
+    for (int i = 0; i < array.length; i++) {
+      if (Math.abs(array[i] - value) <= precision) {
+        res.add(i);
       }
     }
-    int[] pole1 = new int[pocet];
-    for (int i = 0; i < pole.size(); i++) {
-      if (Math.abs(pole.get(i) - cislo) > tolle) {
-        pole1[pom] = i;
-        pom++;
+    return res.toArray(new Integer[res.size()]);
+  }
+
+  /**
+   * Finds matches.
+   */
+  private static Integer[] findMatches(ArrayList<Double> array, double value) {
+    ArrayList<Integer> res = new ArrayList<Integer>();
+    for (int i = 0; i < array.size(); i++) {
+      if (Math.abs(array.get(i) - value) <= precision) {
+        res.add(i);
       }
     }
-    return pole1;
+    return res.toArray(new Integer[res.size()]);
+  }
+
+  /**
+   * Finds array elements that are not equal to the value up to threshold.
+   */
+  private static Integer[] findNonMatches(ArrayList<Double> array, double value) {
+    ArrayList<Integer> res = new ArrayList<Integer>();
+    for (int i = 0; i < array.size(); i++) {
+      if (Math.abs(array.get(i) - value) > precision) {
+        res.add(i);
+      }
+    }
+    return res.toArray(new Integer[res.size()]);
+  }
+
+  /**
+   * Returns arrays intersection.
+   */
+  private static Integer[] findArrayIntersection(Integer[] arr1, Integer[] arr2) {
+    ArrayList<Integer> res = new ArrayList<Integer>();
+    for (int i1 = 0; i1 < arr1.length; i1++) {
+      for (int i2 = 0; i2 < arr2.length; i2++) {
+        if (arr1[i1] == arr2[i2]) {
+          res.add(arr2[i2]);
+        }
+      }
+    }
+    return res.toArray(new Integer[res.size()]);
   }
 }

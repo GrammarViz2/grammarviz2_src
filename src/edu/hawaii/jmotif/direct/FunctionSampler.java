@@ -2,13 +2,13 @@ package edu.hawaii.jmotif.direct;
 
 public class FunctionSampler {
 
-  private static final double X1_START = -2.0;
-  private static final double X1_END = 2.0;
+  private static final double X1_START = -10.0;
+  private static final double X1_END = 10.0;
 
-  private static final double X2_START = -2.0;
-  private static final double X2_END = 2.0;
+  private static final double X2_START = -10.0;
+  private static final double X2_END = 10.0;
 
-  private static final double step = 0.1;
+  private static final double step = 0.5;
 
   public static void main(String[] args) {
 
@@ -17,14 +17,12 @@ public class FunctionSampler {
 
     while ((x1 < X1_END) && (x2 < X2_END)) {
 
-      double value = GoldsteinPriceFunc.compute(x1, x2);
-
-      System.out.println(x1 + ", " + x2 + ", " + value);
+      double value = ShubertFunc.compute(x1, x2);
 
       // increment variable values
       //
       x1 = x1 + step;
-      if (x1 > X1_END && x2 < X2_END) {
+      if ((x1 >= X1_END) && (x2 < X2_END)) {
         x1 = X1_START;
         x2 = x2 + step;
       }

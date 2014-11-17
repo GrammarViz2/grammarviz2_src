@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.saxvsm.cbf;
+package edu.hawaii.jmotif.examples.cbf;
 
 import edu.hawaii.jmotif.util.StdRandom;
 

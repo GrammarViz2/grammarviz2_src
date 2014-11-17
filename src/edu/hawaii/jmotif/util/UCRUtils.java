@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.saxvsm;
+package edu.hawaii.jmotif.util;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -44,12 +44,8 @@
  <!-- The compile classpath  -->
  <path id="compile.classpath">
   <fileset file="${lib.dir}/junit/junit-4.10.jar" />
-  <fileset file="${lib.dir}/DTW/fast-dtw.jar" />
-  <fileset dir="${lib.dir}/JFreeChart" />
   <fileset dir="${lib.dir}/time" />
   <fileset dir="${lib.dir}/logger" />
-  <fileset dir="${lib.dir}/SwingX" />
-  <fileset dir="${lib.dir}/miglayout" />
  </path>
 
  <!-- The Travis CI-specific system test, so far I have only JUnit here.  -->

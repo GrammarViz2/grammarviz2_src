@@ -6,7 +6,7 @@
  <import file="build.xml" />
  <property name="tmp.dir" location="${basedir}/tmp" />
 
- <target name="jar" depends="clean, compile" description="Create the grammarviz20.jar.">
+ <target name="jar" depends="clean, compile" description="Create the sax-vsm-classic.jar.">
 
   <!-- make sure to include dependencies into dep.jar -->
   <delete dir="${tmp.dir}" />
@@ -18,25 +18,19 @@
    <fileset dir="${basedir}/build/classes/">
     <include name="edu/hawaii/jmotif/**" />
    </fileset>
-   <fileset dir="${basedir}/resources" />
   </copy>
 
-  <unjar src="${lib.dir}/JFreeChart/jcommon-1.0.16.jar" dest="${tmp.dir}" />
-  <unjar src="${lib.dir}/JFreeChart/jfreechart-1.0.13.jar" dest="${tmp.dir}" />
-  <unjar src="${lib.dir}/SwingX/swingx-all-1.6.4.jar" dest="${tmp.dir}" />
-  <unjar src="${lib.dir}/miglayout/miglayout-4.0.jar" dest="${tmp.dir}" />
-  <unjar src="${lib.dir}/DTW/fast-dtw.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/logger/logback-classic-1.1.2.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/logger/logback-core-1.1.2.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/logger/slf4j-api-1.7.7.jar" dest="${tmp.dir}" />
   <unjar src="${lib.dir}/time/joda-time-2.1.jar" dest="${tmp.dir}" />
 
-  <jar destfile="${basedir}/grammarviz${majorVersionNumber}${minorVersionNumber}.jar" basedir="${tmp.dir}">
+  <jar destfile="${basedir}/sax-vsm-classic${majorVersionNumber}${minorVersionNumber}.jar" basedir="${tmp.dir}">
    <manifest>
-    <attribute name="Implementation-Title" value="GrammarViz" />
+    <attribute name="Implementation-Title" value="SAX-VSM Classic" />
     <attribute name="Implementation-Version" value="${version}" />
     <attribute name="Implementation-Vendor" value="Collaborative Software Development Laboratory, University of Hawaii" />
-    <attribute name="Main-Class" value="edu.hawaii.jmotif.grammarviz.GrammarVizGUI" />
+    <attribute name="Main-Class" value="edu.hawaii.jmotif.direct.DirectSampler" />
    </manifest>
   </jar>
   <delete dir="${tmp.dir}" />

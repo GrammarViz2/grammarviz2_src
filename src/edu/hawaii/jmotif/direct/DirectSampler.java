@@ -246,11 +246,14 @@ public class DirectSampler {
 
     // generally, we want a shorter window
     //
+    StringBuffer sb = new StringBuffer();
     double minValue = resultMinimum[0];
+    sb.append("min CV error ").append(fmt.format(minValue)).append(" reached at ");
     Point params = null;
     for (ValuePointColored p : coordinates) {
       if (minValue == p.getValue()) {
         Point new_params = p.getPoint();
+        sb.append(Arrays.toString(new_params.toIntArray())).append(COMMA);
         if (null == params) {
           params = new_params;
         }
@@ -260,9 +263,11 @@ public class DirectSampler {
       }
     }
 
-    double[] res = params.toArray();
-    return new int[] { (int) Math.round(res[0]), (int) Math.round(res[1]),
-        (int) Math.round(res[2]), strategy.index() };
+    consoleLogger.info(sb.toString());
+
+    int[] res = Arrays.copyOf(params.toIntArray(), 4);
+    res[3] = strategy.index();
+    return res;
   }
 
   private static void update() {

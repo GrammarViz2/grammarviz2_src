@@ -124,4 +124,12 @@ public class Point {
     hash = 89 * hash + (this.array != null ? this.array.hashCode() : 0);
     return hash;
   }
+
+  public int[] toIntArray() {
+    int[] res = new int[array.length];
+    for (int i = 0; i < array.length; i++) {
+      res[i] = (int) Math.round(array[i]);
+    }
+    return res;
+  }
 }

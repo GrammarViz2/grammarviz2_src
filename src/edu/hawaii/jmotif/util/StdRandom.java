@@ -120,15 +120,6 @@ public final class StdRandom {
   // /////////////////////////////////////////////////////////////////////////
 
   /**
-   * Returns a real number uniformly in [0, 1).
-   * 
-   * @deprecated clearer to use {@link #uniform()}
-   */
-  public static double random() {
-    return uniform();
-  }
-
-  /**
    * Returns an integer uniformly in [a, b).
    * 
    * @throws IllegalArgumentException if <tt>b <= a</tt>

@@ -1,11 +1,11 @@
 package edu.hawaii.jmotif.direct;
 
-import edu.hawaii.jmotif.sampler.Function;
-
 /**
  * Created by IntelliJ IDEA. User: Carnuss Date: 3.5.2010 Time: 12:24:44 An immutable point wrapper
  * to represent the value of a function at a specified point, with variable best. The immutability
  * makes this class threadsafe.
+ * 
+ * @author psenin
  */
 public class ValuePointColored implements Comparable<ValuePoint> {
   private final Point point;
@@ -44,16 +44,6 @@ public class ValuePointColored implements Comparable<ValuePoint> {
    */
   public static ValuePointColored at(Point p, double value, boolean best) {
     return new ValuePointColored(p, value, best);
-  }
-
-  /**
-   * 
-   * @param p
-   * @param function
-   * @return
-   */
-  public static ValuePointColored at(Point p, Function function) {
-    return ValuePointColored.at(p, function.valueAt(p), false);
   }
 
   /**

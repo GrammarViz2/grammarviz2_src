@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.saxvsm.cbf;
+package edu.hawaii.jmotif.direct;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,17 +19,17 @@ public class UCRcbfWebProper extends UCRGenericClassifier {
 
   // data locations
   //
-  //private static final String TRAINING_DATA = "data/cbf/CBF_TRAIN";
-  //private static final String TEST_DATA = "data/cbf/CBF_TEST";
-  private static final String TRAINING_DATA = "data/synthetic_control/synthetic_control_TRAIN";
-  private static final String TEST_DATA = "data/synthetic_control/synthetic_control_TEST";
+  // private static final String TRAINING_DATA = "data/cbf/CBF_TRAIN";
+  // private static final String TEST_DATA = "data/cbf/CBF_TEST";
+  private static final String TRAINING_DATA = "data/Beef/Beef_TRAIN";
+  private static final String TEST_DATA = "data/Beef/Beef_TEST";
+  // private static final String TRAINING_DATA = "data/synthetic_control/synthetic_control_TRAIN";
+  // private static final String TEST_DATA = "data/synthetic_control/synthetic_control_TEST";
   // SAX parameters to iterate over
   //
-  private static final int[][] params = {
-    { 43,8,5, NOREDUCTION }, { 43,8,5, EXACT }, { 43,8,5, CLASSIC },
-    { 55,8,5, NOREDUCTION }, { 55,8,5, EXACT }, { 55,8,5, CLASSIC },
-    { 65, 5, 10, NOREDUCTION }, { 65, 5, 10, EXACT }, { 65, 5, 10, CLASSIC },
-    { 65, 8, 5, NOREDUCTION }, { 65, 8, 5, EXACT }, { 65, 8, 5, CLASSIC } };
+  private static final int[][] params = { { 393, 35, 9, NOREDUCTION }, { 393, 35, 9, EXACT },
+      { 393, 35, 9, CLASSIC }, { 60, 11, 6, NOREDUCTION }, { 60, 11, 6, EXACT },
+      { 60, 11, 6, CLASSIC }, };
 
   /**
    * Runnable.
@@ -69,55 +69,7 @@ public class UCRcbfWebProper extends UCRGenericClassifier {
       // System.out.println(TextUtils.bagsToTable(bags));
 
       // normalize vectors
-      tfidf = TextUtils.normalizeToUnitVectors(tfidf);
-
-      // pairwise words
-      int areaBell = 0;
-      int areaFunnel = 0;
-      int areaCylinder = 0;
-      int nCB = 0;
-      int nCF = 0;
-      int nBF = 0;
-      int nCBF = 0;
-
-      for (String w : tfidf.get("1").keySet()) {
-        // cylinder
-        if (tfidf.get("1").get(w) > 0) {
-          areaCylinder++;
-        }
-        // bell
-        if (tfidf.get("2").get(w) > 0) {
-          areaBell++;
-        }
-        // funnel
-        if (tfidf.get("3").get(w) > 0) {
-          areaFunnel++;
-        }
-        // pairs
-        if (tfidf.get("1").get(w) > 0 && tfidf.get("2").get(w) > 0) {
-          nCB++;
-        }
-        if (tfidf.get("2").get(w) > 0 && tfidf.get("3").get(w) > 0) {
-          nBF++;
-        }
-        if (tfidf.get("1").get(w) > 0 && tfidf.get("3").get(w) > 0) {
-          nCF++;
-        }
-        // all together
-        if (tfidf.get("1").get(w) > 0 && tfidf.get("2").get(w) > 0 && tfidf.get("3").get(w) > 0) {
-          nCBF++;
-        }
-      }
-
-//      System.out.println("areaBell=" + areaBell);
-//      System.out.println("areaFunnel=" + areaFunnel);
-//      System.out.println("areaCylinder=" + areaCylinder);
-//      System.out.println("nCB=" + nCB);
-//      System.out.println("nCF=" + nCF);
-//      System.out.println("nBF=" + nBF);
-//      System.out.println("nCBF=" + nCBF);
-
-      // System.out.println(TextUtils.tfidfToTable(tfidf));
+      // tfidf = TextUtils.normalizeToUnitVectors(tfidf);
 
       // classifying
       int testSampleSize = 0;

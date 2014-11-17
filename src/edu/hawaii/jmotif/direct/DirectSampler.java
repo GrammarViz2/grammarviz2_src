@@ -13,19 +13,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.saxvsm.UCRUtils;
 import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
+import edu.hawaii.jmotif.text.TextUtils;
+import edu.hawaii.jmotif.text.WordBag;
+import edu.hawaii.jmotif.timeseries.TSException;
 
-public class GoldsteinDirectSamplerExperiment {
-
-  // SAX parameters to use
-  //
-  private static final int WINDOW_MIN = 0;
-  private static final int WINDOW_MAX = 60;
-
-  private static final int PAA_MIN = 2;
-  private static final int PAA_MAX = 40;
-
-  private static final int ALPHABET_MIN = 2;
-  private static final int ALPHABET_MAX = 18;
+public class DirectSampler {
 
   // array with all rectangle centerpoints
   private static ArrayList<Double[]> centerPoints;
@@ -61,20 +53,17 @@ public class GoldsteinDirectSamplerExperiment {
   // init bounds
   //
   private static int dimensions = 3;
-  private static double[] lowerBounds = { WINDOW_MIN, PAA_MIN, ALPHABET_MIN };
-  private static double[] upperBounds = { WINDOW_MAX, PAA_MAX, ALPHABET_MAX };
 
-  private static final String TRAINING_DATA = "data/synthetic_control/synthetic_control_TRAIN";
-
-  private static final int HOLD_OUT_NUM = 1;
   private static SAXVSMCVErrorFunction function;
 
   // static block - we instantiate the logger
   //
   private static final Logger consoleLogger;
-  private static final Level LOGGING_LEVEL = Level.DEBUG;
+  private static final Level LOGGING_LEVEL = Level.INFO;
+
+  private static final Object COMMA = ", ";
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GoldsteinDirectSamplerExperiment.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(DirectSampler.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -82,21 +71,98 @@ public class GoldsteinDirectSamplerExperiment {
   private static ValuePointColored minimum = ValuePointColored.at(Point.at(0),
       Double.POSITIVE_INFINITY, false);
 
-  public static void main(String[] args) throws IOException {
+  private static int[] upperBounds;
+  private static int[] lowerBounds;
+  private static String TRAINING_DATA;
+  private static String TEST_DATA;
+  private static int HOLD_OUT_NUM = 1;
+  private static int ITERATIONS_NUM = 1;
 
-    int iterations = 45;
+  private static Map<String, List<double[]>> trainData;
+  private static Map<String, List<double[]>> testData;
 
-    Map<String, List<double[]>> trainData = UCRUtils.readUCRData(TRAINING_DATA);
-    consoleLogger.debug("reading file: " + TRAINING_DATA);
-    consoleLogger.debug("trainData classes: " + trainData.size() + ", series length: "
-        + trainData.entrySet().iterator().next().getValue().get(0).length);
-    for (Entry<String, List<double[]>> e : trainData.entrySet()) {
-      consoleLogger.debug(" training class: " + e.getKey() + " series: " + e.getValue().size());
+  public static void main(String[] args) throws IOException, IndexOutOfBoundsException, TSException {
+
+    try {
+      // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout, Iterations
+      consoleLogger.info("processing paramleters: " + Arrays.toString(args));
+
+      TRAINING_DATA = args[0];
+      TEST_DATA = args[1];
+      trainData = UCRUtils.readUCRData(TRAINING_DATA);
+      consoleLogger.info("trainData classes: " + trainData.size() + ", series length: "
+          + trainData.entrySet().iterator().next().getValue().get(0).length);
+      for (Entry<String, List<double[]>> e : trainData.entrySet()) {
+        consoleLogger.info(" training class: " + e.getKey() + " series: " + e.getValue().size());
+      }
+      testData = UCRUtils.readUCRData(TEST_DATA);
+      consoleLogger.info("testData classes: " + testData.size() + ", series length: "
+          + testData.entrySet().iterator().next().getValue().get(0).length);
+      for (Entry<String, List<double[]>> e : testData.entrySet()) {
+        consoleLogger.info(" test class: " + e.getKey() + " series: " + e.getValue().size());
+      }
+
+      // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout, Iterations
+      lowerBounds = new int[] { Integer.valueOf(args[2]).intValue(),
+          Integer.valueOf(args[4]).intValue(), Integer.valueOf(args[6]).intValue() };
+      upperBounds = new int[] { Integer.valueOf(args[3]).intValue(),
+          Integer.valueOf(args[5]).intValue(), Integer.valueOf(args[7]).intValue() };
+
+      // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout, Iterations
+      HOLD_OUT_NUM = Integer.valueOf(args[8]);
+      ITERATIONS_NUM = Integer.valueOf(args[9]);
+    }
+    catch (Exception e) {
+      System.err.println("There was parameters error....");
+      System.exit(-10);
     }
 
-    function = new SAXVSMCVErrorFunction(trainData, HOLD_OUT_NUM,
-        SAXNumerosityReductionStrategy.EXACT);
+    consoleLogger.info("running sampling for " + SAXNumerosityReductionStrategy.CLASSIC.toString()
+        + " strategy...");
+    int[] classicParams = sample(SAXNumerosityReductionStrategy.CLASSIC);
 
+    consoleLogger.info("running sampling for " + SAXNumerosityReductionStrategy.EXACT.toString()
+        + " strategy...");
+    int[] exactParams = sample(SAXNumerosityReductionStrategy.EXACT);
+
+    consoleLogger.info("running sampling for "
+        + SAXNumerosityReductionStrategy.NOREDUCTION.toString() + " strategy...");
+    int[] noredParams = sample(SAXNumerosityReductionStrategy.NOREDUCTION);
+
+    classify(classicParams);
+    classify(exactParams);
+    classify(noredParams);
+  }
+
+  private static void classify(int[] params) throws IndexOutOfBoundsException, TSException {
+    // making training bags collection
+    List<WordBag> bags = TextUtils.labeledSeries2WordBags(trainData, params);
+    // getting TFIDF done
+    HashMap<String, HashMap<String, Double>> tfidf = TextUtils.computeTFIDF(bags);
+    // classifying
+    int testSampleSize = 0;
+    int positiveTestCounter = 0;
+    for (String label : tfidf.keySet()) {
+      List<double[]> testD = testData.get(label);
+      for (double[] series : testD) {
+        positiveTestCounter = positiveTestCounter
+            + TextUtils.classify(label, series, tfidf, params);
+        testSampleSize++;
+      }
+    }
+
+    // accuracy and error
+    double accuracy = (double) positiveTestCounter / (double) testSampleSize;
+    double error = 1.0d - accuracy;
+
+    // report results
+    consoleLogger.info("classification results: " + toLogStr(params, accuracy, error));
+
+  }
+
+  private static int[] sample(SAXNumerosityReductionStrategy strategy) {
+
+    function = new SAXVSMCVErrorFunction(trainData, HOLD_OUT_NUM, strategy);
     // the whole bunch of inits
     //
     centerPoints = new ArrayList<Double[]>();
@@ -122,7 +188,7 @@ public class GoldsteinDirectSamplerExperiment {
     Double dTmp = 0.0;
     Double[] cooTmp = new Double[dimensions];
 
-    // transform the domain into the unit hyper-cube
+    // transform the domain into the unit hyper-cube
     //
     for (int i = 0; i < dimensions; i++) {
       scaledCenter[i] = 0.5;
@@ -153,7 +219,13 @@ public class GoldsteinDirectSamplerExperiment {
 
     // optimization loop
     //
-    for (int ctr = 0; ctr < iterations; ctr++) {
+    for (int ctr = 0; ctr < ITERATIONS_NUM; ctr++) {
+      resultMinimum = minimum(functionValues);
+      double[] params = coordinates.get((int) resultMinimum[1]).getPoint().toArray();
+      consoleLogger.info(
+          "iteration: " + ctr + ", minimal value " + resultMinimum[0] + " at "
+              + (int) Math.round(params[0]) + ", " + (int) Math.round(params[1]) + ", "
+              + (int) Math.round(params[2]), strategy.index());
       potentiallyOptimalRectangles = identifyPotentiallyRec();
       // For each potentially optimal rectangle
       for (int jj = 0; jj < potentiallyOptimalRectangles.size(); jj++) {
@@ -162,12 +234,14 @@ public class GoldsteinDirectSamplerExperiment {
       }
       update();
     }
+    resultMinimum = minimum(functionValues);
+    double[] params = coordinates.get((int) resultMinimum[1]).getPoint().toArray();
+    return new int[] { (int) Math.round(params[0]), (int) Math.round(params[1]),
+        (int) Math.round(params[2]), strategy.index() };
   }
 
   private static void update() {
     resultMinimum = minimum(functionValues);
-    consoleLogger.debug("** minimal value " + resultMinimum[0] + " at "
-        + Arrays.toString(coordinates.get((int) resultMinimum[1]).getPoint().toArray()));
     // getting minimum and giving it at last points
     minFunctionValue = resultMinimum[0];
     minimum.setBest(false);
@@ -276,7 +350,7 @@ public class GoldsteinDirectSamplerExperiment {
         saveCache(pointToSample1, f_m1, functionHash);
       }
       else {
-        System.out.println("** saved the computation at "
+        consoleLogger.debug("** saved the computation at "
             + Arrays.toString(pointToSample1.toArray()));
       }
       // add to all points
@@ -301,7 +375,7 @@ public class GoldsteinDirectSamplerExperiment {
         saveCache(pointToSample2, f_m2, functionHash);
       }
       else {
-        System.out.println("** saved the computation at "
+        consoleLogger.debug("** saved the computation at "
             + Arrays.toString(pointToSample2.toArray()));
       }
 
@@ -464,6 +538,10 @@ public class GoldsteinDirectSamplerExperiment {
         }
       }
 
+      if (0 == s_2.size()) {
+        return s_1;
+      }
+
       // s_2 now contains all points in S_1 which lie on or below the line
       // Find the points on the convex hull defined by the points in s_2
       double[] xx = new double[s_2.size()];
@@ -487,6 +565,7 @@ public class GoldsteinDirectSamplerExperiment {
    * Finds all points on the convex hull, even redundant ones.
    */
   private static double[] conhull(double[] x, double[] y) {
+    // System.out.println(Arrays.toString(x) + " : " + Arrays.toString(y));
     int m = x.length;
     double[] h;
     int start = 0, flag = 0, v, w, a, b, c, leftturn, j, k;
@@ -726,4 +805,25 @@ public class GoldsteinDirectSamplerExperiment {
     }
     return res.toArray(new Integer[res.size()]);
   }
+
+  protected static String toLogStr(int[] p, double accuracy, double error) {
+    StringBuffer sb = new StringBuffer();
+    if (SAXNumerosityReductionStrategy.CLASSIC.index() == p[3]) {
+      sb.append("CLASSIC, ");
+    }
+    else if (SAXNumerosityReductionStrategy.EXACT.index() == p[3]) {
+      sb.append("EXACT, ");
+    }
+    else if (SAXNumerosityReductionStrategy.NOREDUCTION.index() == p[3]) {
+      sb.append("NOREDUCTION, ");
+    }
+    sb.append(p[0]).append(COMMA);
+    sb.append(p[1]).append(COMMA);
+    sb.append(p[2]).append(COMMA);
+    sb.append(accuracy).append(COMMA);
+    sb.append(error);
+
+    return sb.toString();
+  }
+
 }

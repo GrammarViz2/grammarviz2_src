@@ -86,9 +86,9 @@ public final class TextUtils {
         //
         double tfidf = 0;
 
-        if (totalDocs == word.getValue().intValue()) {
-          System.out.println("excluded: " + word.getKey());
-        }
+//        if (totalDocs == word.getValue().intValue()) {
+//          System.out.println("excluded: " + word.getKey());
+//        }
         // if this document contains the word - here we go
         if (bagWords.containsKey(word.getKey()) & (totalDocs != word.getValue().intValue())) {
 

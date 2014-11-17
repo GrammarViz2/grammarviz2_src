@@ -15,7 +15,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
-import edu.hawaii.jmotif.saxvsm.KNNOptimizedStackEntry;
 import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 import edu.hawaii.jmotif.text.WordBag;
 import edu.hawaii.jmotif.timeseries.TSException;
@@ -52,7 +51,7 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
   // static block - we instantiate the logger
   //
   private static final Logger consoleLogger;
-  private static final Level LOGGING_LEVEL = Level.DEBUG;
+  private static final Level LOGGING_LEVEL = Level.INFO;
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(SAXVSMCVErrorFunction.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
@@ -113,6 +112,8 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
       params[0][1] = paaSize;
       params[0][2] = alphabetSize;
       params[0][3] = this.numerosityReductionStrategy.index();
+      consoleLogger.debug("parameters: " + windowSize + ", " + paaSize + ", " + alphabetSize + ", "
+          + this.numerosityReductionStrategy.toString());
 
       // cache for word bags
       HashMap<String, WordBag> seriesBags = new HashMap<String, WordBag>();
@@ -121,32 +122,34 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
       HashMap<String, WordBag> bags = new HashMap<String, WordBag>();
 
       // push into stack all the samples we are going to validate for
-      Stack<KNNOptimizedStackEntry> samples2go = new Stack<KNNOptimizedStackEntry>();
+      Stack<String> samples2go = new Stack<String>();
       for (Entry<String, double[]> e : this.tsData.entrySet()) {
 
-        String key = e.getKey();
-        String classLabel = key.substring(0, key.indexOf(DELIMITER));
-        WordBag bag = seriesToWordBag(e.getKey(), e.getValue(), params,
+        String seriesKey = e.getKey();
+        String classLabel = seriesKey.substring(0, seriesKey.indexOf(DELIMITER));
+        double[] series = e.getValue();
+
+        WordBag seriesBag = seriesToWordBag(seriesKey, series, params,
             this.numerosityReductionStrategy);
 
-        double[] sample = e.getValue();
+        samples2go.push(seriesKey);
 
-        samples2go.push(new KNNOptimizedStackEntry(key, sample, -1));
+        seriesBags.put(seriesKey, seriesBag);
 
-        seriesBags.put(e.getKey(), bag);
-
-        WordBag cb = bags.get(classLabel);
-        if (null == cb) {
-          cb = new WordBag(classLabel);
-          bags.put(classLabel, cb);
+        WordBag classBag = bags.get(classLabel);
+        if (null == classBag) {
+          classBag = new WordBag(classLabel);
+          bags.put(classLabel, classBag);
         }
-        cb.mergeWith(bag);
+        classBag.mergeWith(seriesBag);
 
       }
       Collections.shuffle(samples2go);
+      consoleLogger.debug("series: " + seriesBags.keySet().toString());
+      consoleLogger.debug("samples2go: " + samples2go.toString());
 
       // total counter
-      int totalSamples = samples2go.size();
+      int totalSamples = samples2go.size(); 
 
       // missclassified counter
       int missclassifiedSamples = 0;
@@ -154,24 +157,29 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
       // while something is in the stack
       while (!samples2go.isEmpty()) {
 
+        consoleLogger
+            .debug("cross valiadtion iteration, in stack " + samples2go.size() + " series");
+
         // extracting validation samples batch and building to remove collection
         //
         HashMap<String, WordBag> wordsToRemove = new HashMap<String, WordBag>();
-        List<KNNOptimizedStackEntry> currentValidationSample = new ArrayList<KNNOptimizedStackEntry>();
-        for (int i = 0; i < this.holdOutSampleSize; i++) {
+        List<String> currentValidationSample = new ArrayList<String>();
+        for (int i = 0; i < this.holdOutSampleSize && !samples2go.isEmpty(); i++) {
 
-          KNNOptimizedStackEntry sample = samples2go.pop();
-          String classLabel = sample.getKey().substring(0, sample.getKey().indexOf(DELIMITER));
-          currentValidationSample.add(sample);
+          String seriesKey = samples2go.pop();
+          String classLabel = seriesKey.substring(0, seriesKey.indexOf(DELIMITER));
+          currentValidationSample.add(seriesKey);
 
-          WordBag cb = wordsToRemove.get(classLabel);
-          if (null == cb) {
-            cb = new WordBag(classLabel);
-            wordsToRemove.put(classLabel, cb);
+          WordBag classBag = wordsToRemove.get(classLabel);
+          if (null == classBag) {
+            classBag = new WordBag(classLabel);
+            wordsToRemove.put(classLabel, classBag);
           }
-          cb.mergeWith(seriesBags.get(sample.getKey()));
+          classBag.mergeWith(seriesBags.get(seriesKey));
 
         }
+
+        consoleLogger.debug("cross valiadtion sample: " + currentValidationSample.toString());
 
         // adjust word bags
         //
@@ -181,15 +189,14 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
         //
         // all stuff from the cache will build a classifier vectors
         //
-
         // compute TFIDF statistics for training set
         HashMap<String, HashMap<String, Double>> tfidf = computeTFIDF(basisBags.values());
 
         // Classifying...
         // is this sample correctly classified?
-        for (KNNOptimizedStackEntry e : currentValidationSample) {
-          String trueClassLabel = e.getKey().substring(0, e.getKey().indexOf(DELIMITER));
-          int res = classify(trueClassLabel, seriesBags.get(e.getKey()), tfidf,
+        for (String e : currentValidationSample) {
+          String trueClassLabel = e.substring(0, e.indexOf(DELIMITER));
+          int res = classify(trueClassLabel, seriesBags.get(e), tfidf,
               this.numerosityReductionStrategy);
           if (0 == res) {
             missclassifiedSamples = missclassifiedSamples + 1;
@@ -215,8 +222,10 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
   private HashMap<String, WordBag> adjustWordBags(HashMap<String, WordBag> bags,
       HashMap<String, WordBag> wordsToRemove) {
 
-    @SuppressWarnings("unchecked")
-    HashMap<String, WordBag> res = (HashMap<String, WordBag>) bags.clone();
+    HashMap<String, WordBag> res = new HashMap<String, WordBag>();
+    for (Entry<String, WordBag> e : bags.entrySet()) {
+      res.put(e.getKey(), e.getValue().clone());
+    }
 
     for (Entry<String, WordBag> e : wordsToRemove.entrySet()) {
       String classKey = e.getKey();
@@ -229,8 +238,7 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
   }
 
   private int classify(String trueClassKey, WordBag testBag,
-      HashMap<String, HashMap<String, Double>> tfidf,
-      SAXNumerosityReductionStrategy numerosityReductionStrategy2) {
+      HashMap<String, HashMap<String, Double>> tfidf, SAXNumerosityReductionStrategy strategy) {
 
     double minDist = -1.0d;
     String className = "";

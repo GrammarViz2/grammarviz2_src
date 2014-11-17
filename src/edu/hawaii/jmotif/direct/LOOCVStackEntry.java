@@ -1,12 +1,12 @@
 package edu.hawaii.jmotif.direct;
 
-public class KNNOptimizedStackEntry {
+public class LOOCVStackEntry {
 
   private String key;
   private double[] value;
   private int index;
 
-  public KNNOptimizedStackEntry(String key, double[] value, int index) {
+  public LOOCVStackEntry(String key, double[] value, int index) {
     this.key = key;
     this.value = value;
     this.index = index;

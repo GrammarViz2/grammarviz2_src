@@ -1,6 +1,6 @@
 package edu.hawaii.jmotif.direct;
 
-public class ShubertFunc {
+public class ShubertFunction {
 
   public static double compute(double x1, double x2) {
 

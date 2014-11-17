@@ -1,6 +1,6 @@
 package edu.hawaii.jmotif.direct;
 
-public class GoldsteinPriceFunc {
+public class GoldsteinPriceFunction {
 
   public static double compute(double x1, double x2) {
 

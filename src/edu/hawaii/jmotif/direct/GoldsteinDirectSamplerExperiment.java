@@ -14,7 +14,7 @@ import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.saxvsm.UCRUtils;
 import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
-public class GoldsteinDirectSampler {
+public class GoldsteinDirectSamplerExperiment {
 
   // SAX parameters to use
   //
@@ -74,7 +74,7 @@ public class GoldsteinDirectSampler {
   private static final Logger consoleLogger;
   private static final Level LOGGING_LEVEL = Level.DEBUG;
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GoldsteinDirectSampler.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(GoldsteinDirectSamplerExperiment.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 

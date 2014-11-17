@@ -26,7 +26,7 @@ import edu.hawaii.jmotif.util.StackTrace;
  * 
  * @author psenin
  */
-public class SAXVSMCVErrorFunction implements ErrorFunction {
+public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
 
   public static final Character DELIMITER = '~';
 

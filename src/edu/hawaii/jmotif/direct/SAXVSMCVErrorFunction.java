@@ -3,6 +3,7 @@ package edu.hawaii.jmotif.direct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import edu.hawaii.jmotif.algorithm.MatrixFactory;
 import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.saxvsm.KNNOptimizedStackEntry;
@@ -27,6 +27,8 @@ import edu.hawaii.jmotif.util.StackTrace;
  */
 public class SAXVSMCVErrorFunction implements ErrorFunction {
 
+  public static final Character DELIMITER = '~';
+
   /** The latin alphabet, lower case letters a-z. */
   private static final char[] ALPHABET = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
       'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
@@ -39,7 +41,7 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
   private SAXNumerosityReductionStrategy numerosityReductionStrategy;
 
   // the data
-  private Map<String, List<double[]>> tsData;
+  private Map<String, double[]> tsData;
 
   // the hold out sample size
   private int holdOutSampleSize;
@@ -52,7 +54,24 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
    */
   public SAXVSMCVErrorFunction(Map<String, List<double[]>> data, int holdOutSampleSize,
       SAXNumerosityReductionStrategy strategy) {
-    this.tsData = data;
+
+    this.tsData = new HashMap<String, double[]>();
+
+    int classCounter = 0;
+    String classLabel = null;
+    for (Entry<String, List<double[]>> e : data.entrySet()) {
+      if (null == classLabel) {
+        classLabel = e.getKey();
+      }
+      if (!(e.getKey().equalsIgnoreCase(classLabel))) {
+        classCounter = 0;
+      }
+      for (double[] series : e.getValue()) {
+        this.tsData.put(classLabel + DELIMITER + classCounter, series);
+        classCounter++;
+      }
+    }
+
     this.holdOutSampleSize = holdOutSampleSize;
     this.numerosityReductionStrategy = strategy;
   }
@@ -65,18 +84,23 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
    */
   public double valueAt(Point point) {
 
+    // point is in fact a aset of parameters - window, paa, and the alphabet
+    //
     double[] coords = point.toArray();
-
     int windowSize = Long.valueOf(Math.round(coords[0])).intValue();
     int paaSize = Long.valueOf(Math.round(coords[1])).intValue();
     int alphabetSize = Long.valueOf(Math.round(coords[2])).intValue();
 
-    // if we stepped above window - return the max possible error value
+    // if we stepped above window length with PAA size - for some reason - return the max possible
+    // error value
     if (paaSize > windowSize) {
       return 1.0d;
     }
 
+    // the whole thing begins here
+    //
     try {
+
       // make a parameters vector
       int[][] params = new int[1][4];
       params[0][0] = windowSize;
@@ -84,16 +108,35 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
       params[0][2] = alphabetSize;
       params[0][3] = this.numerosityReductionStrategy.index();
 
+      // cache for word bags
+      HashMap<String, WordBag> seriesBags = new HashMap<String, WordBag>();
+
+      // the class series bags
+      HashMap<String, WordBag> bags = new HashMap<String, WordBag>();
+
       // push into stack all the samples we are going to validate for
       Stack<KNNOptimizedStackEntry> samples2go = new Stack<KNNOptimizedStackEntry>();
-      for (Entry<String, List<double[]>> e : this.tsData.entrySet()) {
+      for (Entry<String, double[]> e : this.tsData.entrySet()) {
+
         String key = e.getKey();
-        int index = 0;
-        for (double[] sample : e.getValue()) {
-          samples2go.push(new KNNOptimizedStackEntry(key, sample, index));
-          index++;
+        String classLabel = key.substring(0, key.indexOf(DELIMITER));
+        WordBag bag = seriesToWordBag(e.getKey(), e.getValue(), params,
+            this.numerosityReductionStrategy);
+
+        double[] sample = e.getValue();
+
+        samples2go.push(new KNNOptimizedStackEntry(key, sample, -1));
+
+        seriesBags.put(e.getKey(), bag);
+
+        WordBag cb = bags.get(classLabel);
+        if (null == cb) {
+          bags.put(classLabel, new WordBag(classLabel));
         }
+        cb.mergeWith(bag);
+
       }
+      Collections.shuffle(samples2go);
 
       // total counter
       int totalSamples = samples2go.size();
@@ -101,98 +144,40 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
       // missclassified counter
       int missclassifiedSamples = 0;
 
-      // cache for word bags
-      HashMap<String, WordBag> cache = new HashMap<String, WordBag>();
-
-      // while something in stack
+      // while something is in the stack
       while (!samples2go.isEmpty()) {
 
-        // extracting validation samples batch
+        // extracting validation samples batch and building to remove collection
         //
+        HashMap<String, WordBag> wordsToRemove = new HashMap<String, WordBag>();
         List<KNNOptimizedStackEntry> currentValidationSample = new ArrayList<KNNOptimizedStackEntry>();
-        Set<Integer> currentValidationIndexes = new TreeSet<Integer>();
-
         for (int i = 0; i < this.holdOutSampleSize; i++) {
-          // we can have less than a batch size for the last one, need to have this in place
-          if (samples2go.isEmpty()) {
-            break;
-          }
+
           KNNOptimizedStackEntry sample = samples2go.pop();
-          // questionable, but true. here we hold out only from a single class
-          String cKey = sample.getKey();
-          if (i > 0) {
-            // if this one from the other class - push it back
-            if (!(cKey.equalsIgnoreCase(currentValidationSample.get(i - 1).getKey()))) {
-              samples2go.push(sample);
-              break;
-            }
-          }
+          String classLabel = sample.getKey().substring(0, sample.getKey().indexOf(DELIMITER));
           currentValidationSample.add(sample);
-          currentValidationIndexes.add(sample.getIndex());
+
+          WordBag cb = bags.get(classLabel);
+          if (null == cb) {
+            bags.put(classLabel, new WordBag(classLabel));
+          }
+          cb.mergeWith(seriesBags.get(sample.getKey()));
+
         }
 
-        // check if something in the validation sample
+        // adjust word bags
         //
-        if (currentValidationSample.isEmpty()) {
-          break;
-        }
+        HashMap<String, WordBag> basisBags = adjustWordBags(bags, wordsToRemove);
 
         // validation phase
         //
-        String validationKey = currentValidationSample.get(0).getKey();
-
-        // re-build bags if there is a need or pop them from the stack
-        //
-        for (Entry<String, List<double[]>> e : this.tsData.entrySet()) {
-
-          // if there is a hit - need to rebuild that bag and replace it in the cache
-          if (e.getKey().equalsIgnoreCase(validationKey)) {
-            WordBag bag = new WordBag(validationKey);
-            int index = -1;
-            for (double[] series : e.getValue()) {
-              index++;
-              if (currentValidationIndexes.contains(index)) {
-                // if (sampleContainsSeries(currentValidationSample, series)) {
-                // System.out.println("bingo! ");
-                // }
-                // else {
-                // System.out.println("Wrong! ");
-                // System.exit(10);
-                // }
-                continue;
-              }
-              WordBag cb = seriesToWordBag("tmp", series, params, this.numerosityReductionStrategy);
-              bag.mergeWith(cb);
-            }
-            cache.put(validationKey, bag);
-          }
-
-          // else we just check if a bag is in place, if not - we put it in
-          else {
-            if (!cache.containsKey(e.getKey())) {
-              WordBag bag = new WordBag(e.getKey());
-              for (double[] series : e.getValue()) {
-                WordBag cb = seriesToWordBag("tmp", series, params,
-                    this.numerosityReductionStrategy);
-                bag.mergeWith(cb);
-              }
-              cache.put(e.getKey(), bag);
-            }
-          }
-
-        } // end of cache update loop
-
         // all stuff from the cache will build a classifier vectors
         //
 
         // compute TFIDF statistics for training set
-        HashMap<String, HashMap<String, Double>> tfidf = computeTFIDF(cache.values());
-
-        // normalize to unit vectors to avoid false discrimination by vector magnitude
-        // tfidf = normalizeToUnitVectors(tfidf);
+        HashMap<String, HashMap<String, Double>> tfidf = computeTFIDF(basisBags.values());
 
         // Classifying...
-        //
         // is this sample correctly classified?
         for (KNNOptimizedStackEntry e : currentValidationSample) {
           int res = classify(e.getKey(), e.getValue(), tfidf, params,
@@ -215,6 +200,22 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
       return Double.MAX_VALUE;
     }
 
+  }
+
+  private HashMap<String, WordBag> adjustWordBags(HashMap<String, WordBag> bags,
+      HashMap<String, WordBag> wordsToRemove) {
+
+    @SuppressWarnings("unchecked")
+    HashMap<String, WordBag> res = (HashMap<String, WordBag>) bags.clone();
+
+    for (Entry<String, WordBag> e : wordsToRemove.entrySet()) {
+      String classKey = e.getKey();
+      for (Entry<String, AtomicInteger> eBag : e.getValue().getInternalWords().entrySet()) {
+        res.get(classKey).addWord(eBag.getKey(), -eBag.getValue().intValue());
+      }
+    }
+
+    return res;
   }
 
   /**
@@ -270,7 +271,7 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
         // if this document contains the word - here we go
         if (bagWords.containsKey(word.getKey()) & (totalDocs != word.getValue().intValue())) {
 
-          int wordInBagFrequency = bagWords.get(word.getKey()).intValue();
+          // int wordInBagFrequency = bagWords.get(word.getKey()).intValue();
 
           // compute TF: we take a log and correct for 0 by adding 1
 
@@ -327,6 +328,7 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
    * @param term The term.
    * @return The term frequency value.
    */
+  @SuppressWarnings("unused")
   private double logTF(WordBag bag, String term) {
     if (bag.contains(term)) {
       return 1.0d + Math.log(bag.getWordFrequency(term).doubleValue());
@@ -342,6 +344,7 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
    * @param term The term.
    * @return The term frequency value.
    */
+  @SuppressWarnings("unused")
   private double logAveTF(WordBag bag, String term) {
     if (bag.contains(term)) {
       return (1D + Math.log(Integer.valueOf(bag.getWordFrequency(term)).doubleValue()))
@@ -358,6 +361,7 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
    * @param term The term.
    * @return The term frequency value.
    */
+  @SuppressWarnings("unused")
   private double normalizedTF(WordBag bag, String term) {
     if (bag.contains(term)) {
       return Integer.valueOf(bag.getWordFrequency(term)).doubleValue()
@@ -416,6 +420,18 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
     return res / (m1 * m2);
   }
 
+  /**
+   * Classifies the timeseries.
+   * 
+   * @param classKey
+   * @param series
+   * @param tfidf
+   * @param params
+   * @param strategy
+   * @return
+   * @throws IndexOutOfBoundsException
+   * @throws TSException
+   */
   private int classify(String classKey, double[] series,
       HashMap<String, HashMap<String, Double>> tfidf, int[][] params,
       SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException, TSException {
@@ -450,6 +466,12 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
     return 0;
   }
 
+  /**
+   * Computes the vector's magnitude.
+   * 
+   * @param values
+   * @return
+   */
   private double magnitude(Collection<Double> values) {
     double res = 0.0D;
     for (Double v : values) {
@@ -478,7 +500,7 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
     }
     else {
       if (len % paaSize == 0) {
-        return MatrixFactory.colMeans(MatrixFactory.reshape(asMatrix(ts), len / paaSize, paaSize));
+        return colMeans(reshape(asMatrix(ts), len / paaSize, paaSize));
       }
       else {
         double[] paa = new double[paaSize];
@@ -493,6 +515,47 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
         return paa;
       }
     }
+  }
+
+  /**
+   * Mimics Matlab function for reshape: returns the m-by-n matrix B whose elements are taken
+   * column-wise from A. An error results if A does not have m*n elements.
+   * 
+   * @param a the source matrix.
+   * @param n number of rows in the new matrix.
+   * @param m number of columns in the new matrix.
+   * 
+   * @return reshaped matrix.
+   */
+  private static double[][] reshape(double[][] a, int n, int m) {
+    int cEl = 0;
+    int aRows = a.length;
+    double[][] res = new double[n][m];
+    for (int j = 0; j < m; j++) {
+      for (int i = 0; i < n; i++) {
+        res[i][j] = a[cEl % aRows][cEl / aRows];
+        cEl++;
+      }
+    }
+    return res;
+  }
+
+  /**
+   * Computes column means for the matrix.
+   * 
+   * @param a the input matrix.
+   * @return result.
+   */
+  private double[] colMeans(double[][] a) {
+    double[] res = new double[a[0].length];
+    for (int j = 0; j < a[0].length; j++) {
+      double sum = 0;
+      for (int i = 0; i < a.length; i++) {
+        sum += a[i][j];
+      }
+      res[j] = sum / ((double) a.length);
+    }
+    return res;
   }
 
   /**

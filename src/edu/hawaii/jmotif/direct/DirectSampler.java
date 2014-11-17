@@ -1,11 +1,14 @@
 package edu.hawaii.jmotif.direct;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.slf4j.LoggerFactory;
@@ -18,6 +21,9 @@ import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.UCRUtils;
 
 public class DirectSampler {
+
+  private static final DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.US);
+  private static DecimalFormat fmt = new DecimalFormat("0.00###", otherSymbols);
 
   // array with all rectangle centerpoints
   private static ArrayList<Double[]> centerPoints;
@@ -234,10 +240,29 @@ public class DirectSampler {
       }
       update();
     }
+
+    // make result
     resultMinimum = minimum(functionValues);
-    double[] params = coordinates.get((int) resultMinimum[1]).getPoint().toArray();
-    return new int[] { (int) Math.round(params[0]), (int) Math.round(params[1]),
-        (int) Math.round(params[2]), strategy.index() };
+
+    // generally, we want a shorter window
+    //
+    double minValue = resultMinimum[0];
+    Point params = null;
+    for (ValuePointColored p : coordinates) {
+      if (minValue == p.getValue()) {
+        Point new_params = p.getPoint();
+        if (null == params) {
+          params = new_params;
+        }
+        else if (new_params.toArray()[0] < params.toArray()[0]) {
+          params = new_params;
+        }
+      }
+    }
+
+    double[] res = params.toArray();
+    return new int[] { (int) Math.round(res[0]), (int) Math.round(res[1]),
+        (int) Math.round(res[2]), strategy.index() };
   }
 
   private static void update() {
@@ -807,6 +832,7 @@ public class DirectSampler {
   }
 
   protected static String toLogStr(int[] p, double accuracy, double error) {
+
     StringBuffer sb = new StringBuffer();
     if (SAXNumerosityReductionStrategy.CLASSIC.index() == p[3]) {
       sb.append("CLASSIC, ");
@@ -817,11 +843,11 @@ public class DirectSampler {
     else if (SAXNumerosityReductionStrategy.NOREDUCTION.index() == p[3]) {
       sb.append("NOREDUCTION, ");
     }
-    sb.append(p[0]).append(COMMA);
-    sb.append(p[1]).append(COMMA);
-    sb.append(p[2]).append(COMMA);
-    sb.append(accuracy).append(COMMA);
-    sb.append(error);
+    sb.append("window ").append(p[0]).append(COMMA);
+    sb.append("PAA ").append(p[1]).append(COMMA);
+    sb.append("alphabet ").append(p[2]).append(COMMA);
+    sb.append(" accuracy ").append(fmt.format(accuracy)).append(COMMA);
+    sb.append(" error ").append(fmt.format(error));
 
     return sb.toString();
   }

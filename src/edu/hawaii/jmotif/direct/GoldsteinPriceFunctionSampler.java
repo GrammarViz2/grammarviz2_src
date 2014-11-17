@@ -17,6 +17,7 @@ public class GoldsteinPriceFunctionSampler {
 
     while ((x1 < X1_END) && (x2 < X2_END)) {
 
+      @SuppressWarnings("unused")
       double value = GoldsteinPriceFunction.compute(x1, x2);
 
       // increment variable values

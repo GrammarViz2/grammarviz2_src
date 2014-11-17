@@ -86,9 +86,9 @@ public final class TextUtils {
         //
         double tfidf = 0;
 
-        if (totalDocs != word.getValue().intValue()) {
-          System.out.println("excluded: " + word.getKey());
-        }
+//        if (totalDocs == word.getValue().intValue()) {
+//          System.out.println("excluded: " + word.getKey());
+//        }
         // if this document contains the word - here we go
         if (bagWords.containsKey(word.getKey()) & (totalDocs != word.getValue().intValue())) {
 
@@ -555,7 +555,7 @@ public final class TextUtils {
     int windowSize = params[0];
     int paaSize = params[1];
     int alphabetSize = params[2];
-    SAXCollectionStrategy strategy = SAXCollectionStrategy.fromValue(params[3]);
+    SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(params[3]);
 
     // System.out.println("Strategy: " + strategy.index());
 
@@ -567,12 +567,12 @@ public final class TextUtils {
 
       char[] sax = TSUtils.ts2String(paa, a.getCuts(alphabetSize));
 
-      if (SAXCollectionStrategy.CLASSIC.equals(strategy)) {
+      if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
         if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
           continue;
         }
       }
-      else if (SAXCollectionStrategy.EXACT.equals(strategy)) {
+      else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
         if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
           continue;
         }
@@ -598,7 +598,7 @@ public final class TextUtils {
       int windowSize = p[0];
       int paaSize = p[1];
       int alphabetSize = p[2];
-      SAXCollectionStrategy strategy = SAXCollectionStrategy.fromValue(p[3]);
+      SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(p[3]);
 
       String oldStr = "";
       for (int i = 0; i <= series.length - windowSize; i++) {
@@ -611,12 +611,12 @@ public final class TextUtils {
         // System.out.println(Arrays.toString(TSUtils.subseries(series, i, windowSize)) + "->"
         // + Arrays.toString(paa));
 
-        if (SAXCollectionStrategy.CLASSIC.equals(strategy)) {
+        if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
           if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
             continue;
           }
         }
-        else if (SAXCollectionStrategy.EXACT.equals(strategy)) {
+        else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
           if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
             continue;
           }
@@ -644,7 +644,7 @@ public final class TextUtils {
   }
 
   public static synchronized List<WordBag> labeledSeries2WordBags(Map<String, List<double[]>> data,
-      int paaSize, int alphabetSize, int windowSize, SAXCollectionStrategy strategy)
+      int paaSize, int alphabetSize, int windowSize, SAXNumerosityReductionStrategy strategy)
       throws IndexOutOfBoundsException, TSException {
     int[] params = new int[4];
     params[0] = windowSize;
@@ -753,7 +753,7 @@ public final class TextUtils {
 
   public static synchronized int classify(String classKey, double[] series,
       HashMap<String, HashMap<String, Double>> tfidf, int paaSize, int alphabetSize,
-      int windowSize, SAXCollectionStrategy strategy) throws IndexOutOfBoundsException, TSException {
+      int windowSize, SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException, TSException {
     int[] params = new int[4];
     params[0] = windowSize;
     params[1] = paaSize;
@@ -893,7 +893,7 @@ public final class TextUtils {
       int windowSize = p[0];
       int paaSize = p[1];
       int alphabetSize = p[2];
-      SAXCollectionStrategy strategy = SAXCollectionStrategy.fromValue(p[3]);
+      SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(p[3]);
       String oldStr = "";
 
       for (double[] series : data) {
@@ -902,12 +902,12 @@ public final class TextUtils {
           double[] paa = TSUtils.optimizedPaa(
               TSUtils.zNormalize(TSUtils.subseries(series, j, windowSize)), paaSize);
           char[] sax = TSUtils.ts2String(paa, a.getCuts(alphabetSize));
-          if (SAXCollectionStrategy.CLASSIC.equals(strategy)) {
+          if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
             if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
               continue;
             }
           }
-          else if (SAXCollectionStrategy.EXACT.equals(strategy)) {
+          else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
             if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
               continue;
             }

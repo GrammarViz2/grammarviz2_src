@@ -1,12 +1,10 @@
 package edu.hawaii.jmotif.direct;
 
-import edu.hawaii.jmotif.sampler.Function;
-
 /**
  * An immutable point wrapper to represent the value of a function at a specified point. The
  * immutability makes this class threadsafe.
  * 
- * @author ytoh
+ * @author ytoh, seninp
  */
 public class ValuePoint implements Comparable<ValuePoint> {
   private final Point point;
@@ -41,16 +39,6 @@ public class ValuePoint implements Comparable<ValuePoint> {
    */
   public static ValuePoint at(Point p, double value) {
     return new ValuePoint(p, value);
-  }
-
-  /**
-   * 
-   * @param p
-   * @param function
-   * @return
-   */
-  public static ValuePoint at(Point p, Function function) {
-    return ValuePoint.at(p, function.valueAt(p));
   }
 
   /**

@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author psenin
  * 
  */
-public class WordBag {
+public class WordBag implements Cloneable {
 
   private static final String CR = "\n";
   private HashMap<String, AtomicInteger> words;
@@ -88,10 +88,20 @@ public class WordBag {
   public synchronized void addWord(String word, Integer frequency) {
     this.changed = true;
     if (this.words.containsKey(word)) {
-      this.words.get(word).set(this.words.get(word).intValue() + frequency);
+      int newFreq = this.words.get(word).intValue() + frequency;
+      if (0 >= newFreq) {
+        this.words.remove(word);
+      }
+      else {
+        this.words.get(word).set(newFreq);
+      }
     }
     else {
-      this.words.put(word, new AtomicInteger(frequency));
+      if (frequency > 0) {
+        this.words.put(word, new AtomicInteger(frequency));
+      }else{
+        System.out.println("!!! oops");
+      }
     }
   }
 
@@ -162,7 +172,6 @@ public class WordBag {
     return this.words;
   }
 
-  
   /**
    * Integral of all frequency values.
    * 
@@ -245,5 +254,14 @@ public class WordBag {
       return this.cachedAverage;
     }
     return this.cachedAverage;
+  }
+
+  @Override
+  public WordBag clone() {
+    WordBag res = new WordBag(this.label);
+    for (Entry<String, AtomicInteger> w : this.words.entrySet()) {
+      res.addWord(w.getKey(), w.getValue().intValue());
+    }
+    return res;
   }
 }

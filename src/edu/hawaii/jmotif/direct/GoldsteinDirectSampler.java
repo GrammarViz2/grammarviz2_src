@@ -1,16 +1,31 @@
 package edu.hawaii.jmotif.direct;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import edu.hawaii.jmotif.saxvsm.UCRUtils;
+import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 
 public class GoldsteinDirectSampler {
 
-  private static final double X1_START = -2.0;
-  private static final double X1_END = 2.0;
+  // SAX parameters to use
+  //
+  private static final int WINDOW_MIN = 0;
+  private static final int WINDOW_MAX = 60;
 
-  private static final double X2_START = -2.0;
-  private static final double X2_END = 2.0;
+  private static final int PAA_MIN = 2;
+  private static final int PAA_MAX = 40;
+
+  private static final int ALPHABET_MIN = 2;
+  private static final int ALPHABET_MAX = 18;
 
   // array with all rectangle centerpoints
   private static ArrayList<Double[]> centerPoints;
@@ -30,8 +45,9 @@ public class GoldsteinDirectSampler {
   // array with function values
   private static ArrayList<Double> functionValues;
 
-  // array with sampled points and function value
+  // array used to track sampled points and function values
   private static ArrayList<ValuePointColored> coordinates;
+  private static HashMap<String, Double> functionHash;
 
   private static final double precision = 1E-16;
   private static int b = 0;
@@ -44,17 +60,42 @@ public class GoldsteinDirectSampler {
 
   // init bounds
   //
-  private static int dimensions = 2;
-  private static double[] lowerBounds = { X1_START, X2_START };
-  private static double[] upperBounds = { X1_END, X2_END };
+  private static int dimensions = 3;
+  private static double[] lowerBounds = { WINDOW_MIN, PAA_MIN, ALPHABET_MIN };
+  private static double[] upperBounds = { WINDOW_MAX, PAA_MAX, ALPHABET_MAX };
+
+  private static final String TRAINING_DATA = "data/synthetic_control/synthetic_control_TRAIN";
+
+  private static final int HOLD_OUT_NUM = 1;
+  private static SAXVSMCVErrorFunction function;
+
+  // static block - we instantiate the logger
+  //
+  private static final Logger consoleLogger;
+  private static final Level LOGGING_LEVEL = Level.DEBUG;
+  static {
+    consoleLogger = (Logger) LoggerFactory.getLogger(GoldsteinDirectSampler.class);
+    consoleLogger.setLevel(LOGGING_LEVEL);
+  }
 
   // the global minimum point
   private static ValuePointColored minimum = ValuePointColored.at(Point.at(0),
       Double.POSITIVE_INFINITY, false);
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
 
-    int iterations = 15;
+    int iterations = 45;
+
+    Map<String, List<double[]>> trainData = UCRUtils.readUCRData(TRAINING_DATA);
+    consoleLogger.debug("reading file: " + TRAINING_DATA);
+    consoleLogger.debug("trainData classes: " + trainData.size() + ", series length: "
+        + trainData.entrySet().iterator().next().getValue().get(0).length);
+    for (Entry<String, List<double[]>> e : trainData.entrySet()) {
+      consoleLogger.debug(" training class: " + e.getKey() + " series: " + e.getValue().size());
+    }
+
+    function = new SAXVSMCVErrorFunction(trainData, HOLD_OUT_NUM,
+        SAXNumerosityReductionStrategy.EXACT);
 
     // the whole bunch of inits
     //
@@ -64,7 +105,10 @@ public class GoldsteinDirectSampler {
     differentDiagonalLength = new ArrayList<Double>();
     diagonalsMinFunc = new double[1];
     functionValues = new ArrayList<Double>();
+
     coordinates = new ArrayList<ValuePointColored>();
+    functionHash = new HashMap<String, Double>();
+
     sampledPoints = 0;
     rectangleCounter = 1;
     indexPotentialBestRec = 0;
@@ -78,7 +122,7 @@ public class GoldsteinDirectSampler {
     Double dTmp = 0.0;
     Double[] cooTmp = new Double[dimensions];
 
-    // transform the domain into the unit hyper-cube
+    // transform the domain into the unit hyper-cube
     //
     for (int i = 0; i < dimensions; i++) {
       scaledCenter[i] = 0.5;
@@ -94,7 +138,7 @@ public class GoldsteinDirectSampler {
 
     // sampling center point
     //
-    minFunctionValue = GoldsteinPriceFunc.valueAt(startingPoint);
+    minFunctionValue = function.valueAt(startingPoint);
     sampledPoints = sampledPoints + 1;
     for (int i1 = 0; i1 < dimensions; i1++) {
       cooTmp[i1] = realCenter[i1];
@@ -105,7 +149,7 @@ public class GoldsteinDirectSampler {
     functionValues.add(minFunctionValue);
     differentDiagonalLength = diagonalLength;
 
-    ArrayList<Integer> potentiallyOptimalRectangles = identifyPotentiallyRec();
+    ArrayList<Integer> potentiallyOptimalRectangles = null;
 
     // optimization loop
     //
@@ -122,6 +166,8 @@ public class GoldsteinDirectSampler {
 
   private static void update() {
     resultMinimum = minimum(functionValues);
+    consoleLogger.debug("** minimal value " + resultMinimum[0] + " at "
+        + Arrays.toString(coordinates.get((int) resultMinimum[1]).getPoint().toArray()));
     // getting minimum and giving it at last points
     minFunctionValue = resultMinimum[0];
     minimum.setBest(false);
@@ -201,7 +247,7 @@ public class GoldsteinDirectSampler {
     double[] w = new double[0];
     double i1;
     double[] e_i;
-    double f_m2, f_m1;
+
     // Sample the function at the points c +- delta*e_i for all ii in maxSideLengths.
     for (int ii = 0; ii < maxSideLengths.length; ii++) {
       Double[] c_m1 = new Double[dimensions];
@@ -211,7 +257,9 @@ public class GoldsteinDirectSampler {
       i1 = maxSideLengths[ii];
       e_i = new double[dimensions];
       e_i[(int) i1] = 1;
-      // Centerpoint for new rectangle
+
+      // Center point for a new rectangle
+      //
       for (int i2 = 0; i2 < centerPoints.get(j).length; i2++) {
         c_m1[i2] = centerPoints.get(j)[i2] + delta * e_i[i2];
       }
@@ -219,14 +267,24 @@ public class GoldsteinDirectSampler {
       for (int i2 = 0; i2 < c_m1.length; i2++) {
         x_m1[i2] = lowerBounds[i2] + c_m1[i2] * (upperBounds[i2] - lowerBounds[i2]);
       }
-
       // Function value at x_m1
       Point pointToSample1 = Point.at(x_m1);
-      f_m1 = GoldsteinPriceFunc.valueAt(pointToSample1);
+      // TODO: here needs to be a check
+      Double f_m1 = checkCache(pointToSample1, functionHash);
+      if (null == f_m1) {
+        f_m1 = function.valueAt(pointToSample1);
+        saveCache(pointToSample1, f_m1, functionHash);
+      }
+      else {
+        System.out.println("** saved the computation at "
+            + Arrays.toString(pointToSample1.toArray()));
+      }
       // add to all points
       coordinates.add(ValuePointColored.at(pointToSample1, f_m1, false));
       sampledPoints = sampledPoints + 1;
-      // Centerpoint for new rectangle
+
+      // Center point for a new rectangle
+      //
       for (int i2 = 0; i2 < centerPoints.get(j).length; i2++) {
         c_m2[i2] = centerPoints.get(j)[i2] - delta * e_i[i2];
       }
@@ -234,10 +292,19 @@ public class GoldsteinDirectSampler {
       for (int i2 = 0; i2 < c_m2.length; i2++) {
         x_m2[i2] = lowerBounds[i2] + c_m2[i2] * (upperBounds[i2] - lowerBounds[i2]);
       }
-
       // Function value at x_m2
       Point pointToSample2 = Point.at(x_m2);
-      f_m2 = GoldsteinPriceFunc.valueAt(pointToSample2);
+      // TODO: here needs to be a check
+      Double f_m2 = checkCache(pointToSample2, functionHash);
+      if (null == f_m2) {
+        f_m2 = function.valueAt(pointToSample2);
+        saveCache(pointToSample2, f_m2, functionHash);
+      }
+      else {
+        System.out.println("** saved the computation at "
+            + Arrays.toString(pointToSample2.toArray()));
+      }
+
       // add to all points
       coordinates.add(ValuePointColored.at(pointToSample2, f_m2, false));
       sampledPoints = sampledPoints + 1;
@@ -261,6 +328,26 @@ public class GoldsteinDirectSampler {
 
   }
 
+  private static void saveCache(Point point, Double value, HashMap<String, Double> cache) {
+    // formatting the string
+    StringBuffer sb = new StringBuffer();
+    for (double d : point.toArray()) {
+      sb.append(String.format("%d", Math.round(d))).append(" ");
+    }
+    // save the value
+    cache.put(sb.toString(), value);
+    // consoleLogger.info(sb.toString() + ", " + value);
+  }
+
+  private static Double checkCache(Point point, HashMap<String, Double> cache) {
+    // formatting the string
+    StringBuffer sb = new StringBuffer();
+    for (double d : point.toArray()) {
+      sb.append(String.format("%d", Math.round(d))).append(" ");
+    }
+    return cache.get(sb.toString());
+  }
+
   /**
    * Divide the rectangle containing centerPoints.get(j) into thirds along the dimension in
    * maxSideLengths, starting with the dimension with the lowest value of w[ii]
@@ -272,7 +359,7 @@ public class GoldsteinDirectSampler {
    */
 
   private static void devideRec(double[] w, Integer[] maxSideLengths, double delta, int j) {
-    
+
     double[][] ab = sort(w);
 
     for (int ii = 0; ii < maxSideLengths.length; ii++) {

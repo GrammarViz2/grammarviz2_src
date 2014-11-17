@@ -8,10 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import edu.hawaii.jmotif.sax.alphabet.Alphabet;
 import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
 import edu.hawaii.jmotif.saxvsm.KNNOptimizedStackEntry;
@@ -46,6 +47,17 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
   // the hold out sample size
   private int holdOutSampleSize;
 
+  // static block - we instantiate the logger
+  //
+  // static block - we instantiate the logger
+  //
+  private static final Logger consoleLogger;
+  private static final Level LOGGING_LEVEL = Level.DEBUG;
+  static {
+    consoleLogger = (Logger) LoggerFactory.getLogger(SAXVSMCVErrorFunction.class);
+    consoleLogger.setLevel(LOGGING_LEVEL);
+  }
+
   /**
    * Constructor.
    * 
@@ -57,15 +69,9 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
 
     this.tsData = new HashMap<String, double[]>();
 
-    int classCounter = 0;
-    String classLabel = null;
     for (Entry<String, List<double[]>> e : data.entrySet()) {
-      if (null == classLabel) {
-        classLabel = e.getKey();
-      }
-      if (!(e.getKey().equalsIgnoreCase(classLabel))) {
-        classCounter = 0;
-      }
+      String classLabel = e.getKey();
+      int classCounter = 0;
       for (double[] series : e.getValue()) {
         this.tsData.put(classLabel + DELIMITER + classCounter, series);
         classCounter++;
@@ -131,7 +137,8 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
 
         WordBag cb = bags.get(classLabel);
         if (null == cb) {
-          bags.put(classLabel, new WordBag(classLabel));
+          cb = new WordBag(classLabel);
+          bags.put(classLabel, cb);
         }
         cb.mergeWith(bag);
 
@@ -157,9 +164,10 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
           String classLabel = sample.getKey().substring(0, sample.getKey().indexOf(DELIMITER));
           currentValidationSample.add(sample);
 
-          WordBag cb = bags.get(classLabel);
+          WordBag cb = wordsToRemove.get(classLabel);
           if (null == cb) {
-            bags.put(classLabel, new WordBag(classLabel));
+            cb = new WordBag(classLabel);
+            wordsToRemove.put(classLabel, cb);
           }
           cb.mergeWith(seriesBags.get(sample.getKey()));
 
@@ -180,7 +188,8 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
         // Classifying...
         // is this sample correctly classified?
         for (KNNOptimizedStackEntry e : currentValidationSample) {
-          int res = classify(e.getKey(), e.getValue(), tfidf, params,
+          String trueClassLabel = e.getKey().substring(0, e.getKey().indexOf(DELIMITER));
+          int res = classify(trueClassLabel, seriesBags.get(e.getKey()), tfidf,
               this.numerosityReductionStrategy);
           if (0 == res) {
             missclassifiedSamples = missclassifiedSamples + 1;
@@ -192,6 +201,7 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
       double error = Integer.valueOf(missclassifiedSamples).doubleValue()
           / Integer.valueOf(totalSamples).doubleValue();
 
+      consoleLogger.debug("## " + Arrays.toString(params[0]) + ", " + error);
       return error;
 
     }
@@ -216,6 +226,58 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
     }
 
     return res;
+  }
+
+  private int classify(String trueClassKey, WordBag testBag,
+      HashMap<String, HashMap<String, Double>> tfidf,
+      SAXNumerosityReductionStrategy numerosityReductionStrategy2) {
+
+    double minDist = -1.0d;
+    String className = "";
+    double[] cosines = new double[tfidf.entrySet().size()];
+    int index = 0;
+    for (Entry<String, HashMap<String, Double>> e : tfidf.entrySet()) {
+      double dist = cosineSimilarity(testBag, e.getValue());
+      cosines[index] = dist;
+      index++;
+      if (dist > minDist) {
+        className = e.getKey();
+        minDist = dist;
+      }
+    }
+
+    boolean allEqual = true;
+    double cosine = cosines[0];
+    for (int i = 1; i < cosines.length; i++) {
+      if (!(cosines[i] == cosine)) {
+        allEqual = false;
+      }
+    }
+
+    if (!(allEqual) && className.equalsIgnoreCase(trueClassKey)) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /**
+   * Classifies the timeseries.
+   * 
+   * @param trueClassKey
+   * @param series
+   * @param tfidf
+   * @param params
+   * @param strategy
+   * @return
+   * @throws IndexOutOfBoundsException
+   * @throws TSException
+   */
+  @SuppressWarnings("unused")
+  private int classify(String trueClassKey, double[] series,
+      HashMap<String, HashMap<String, Double>> tfidf, int[][] params,
+      SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException, TSException {
+    WordBag testBag = seriesToWordBag("test", series, params, strategy);
+    return classify(trueClassKey, testBag, tfidf, strategy);
   }
 
   /**
@@ -418,52 +480,6 @@ public class SAXVSMCVErrorFunction implements ErrorFunction {
     double m1 = magnitude(testSample.getWordsAsDoubles().values());
     double m2 = magnitude(weightVector.values());
     return res / (m1 * m2);
-  }
-
-  /**
-   * Classifies the timeseries.
-   * 
-   * @param classKey
-   * @param series
-   * @param tfidf
-   * @param params
-   * @param strategy
-   * @return
-   * @throws IndexOutOfBoundsException
-   * @throws TSException
-   */
-  private int classify(String classKey, double[] series,
-      HashMap<String, HashMap<String, Double>> tfidf, int[][] params,
-      SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException, TSException {
-
-    WordBag test = seriesToWordBag("test", series, params, strategy);
-
-    double minDist = -1.0d;
-    String className = "";
-    double[] cosines = new double[tfidf.entrySet().size()];
-    int index = 0;
-    for (Entry<String, HashMap<String, Double>> e : tfidf.entrySet()) {
-      double dist = cosineSimilarity(test, e.getValue());
-      cosines[index] = dist;
-      index++;
-      if (dist > minDist) {
-        className = e.getKey();
-        minDist = dist;
-      }
-    }
-
-    boolean allEqual = true;
-    double cosine = cosines[0];
-    for (int i = 1; i < cosines.length; i++) {
-      if (!(cosines[i] == cosine)) {
-        allEqual = false;
-      }
-    }
-
-    if (!(allEqual) && className.equalsIgnoreCase(classKey)) {
-      return 1;
-    }
-    return 0;
   }
 
   /**

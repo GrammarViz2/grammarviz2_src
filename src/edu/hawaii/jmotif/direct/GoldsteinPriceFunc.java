@@ -4,10 +4,13 @@ public class GoldsteinPriceFunc {
 
   public static double compute(double x1, double x2) {
 
-    double p1 = (x1 + x2 + 1) * (x1 + x2 + 1);
-    double p2 = (19 - 14 * x1 + 3 * x1 * x1 - 14 * x2 + 6 * x1 * x2 + 3 * x2 * x2);
-    double p3 = (2 * x1 - 3 * x2) * (2 * x1 - 3 * x2);
-    double p4 = (18 - 32 * x1 + 12 * x1 * x1 + 48 * x2 - 36 * x1 * x2 + 27 * x2 * x2);
+    double z1 = x1 / 10;
+    double z2 = x2 / 10;
+
+    double p1 = (z1 + z2 + 1) * (z1 + z2 + 1);
+    double p2 = (19 - 14 * z1 + 3 * z1 * z1 - 14 * z2 + 6 * z1 * z2 + 3 * z2 * z2);
+    double p3 = (2 * z1 - 3 * z2) * (2 * z1 - 3 * z2);
+    double p4 = (18 - 32 * z1 + 12 * z1 * z1 + 48 * z2 - 36 * z1 * z2 + 27 * z2 * z2);
 
     double res = (1 + p1 * p2) * (30 + p3 * p4);
 

@@ -2,11 +2,11 @@ package edu.hawaii.jmotif.direct;
 
 public class FunctionSampler {
 
-  private static final double X1_START = -10.0;
-  private static final double X1_END = 10.0;
+  private static final double X1_START = -20.0;
+  private static final double X1_END = 20.0;
 
-  private static final double X2_START = -10.0;
-  private static final double X2_END = 10.0;
+  private static final double X2_START = -20.0;
+  private static final double X2_END = 20.0;
 
   private static final double step = 0.5;
 
@@ -17,7 +17,7 @@ public class FunctionSampler {
 
     while ((x1 < X1_END) && (x2 < X2_END)) {
 
-      double value = ShubertFunc.compute(x1, x2);
+      double value = GoldsteinPriceFunc.compute(x1, x2);
 
       // increment variable values
       //

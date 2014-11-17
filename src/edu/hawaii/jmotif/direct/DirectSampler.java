@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -247,18 +248,21 @@ public class DirectSampler {
     // generally, we want a shorter window
     //
     StringBuffer sb = new StringBuffer();
+    HashSet<String> paramsStr = new HashSet<String>();
     double minValue = resultMinimum[0];
     sb.append("min CV error ").append(fmt.format(minValue)).append(" reached at ");
     Point params = null;
     for (ValuePointColored p : coordinates) {
       if (minValue == p.getValue()) {
         Point new_params = p.getPoint();
-        sb.append(Arrays.toString(new_params.toIntArray())).append(COMMA);
         if (null == params) {
           params = new_params;
+          paramsStr.add(Arrays.toString(params.toArray()));
+          sb.append(Arrays.toString(new_params.toIntArray())).append(COMMA);
         }
         else if (new_params.toArray()[0] < params.toArray()[0]) {
           params = new_params;
+          sb.append(Arrays.toString(new_params.toIntArray())).append(COMMA);
         }
       }
     }

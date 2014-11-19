@@ -5,7 +5,10 @@ require(akima)
 require(rgl)
 require(ggplot2)
 
-data=read.table("data/GP_test.csv",as.is=T,header=F, sep=",")
+data=read.table("data/test.csv",as.is=T,header=F, sep=",")
+p <- ggplot(data, aes(x=V2,y=V3))
+p + geom_tile(aes(fill=V3),size=50)
+
 
 p=wireframe(V3 ~ V2 * V1, data = data, scales = list(arrows = FALSE),
             drape = TRUE, colorkey = FALSE, pretty=FALSE, screen = list(z = 30, x = -70, y = 00),

@@ -19,10 +19,18 @@ import edu.hawaii.jmotif.text.SAXNumerosityReductionStrategy;
 import edu.hawaii.jmotif.text.TextUtils;
 import edu.hawaii.jmotif.text.WordBag;
 import edu.hawaii.jmotif.timeseries.TSException;
+import edu.hawaii.jmotif.util.StackTrace;
 import edu.hawaii.jmotif.util.UCRUtils;
 
-public class DirectSampler {
+/**
+ * Implements a cross-validation DIRECT-based procedure for SAX-VSM parameters optimization.
+ * 
+ * @author psenin
+ * 
+ */
+public class SAXVSMDirectSampler {
 
+  // the number formatter
   private static final DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.US);
   private static DecimalFormat fmt = new DecimalFormat("0.00###", otherSymbols);
 
@@ -68,9 +76,10 @@ public class DirectSampler {
   private static final Logger consoleLogger;
   private static final Level LOGGING_LEVEL = Level.INFO;
 
-  private static final Object COMMA = ", ";
+  private static final String COMMA = ", ";
+  private static final String CR = "\n";
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(DirectSampler.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(SAXVSMDirectSampler.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -94,33 +103,43 @@ public class DirectSampler {
       // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout, Iterations
       consoleLogger.info("processing paramleters: " + Arrays.toString(args));
 
-      TRAINING_DATA = args[0];
-      TEST_DATA = args[1];
-      trainData = UCRUtils.readUCRData(TRAINING_DATA);
-      consoleLogger.info("trainData classes: " + trainData.size() + ", series length: "
-          + trainData.entrySet().iterator().next().getValue().get(0).length);
-      for (Entry<String, List<double[]>> e : trainData.entrySet()) {
-        consoleLogger.info(" training class: " + e.getKey() + " series: " + e.getValue().size());
-      }
-      testData = UCRUtils.readUCRData(TEST_DATA);
-      consoleLogger.info("testData classes: " + testData.size() + ", series length: "
-          + testData.entrySet().iterator().next().getValue().get(0).length);
-      for (Entry<String, List<double[]>> e : testData.entrySet()) {
-        consoleLogger.info(" test class: " + e.getKey() + " series: " + e.getValue().size());
-      }
+      if (10 == args.length) {
+        TRAINING_DATA = args[0];
+        TEST_DATA = args[1];
+        trainData = UCRUtils.readUCRData(TRAINING_DATA);
+        consoleLogger.info("trainData classes: " + trainData.size() + ", series length: "
+            + trainData.entrySet().iterator().next().getValue().get(0).length);
+        for (Entry<String, List<double[]>> e : trainData.entrySet()) {
+          consoleLogger.info(" training class: " + e.getKey() + " series: " + e.getValue().size());
+        }
+        testData = UCRUtils.readUCRData(TEST_DATA);
+        consoleLogger.info("testData classes: " + testData.size() + ", series length: "
+            + testData.entrySet().iterator().next().getValue().get(0).length);
+        for (Entry<String, List<double[]>> e : testData.entrySet()) {
+          consoleLogger.info(" test class: " + e.getKey() + " series: " + e.getValue().size());
+        }
 
-      // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout, Iterations
-      lowerBounds = new int[] { Integer.valueOf(args[2]).intValue(),
-          Integer.valueOf(args[4]).intValue(), Integer.valueOf(args[6]).intValue() };
-      upperBounds = new int[] { Integer.valueOf(args[3]).intValue(),
-          Integer.valueOf(args[5]).intValue(), Integer.valueOf(args[7]).intValue() };
+        // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout,
+        // Iterations
+        lowerBounds = new int[] { Integer.valueOf(args[2]).intValue(),
+            Integer.valueOf(args[4]).intValue(), Integer.valueOf(args[6]).intValue() };
+        upperBounds = new int[] { Integer.valueOf(args[3]).intValue(),
+            Integer.valueOf(args[5]).intValue(), Integer.valueOf(args[7]).intValue() };
 
-      // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout, Iterations
-      HOLD_OUT_NUM = Integer.valueOf(args[8]);
-      ITERATIONS_NUM = Integer.valueOf(args[9]);
+        // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout,
+        // Iterations
+        HOLD_OUT_NUM = Integer.valueOf(args[8]);
+        ITERATIONS_NUM = Integer.valueOf(args[9]);
+      }
+      else {
+        System.out.print(printHelp());
+        System.exit(-10);
+      }
     }
     catch (Exception e) {
       System.err.println("There was parameters error....");
+      System.err.println(StackTrace.toString(e));
+      System.out.print(printHelp());
       System.exit(-10);
     }
 
@@ -139,6 +158,25 @@ public class DirectSampler {
     classify(classicParams);
     classify(exactParams);
     classify(noredParams);
+  }
+
+  private static String printHelp() {
+    StringBuffer sb = new StringBuffer();
+    sb.append("SAX-VSM parameters optimization sampler ").append(CR);
+    sb.append("Expects 10 parameters:").append(CR);
+    sb.append(" [1] training dataset filename").append(CR);
+    sb.append(" [2] test dataset filename").append(CR);
+    sb.append(" [3] minimal sliding window size").append(CR);
+    sb.append(" [4] maximal sliding window size").append(CR);
+    sb.append(" [5] minimal PAA size").append(CR);
+    sb.append(" [6] maximal PAA size").append(CR);
+    sb.append(" [7] minimal Alphabet size").append(CR);
+    sb.append(" [8] maximal Alphabet size").append(CR);
+    sb.append(" [8] cross-validation hold-out number").append(CR);
+    sb.append(" [8] maximal amount of sampling iterations").append(CR);
+    sb.append("An execution example: $java -cp \"sax-vsm-classic20.jar\" edu.hawaii.jmotif.direct.SAXVSMDirectSampler");
+    sb.append(" data/cbf/CBF_TRAIN data/cbf/CBF_TEST 10 120 5 60 2 18 1 10").append(CR);
+    return sb.toString();
   }
 
   private static void classify(int[] params) throws IndexOutOfBoundsException, TSException {
@@ -229,10 +267,9 @@ public class DirectSampler {
     for (int ctr = 0; ctr < ITERATIONS_NUM; ctr++) {
       resultMinimum = minimum(functionValues);
       double[] params = coordinates.get((int) resultMinimum[1]).getPoint().toArray();
-      consoleLogger.info(
-          "iteration: " + ctr + ", minimal value " + resultMinimum[0] + " at "
-              + (int) Math.round(params[0]) + ", " + (int) Math.round(params[1]) + ", "
-              + (int) Math.round(params[2]), strategy.index());
+      consoleLogger.info("iteration: " + ctr + ", minimal value " + resultMinimum[0] + " at "
+          + (int) Math.round(params[0]) + ", " + (int) Math.round(params[1]) + ", "
+          + (int) Math.round(params[2]));
       potentiallyOptimalRectangles = identifyPotentiallyRec();
       // For each potentially optimal rectangle
       for (int jj = 0; jj < potentiallyOptimalRectangles.size(); jj++) {
@@ -244,33 +281,47 @@ public class DirectSampler {
 
     // make result
     resultMinimum = minimum(functionValues);
-
     // generally, we want a shorter window
     //
     StringBuffer sb = new StringBuffer();
-    HashSet<String> paramsStr = new HashSet<String>();
-    double minValue = resultMinimum[0];
-    sb.append("min CV error ").append(fmt.format(minValue)).append(" reached at ");
-    Point params = null;
-    for (ValuePointColored p : coordinates) {
-      if (minValue == p.getValue()) {
-        Point new_params = p.getPoint();
+    HashSet<String> minimalValueParameters = new HashSet<String>();
+    double minimalValue = resultMinimum[0];
+
+    sb.append("min CV error ").append(fmt.format(minimalValue)).append(" reached at ");
+
+    int[] params = null;
+
+    for (int i = 0; i < functionValues.size(); i++) {
+
+      if (minimalValue == functionValues.get(i)) {
+
+        int[] new_params = coordinates.get(i).getPoint().toIntArray();
+
         if (null == params) {
-          params = new_params;
-          paramsStr.add(Arrays.toString(params.toArray()));
-          sb.append(Arrays.toString(new_params.toIntArray())).append(COMMA);
+          int[] asArray = Arrays.copyOf(new_params, new_params.length);
+          params = asArray;
+          minimalValueParameters.add(Arrays.toString(asArray));
+          sb.append(Arrays.toString(asArray)).append(COMMA);
         }
-        else if (new_params.toArray()[0] < params.toArray()[0]) {
-          params = new_params;
-          sb.append(Arrays.toString(new_params.toIntArray())).append(COMMA);
+        else if (new_params[0] < params[0]) {
+          params = Arrays.copyOf(new_params, new_params.length);
+          sb.append(Arrays.toString(params)).append(COMMA);
         }
       }
     }
 
     consoleLogger.info(sb.toString());
 
-    int[] res = Arrays.copyOf(params.toIntArray(), 4);
+    int[] res = Arrays.copyOf(params, 4);
     res[3] = strategy.index();
+    return res;
+  }
+
+  private static int[] toIntArray(Double[] array) {
+    int[] res = new int[array.length];
+    for (int i = 0; i < array.length; i++) {
+      res[i] = (int) Math.round(array[i]);
+    }
     return res;
   }
 
@@ -289,8 +340,10 @@ public class DirectSampler {
       i++;
     }
     minimum.setBest(true);
-    coordinates.remove(b);
-    coordinates.add(minimum);
+    // TODO: a bug?
+    // coordinates.remove(b);
+    // coordinates.add(minimum);
+    coordinates.set(b, minimum);
     double epsilon = 1E-4;
     double e = Math.max(epsilon * Math.abs(minFunctionValue), 1E-8);
     double[] temporaryArray = new double[functionValues.size()];

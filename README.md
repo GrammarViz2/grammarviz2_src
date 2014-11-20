@@ -49,12 +49,16 @@ The code implements a modified for SAX-VSM DIRECT algorithm. Below is the trace 
 	classification results: CLASSIC, window 80, PAA 17, alphabet 15,  accuracy 0.94667,  error 0.05333
 	classification results: EXACT, window 33, PAA 17, alphabet 10,  accuracy 0.98667,  error 0.01333
 	classification results: NOREDUCTION, window 33, PAA 17, alphabet 10,  accuracy 0.98,  error 0.02
-  
 
-3.0 NOTES
+3.0 EXPLORING PATTERNS
 ------------
+The class named `SAXVSMPatternExplorer` prints the most significant class-characteristic patterns, their weights, and the time-series that contain those. The `best_words_heat.R` script allows to plot these:
 
-Note, that by default, for the validation, the sampling routine chooses the parameters corresponding to shortest sliding window, which you may want to change - for example to choose the point which neighborhood contains the most sampled density.
+![An example of class-characteristic patterns locations in Gun/Point data](https://raw.githubusercontent.com/jMotif/sax-vsm_classic/master/RCode/figures/gun_point_heat.png)
+
+4.0 NOTES
+------------
+Note, that by default, for the best parameters validation on TEST data, the sampling routine chooses a parameters set corresponding to the shortest sliding window, which you may want to change - for example to choose the point which neighborhood contains the most sampled density.
 
 Also note that code implements 5 ways the TF (term frequency value) can be computed:
 

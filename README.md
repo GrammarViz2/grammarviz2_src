@@ -28,7 +28,7 @@ The code is written in Java and we use Ant to build it:
 
 2.0 FINDING THE BEST DISCRETIZATION PARAMETERS
 ------------
-The code implements a modified for SAX-VSM DIRECT algorithm. Below is the trace of running sampler for Gun/Point dataset. The series in this dataset have length 150, so I define the sliding window range as [10-150], PAA size as [5-75] while the alphabet [2-18]. This is the run trace:
+The code implements a modified for SAX-VSM DIRECT algorithm. Below is the trace of running sampler for Gun/Point dataset. The series in this dataset have length 150, so I define the sliding window range as [10-150], PAA size as [5-75], and the alphabet [2-18]. This is the run trace:
 
 	$java -cp "sax-vsm-classic20.jar" edu.hawaii.jmotif.direct.SAXVSMDirectSampler data/Gun_Point/Gun_Point_TRAIN data/Gun_Point/Gun_Point_TEST 10 150 5 75 2 18 1 20
 	running sampling for CLASSIC strategy...

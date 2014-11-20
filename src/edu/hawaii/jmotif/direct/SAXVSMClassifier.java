@@ -29,7 +29,7 @@ public class SAXVSMClassifier {
   private static final DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.US);
   private static DecimalFormat fmt = new DecimalFormat("0.00###", otherSymbols);
 
-  private static final Object COMMA = ", ";
+  private static final String COMMA = ", ";
 
   private static String TRAINING_DATA;
   private static String TEST_DATA;
@@ -77,7 +77,7 @@ public class SAXVSMClassifier {
       PAA_SIZE = Integer.valueOf(args[3]);
       ALPHABET_SIZE = Integer.valueOf(args[4]);
 
-      STRATEGY = SAXNumerosityReductionStrategy.valueOf(args[5]);
+      STRATEGY = SAXNumerosityReductionStrategy.valueOf(args[5].toUpperCase());
 
     }
     catch (Exception e) {

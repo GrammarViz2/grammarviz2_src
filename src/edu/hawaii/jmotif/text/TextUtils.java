@@ -86,9 +86,9 @@ public final class TextUtils {
         //
         double tfidf = 0;
 
-//        if (totalDocs == word.getValue().intValue()) {
-//          System.out.println("excluded: " + word.getKey());
-//        }
+        // if (totalDocs == word.getValue().intValue()) {
+        // System.out.println("excluded: " + word.getKey());
+        // }
         // if this document contains the word - here we go
         if (bagWords.containsKey(word.getKey()) & (totalDocs != word.getValue().intValue())) {
 
@@ -96,11 +96,11 @@ public final class TextUtils {
 
           // compute TF: we take a log and correct for 0 by adding 1
 
-          // double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
+          double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
 
           // double tfValue = 1.0D + Math.log(Integer.valueOf(wordInBagFrequency).doubleValue());
 
-          double tfValue = normalizedTF(bag, word.getKey());
+          // double tfValue = normalizedTF(bag, word.getKey());
 
           // double tfValue = augmentedTF(bag, word.getKey());
 
@@ -753,7 +753,8 @@ public final class TextUtils {
 
   public static synchronized int classify(String classKey, double[] series,
       HashMap<String, HashMap<String, Double>> tfidf, int paaSize, int alphabetSize,
-      int windowSize, SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException, TSException {
+      int windowSize, SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException,
+      TSException {
     int[] params = new int[4];
     params[0] = windowSize;
     params[1] = paaSize;

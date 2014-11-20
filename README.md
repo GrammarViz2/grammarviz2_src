@@ -56,7 +56,16 @@ The class named `SAXVSMPatternExplorer` prints the most significant class-charac
 
 ![An example of class-characteristic patterns locations in Gun/Point data](https://raw.githubusercontent.com/jMotif/sax-vsm_classic/master/RCode/figures/gun_point_heat.png)
 
-4.0 NOTES
+4.0 CLASSIFICATION
+------------
+`SAXVSMClassifier` implements the classification procedure. It reads both tran and test datasets, discretizes series, builds TFIDF vectors, and performs the classifciation:
+
+	$ java -cp "sax-vsm-classic20.jar" edu.hawaii.jmotif.direct.SAXVSMClassifier data/Gun_Point/Gun_Point_TRAIN data/Gun_Point/Gun_Point_TEST 33 17 5 EXACT
+	processing paramleters: [data/Gun_Point/Gun_Point_TRAIN, data/Gun_Point/Gun_Point_TEST, 33, 17, 5, EXACT]
+	...
+	classification results: EXACT, window 33, PAA 17, alphabet 5,  accuracy 0.98,  error 0.02
+	
+5.0 NOTES
 ------------
 Note, that by default, for the best parameters validation on TEST data, the sampling routine chooses a parameters set corresponding to the shortest sliding window, which you may want to change - for example to choose the point which neighborhood contains the most sampled density.
 
@@ -67,5 +76,8 @@ Also note that code implements 5 ways the TF (term frequency value) can be compu
 	// double tfValue = normalizedTF(bag, word.getKey());
 	// double tfValue = augmentedTF(bag, word.getKey());
 	// double tfValue = logAveTF(bag, word.getKey());
-  
-For many datasets, these likely to yield different accuracy.
+
+For many datasets, these yield quite different accuracy.
+
+Finally, note, that when cosine similarity is computed within the classification procedure, it may happen that its value is the same for all classes. In a such case the current classifier' implementation considers that the time series was missclassified, but you may want to assign it to one of the classes randomly.
+

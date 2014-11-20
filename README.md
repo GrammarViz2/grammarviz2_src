@@ -52,7 +52,7 @@ The code implements a modified for SAX-VSM DIRECT algorithm. Below is the trace 
 
 3.0 EXPLORING PATTERNS
 ------------
-The class named `SAXVSMPatternExplorer` prints the most significant class-characteristic patterns, their weights, and the time-series that contain those. The `best_words_heat.R` script allows to plot these:
+The class named `SAXVSMPatternExplorer` prints the most significant class-characteristic patterns, their weights, and the time-series that contain those. The `best_words_heat.R` script allows to plot these. Here is an example for the Gun/Point data:
 
 ![An example of class-characteristic patterns locations in Gun/Point data](https://raw.githubusercontent.com/jMotif/sax-vsm_classic/master/RCode/figures/gun_point_heat.png)
 

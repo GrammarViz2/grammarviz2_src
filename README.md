@@ -24,7 +24,7 @@ The code is written in Java and I use Ant to build it:
 	[delete] Deleting directory /media/Stock/git/sax-vsm_classic.git/tmp
 	BUILD SUCCESSFUL
 
-FINDING BEST DISCRETIZATION PARAMETERS
+FINDING THE BEST DISCRETIZATION PARAMETERS
 ------------
 You need to run a DIRECT smpler that is tailored for SAX-VSM algorithm. Below is the trace of running sampler for Gun/Point dataset. The series in this dataset have length 150, so I define the sliding window range as [10-150], PAA size as [5-75] while the alphabet [2-18]. This is the run trace:
 

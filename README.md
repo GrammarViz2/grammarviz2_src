@@ -79,5 +79,5 @@ Also note that code implements 5 ways the TF (term frequency value) can be compu
 
 For many datasets, these yield quite different accuracy.
 
-Finally, note, that when cosine similarity is computed within the classification procedure, it may happen that its value is the same for all classes. In a such case the current classifier' implementation considers that the time series was missclassified, but you may want to assign it to one of the classes randomly.
+Finally, note, that when cosine similarity is computed within the classification procedure, it may happen that its value is the same for all classes. In that case, the current implementation considers that the time series was missclassified, but you may want to assign it to one of the classes randomly.
 

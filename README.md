@@ -67,7 +67,7 @@ The class named `SAXVSMPatternExplorer` prints the most significant class-charac
 	
 5.0 NOTES
 ------------
-Note, that by default, for the best parameters validation on TEST data, the sampling routine chooses a parameters set corresponding to the shortest sliding window, which you may want to change - for example to choose the point which neighborhood contains the most sampled density.
+Note, that the default choice for the best parameters validation on TEST data is a parameters set corresponding to the shortest sliding window, which you may want to change - for example to choose the point whose neighborhood contains the highest density of sampled points.
 
 Also note that code implements 5 ways the TF (term frequency value) can be computed:
 

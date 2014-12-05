@@ -434,6 +434,7 @@ public class SAXVSMDirectSampler {
       Double f_m1 = checkCache(pointToSample1, functionHash);
       if (null == f_m1) {
         f_m1 = function.valueAt(pointToSample1);
+        consoleLogger.info("@" + f_m1 + "\t"+pointToSample1.toLogString());
         saveCache(pointToSample1, f_m1, functionHash);
       }
       else {
@@ -459,6 +460,7 @@ public class SAXVSMDirectSampler {
       Double f_m2 = checkCache(pointToSample2, functionHash);
       if (null == f_m2) {
         f_m2 = function.valueAt(pointToSample2);
+        consoleLogger.info("@" + f_m2 + "\t"+pointToSample2.toLogString());
         saveCache(pointToSample2, f_m2, functionHash);
       }
       else {

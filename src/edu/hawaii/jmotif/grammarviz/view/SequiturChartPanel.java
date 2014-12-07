@@ -711,7 +711,7 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
 
       // this.paintTheChart();
 
-      ChartUtilities.saveChartAsPNG(new File(fileName), this.chart, 1000, 400);
+      ChartUtilities.saveChartAsPNG(new File(fileName), this.chart, 1400, 425);
     }
     catch (IOException e) {
       e.printStackTrace();

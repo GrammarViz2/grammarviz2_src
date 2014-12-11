@@ -26,7 +26,7 @@ The code is written in Java and we use Ant to build it:
 	[delete] Deleting directory /media/Stock/git/sax-vsm_classic.git/tmp
 	BUILD SUCCESSFUL
 
-2.0 FINDING THE BEST DISCRETIZATION PARAMETERS
+2.0 OPTIMIZING DISCRETIZATION PARAMETERS
 ------------
 The code implements a modified for SAX-VSM DIRECT algorithm. Below is the trace of running sampler for Gun/Point dataset. The series in this dataset have length 150, so I define the sliding window range as [10-150], PAA size as [5-75], and the alphabet [2-18]. This is the run trace:
 
@@ -49,6 +49,10 @@ The code implements a modified for SAX-VSM DIRECT algorithm. Below is the trace 
 	classification results: CLASSIC, window 80, PAA 17, alphabet 15,  accuracy 0.94667,  error 0.05333
 	classification results: EXACT, window 33, PAA 17, alphabet 10,  accuracy 0.98667,  error 0.01333
 	classification results: NOREDUCTION, window 33, PAA 17, alphabet 10,  accuracy 0.98,  error 0.02
+
+In addition to a modified DIRECT version, which samples only integer points, we provide a reference implementation. For many datasets, the continuous sampler not only finds better parameters (while converging for much longer), but provides an effective visualization of optimal parameter ranges:
+
+![An example of DIRECT samplers run](https://raw.githubusercontent.com/jMotif/sax-vsm_classic/master/RCode/figures/direct_sampling_arrowhead.png)
 
 3.0 EXPLORING PATTERNS
 ------------

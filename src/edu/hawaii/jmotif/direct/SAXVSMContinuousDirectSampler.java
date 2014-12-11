@@ -28,7 +28,7 @@ import edu.hawaii.jmotif.util.UCRUtils;
  * @author psenin
  * 
  */
-public class SAXVSMDirectSampler {
+public class SAXVSMContinuousDirectSampler {
 
   // the number formatter
   private static final DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.US);
@@ -54,7 +54,6 @@ public class SAXVSMDirectSampler {
 
   // array used to track sampled points and function values
   private static ArrayList<ValuePointColored> coordinates;
-  private static HashMap<String, Double> functionHash;
 
   private static final double precision = 1E-16;
   private static int b = 0;
@@ -79,7 +78,7 @@ public class SAXVSMDirectSampler {
   private static final String COMMA = ", ";
   private static final String CR = "\n";
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SAXVSMDirectSampler.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(SAXVSMContinuousDirectSampler.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -218,7 +217,6 @@ public class SAXVSMDirectSampler {
     functionValues = new ArrayList<Double>();
 
     coordinates = new ArrayList<ValuePointColored>();
-    functionHash = new HashMap<String, Double>();
 
     sampledPoints = 0;
     rectangleCounter = 1;
@@ -268,8 +266,8 @@ public class SAXVSMDirectSampler {
       resultMinimum = minimum(functionValues);
       double[] params = coordinates.get((int) resultMinimum[1]).getPoint().toArray();
       consoleLogger.info("iteration: " + ctr + ", minimal value " + resultMinimum[0] + " at "
-          + (int) Math.round(params[0]) + ", " + (int) Math.round(params[1]) + ", "
-          + (int) Math.round(params[2]));
+          + params[0] + ", " + params[1] + ", " + params[2]);
+      // System.out.println(resultMinimum[0] + ","+params[0] + "," + params[1] + ", " + params[2]);
       potentiallyOptimalRectangles = identifyPotentiallyRec();
       // For each potentially optimal rectangle
       for (int jj = 0; jj < potentiallyOptimalRectangles.size(); jj++) {
@@ -431,16 +429,9 @@ public class SAXVSMDirectSampler {
       // Function value at x_m1
       Point pointToSample1 = Point.at(x_m1);
       // TODO: here needs to be a check
-      Double f_m1 = checkCache(pointToSample1, functionHash);
-      if (null == f_m1) {
-        f_m1 = function.valueAt(pointToSample1);
-        consoleLogger.info("@" + f_m1 + "\t"+pointToSample1.toLogString());
-        saveCache(pointToSample1, f_m1, functionHash);
-      }
-      else {
-        consoleLogger.debug("** saved the computation at "
-            + Arrays.toString(pointToSample1.toArray()));
-      }
+      Double f_m1 = function.valueAt(pointToSample1);
+      consoleLogger.info("@" + f_m1 + "\t"+pointToSample1.toLogString());
+
       // add to all points
       coordinates.add(ValuePointColored.at(pointToSample1, f_m1, false));
       sampledPoints = sampledPoints + 1;
@@ -457,16 +448,8 @@ public class SAXVSMDirectSampler {
       // Function value at x_m2
       Point pointToSample2 = Point.at(x_m2);
       // TODO: here needs to be a check
-      Double f_m2 = checkCache(pointToSample2, functionHash);
-      if (null == f_m2) {
-        f_m2 = function.valueAt(pointToSample2);
-        consoleLogger.info("@" + f_m2 + "\t"+pointToSample2.toLogString());
-        saveCache(pointToSample2, f_m2, functionHash);
-      }
-      else {
-        consoleLogger.debug("** saved the computation at "
-            + Arrays.toString(pointToSample2.toArray()));
-      }
+      Double f_m2 = function.valueAt(pointToSample2);
+      consoleLogger.info("@" + f_m2 + "\t"+pointToSample2.toLogString());
 
       // add to all points
       coordinates.add(ValuePointColored.at(pointToSample2, f_m2, false));
@@ -489,26 +472,6 @@ public class SAXVSMDirectSampler {
 
     devideRec(w, maxSideLengths, delta, j);
 
-  }
-
-  private static void saveCache(Point point, Double value, HashMap<String, Double> cache) {
-    // formatting the string
-    StringBuffer sb = new StringBuffer();
-    for (double d : point.toArray()) {
-      sb.append(String.format("%d", Math.round(d))).append(" ");
-    }
-    // save the value
-    cache.put(sb.toString(), value);
-    // consoleLogger.info(sb.toString() + ", " + value);
-  }
-
-  private static Double checkCache(Point point, HashMap<String, Double> cache) {
-    // formatting the string
-    StringBuffer sb = new StringBuffer();
-    for (double d : point.toArray()) {
-      sb.append(String.format("%d", Math.round(d))).append(" ");
-    }
-    return cache.get(sb.toString());
   }
 
   /**

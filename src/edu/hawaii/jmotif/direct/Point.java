@@ -132,4 +132,8 @@ public class Point {
     }
     return res;
   }
+
+  public String toLogString() {
+    return toString.replaceAll("\\[|\\]", "").replace(",", "\t");
+  }
 }

@@ -48,8 +48,6 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
 
   // static block - we instantiate the logger
   //
-  // static block - we instantiate the logger
-  //
   private static final Logger consoleLogger;
   private static final Level LOGGING_LEVEL = Level.INFO;
   static {
@@ -149,7 +147,7 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
       consoleLogger.debug("samples2go: " + samples2go.toString());
 
       // total counter
-      int totalSamples = samples2go.size(); 
+      int totalSamples = samples2go.size();
 
       // missclassified counter
       int missclassifiedSamples = 0;
@@ -341,11 +339,11 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
         // if this document contains the word - here we go
         if (bagWords.containsKey(word.getKey()) & (totalDocs != word.getValue().intValue())) {
 
-          // int wordInBagFrequency = bagWords.get(word.getKey()).intValue();
+          int wordInBagFrequency = bagWords.get(word.getKey()).intValue();
 
           // compute TF: we take a log and correct for 0 by adding 1
 
-          // double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
+          double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
 
           // double tfValue = 1.0D + Math.log(Integer.valueOf(wordInBagFrequency).doubleValue());
           // 0.5
@@ -353,7 +351,7 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
           // double tfValue = normalizedTF(bag, word.getKey());
           // 0.46
 
-          double tfValue = augmentedTF(bag, word.getKey());
+          // double tfValue = augmentedTF(bag, word.getKey());
           // 0.5
           // double tfValue = logAveTF(bag, word.getKey());
           // 0.5

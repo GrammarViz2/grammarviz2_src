@@ -96,15 +96,20 @@ public final class TextUtils {
 
           // compute TF: we take a log and correct for 0 by adding 1
 
-          double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
+          // OSULeaf: 0.09091
+//          double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
 
-          // double tfValue = 1.0D + Math.log(Integer.valueOf(wordInBagFrequency).doubleValue());
+          // OSULeaf: 0.08678
+          double tfValue = 1.0D + Math.log(Integer.valueOf(wordInBagFrequency).doubleValue());
 
-          // double tfValue = normalizedTF(bag, word.getKey());
+          // OSULeaf: 0.1405
+//           double tfValue = normalizedTF(bag, word.getKey());
 
-          // double tfValue = augmentedTF(bag, word.getKey());
+          // OSULeaf: 0.08678
+//           double tfValue = augmentedTF(bag, word.getKey());
 
-          // double tfValue = logAveTF(bag, word.getKey());
+          // OSULeaf: 0.08678
+//           double tfValue = logAveTF(bag, word.getKey());
 
           // compute the IDF
           //

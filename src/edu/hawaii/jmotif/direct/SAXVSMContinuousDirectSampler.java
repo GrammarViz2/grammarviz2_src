@@ -267,7 +267,7 @@ public class SAXVSMContinuousDirectSampler {
       double[] params = coordinates.get((int) resultMinimum[1]).getPoint().toArray();
       consoleLogger.info("iteration: " + ctr + ", minimal value " + resultMinimum[0] + " at "
           + params[0] + ", " + params[1] + ", " + params[2]);
-      System.out.println(resultMinimum[0] + ","+params[0] + "," + params[1] + ", " + params[2]);
+      // System.out.println(resultMinimum[0] + ","+params[0] + "," + params[1] + ", " + params[2]);
       potentiallyOptimalRectangles = identifyPotentiallyRec();
       // For each potentially optimal rectangle
       for (int jj = 0; jj < potentiallyOptimalRectangles.size(); jj++) {
@@ -472,26 +472,6 @@ public class SAXVSMContinuousDirectSampler {
 
     devideRec(w, maxSideLengths, delta, j);
 
-  }
-
-  private static void saveCache(Point point, Double value, HashMap<String, Double> cache) {
-    // formatting the string
-    StringBuffer sb = new StringBuffer();
-    for (double d : point.toArray()) {
-      sb.append(String.format("%d", Math.round(d))).append(" ");
-    }
-    // save the value
-    cache.put(sb.toString(), value);
-    // consoleLogger.info(sb.toString() + ", " + value);
-  }
-
-  private static Double checkCache(Point point, HashMap<String, Double> cache) {
-    // formatting the string
-    StringBuffer sb = new StringBuffer();
-    for (double d : point.toArray()) {
-      sb.append(String.format("%d", Math.round(d))).append(" ");
-    }
-    return cache.get(sb.toString());
   }
 
   /**

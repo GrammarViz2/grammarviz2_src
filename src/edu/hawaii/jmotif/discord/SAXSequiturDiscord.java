@@ -124,7 +124,8 @@ public class SAXSequiturDiscord {
           outputRRAresults = false;
           if (args.length == 7) {
             String yesNoParam = args[6];
-            if (yesNoParam.equalsIgnoreCase("true") || yesNoParam.equalsIgnoreCase("t")) {
+            if (yesNoParam.equalsIgnoreCase("true") || yesNoParam.equalsIgnoreCase("t")
+                || yesNoParam.equalsIgnoreCase("yes") || yesNoParam.equalsIgnoreCase("1")) {
               outputRRAresults = true;
             }
           }

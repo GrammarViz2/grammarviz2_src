@@ -16,10 +16,22 @@ import edu.hawaii.jmotif.sax.trie.VisitRegistry;
 import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.StackTrace;
 
+/**
+ * Implements a runnable for the proposed in EDBT15 anomaly discovery technique.
+ * 
+ * @author psenin
+ * 
+ */
 public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
+  /** The chart data handler. */
   private MotifChartData chartData;
 
+  /**
+   * Constructor.
+   * 
+   * @param motifChartData The chartdata object -- i.e., info about the input and parameters.
+   */
   public GrammarVizAnomalyFinder(MotifChartData motifChartData) {
     super();
     this.chartData = motifChartData;
@@ -27,6 +39,8 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
   @Override
   public void run() {
+
+    // save the timestamp
     Date start = new Date();
 
     this.setChanged();
@@ -65,10 +79,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
     for (Entry<RuleDescriptor, ArrayList<RuleInterval>> e : rules.entrySet()) {
       for (RuleInterval ri : e.getValue()) {
-        // double[] subsequence = subsequence(coverageCurve, ri.getStartPos(), ri.getEndPos());
-        // double mean = TSUtils.mean(subsequence);
         ri.setCoverage(e.getKey().getRuleFrequency());
-        // ri.setCoverage(mean);
         ri.setId(e.getKey().getRuleIndex());
         intervals.add(ri);
       }
@@ -79,7 +90,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
     for (int i = 0; i < coverageCurve.length; i++) {
       if (0 == coverageCurve[i]) {
         int j = i;
-        while ((j < coverageCurve.length) && (0 == coverageCurve[j])) {
+        while ((j < coverageCurve.length - 1) && (0 == coverageCurve[j])) {
           j++;
         }
         if (Math.abs(i - j) > 1) {
@@ -89,7 +100,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       }
     }
 
-    log("running HOT SAX on the set of rule intervals...");
+    log("running RRA on the set of rule intervals...");
 
     // run HOTSAX with this intervals set
     //

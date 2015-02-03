@@ -235,10 +235,12 @@ public class SequiturModel extends Observable {
       try {
 
         if (0 == algorithm) {
+          
           consoleLogger.debug("discretizing string ...");
           SAXRecords saxFrequencyData = SequiturFactory.discretize(this.ts,
               numerosityReductionStrategy, windowSize, paaSize, alphabetSize,
               normalizationThreshold);
+          
           consoleLogger.trace("String: " + saxFrequencyData.getSAXString(SPACE));
 
           consoleLogger.debug("running sequitur ...");

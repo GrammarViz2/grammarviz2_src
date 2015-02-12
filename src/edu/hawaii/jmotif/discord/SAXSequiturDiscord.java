@@ -393,7 +393,7 @@ public class SAXSequiturDiscord {
     consoleLogger.info("running brute force algorithm...");
 
     Date start = new Date();
-    DiscordRecords discords = TSUtils.series2Discords(ts, windowSize, discordsToReport,
+    DiscordRecords discords = TSUtils.series2BruteForceDiscords(ts, windowSize, discordsToReport,
         new LargeWindowAlgorithm());
     Date end = new Date();
 

@@ -235,12 +235,18 @@ public class SequiturModel extends Observable {
       try {
 
         if (0 == algorithm) {
-          
-          consoleLogger.debug("discretizing string ...");
-          SAXRecords saxFrequencyData = SequiturFactory.discretize(this.ts,
-              numerosityReductionStrategy, windowSize, paaSize, alphabetSize,
-              normalizationThreshold);
-          
+
+          SAXRecords saxFrequencyData = null;
+          if (useSlidingWindow) {
+            consoleLogger.debug("discretizing string ...");
+            saxFrequencyData = SequiturFactory.discretize(this.ts, numerosityReductionStrategy,
+                windowSize, paaSize, alphabetSize, normalizationThreshold);
+          }
+          else {
+            saxFrequencyData = SequiturFactory.discretizeNoSlidingWindow(this.ts, paaSize,
+                alphabetSize, normalizationThreshold);
+          }
+
           consoleLogger.trace("String: " + saxFrequencyData.getSAXString(SPACE));
 
           consoleLogger.debug("running sequitur ...");
@@ -256,6 +262,7 @@ public class SequiturModel extends Observable {
 
           consoleLogger.debug("done ...");
           this.chartData.setGrammarRules(rules);
+
         }
         else {
 

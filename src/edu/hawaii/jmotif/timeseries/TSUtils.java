@@ -107,7 +107,7 @@ public final class TSUtils {
       }
       preRes.add(Double.valueOf(split[columnIdx]));
       lineCounter++;
-      if ((0 != sizeLimit || -1 != sizeLimit) && (lineCounter >= sizeLimit)) {
+      if (!(0 == sizeLimit || -1 == sizeLimit) && (lineCounter >= sizeLimit)) {
         break;
       }
     }

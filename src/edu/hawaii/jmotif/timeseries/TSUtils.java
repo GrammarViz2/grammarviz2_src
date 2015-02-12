@@ -98,6 +98,7 @@ public final class TSUtils {
 
     String line = null;
     while ((line = br.readLine()) != null) {
+      line = line.trim();
       String[] split = line.split("\\s+");
       if (split.length < columnIdx) {
         String message = "Unable to read data from column " + columnIdx + " of file " + filename;

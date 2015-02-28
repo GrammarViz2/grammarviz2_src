@@ -5,10 +5,11 @@ GrammarViz 2.0 source code public repository. For the documentation, please visi
 
 GrammarViz 2.0 implements in Java:
 
-  - Symbolic Aggregate approXimaion, aka SAX, and its parallelized version [1]
-  - Sequitur grammar induction algorithm, our implementation is based on the [reference Java code](http://www.sequitur.info/) [2]
+  - Symbolic Aggregate approXimaion (SAX) and its parallelized version [1]
+  - Sequitur grammar induction algorithm, our implementation is based on the [reference Java code by Craig Nevill-Manning and Ian Witten](https://code.google.com/p/sequitur/) [2]
   - Re-Pair grammar induction algorithm and its parallelized version [3]
-  - GrammarViz 2.0 time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]
+  - Interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]
+  - "Rule Density" and "Rare Rule Anomaly" (RRA) algorithms for time series anomaly discovery [5]
 
 References:
 
@@ -19,6 +20,8 @@ References:
 [3] Larsson, N. J., Moffat, A., *Offline Dictionary-Based Compression*, IEEE 88 (11): 1722–1732, doi:[10.1109/5.892708](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=892708), 2000.
 
 [4] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**GrammarViz 2.0: a tool for grammar-based pattern discovery in time series**](http://www2.hawaii.edu/~senin/assets/papers/grammarviz2.pdf), ECML/PKDD Conference, 2014.
+
+[5] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**Time series anomaly discovery with grammar-based compression**](https://csdl-techreports.googlecode.com/svn/trunk/techreports/2014/14-05/14-05.pdf), The International Conference on Extending Database Technology, EDBT 15.
 
 ## Building
 

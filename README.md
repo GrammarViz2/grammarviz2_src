@@ -9,7 +9,7 @@ GrammarViz 2.0 implements in Java:
   - Sequitur grammar induction algorithm, our implementation is based on the [reference Java code by Craig Nevill-Manning and Ian Witten](https://code.google.com/p/sequitur/) [2]
   - Re-Pair grammar induction algorithm and its parallelized version [3]
   - Interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]
-  - "Rule Density" and "Rare Rule Anomaly" (RRA) algorithms for time series anomaly discovery [5]
+  - "Rule Density" and "Rare Rule Anomaly" (RRA) algorithms for time series anomaly discovery based on Kolmogorov complexity [5]
 
 References:
 

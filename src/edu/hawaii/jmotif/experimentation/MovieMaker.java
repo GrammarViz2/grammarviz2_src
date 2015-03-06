@@ -27,15 +27,15 @@ public class MovieMaker {
 
   // data file
   //
-  private static final String DATA_FILENAME = "data/dutch_power_demand.txt";
+  private static final String DATA_FILENAME = "data/asys40.txt";
   private static final String OUT_PREFIX = "movie/density";
 
   // params
   //
-  private static final int WINDOW_SIZE = 750;
-  private static final int PAA_SIZE = 10;
-  private static final int A_SIZE = 4;
-  private static final double NORMALIZATION_THRESHOLD = 0.5D;
+  private static final int WINDOW_SIZE = 400;
+  private static final int PAA_SIZE = 8;
+  private static final int A_SIZE = 6;
+  private static final double NORMALIZATION_THRESHOLD = 0.01D;
 
   private static final NormalAlphabet normalA = new NormalAlphabet();
 

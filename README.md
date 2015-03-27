@@ -89,3 +89,5 @@ Total time: 22 seconds
 To run the GrammarViz 2.0 GUI use `edu.hawaii.jmotif.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar grammarviz20.jar` (here I have allocated max of 2Gb of memory for the software).
 
 ## Made with Aloha!
+
+##TEST COMMIT 1

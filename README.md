@@ -90,4 +90,3 @@ To run the GrammarViz 2.0 GUI use `edu.hawaii.jmotif.grammarviz.GrammarVizGUI` c
 
 ## Made with Aloha!
 
-##TEST COMMIT 1

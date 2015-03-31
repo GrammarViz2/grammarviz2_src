@@ -151,7 +151,7 @@ public class GrammarVizDiscord {
       findHotSax();
     }
     else if (3 == algorithm) {
-      findSaxSequitur(null);
+      findRRA(null);
     }
     else if (4 == algorithm) {
       findHotSaxWithHash();
@@ -192,10 +192,10 @@ public class GrammarVizDiscord {
 
   }
 
-  private static void findSaxSequitur(CoverageCountStrategy strategy) throws IOException,
+  private static void findRRA(CoverageCountStrategy strategy) throws IOException,
       TSException {
 
-    consoleLogger.info("running SAXSequitur algorithm...");
+    consoleLogger.info("running RRA algorithm...");
     Date start = new Date();
 
     GrammarRules rules = SequiturFactory.series2SequiturRules(ts, windowSize, paaSize,
@@ -251,7 +251,7 @@ public class GrammarVizDiscord {
 
     // run HOTSAX with this intervals set
     //
-    DiscordRecords discords = SAXFactory.series2SAXSequiturAnomalies(ts, discordsToReport,
+    DiscordRecords discords = SAXFactory.series2RRAAnomalies(ts, discordsToReport,
         intervals);
     Date end = new Date();
     System.out.println("params: " + argsString);
@@ -412,7 +412,7 @@ public class GrammarVizDiscord {
 
     StringBuffer sb = new StringBuffer();
 
-    sb.append("GrammarViz2 release, contact: seninp@gmail.com").append(CR);
+    sb.append("GrammarViz2 v. 1.0 release, contact: seninp@gmail.com").append(CR);
 
     sb.append("Expected parameters: ").append(CR);
 

@@ -1506,7 +1506,7 @@ public final class SAXFactory {
    * @return Discords.
    * @throws TSException If error occurs.
    */
-  public static DiscordRecords series2SAXSequiturAnomalies(double[] series,
+  public static DiscordRecords series2RRAAnomalies(double[] series,
       int discordCollectionSize, ArrayList<RuleInterval> intervals) throws TSException {
 
     // resulting discords collection

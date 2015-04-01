@@ -83,6 +83,8 @@ Also note that code implements 5 ways the TF (term frequency value) can be compu
 
 For many datasets, these yield quite different accuracy.
 
+The normalization threshold (used in SAX discretization) is also quite important hidden parameter -- changing it from 0.001 to 0.01 may significantly change the classification accuracy on a number of datasets where the original signal standard deviation is small, such as Beef.
+
 Finally, note, that when cosine similarity is computed within the classification procedure, it may happen that its value is the same for all classes. In that case, the current implementation considers that the time series was missclassified, but you may want to assign it to one of the classes randomly.
 
 6.0 ACCURACY TABLE

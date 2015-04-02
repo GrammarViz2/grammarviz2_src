@@ -9,7 +9,7 @@ GrammarViz 2.0 implements in Java:
   - Sequitur grammar induction algorithm, our implementation is based on the [reference Java code by Craig Nevill-Manning and Ian Witten](https://github.com/craignm/sequitur) [2]
   - Re-Pair grammar induction algorithm and its parallelized version [3]
   - Interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]
-  - "Rule Density" and "Rare Rule Anomaly" (RRA) algorithms for time series anomaly discovery based on Kolmogorov complexity [5]
+  - "**Rule Density Curve**" and "**Rare Rule Anomaly**" (RRA) algorithms for time series anomaly discovery based on Kolmogorov complexity [5]
 
 References:
 
@@ -89,4 +89,5 @@ Total time: 22 seconds
 To run the GrammarViz 2.0 GUI use `edu.hawaii.jmotif.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar grammarviz20.jar` (here I have allocated max of 2Gb of memory for the software).
 
 ## Made with Aloha!
+![Made with Aloha!](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/aloha.jpg)
 

@@ -33,7 +33,7 @@ public final class SequiturFactory {
   /** Chunking/Sliding switch action key. */
   protected static final String USE_SLIDING_WINDOW_ACTION_KEY = "sliding_window_key";
 
-  private static final double NORMALIZATION_THRESHOLD = 0.05D;
+  private static final double NORMALIZATION_THRESHOLD = 0.5D;
 
   private static final NormalAlphabet normalA = new NormalAlphabet();
 
@@ -330,8 +330,8 @@ public final class SequiturFactory {
    * @throws TSException
    * @throws IOException
    */
-  public static GrammarRules series2SequiturRules(double[] timeseries, int saxWindowSize, int saxPAASize,
-      int saxAlphabetSize, NumerosityReductionStrategy numerosityReductionStrategy,
+  public static GrammarRules series2SequiturRules(double[] timeseries, int saxWindowSize,
+      int saxPAASize, int saxAlphabetSize, NumerosityReductionStrategy numerosityReductionStrategy,
       double normalizationThreshold) throws TSException, IOException {
 
     consoleLogger.debug("Discretizing time series...");
@@ -480,6 +480,39 @@ public final class SequiturFactory {
     return saxFrequencyData;
   }
 
+  /**
+   * Performs discretization.
+   * 
+   * @param timeseries
+   * @param saxPAASize
+   * @param saxAlphabetSize
+   * @param normalizationThreshold
+   * @return
+   * @throws TSException
+   */
+  public static SAXRecords discretizeNoSlidingWindow(double[] timeseries, int saxPAASize,
+      int saxAlphabetSize, double normalizationThreshold) throws TSException {
+
+    SAXRecords saxFrequencyData = new SAXRecords();
+
+    // Z normalize it
+    double[] normalizedTS = TSUtils.optimizedZNorm(timeseries, normalizationThreshold);
+
+    // perform PAA conversion if needed
+    double[] paa = TSUtils.optimizedPaa(normalizedTS, saxPAASize);
+
+    // Convert the PAA to a string.
+    char[] currentString = TSUtils.ts2String(paa, normalA.getCuts(saxAlphabetSize));
+
+    // create the datastructure
+    for (int i = 0; i < currentString.length; i++) {
+      char c = currentString[i];
+      saxFrequencyData.add(String.valueOf(c).toCharArray(), i);
+    }
+
+    return saxFrequencyData;
+  }
+
   public static void updateRuleIntervals(GrammarRules rules, SAXRecords saxFrequencyData,
       boolean slidingWindowOn, double[] originalTimeSeries, int saxWindowSize, int saxPAASize) {
 
@@ -528,9 +561,7 @@ public final class SequiturFactory {
           }
           else {
             double step = (double) originalTimeSeries.length / (double) saxPAASize;
-            endPos = Long.valueOf(
-                Math.round(saxWordsIndexes.get(currentIndex + expandedRuleLength) * step))
-                .intValue();
+            endPos = Long.valueOf(Math.round(startPos + expandedRuleLength * step)).intValue();
           }
         }
 

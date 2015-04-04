@@ -54,7 +54,8 @@ public abstract class SAXSymbol {
   protected int originalPosition;
 
   /** Sort of pointers for previous and the next symbols. */
-  protected SAXSymbol p, n;
+  public SAXSymbol p;
+  public SAXSymbol n;
 
   /**
    * Links left and right symbols together, i.e. removes this symbol from the string, also removing

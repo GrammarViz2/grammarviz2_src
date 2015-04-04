@@ -449,4 +449,14 @@ public class SAXRule {
     }
     return text.toString();
   }
+
+  /**
+   * Cleans up data structures.
+   */
+  public static void reset() {
+    SAXRule.numRules = new AtomicInteger(0);
+    SAXSymbol.theDigrams.clear();
+    SAXSymbol.theSubstituteTable.clear();
+    SAXRule.arrRuleRecords = new ArrayList<GrammarRuleRecord>();
+  }
 }

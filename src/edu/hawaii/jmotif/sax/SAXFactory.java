@@ -806,7 +806,7 @@ public final class SAXFactory {
     // visit registry. the idea is to mark as visited all the discord
     // locations for all searches. in other words, if the discord was found, its location is marked
     // as visited and there will be no search IT CANT SPAN BEYOND series.length - windowSize
-    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length - windowSize);
+    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length);
 
     // the collection of seen words and their best so far distances
     // in the collection, in addition to pairs <word, distance> I store a
@@ -1107,7 +1107,7 @@ public final class SAXFactory {
     // visit registry. the idea is to mark as visited all the discord
     // locations for all searches. in other words, if the discord was found, its location is marked
     // as visited and there will be no search IT CANT SPAN BEYOND series.length - windowSize
-    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length - windowSize);
+    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length);
 
     // the collection of seen words and their best so far distances
     // in the collection, in addition to pairs <word, distance> I store a
@@ -1506,7 +1506,7 @@ public final class SAXFactory {
    * @return Discords.
    * @throws TSException If error occurs.
    */
-  public static DiscordRecords series2SAXSequiturAnomalies(double[] series,
+  public static DiscordRecords series2RRAAnomalies(double[] series,
       int discordCollectionSize, ArrayList<RuleInterval> intervals) throws TSException {
 
     // resulting discords collection

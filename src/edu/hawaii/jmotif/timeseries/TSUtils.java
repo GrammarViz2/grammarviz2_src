@@ -98,15 +98,16 @@ public final class TSUtils {
 
     String line = null;
     while ((line = br.readLine()) != null) {
+      line = line.trim();
       String[] split = line.split("\\s+");
       if (split.length < columnIdx) {
         String message = "Unable to read data from column " + columnIdx + " of file " + filename;
         br.close();
         throw new TSException(message);
       }
-      preRes.add(Double.valueOf(line));
+      preRes.add(Double.valueOf(split[columnIdx]));
       lineCounter++;
-      if ((0 != sizeLimit) && (lineCounter >= sizeLimit)) {
+      if (!(0 == sizeLimit || -1 == sizeLimit) && (lineCounter >= sizeLimit)) {
         break;
       }
     }
@@ -1059,6 +1060,7 @@ public final class TSUtils {
   }
 
   /**
+   * Brute force discord search implementation. BRUTE FORCE algorithm.
    * 
    * @param series
    * @param windowSize
@@ -1067,12 +1069,15 @@ public final class TSUtils {
    * @return
    * @throws TSException
    */
-  public static DiscordRecords series2Discords(double[] series, Integer windowSize,
+  public static DiscordRecords series2BruteForceDiscords(double[] series, Integer windowSize,
       int discordCollectionSize, LargeWindowAlgorithm marker) throws TSException {
 
     DiscordRecords discords = new DiscordRecords();
 
-    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length - windowSize);
+    // init new registry to the full length, but mark the end of it
+    //
+    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length);
+    globalTrackVisitRegistry.markVisited(series.length - windowSize, series.length);
 
     int discordCounter = 0;
 
@@ -1081,7 +1086,7 @@ public final class TSUtils {
       consoleLogger.debug("currently known discords: " + discords.getSize() + " out of "
           + discordCollectionSize);
 
-      // mark start and number of iterattions
+      // mark start and number of iterations
       Date start = new Date();
 
       DiscordRecord bestDiscord = findBestDiscord(series, windowSize, globalTrackVisitRegistry,
@@ -1117,6 +1122,16 @@ public final class TSUtils {
     return discords;
   }
 
+  /**
+   * Finds the best discord. BRUTE FORCE algorithm.
+   * 
+   * @param series
+   * @param windowSize
+   * @param globalRegistry
+   * @param marker
+   * @return
+   * @throws TSException
+   */
   private static DiscordRecord findBestDiscord(double[] series, Integer windowSize,
       VisitRegistry globalRegistry, LargeWindowAlgorithm marker) throws TSException {
 

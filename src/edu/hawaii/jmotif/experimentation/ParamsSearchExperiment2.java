@@ -245,7 +245,7 @@ public class ParamsSearchExperiment2 {
 
           // run HOTSAX with this intervals set
           //
-          DiscordRecords discords = SAXFactory.series2SAXSequiturAnomalies(ts, 1, intervals);
+          DiscordRecords discords = SAXFactory.series2RRAAnomalies(ts, 1, intervals);
           int discordPos = -1;
 
           Interval interval = null;

@@ -88,7 +88,7 @@ public class SequiturController extends Observable implements ActionListener {
         int alphabetSize = session.getSaxAlphabet();
         double normalizationThreshold = session.getNormalizationThreshold();
         String grammarOutputFileName = session.getGrammarOutputFileName();
-        log("controller: running prcess with settings alg: " + algorithm + ", sliding window: "
+        log("controller: running inference with settings alg: " + algorithm + ", sliding window: "
             + useSlidingWindow + ", num.reduction:" + numerosityReductionStrategy.toString()
             + ", SAX window: " + windowSize + ", SAX paa: " + paaSize + ", SAX alphabet: "
             + alphabetSize + ", norm.threshold: " + normalizationThreshold + ", grammar filename: "

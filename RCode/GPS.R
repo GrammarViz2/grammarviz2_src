@@ -37,7 +37,7 @@ p1
 #
 distances=read.csv(file="../distances.txt",header=F,sep=",")
 df=data.frame(time=c(1:length(data$V1)),value=distances$V2,width=distances$V3)
-p2 <- ggplot(df, aes(time, value)) + geom_line(color="red") + theme_classic() +
+p2 <- ggplot(df, aes(time, value)) + geom_line(color="red") + theme_bw() +
   ggtitle("Non-self distance to the nearest neighbor among subsequences corresponding to Sequitur rules") + 
   theme(plot.title = element_text(size = rel(1.5)), axis.title.x = element_blank(),axis.title.y=element_blank(),
         axis.ticks.y=element_blank(),axis.text.y=element_blank())

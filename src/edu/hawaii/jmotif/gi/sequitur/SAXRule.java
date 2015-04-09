@@ -201,7 +201,7 @@ public class SAXRule {
    */
   private static void expandRules() {
 
-    long start = System.currentTimeMillis();
+    // long start = System.currentTimeMillis();
 
     // iterate over all SAX containers
     // ArrayList<SAXMapEntry<Integer, Integer>> recs = new ArrayList<SAXMapEntry<Integer, Integer>>(
@@ -266,8 +266,8 @@ public class SAXRule {
     ruleRecord.setExpandedRuleString(resultString.toString());
     // ruleRecord.setRuleYield(countSpaces(resultString));
 
-    long end = System.currentTimeMillis();
-    System.out.println("Rules expanded in " + SAXFactory.timeToString(start, end));
+    // long end = System.currentTimeMillis();
+    // System.out.println("Rules expanded in " + SAXFactory.timeToString(start, end));
 
   }
 

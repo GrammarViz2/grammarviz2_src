@@ -201,32 +201,13 @@ public class SAXRule {
   private static void expandRules() {
     // iterate over all SAX containers
     for (GrammarRuleRecord ruleRecord : arrRuleRecords) {
-      // TODO: we can save on the rule 0 extended form by simply setting it as the input string
-      // if (0 == ruleRecord.ruleNumber) {
-      // continue;
-      // }
+
       String resultString = ruleRecord.getRuleString();
-      // here it goes over the rule string iteratively expanding the rules. trick is that rules
-      // start with "R"
-      //
-      // TODO: old code
-      // while (resultString.contains("R")) {
-      // int rIdx = resultString.indexOf("R");
-      // int spaceIdx = resultString.indexOf(" ", rIdx);
-      // String ruleIdx = resultString.substring(rIdx, spaceIdx + 1);
-      // Integer ruleId = Integer.valueOf(ruleIdx.substring(1, ruleIdx.length() - 1));
-      // // for (int i = 0; i < arrRuleRecords.size(); i++) {
-      // // String str = "R" + i + " ";
-      // resultString = resultString.replaceAll(ruleIdx,
-      // arrRuleRecords.get(ruleId).getRuleString());
-      // // }
-      // }
+      
       int currentSearchStart = resultString.indexOf("R");
       while (currentSearchStart >= 0) {
+      
         int spaceIdx = resultString.indexOf(" ", currentSearchStart);
-        // if (spaceIdx < 0) {
-        // System.out.println("gotcha!");
-        // }
         String ruleName = resultString.substring(currentSearchStart, spaceIdx + 1);
         Integer ruleId = Integer.valueOf(ruleName.substring(1, ruleName.length() - 1));
 

@@ -582,67 +582,6 @@ public final class SequiturFactory {
 
   }
 
-  public static void updateRuleIntervals(GrammarRules rules, SAXRecords saxFrequencyData,
-      boolean slidingWindowOn, double[] originalTimeSeries, Integer saxWindowSize,
-      Integer saxPAASize) {
-
-    // the original indexes of all SAX words
-    ArrayList<Integer> saxWordsIndexes = new ArrayList<Integer>(saxFrequencyData.getIndexes()
-        .size());
-    saxWordsIndexes.addAll(saxFrequencyData.getIndexes());
-
-    for (GrammarRuleRecord ruleContainer : rules) {
-
-      // here we construct the array of rule intervals
-      ArrayList<RuleInterval> resultIntervals = new ArrayList<RuleInterval>();
-
-      // array of all words of this rule expanded form
-      // String[] expandedRuleSplit = ruleContainer.getExpandedRuleString().trim().split(" ");
-      int expandedRuleLength = countSpaces(ruleContainer.getExpandedRuleString());
-
-      // the auxiliary array that keeps lengths of all rule occurrences
-      int[] lengths = new int[ruleContainer.getOccurrences().size()];
-      int lengthCounter = 0;
-
-      // iterate over all occurrences of this rule
-      // the currentIndex here is the position of the rule in the input string
-      //
-      for (Integer currentIndex : ruleContainer.getOccurrences()) {
-
-        int startPos = saxWordsIndexes.get(currentIndex);
-        int endPos = -1;
-        if ((currentIndex + expandedRuleLength) >= saxWordsIndexes.size()) {
-          endPos = originalTimeSeries.length - 1;
-        }
-        else {
-          if (slidingWindowOn) {
-            endPos = saxWordsIndexes.get(currentIndex + expandedRuleLength) + saxWindowSize - 1;
-          }
-          else {
-            double step = (double) originalTimeSeries.length / (double) saxPAASize;
-            endPos = Long.valueOf(
-                Math.round(saxWordsIndexes.get(currentIndex + expandedRuleLength) * step))
-                .intValue();
-          }
-        }
-
-        resultIntervals.add(new RuleInterval(startPos, endPos));
-
-        lengths[lengthCounter] = endPos - startPos;
-        lengthCounter++;
-      }
-      if (0 == ruleContainer.getRuleNumber()) {
-        resultIntervals.add(new RuleInterval(0, originalTimeSeries.length - 1));
-        lengths = new int[1];
-        lengths[0] = originalTimeSeries.length;
-      }
-      ruleContainer.setRuleIntervals(resultIntervals);
-      ruleContainer.setMeanLength(TSUtils.mean(lengths));
-      ruleContainer.setMinMaxLength(lengths);
-    }
-
-  }
-
   /**
    * Counts spaces in the string.
    * 

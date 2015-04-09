@@ -253,14 +253,8 @@ public class SAXRule {
       int spaceIdx = resultString.indexOf(" ", currentSearchStart);
       String ruleName = resultString.substring(currentSearchStart, spaceIdx + 1);
       Integer ruleId = Integer.valueOf(ruleName.substring(1, ruleName.length() - 1));
-      GrammarRuleRecord rr = arrRuleRecords.get(ruleId);
-      if (null == rr.getExpandedRuleString()) {
-        System.exit(10);
-      }
-      else {
-        resultString.replace(spaceIdx - ruleName.length() + 1, spaceIdx + 1,
-            arrRuleRecords.get(ruleId).getExpandedRuleString());
-      }
+      resultString.replace(spaceIdx - ruleName.length() + 1, spaceIdx + 1,
+          arrRuleRecords.get(ruleId).getExpandedRuleString());
       currentSearchStart = resultString.indexOf("R");
     }
     ruleRecord.setExpandedRuleString(resultString.toString());
@@ -289,7 +283,7 @@ public class SAXRule {
     }
     String res = resultString.delete(0, 1).append(" ").toString();
     rr.setExpandedRuleString(res);
-    return res;
+    return resultString.delete(resultString.length() - 1, resultString.length()).toString();
   }
 
   /**

@@ -85,6 +85,7 @@ public class TS2RePairGrammar {
     }
     else {
       System.err.println("expected 5 parameters");
+      System.exit(-1);
     }
 
     Date fullStart = new Date();

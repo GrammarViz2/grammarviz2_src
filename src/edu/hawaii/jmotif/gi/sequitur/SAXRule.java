@@ -27,6 +27,7 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 import edu.hawaii.jmotif.gi.GrammarRuleRecord;
 import edu.hawaii.jmotif.gi.GrammarRules;
+import edu.hawaii.jmotif.sax.SAXFactory;
 
 /**
  * The Rule. Adaption of Eibe Frank code for JMotif API, see {@link sequitur.info} for original
@@ -199,34 +200,96 @@ public class SAXRule {
    * SAX words string. Can be rewritten recursively though.
    */
   private static void expandRules() {
+
+    long start = System.currentTimeMillis();
+
     // iterate over all SAX containers
+    // ArrayList<SAXMapEntry<Integer, Integer>> recs = new ArrayList<SAXMapEntry<Integer, Integer>>(
+    // arrRuleRecords.size());
+    //
+    // for (GrammarRuleRecord ruleRecord : arrRuleRecords) {
+    // recs.add(new SAXMapEntry<Integer, Integer>(ruleRecord.getRuleLevel(), ruleRecord
+    // .getRuleNumber()));
+    // }
+    //
+    // Collections.sort(recs, new Comparator<SAXMapEntry<Integer, Integer>>() {
+    // @Override
+    // public int compare(SAXMapEntry<Integer, Integer> o1, SAXMapEntry<Integer, Integer> o2) {
+    // return o1.getKey().compareTo(o2.getKey());
+    // }
+    // });
+
+    // for (SAXMapEntry<Integer, Integer> entry : recs) {
     for (GrammarRuleRecord ruleRecord : arrRuleRecords) {
 
-      String resultString = ruleRecord.getRuleString();
-      
-      int currentSearchStart = resultString.indexOf("R");
-      while (currentSearchStart >= 0) {
-      
-        int spaceIdx = resultString.indexOf(" ", currentSearchStart);
-        String ruleName = resultString.substring(currentSearchStart, spaceIdx + 1);
-        Integer ruleId = Integer.valueOf(ruleName.substring(1, ruleName.length() - 1));
+      if (ruleRecord.getRuleNumber() == 0) {
+        continue;
+      }
 
-        GrammarRuleRecord rr = arrRuleRecords.get(ruleId);
-        if (null == rr.getExpandedRuleString()) {
-          resultString = resultString.replaceAll(ruleName, arrRuleRecords.get(ruleId)
-              .getRuleString());
+      String curString = ruleRecord.getRuleString();
+      StringBuilder resultString = new StringBuilder();
+
+      String[] split = curString.split(" ");
+
+      for (String s : split) {
+        if (s.startsWith("R")) {
+          resultString.append(" ").append(expandRule(Integer.valueOf(s.substring(1, s.length()))));
         }
         else {
-          resultString = resultString.replaceAll(ruleName, arrRuleRecords.get(ruleId)
-              .getExpandedRuleString());
+          resultString.append(" ").append(s);
         }
-        currentSearchStart = resultString.indexOf("R");
       }
 
       // need to trim space at the very end
-      ruleRecord.setExpandedRuleString(resultString);
-      ruleRecord.setRuleYield(countSpaces(resultString));
+      String rr = resultString.delete(0, 1).append(" ").toString();
+      ruleRecord.setExpandedRuleString(rr);
+      ruleRecord.setRuleYield(countSpaces(rr));
     }
+
+    GrammarRuleRecord ruleRecord = arrRuleRecords.get(0);
+    StringBuilder resultString = new StringBuilder(ruleRecord.getRuleString());
+    int currentSearchStart = resultString.indexOf("R");
+    while (currentSearchStart >= 0) {
+      int spaceIdx = resultString.indexOf(" ", currentSearchStart);
+      String ruleName = resultString.substring(currentSearchStart, spaceIdx + 1);
+      Integer ruleId = Integer.valueOf(ruleName.substring(1, ruleName.length() - 1));
+      GrammarRuleRecord rr = arrRuleRecords.get(ruleId);
+      if (null == rr.getExpandedRuleString()) {
+        System.exit(10);
+      }
+      else {
+        resultString.replace(spaceIdx - ruleName.length() + 1, spaceIdx + 1,
+            arrRuleRecords.get(ruleId).getExpandedRuleString());
+      }
+      currentSearchStart = resultString.indexOf("R");
+    }
+    ruleRecord.setExpandedRuleString(resultString.toString());
+    // ruleRecord.setRuleYield(countSpaces(resultString));
+
+    long end = System.currentTimeMillis();
+    System.out.println("Rules expanded in " + SAXFactory.timeToString(start, end));
+
+  }
+
+  private static String expandRule(Integer ruleNum) {
+    GrammarRuleRecord rr = arrRuleRecords.get(ruleNum);
+
+    String curString = rr.getRuleString();
+    StringBuilder resultString = new StringBuilder();
+
+    String[] split = curString.split(" ");
+
+    for (String s : split) {
+      if (s.startsWith("R")) {
+        resultString.append(" ").append(expandRule(Integer.valueOf(s.substring(1, s.length()))));
+      }
+      else {
+        resultString.append(" ").append(s);
+      }
+    }
+    String res = resultString.delete(0, 1).append(" ").toString();
+    rr.setExpandedRuleString(res);
+    return res;
   }
 
   /**
@@ -362,7 +425,7 @@ public class SAXRule {
     SAXSymbol sym;
     int index;
     int processedRules = 0;
-    StringBuffer text = new StringBuffer();
+    StringBuilder text = new StringBuilder();
 
     text.append("Number\tName\tLevel\tOccurr.\tUsage\tYield\tRule str\tExpaneded\tIndexes\n");
     rules.addElement(theRules.get(0));

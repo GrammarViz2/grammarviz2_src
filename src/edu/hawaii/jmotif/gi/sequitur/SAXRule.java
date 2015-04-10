@@ -227,7 +227,7 @@ public class SAXRule {
       }
 
       String curString = ruleRecord.getRuleString();
-      StringBuilder resultString = new StringBuilder();
+      StringBuilder resultString = new StringBuilder(8192);
 
       String[] split = curString.split(" ");
 
@@ -247,7 +247,7 @@ public class SAXRule {
     }
 
     GrammarRuleRecord ruleRecord = arrRuleRecords.get(0);
-    StringBuilder resultString = new StringBuilder(ruleRecord.getRuleString());
+    StringBuilder resultString = new StringBuilder(ruleRecord.getRuleString() + 8192);
     int currentSearchStart = resultString.indexOf("R");
     while (currentSearchStart >= 0) {
       int spaceIdx = resultString.indexOf(" ", currentSearchStart);

@@ -257,7 +257,7 @@ public class SAXRule {
           arrRuleRecords.get(ruleId).getExpandedRuleString());
       currentSearchStart = resultString.indexOf("R");
     }
-    ruleRecord.setExpandedRuleString(resultString.toString());
+    ruleRecord.setExpandedRuleString(resultString.toString().trim());
     // ruleRecord.setRuleYield(countSpaces(resultString));
 
     // long end = System.currentTimeMillis();

@@ -91,7 +91,7 @@ public final class RePairFactory {
         + digramFrequencies.size());
 
     DigramFrequencyEntry entry;
-    while ((entry = digramFrequencies.getTop()) != null && entry.getFrequency() > 2) {
+    while ((entry = digramFrequencies.getTop()) != null && entry.getFrequency() >= 2) {
 
       // take the most frequent rule
       //

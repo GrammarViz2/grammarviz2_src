@@ -68,6 +68,7 @@ public final class SequiturFactory {
     // clear global collections
     //
     SAXRule.numRules = new AtomicInteger(0);
+    SAXRule.theRules.clear();
     SAXSymbol.theDigrams.clear();
     SAXSymbol.theSubstituteTable.clear();
 
@@ -126,6 +127,7 @@ public final class SequiturFactory {
     // clear global collections
     //
     SAXRule.numRules = new AtomicInteger(0);
+    SAXRule.theRules.clear();
     SAXSymbol.theDigrams.clear();
     SAXSymbol.theSubstituteTable.clear();
 
@@ -249,6 +251,7 @@ public final class SequiturFactory {
     SAXRecords saxFrequencyData = new SAXRecords();
 
     SAXRule.numRules = new AtomicInteger(0);
+    SAXRule.theRules.clear();
     SAXSymbol.theDigrams.clear();
     SAXSymbol.theSubstituteTable.clear();
     SAXRule.arrRuleRecords = new ArrayList<GrammarRuleRecord>();
@@ -349,6 +352,7 @@ public final class SequiturFactory {
 
     // reset Sequitur structures
     SAXRule.numRules = new AtomicInteger(0);
+    SAXRule.theRules.clear();
     SAXSymbol.theDigrams.clear();
 
     SAXRule grammar = new SAXRule();
@@ -396,6 +400,7 @@ public final class SequiturFactory {
 
     // reset Sequitur structures
     SAXRule.numRules = new AtomicInteger(0);
+    SAXRule.theRules.clear();
     SAXSymbol.theDigrams.clear();
 
     SAXRule grammar = new SAXRule();

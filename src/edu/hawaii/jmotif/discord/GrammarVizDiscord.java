@@ -199,7 +199,7 @@ public class GrammarVizDiscord {
     Date start = new Date();
 
     GrammarRules rules = SequiturFactory.series2SequiturRules(ts, windowSize, paaSize,
-        alphabetSize, NumerosityReductionStrategy.EXACT, 0.05D);
+        alphabetSize, NumerosityReductionStrategy.EXACT, 0.01D);
 
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
 

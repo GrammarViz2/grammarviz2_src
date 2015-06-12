@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="lib/time/joda-time-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/SwingX/swingx-all-1.6.4.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout/miglayout-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/sax/jmotif-sax-0.3.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

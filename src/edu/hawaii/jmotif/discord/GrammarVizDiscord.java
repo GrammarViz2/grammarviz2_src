@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import net.seninp.jmotif.sax.TSProcessor;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -71,6 +72,10 @@ public class GrammarVizDiscord {
   private static Integer discordsToReport;
   private static boolean outputRRAresults;
 
+  // workers
+  //
+  TSProcessor tp = new TSProcessor();
+
   // static block - we instantiate the logger
   //
   static {
@@ -101,7 +106,7 @@ public class GrammarVizDiscord {
         try {
           algorithm = Integer.valueOf(args[0]);
           dataFName = args[1];
-          ts = loadData(dataFName);
+          ts = TSProcessor.readFileColumn(dataFName, 0, 0);
           windowSize = Integer.valueOf(args[2]);
           consoleLogger.info("Starting brute force search for " + discordsToReport
               + " discords with settings: algorithm " + algorithm + ", data \"" + dataFName + "\""
@@ -172,7 +177,7 @@ public class GrammarVizDiscord {
       algorithm = Integer.valueOf(args[0]);
 
       dataFName = args[1];
-      ts = loadData(dataFName);
+      ts = TSProcessor.readFileColumn(dataFName, 0, 0);
 
       windowSize = Integer.valueOf(args[2]);
       paaSize = Integer.valueOf(args[3]);
@@ -192,8 +197,7 @@ public class GrammarVizDiscord {
 
   }
 
-  private static void findRRA(CoverageCountStrategy strategy) throws IOException,
-      TSException {
+  private static void findRRA(CoverageCountStrategy strategy) throws IOException, TSException {
 
     consoleLogger.info("running RRA algorithm...");
     Date start = new Date();
@@ -251,8 +255,7 @@ public class GrammarVizDiscord {
 
     // run HOTSAX with this intervals set
     //
-    DiscordRecords discords = SAXFactory.series2RRAAnomalies(ts, discordsToReport,
-        intervals);
+    DiscordRecords discords = SAXFactory.series2RRAAnomalies(ts, discordsToReport, intervals);
     Date end = new Date();
     System.out.println("params: " + argsString);
     System.out.println(discords.toString());
@@ -328,14 +331,12 @@ public class GrammarVizDiscord {
 
   }
 
-  private static String intervalsToString(List<RuleInterval> zeros) {
-    StringBuilder sb = new StringBuilder();
-    for (RuleInterval i : zeros) {
-      sb.append(i.toString()).append(",");
-    }
-    return sb.toString();
-  }
-
+  /**
+   * Run a quick scan along the timeseries coverage to find a zeroed intervals.
+   * 
+   * @param coverageArray the coverage to analyze.
+   * @return set of zeroed intervals (if found).
+   */
   private static List<RuleInterval> getZeroIntervals(int[] coverageArray) {
     ArrayList<RuleInterval> res = new ArrayList<RuleInterval>();
     int start = -1;
@@ -355,6 +356,26 @@ public class GrammarVizDiscord {
     return res;
   }
 
+  /**
+   * Makes a zeroed interval to appear nicely in output.
+   * 
+   * @param zeros the list of zeros.
+   * @return the intervals list as a string.
+   */
+  private static String intervalsToString(List<RuleInterval> zeros) {
+    StringBuilder sb = new StringBuilder();
+    for (RuleInterval i : zeros) {
+      sb.append(i.toString()).append(",");
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Finds discords in classic manner (i.e., using a trie).
+   * 
+   * @throws TrieException if error occurs.
+   * @throws TSException if error occurs.
+   */
   private static void findHotSax() throws TrieException, TSException {
     consoleLogger.info("running HOT SAX Trie-based algorithm...");
 
@@ -369,6 +390,11 @@ public class GrammarVizDiscord {
 
   }
 
+  /**
+   * Finds discords using a hash-backed magic array.
+   * 
+   * @throws TSException if error occurs.
+   */
   private static void findHotSaxWithHash() throws TrieException, TSException {
     consoleLogger.info("running HOT SAX Hash-based algorithm...");
 
@@ -437,58 +463,6 @@ public class GrammarVizDiscord {
     sb.append(" [7] indicate true/false for RRA algorithm auxiliary output; ").append(CR);
 
     return sb.toString();
-  }
-
-  /**
-   * This reads the data
-   * 
-   * @param fname The filename.
-   * @return
-   */
-  private static double[] loadData(String fname) {
-
-    consoleLogger.info("reading from " + fname);
-
-    long lineCounter = 0;
-    double ts[] = new double[1];
-
-    Path path = Paths.get(fname);
-
-    ArrayList<Double> data = new ArrayList<Double>();
-
-    try {
-
-      BufferedReader reader = Files.newBufferedReader(path, DEFAULT_CHARSET);
-
-      String line = null;
-      while ((line = reader.readLine()) != null) {
-        String[] lineSplit = line.trim().split("\\s+");
-        for (int i = 0; i < lineSplit.length; i++) {
-          double value = new BigDecimal(lineSplit[i]).doubleValue();
-          data.add(value);
-        }
-        lineCounter++;
-      }
-      reader.close();
-    }
-    catch (Exception e) {
-      System.err.println(StackTrace.toString(e));
-    }
-    finally {
-      assert true;
-    }
-
-    if (!(data.isEmpty())) {
-      ts = new double[data.size()];
-      for (int i = 0; i < data.size(); i++) {
-        ts[i] = data.get(i);
-      }
-    }
-
-    consoleLogger.info("loaded " + data.size() + " points from " + lineCounter + " lines in "
-        + fname);
-    return ts;
-
   }
 
 }

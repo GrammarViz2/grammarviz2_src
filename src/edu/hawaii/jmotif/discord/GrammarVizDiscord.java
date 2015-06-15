@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
@@ -27,13 +29,6 @@ import edu.hawaii.jmotif.gi.GrammarRules;
 import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
 import edu.hawaii.jmotif.grammarviz.logic.CoverageCountStrategy;
 import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.LargeWindowAlgorithm;
-import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.sax.SAXFactory;
-import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
-import edu.hawaii.jmotif.sax.trie.TrieException;
-import edu.hawaii.jmotif.timeseries.TSException;
-import edu.hawaii.jmotif.timeseries.TSUtils;
 import edu.hawaii.jmotif.util.StackTrace;
 
 /**
@@ -74,7 +69,8 @@ public class GrammarVizDiscord {
 
   // workers
   //
-  TSProcessor tp = new TSProcessor();
+  private static TSProcessor tp = new TSProcessor();
+  private static SAXProcessor sp = new SAXProcessor();
 
   // static block - we instantiate the logger
   //
@@ -197,12 +193,12 @@ public class GrammarVizDiscord {
 
   }
 
-  private static void findRRA(CoverageCountStrategy strategy) throws IOException, TSException {
+  private static void findRRA(CoverageCountStrategy strategy) throws Exception {
 
     consoleLogger.info("running RRA algorithm...");
     Date start = new Date();
 
-    GrammarRules rules = SequiturFactory.series2SequiturRules(ts, windowSize, paaSize,
+    GrammarRules rules = sp.ts2.SequiturFactory.series2SequiturRules(ts, windowSize, paaSize,
         alphabetSize, NumerosityReductionStrategy.EXACT, 0.01D);
 
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();

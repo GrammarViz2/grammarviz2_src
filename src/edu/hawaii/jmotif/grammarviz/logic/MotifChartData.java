@@ -5,16 +5,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Observable;
 import java.util.Observer;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.GrammarRules;
+import net.seninp.gi.RuleInterval;
+import net.seninp.gi.sequitur.SAXMotif;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.sax.discord.DiscordRecords;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import edu.hawaii.jmotif.gi.GrammarRuleRecord;
-import edu.hawaii.jmotif.gi.GrammarRules;
-import edu.hawaii.jmotif.gi.sequitur.SAXMotif;
 import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
-import edu.hawaii.jmotif.timeseries.TSException;
 import edu.hawaii.jmotif.util.SAXFileIOHelper;
 
 /**
@@ -607,9 +606,9 @@ public class MotifChartData extends Observable implements Observer {
   /**
    * This computes anomalies.
    * 
-   * @throws TSException
+   * @throws Exception
    */
-  public void findAnomalies() throws TSException {
+  public void findAnomalies() throws Exception {
     GrammarVizAnomalyFinder finder = new GrammarVizAnomalyFinder(this);
     finder.addObserver(this);
     finder.run();

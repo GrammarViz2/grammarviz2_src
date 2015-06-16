@@ -1,6 +1,6 @@
 package edu.hawaii.jmotif.grammarviz.view.table;
 
-import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
+import net.seninp.jmotif.sax.discord.DiscordRecords;
 
 /**
  * Table Data Model for the sequitur JTable

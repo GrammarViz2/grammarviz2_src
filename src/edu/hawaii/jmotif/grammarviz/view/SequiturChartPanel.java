@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.RuleInterval;
+import net.seninp.jmotif.sax.discord.DiscordRecord;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
@@ -49,12 +52,9 @@ import org.jfree.ui.TextAnchor;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.gi.GrammarRuleRecord;
 import edu.hawaii.jmotif.grammarviz.logic.CoverageCountStrategy;
 import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
 import edu.hawaii.jmotif.grammarviz.logic.UserSession;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.datastructures.DiscordRecord;
 
 /**
  * 

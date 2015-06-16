@@ -5,16 +5,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Observable;
-import edu.hawaii.jmotif.gi.GrammarRuleRecord;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.RuleInterval;
+import net.seninp.jmotif.sax.SAXProcessor;
+import net.seninp.jmotif.sax.algorithm.LargeWindowAlgorithm;
+import net.seninp.jmotif.sax.discord.DiscordRecord;
+import net.seninp.jmotif.sax.discord.DiscordRecords;
+import net.seninp.jmotif.sax.registry.VisitRegistry;
+import net.seninp.util.StackTrace;
 import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.LargeWindowAlgorithm;
-import edu.hawaii.jmotif.sax.SAXFactory;
-import edu.hawaii.jmotif.sax.datastructures.DiscordRecord;
-import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
-import edu.hawaii.jmotif.sax.trie.VisitRegistry;
-import edu.hawaii.jmotif.timeseries.TSException;
-import edu.hawaii.jmotif.util.StackTrace;
 
 /**
  * Implements a runnable for the proposed in EDBT15 anomaly discovery technique.
@@ -26,6 +25,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
   /** The chart data handler. */
   private MotifChartData chartData;
+  private SAXProcessor sp = new SAXProcessor();
 
   /**
    * Constructor.
@@ -121,8 +121,8 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       start = new Date();
       DiscordRecord bestDiscord;
       try {
-        bestDiscord = SAXFactory.findBestDiscordForIntervals(this.chartData.originalTimeSeries,
-            intervals, globalTrackVisitRegistry);
+        bestDiscord = sp.findBestDiscordForIntervals(this.chartData.originalTimeSeries, intervals,
+            globalTrackVisitRegistry);
         Date end = new Date();
 
         // if the discord is null we getting out of the search
@@ -134,7 +134,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
         log("found discord: position " + bestDiscord.getPosition() + ", length "
             + bestDiscord.getLength() + ", NN distance " + bestDiscord.getNNDistance()
-            + ", elapsed time: " + SAXFactory.timeToString(start.getTime(), end.getTime()) + ", "
+            + ", elapsed time: " + SAXProcessor.timeToString(start.getTime(), end.getTime()) + ", "
             + bestDiscord.getInfo());
 
         // collect the result
@@ -148,7 +148,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
         marker.markVisited(globalTrackVisitRegistry, bestDiscord.getPosition(),
             bestDiscord.getLength());
       }
-      catch (TSException e) {
+      catch (Exception e) {
         log(StackTrace.toString(e));
         e.printStackTrace();
       }
@@ -158,7 +158,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
     //
     Date end = new Date();
 
-    log("discords found in " + SAXFactory.timeToString(start.getTime(), end.getTime()));
+    log("discords found in " + SAXProcessor.timeToString(start.getTime(), end.getTime()));
 
   }
 

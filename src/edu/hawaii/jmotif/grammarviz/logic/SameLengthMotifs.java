@@ -1,7 +1,7 @@
 package edu.hawaii.jmotif.grammarviz.logic;
 
 import java.util.ArrayList;
-import edu.hawaii.jmotif.gi.sequitur.SAXMotif;
+import net.seninp.gi.sequitur.SAXMotif;
 
 /**
  * A data structure which is a collection of motifs.

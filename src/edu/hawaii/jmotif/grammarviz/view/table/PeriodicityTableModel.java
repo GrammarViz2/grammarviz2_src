@@ -1,6 +1,6 @@
 package edu.hawaii.jmotif.grammarviz.view.table;
 
-import edu.hawaii.jmotif.gi.GrammarRules;
+import net.seninp.gi.GrammarRules;
 
 /**
  * Table Data Model for the sequitur JTable

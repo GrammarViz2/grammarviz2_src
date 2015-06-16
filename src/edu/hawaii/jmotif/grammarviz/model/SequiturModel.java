@@ -15,22 +15,21 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.GrammarRules;
+import net.seninp.gi.RuleInterval;
+import net.seninp.gi.repair.RePairFactory;
+import net.seninp.gi.repair.RePairRule;
+import net.seninp.gi.sequitur.SAXRule;
+import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.sax.datastructures.SAXRecords;
+import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
+import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.gi.GrammarRuleRecord;
-import edu.hawaii.jmotif.gi.GrammarRules;
-import edu.hawaii.jmotif.gi.repair.RePairFactory;
-import edu.hawaii.jmotif.gi.repair.RePairRule;
-import edu.hawaii.jmotif.gi.sequitur.SAXRule;
-import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
 import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
-import edu.hawaii.jmotif.sax.parallel.ParallelSAXImplementation;
-import edu.hawaii.jmotif.timeseries.TSException;
-import edu.hawaii.jmotif.util.StackTrace;
 
 /**
  * Implements the Sequitur Model component of MVC GUI pattern.
@@ -283,7 +282,7 @@ public class SequiturModel extends Observable {
         }
 
       }
-      catch (TSException e) {
+      catch (Exception e) {
         this.log("error while processing data " + StackTrace.toString(e));
         e.printStackTrace();
       }

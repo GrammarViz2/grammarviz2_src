@@ -2,8 +2,8 @@ package edu.hawaii.jmotif.grammarviz.logic;
 
 import java.io.File;
 import java.io.IOException;
-import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.util.StackTrace;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.util.StackTrace;
 
 /**
  * Keeps user parameters organized.

@@ -17,19 +17,20 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.GrammarRules;
+import net.seninp.gi.RuleInterval;
+import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.discord.DiscordRecords;
+import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.distance.EuclideanDistance;
-import edu.hawaii.jmotif.gi.GrammarRuleRecord;
-import edu.hawaii.jmotif.gi.GrammarRules;
-import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
 import edu.hawaii.jmotif.grammarviz.logic.CoverageCountStrategy;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.util.StackTrace;
 
 /**
  * Main executable wrapping all the discord discovery methods.
@@ -198,7 +199,7 @@ public class GrammarVizDiscord {
     consoleLogger.info("running RRA algorithm...");
     Date start = new Date();
 
-    GrammarRules rules = sp.ts2.SequiturFactory.series2SequiturRules(ts, windowSize, paaSize,
+    GrammarRules rules = SequiturFactory.series2SequiturRules(ts, windowSize, paaSize,
         alphabetSize, NumerosityReductionStrategy.EXACT, 0.01D);
 
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
@@ -256,7 +257,7 @@ public class GrammarVizDiscord {
     System.out.println("params: " + argsString);
     System.out.println(discords.toString());
     System.out.println("Discords found in "
-        + SAXFactory.timeToString(start.getTime(), end.getTime()));
+        + SAXProcessor.timeToString(start.getTime(), end.getTime()));
 
     // THE DISCORD SEARCH IS DONE RIGHT HERE
     // BELOW IS THE CODE WHICH WRITES THE CURVE AND THE DISTANCE FILE ON FILESYSTEM
@@ -298,7 +299,7 @@ public class GrammarVizDiscord {
       int ruleEnd = ruleStart + ri.getLength();
       int window = ruleEnd - ruleStart;
 
-      double[] cw = TSUtils.subseriesByCopy(ts, ruleStart, ruleStart + window);
+      double[] cw = tp.subseriesByCopy(ts, ruleStart, ruleStart + window);
 
       double cwNNDist = Double.MAX_VALUE;
 
@@ -306,7 +307,7 @@ public class GrammarVizDiscord {
       //
       for (int j = 0; j < ts.length - window - 1; j++) {
         if (Math.abs(ruleStart - j) > window) {
-          double[] currentSubsequence = TSUtils.subseriesByCopy(ts, j, j + window);
+          double[] currentSubsequence = tp.subseriesByCopy(ts, j, j + window);
           double dist = EuclideanDistance.distance(cw, currentSubsequence);
           if (dist < cwNNDist) {
             cwNNDist = dist;

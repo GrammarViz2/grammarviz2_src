@@ -18,7 +18,6 @@ import net.seninp.grammarviz.view.table.CellDoubleRenderer;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
 
-
 public class AnomaliesPanel extends JPanel implements ListSelectionListener, PropertyChangeListener {
 
   /** Fancy serial. */
@@ -127,7 +126,7 @@ public class AnomaliesPanel extends JPanel implements ListSelectionListener, Pro
   @Override
   public void valueChanged(ListSelectionEvent arg) {
     if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
-      int col = anomalyTable.getSelectedColumn();
+      // int col = anomalyTable.getSelectedColumn();
       int row = anomalyTable.getSelectedRow();
       String rule = String.valueOf(anomalyTable.getValueAt(row,
           AnomalyTableColumns.ANOMALY_RANK.ordinal()));

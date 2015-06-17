@@ -1,4 +1,4 @@
-package net.seninp.anomaly;
+package net.seninp.grammarviz.anomaly;
 
 import java.io.BufferedWriter;
 import java.io.File;

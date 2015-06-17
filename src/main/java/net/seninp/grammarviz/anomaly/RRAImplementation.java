@@ -1,4 +1,4 @@
-package net.seninp.anomaly;
+package net.seninp.grammarviz.anomaly;
 
 import java.util.ArrayList;
 import java.util.Collections;

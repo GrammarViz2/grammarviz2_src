@@ -172,7 +172,7 @@ public class SequiturModel extends Observable {
         this.ts[i] = data.get(i);
       }
     }
-    data = new ArrayList<>();
+    data = new ArrayList<Double>();
 
     consoleLogger.debug("loaded " + this.ts.length + " points....");
 

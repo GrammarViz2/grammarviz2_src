@@ -1,4 +1,4 @@
-package net.seninp.grammarviz.anomaly;
+package net.seninp.grammarviz;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,6 +15,7 @@ import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
 import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.grammarviz.anomaly.RRAImplementation;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
 import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;

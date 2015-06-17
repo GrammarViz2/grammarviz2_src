@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.discord;
+package net.seninp.anomaly;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -38,7 +38,7 @@ import edu.hawaii.jmotif.grammarviz.logic.CoverageCountStrategy;
  * @author psenin
  * 
  */
-public class GrammarVizDiscord {
+public class GrammarVizAnomaly {
 
   // locale, charset, etc
   //
@@ -76,7 +76,7 @@ public class GrammarVizDiscord {
   // static block - we instantiate the logger
   //
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizDiscord.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizAnomaly.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -371,9 +371,9 @@ public class GrammarVizDiscord {
    * Finds discords in classic manner (i.e., using a trie).
    * 
    * @throws TrieException if error occurs.
-   * @throws TSException if error occurs.
+   * @throws Exception if error occurs.
    */
-  private static void findHotSax() throws TrieException, TSException {
+  private static void findHotSax() throws TrieException, Exception {
     consoleLogger.info("running HOT SAX Trie-based algorithm...");
 
     Date start = new Date();
@@ -390,9 +390,9 @@ public class GrammarVizDiscord {
   /**
    * Finds discords using a hash-backed magic array.
    * 
-   * @throws TSException if error occurs.
+   * @throws Exception if error occurs.
    */
-  private static void findHotSaxWithHash() throws TrieException, TSException {
+  private static void findHotSaxWithHash() throws TrieException, Exception {
     consoleLogger.info("running HOT SAX Hash-based algorithm...");
 
     Date start = new Date();
@@ -409,9 +409,9 @@ public class GrammarVizDiscord {
   /**
    * Procedure of finding brute-force discords.
    * 
-   * @throws TSException
+   * @throws Exception
    */
-  private static void findBruteForce() throws TSException {
+  private static void findBruteForce() throws Exception {
 
     consoleLogger.info("running brute force algorithm...");
 

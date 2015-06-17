@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Observable;
+import net.seninp.anomaly.RRAImplementation;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.RuleInterval;
 import net.seninp.grammarviz.model.SequiturMessage;
@@ -25,7 +26,6 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
   /** The chart data handler. */
   private MotifChartData chartData;
-  private SAXProcessor sp = new SAXProcessor();
 
   /**
    * Constructor.
@@ -121,8 +121,8 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       start = new Date();
       DiscordRecord bestDiscord;
       try {
-        bestDiscord = sp.findBestDiscordForIntervals(this.chartData.originalTimeSeries, intervals,
-            globalTrackVisitRegistry);
+        bestDiscord = RRAImplementation.findBestDiscordForIntervals(
+            this.chartData.originalTimeSeries, intervals, globalTrackVisitRegistry);
         Date end = new Date();
 
         // if the discord is null we getting out of the search

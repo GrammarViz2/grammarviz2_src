@@ -37,6 +37,7 @@ import net.seninp.grammarviz.controller.SequiturController;
 import net.seninp.grammarviz.logic.MotifChartData;
 import net.seninp.grammarviz.model.SequiturMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -64,7 +65,7 @@ public class SequiturView implements Observer, ActionListener {
 
   // relevant string constants go here
   //
-  private static final String COMMA = ",";
+  // private static final String COMMA = ",";
   private static final String CR = "\n";
   private static final String TITLE_FONT = "helvetica";
 
@@ -131,8 +132,6 @@ public class SequiturView implements Observer, ActionListener {
   private JRadioButton numerosityReductionOFFButton = new JRadioButton("OFF");
   private JRadioButton numerosityReductionExactButton = new JRadioButton("Exact");
   private JRadioButton numerosityReductionMINDISTButton = new JRadioButton("MINDIST");
-
-  private NumerosityReductionStrategy selectedNumerosityReductionStrategy = NumerosityReductionStrategy.EXACT;
 
   // The process action pane
   //
@@ -585,6 +584,7 @@ public class SequiturView implements Observer, ActionListener {
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
     MigLayout ruleChartPaneLayout = new MigLayout(",insets 0 2 0 0", "[fill,grow]", "[fill,grow]");
     ruleChartPane.setLayout(ruleChartPaneLayout);
+    ruleChartPane.setController(this.controller);
 
   }
 
@@ -870,7 +870,7 @@ public class SequiturView implements Observer, ActionListener {
 
           this.chartData.deleteObserver(this);
         }
-        catch (TSException e) {
+        catch (Exception e) {
           String errorTrace = StackTrace.toString(e);
           log(Level.ALL, errorTrace);
         }

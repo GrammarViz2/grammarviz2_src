@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JPanel;
 import net.seninp.gi.RuleInterval;
+import net.seninp.grammarviz.controller.SequiturController;
 import net.seninp.grammarviz.logic.MotifChartData;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
@@ -34,13 +35,24 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
   /** Current chart data instance. */
   private MotifChartData chartData;
 
-  private TSProcessor tp = new TSProcessor();
+  private TSProcessor tp;
+  private SequiturController controller;
 
   /**
    * Constructor.
    */
   public SequiturRuleChartPanel() {
     super();
+    tp = new TSProcessor();
+  }
+
+  /**
+   * Adds a controler instance to get normalization value from.
+   * 
+   * @param controller the controller instance.
+   */
+  public void setController(SequiturController controller) {
+    this.controller = controller;
   }
 
   public void setChartData(MotifChartData chartData) {
@@ -119,7 +131,8 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
    * @throws TSException
    */
   private XYSeries toSeries(int index, double[] series) throws Exception {
-    double[] normalizedSubseries = tp.znorm(series);
+    double[] normalizedSubseries = tp.znorm(series, controller.getSession()
+        .getNormalizationThreshold());
     XYSeries res = new XYSeries("series" + String.valueOf(index));
     for (int i = 0; i < normalizedSubseries.length; i++) {
       res.add(i, normalizedSubseries[i]);

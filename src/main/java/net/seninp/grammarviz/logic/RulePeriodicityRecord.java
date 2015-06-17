@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.logic;
+package net.seninp.grammarviz.logic;
 
 /**
  * Container for the rule periodicity data.

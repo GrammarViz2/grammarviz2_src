@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.model;
+package net.seninp.grammarviz.model;
 
 /**
  * A unified data structure for passing messages between MVC components.

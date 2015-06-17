@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.logic;
+package net.seninp.grammarviz.logic;
 
 public enum CoverageCountStrategy {
   COUNT(0), LEVEL(1), OCCURRENCE(2), YIELD(3), PRODUCT(4);

@@ -1,21 +1,21 @@
-package edu.hawaii.jmotif.experimentation;
+package net.seninp.tinker;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.GrammarRules;
+import net.seninp.gi.RuleInterval;
+import net.seninp.gi.sequitur.SAXRule;
+import net.seninp.gi.sequitur.SAXTerminal;
+import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
+import net.seninp.jmotif.sax.datastructures.SAXRecords;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.gi.GrammarRuleRecord;
-import edu.hawaii.jmotif.gi.GrammarRules;
-import edu.hawaii.jmotif.gi.sequitur.SAXRule;
-import edu.hawaii.jmotif.gi.sequitur.SAXTerminal;
-import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
-import edu.hawaii.jmotif.sax.datastructures.SAXRecords;
-import edu.hawaii.jmotif.timeseries.TSUtils;
 
 public class MovieMaker {
 
@@ -42,6 +42,7 @@ public class MovieMaker {
   // data
   //
   private static double[] ts;
+  private static TSProcessor tp = new TSProcessor();
 
   // static block - we instantiate the logger
   //
@@ -82,13 +83,13 @@ public class MovieMaker {
       double[] subSection = Arrays.copyOfRange(ts, i, i + WINDOW_SIZE);
 
       // Z normalize it
-      subSection = TSUtils.optimizedZNorm(subSection, NORMALIZATION_THRESHOLD);
+      subSection = tp.znorm(subSection, NORMALIZATION_THRESHOLD);
 
       // perform PAA conversion if needed
-      double[] paa = TSUtils.optimizedPaa(subSection, PAA_SIZE);
+      double[] paa = tp.paa(subSection, PAA_SIZE);
 
       // Convert the PAA to a string.
-      char[] currentString = TSUtils.ts2String(paa, normalA.getCuts(A_SIZE));
+      char[] currentString = tp.ts2String(paa, normalA.getCuts(A_SIZE));
 
       // NumerosityReduction
       if (!previousString.isEmpty()

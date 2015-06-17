@@ -1,16 +1,10 @@
 package net.seninp.anomaly;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,16 +15,20 @@ import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
 import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.grammarviz.logic.CoverageCountStrategy;
 import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.algorithm.LargeWindowAlgorithm;
+import net.seninp.jmotif.sax.discord.BruteForceDiscordImplementation;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
+import net.seninp.jmotif.sax.discord.HOTSAXImplementation;
+import net.seninp.jmotif.sax.trie.TrieException;
 import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.grammarviz.logic.CoverageCountStrategy;
 
 /**
  * Main executable wrapping all the discord discovery methods.
@@ -68,10 +66,12 @@ public class GrammarVizAnomaly {
   private static Integer discordsToReport;
   private static boolean outputRRAresults;
 
+  private static final double DEFAULT_NORMALIZATION_THRESHOLD = 0.01;
+
   // workers
   //
   private static TSProcessor tp = new TSProcessor();
-  private static SAXProcessor sp = new SAXProcessor();
+  private static EuclideanDistance ed = new EuclideanDistance();
 
   // static block - we instantiate the logger
   //
@@ -252,7 +252,8 @@ public class GrammarVizAnomaly {
 
     // run HOTSAX with this intervals set
     //
-    DiscordRecords discords = SAXFactory.series2RRAAnomalies(ts, discordsToReport, intervals);
+    DiscordRecords discords = RRAImplementation
+        .series2RRAAnomalies(ts, discordsToReport, intervals);
     Date end = new Date();
     System.out.println("params: " + argsString);
     System.out.println(discords.toString());
@@ -308,7 +309,7 @@ public class GrammarVizAnomaly {
       for (int j = 0; j < ts.length - window - 1; j++) {
         if (Math.abs(ruleStart - j) > window) {
           double[] currentSubsequence = tp.subseriesByCopy(ts, j, j + window);
-          double dist = EuclideanDistance.distance(cw, currentSubsequence);
+          double dist = ed.distance(cw, currentSubsequence);
           if (dist < cwNNDist) {
             cwNNDist = dist;
           }
@@ -377,13 +378,13 @@ public class GrammarVizAnomaly {
     consoleLogger.info("running HOT SAX Trie-based algorithm...");
 
     Date start = new Date();
-    DiscordRecords discords = SAXFactory.series2Discords(ts, windowSize, alphabetSize,
-        discordsToReport, new LargeWindowAlgorithm());
+    DiscordRecords discords = HOTSAXImplementation.series2Discords(ts, windowSize, alphabetSize,
+        discordsToReport, new LargeWindowAlgorithm(), DEFAULT_NORMALIZATION_THRESHOLD);
     Date end = new Date();
 
     System.out.println(discords.toString());
     System.out.println("Discords found in "
-        + SAXFactory.timeToString(start.getTime(), end.getTime()));
+        + SAXProcessor.timeToString(start.getTime(), end.getTime()));
 
   }
 
@@ -396,13 +397,14 @@ public class GrammarVizAnomaly {
     consoleLogger.info("running HOT SAX Hash-based algorithm...");
 
     Date start = new Date();
-    DiscordRecords discords = SAXFactory.series2DiscordsWithHash(ts, windowSize, paaSize,
-        alphabetSize, discordsToReport, new LargeWindowAlgorithm());
+    DiscordRecords discords = HOTSAXImplementation
+        .series2DiscordsWithHash(ts, windowSize, paaSize, alphabetSize, discordsToReport,
+            new LargeWindowAlgorithm(), DEFAULT_NORMALIZATION_THRESHOLD);
     Date end = new Date();
 
     System.out.println(discords.toString());
     System.out.println("Discords found in "
-        + SAXFactory.timeToString(start.getTime(), end.getTime()));
+        + SAXProcessor.timeToString(start.getTime(), end.getTime()));
 
   }
 
@@ -416,14 +418,14 @@ public class GrammarVizAnomaly {
     consoleLogger.info("running brute force algorithm...");
 
     Date start = new Date();
-    DiscordRecords discords = TSUtils.series2BruteForceDiscords(ts, windowSize, discordsToReport,
-        new LargeWindowAlgorithm());
+    DiscordRecords discords = BruteForceDiscordImplementation.series2BruteForceDiscords(ts, windowSize,
+        discordsToReport, new LargeWindowAlgorithm());
     Date end = new Date();
 
     System.out.println(discords.toString());
 
     System.out.println(discords.getSize() + " discords found in "
-        + SAXFactory.timeToString(start.getTime(), end.getTime()));
+        + SAXProcessor.timeToString(start.getTime(), end.getTime()));
   }
 
   /**

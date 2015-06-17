@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.logic;
+package net.seninp.grammarviz.logic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,12 +9,12 @@ import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
 import net.seninp.gi.sequitur.SAXMotif;
+import net.seninp.grammarviz.model.SequiturMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
+import net.seninp.util.SAXFileIOHelper;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
-import edu.hawaii.jmotif.util.SAXFileIOHelper;
 
 /**
  * The main data structure used in SAXSequitur. It contains all the information needed for charting

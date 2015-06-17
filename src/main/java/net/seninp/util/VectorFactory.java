@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.algorithm;
+package net.seninp.util;
 
 /**
  * Implements vector methods.

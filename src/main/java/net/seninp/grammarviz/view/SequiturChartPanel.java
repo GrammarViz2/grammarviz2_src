@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.view;
+package net.seninp.grammarviz.view;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

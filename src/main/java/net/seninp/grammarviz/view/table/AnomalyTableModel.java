@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.view.table;
+package net.seninp.grammarviz.view.table;
 
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 

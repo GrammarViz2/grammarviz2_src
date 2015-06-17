@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz;
+package net.seninp.grammarviz;
 
 import edu.hawaii.jmotif.grammarviz.controller.SequiturController;
 import edu.hawaii.jmotif.grammarviz.model.SequiturModel;

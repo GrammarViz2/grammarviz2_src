@@ -1,7 +1,7 @@
-package edu.hawaii.jmotif.grammarviz.view.table;
+package net.seninp.grammarviz.view.table;
 
 import java.util.ArrayList;
-import edu.hawaii.jmotif.grammarviz.logic.PackedRuleRecord;
+import net.seninp.grammarviz.logic.PackedRuleRecord;
 
 /**
  * Table Data Model for the reduced and packed rules JTable

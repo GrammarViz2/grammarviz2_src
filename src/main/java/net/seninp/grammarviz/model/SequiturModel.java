@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.model;
+package net.seninp.grammarviz.model;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -22,6 +22,7 @@ import net.seninp.gi.repair.RePairFactory;
 import net.seninp.gi.repair.RePairRule;
 import net.seninp.gi.sequitur.SAXRule;
 import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.grammarviz.logic.MotifChartData;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.datastructures.SAXRecords;
 import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
@@ -29,7 +30,6 @@ import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
 
 /**
  * Implements the Sequitur Model component of MVC GUI pattern.

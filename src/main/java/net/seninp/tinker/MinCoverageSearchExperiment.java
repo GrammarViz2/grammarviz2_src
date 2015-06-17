@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.experimentation;
+package net.seninp.tinker;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -16,6 +16,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.imageio.ImageIO;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.GrammarRules;
+import net.seninp.gi.RuleInterval;
+import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.util.StackTrace;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYTextAnnotation;
@@ -33,12 +39,6 @@ import org.jfree.ui.TextAnchor;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.gi.GrammarRuleRecord;
-import edu.hawaii.jmotif.gi.GrammarRules;
-import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.util.StackTrace;
 
 public class MinCoverageSearchExperiment {
 

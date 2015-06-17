@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.algorithm;
+package net.seninp.util;
 
 import java.util.Formatter;
 import java.util.Locale;

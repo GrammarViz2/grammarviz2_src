@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.util;
+package net.seninp.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

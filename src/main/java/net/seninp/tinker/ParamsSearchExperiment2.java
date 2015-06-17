@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.experimentation;
+package net.seninp.tinker;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,20 +11,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import net.seninp.anomaly.RRAImplementation;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.GrammarRules;
+import net.seninp.gi.Interval;
+import net.seninp.gi.RuleInterval;
+import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.gi.util.GIHelper;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.sax.SAXProcessor;
+import net.seninp.jmotif.sax.discord.DiscordRecords;
+import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.gi.GrammarRuleRecord;
-import edu.hawaii.jmotif.gi.GrammarRules;
-import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
-import edu.hawaii.jmotif.logic.Interval;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.sax.SAXFactory;
-import edu.hawaii.jmotif.sax.datastructures.DiscordRecords;
-import edu.hawaii.jmotif.timeseries.TSUtils;
-import edu.hawaii.jmotif.util.StackTrace;
 
 public class ParamsSearchExperiment2 {
 
@@ -53,6 +56,7 @@ public class ParamsSearchExperiment2 {
   private static Logger consoleLogger;
 
   private static double[] ts;
+  private static SAXProcessor sp;
 
   // static block - we instantiate the logger
   //
@@ -142,7 +146,7 @@ public class ParamsSearchExperiment2 {
             }
           }
 
-          double meanCoverage = TSUtils.mean(coverageArray);
+          double meanCoverage = GIHelper.mean(coverageArray);
 
           // find the longest continous zero run
           //
@@ -197,8 +201,8 @@ public class ParamsSearchExperiment2 {
 
           // get the approximation distance computed
           //
-          double approximationDistance = SAXFactory.approximationDistance(ts, winSize, paaSize,
-              aSize, NumerosityReductionStrategy.EXACT, NORMALIZATION_THRESHOLD);
+          double approximationDistance = sp.approximationDistance(ts, winSize, paaSize, aSize,
+              NumerosityReductionStrategy.EXACT, NORMALIZATION_THRESHOLD);
 
           // *******************************
           // populate all intervals with their frequency
@@ -245,7 +249,7 @@ public class ParamsSearchExperiment2 {
 
           // run HOTSAX with this intervals set
           //
-          DiscordRecords discords = SAXFactory.series2RRAAnomalies(ts, 1, intervals);
+          DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 1, intervals);
           int discordPos = -1;
 
           Interval interval = null;
@@ -370,4 +374,20 @@ public class ParamsSearchExperiment2 {
     return res;
   }
 
+  /**
+   * Finds all the Sequitur rules with a given Id and populates their start and end into the array.
+   * 
+   * @param id The rule Id.
+   * @param intervals The rule intervals.
+   * @return map of start - end.
+   */
+  private static Map<Integer, Integer> listRuleOccurrences(int id, ArrayList<RuleInterval> intervals) {
+    HashMap<Integer, Integer> res = new HashMap<Integer, Integer>(100);
+    for (RuleInterval i : intervals) {
+      if (id == i.getId()) {
+        res.put(i.getStartPos(), i.getEndPos());
+      }
+    }
+    return res;
+  }
 }

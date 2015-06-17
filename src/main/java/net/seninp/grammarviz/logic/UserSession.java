@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.logic;
+package net.seninp.grammarviz.logic;
 
 import java.io.File;
 import java.io.IOException;

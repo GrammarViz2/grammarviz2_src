@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.util;
+package net.seninp.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

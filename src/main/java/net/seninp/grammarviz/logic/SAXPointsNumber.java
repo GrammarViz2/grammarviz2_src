@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.logic;
+package net.seninp.grammarviz.logic;
 
 public class SAXPointsNumber {
   private int pointIndex;

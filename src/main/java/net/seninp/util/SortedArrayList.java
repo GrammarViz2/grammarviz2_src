@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.logic;
+package net.seninp.util;
 
 import java.util.ArrayList;
 import java.util.Collections;

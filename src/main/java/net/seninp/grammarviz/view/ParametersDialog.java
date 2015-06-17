@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.view;
+package net.seninp.grammarviz.view;
 
 import java.awt.Dimension;
 import java.awt.Point;

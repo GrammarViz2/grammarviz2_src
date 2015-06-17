@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.logic;
+package net.seninp.grammarviz.logic;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,13 +7,13 @@ import java.util.Map.Entry;
 import java.util.Observable;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.RuleInterval;
+import net.seninp.grammarviz.model.SequiturMessage;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.algorithm.LargeWindowAlgorithm;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 import net.seninp.jmotif.sax.registry.VisitRegistry;
 import net.seninp.util.StackTrace;
-import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
 
 /**
  * Implements a runnable for the proposed in EDBT15 anomaly discovery technique.

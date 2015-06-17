@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.view.table;
+package net.seninp.grammarviz.view.table;
 
 /**
  * Enum for the columns in the sequitur JTable.

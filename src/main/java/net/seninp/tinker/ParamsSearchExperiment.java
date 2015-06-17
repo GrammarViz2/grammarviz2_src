@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.experimentation;
+package net.seninp.tinker;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,17 +11,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.GrammarRules;
+import net.seninp.gi.RuleInterval;
+import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.gi.util.GIHelper;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.sax.SAXProcessor;
+import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.gi.GrammarRuleRecord;
-import edu.hawaii.jmotif.gi.GrammarRules;
-import edu.hawaii.jmotif.gi.sequitur.SequiturFactory;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.sax.SAXFactory;
-import edu.hawaii.jmotif.timeseries.TSUtils;
-import edu.hawaii.jmotif.util.StackTrace;
 
 public class ParamsSearchExperiment {
 
@@ -50,6 +50,7 @@ public class ParamsSearchExperiment {
   private static Logger consoleLogger;
 
   private static double[] ts;
+  private static SAXProcessor sp = new SAXProcessor();
 
   // static block - we instantiate the logger
   //
@@ -136,7 +137,7 @@ public class ParamsSearchExperiment {
             }
           }
 
-          double meanCoverage = TSUtils.mean(coverageArray);
+          double meanCoverage = GIHelper.mean(coverageArray);
 
           // find the longest continous zero run
           //
@@ -164,8 +165,8 @@ public class ParamsSearchExperiment {
 
           // get the approximation distance computed
           //
-          double approximationDistance = SAXFactory.approximationDistance(ts, winSize, paaSize,
-              aSize, NumerosityReductionStrategy.EXACT, NORMALIZATION_THRESHOLD);
+          double approximationDistance = sp.approximationDistance(ts, winSize, paaSize, aSize,
+              NumerosityReductionStrategy.EXACT, NORMALIZATION_THRESHOLD);
 
           // Output
           //
@@ -241,7 +242,6 @@ public class ParamsSearchExperiment {
    * @param str the string to process.
    * @return number of spaces found.
    */
-  @SuppressWarnings("unused")
   private static int countSpaces(String str) {
     if (null == str) {
       return -1;

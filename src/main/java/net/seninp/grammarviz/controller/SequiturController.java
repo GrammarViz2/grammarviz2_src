@@ -1,4 +1,4 @@
-package edu.hawaii.jmotif.grammarviz.controller;
+package net.seninp.grammarviz.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,10 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 import javax.swing.JFileChooser;
-import edu.hawaii.jmotif.grammarviz.logic.UserSession;
-import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
-import edu.hawaii.jmotif.grammarviz.model.SequiturModel;
-import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.grammarviz.logic.UserSession;
+import net.seninp.grammarviz.model.SequiturMessage;
+import net.seninp.grammarviz.model.SequiturModel;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 
 /**
  * Implements the Controler component for GrammarViz2 GUI MVC.

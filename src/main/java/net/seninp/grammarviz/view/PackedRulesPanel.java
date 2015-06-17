@@ -11,14 +11,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
+import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.view.table.PrunedRulesTableColumns;
+import net.seninp.grammarviz.view.table.PrunedRulesTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
-import edu.hawaii.jmotif.grammarviz.view.table.PrunedRulesTableColumns;
-import edu.hawaii.jmotif.grammarviz.view.table.PrunedRulesTableModel;
 
 /**
  * 
@@ -100,7 +100,8 @@ public class PackedRulesPanel extends JPanel implements ListSelectionListener,
     org.jdesktop.swingx.renderer.DefaultTableRenderer renderer = (org.jdesktop.swingx.renderer.DefaultTableRenderer) packedTable
         .getDefaultRenderer(String.class);
 
-    TableRowSorter<PrunedRulesTableModel> sorter = new TableRowSorter<PrunedRulesTableModel>(packedTableModel);
+    TableRowSorter<PrunedRulesTableModel> sorter = new TableRowSorter<PrunedRulesTableModel>(
+        packedTableModel);
     packedTable.setRowSorter(sorter);
     // sorter.setComparator(PackedTableColumns.CLASS_NUMBER.ordinal(),
     // expandedRuleComparator);

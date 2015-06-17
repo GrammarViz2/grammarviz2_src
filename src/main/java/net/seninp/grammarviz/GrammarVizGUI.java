@@ -1,8 +1,8 @@
 package net.seninp.grammarviz;
 
-import edu.hawaii.jmotif.grammarviz.controller.SequiturController;
-import edu.hawaii.jmotif.grammarviz.model.SequiturModel;
-import edu.hawaii.jmotif.grammarviz.view.SequiturView;
+import net.seninp.grammarviz.controller.SequiturController;
+import net.seninp.grammarviz.model.SequiturModel;
+import net.seninp.grammarviz.view.SequiturView;
 
 /**
  * Main runnable of Sequitur GUI.

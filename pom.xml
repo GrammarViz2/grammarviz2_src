@@ -197,7 +197,7 @@
               </descriptorRefs>
               <archive>
                 <manifest>
-                  <mainClass>net.seninp.jmotif.sax.SAXcliConverter</mainClass>
+                  <mainClass>net.seninp.grammarviz.GrammarVizGUI</mainClass>
                 </manifest>
               </archive>
               <!-- <filters> <filter>src/assembly/filter.properties</filter> </filters> <descriptors> 

@@ -15,15 +15,15 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
+import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.model.SequiturMessage;
+import net.seninp.grammarviz.view.table.SequiturRulesTableColumns;
+import net.seninp.grammarviz.view.table.SequiturRulesTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
-import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
-import edu.hawaii.jmotif.grammarviz.view.table.SequiturRulesTableColumns;
-import edu.hawaii.jmotif.grammarviz.view.table.SequiturRulesTableModel;
 
 /**
  * 
@@ -115,11 +115,13 @@ public class SequiturRulesPanel extends JPanel implements ListSelectionListener,
     // Make some columns wider than the rest, so that the info fits in.
     TableColumnModel columnModel = sequiturTable.getColumnModel();
     columnModel.getColumn(SequiturRulesTableColumns.RULE_NUMBER.ordinal()).setPreferredWidth(30);
-    columnModel.getColumn(SequiturRulesTableColumns.RULE_USE_FREQUENCY.ordinal()).setPreferredWidth(40);
+    columnModel.getColumn(SequiturRulesTableColumns.RULE_USE_FREQUENCY.ordinal())
+        .setPreferredWidth(40);
     columnModel.getColumn(SequiturRulesTableColumns.SEQUITUR_RULE.ordinal()).setPreferredWidth(100);
-    columnModel.getColumn(SequiturRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal()).setPreferredWidth(
-        150);
-    columnModel.getColumn(SequiturRulesTableColumns.RULE_MEAN_LENGTH.ordinal()).setPreferredWidth(120);
+    columnModel.getColumn(SequiturRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal())
+        .setPreferredWidth(150);
+    columnModel.getColumn(SequiturRulesTableColumns.RULE_MEAN_LENGTH.ordinal()).setPreferredWidth(
+        120);
 
     TableRowSorter<SequiturRulesTableModel> sorter = new TableRowSorter<SequiturRulesTableModel>(
         sequiturTableModel);

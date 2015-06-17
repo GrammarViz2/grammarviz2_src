@@ -15,8 +15,8 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.NumberFormatter;
-import edu.hawaii.jmotif.grammarviz.logic.UserSession;
 import net.miginfocom.swing.MigLayout;
+import net.seninp.grammarviz.logic.UserSession;
 
 /**
  * Implements the parameter panel for GrammarViz.

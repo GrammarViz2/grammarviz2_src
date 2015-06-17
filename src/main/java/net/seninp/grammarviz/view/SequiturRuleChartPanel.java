@@ -7,6 +7,11 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JPanel;
+import net.seninp.gi.RuleInterval;
+import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.discord.DiscordRecord;
+import net.seninp.util.StackTrace;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -14,12 +19,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
-import edu.hawaii.jmotif.logic.RuleInterval;
-import edu.hawaii.jmotif.sax.datastructures.DiscordRecord;
-import edu.hawaii.jmotif.timeseries.TSException;
-import edu.hawaii.jmotif.timeseries.TSUtils;
-import edu.hawaii.jmotif.util.StackTrace;
 
 public class SequiturRuleChartPanel extends JPanel implements PropertyChangeListener {
 
@@ -34,6 +33,8 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
 
   /** Current chart data instance. */
   private MotifChartData chartData;
+
+  private TSProcessor tp = new TSProcessor();
 
   /**
    * Constructor.
@@ -53,7 +54,7 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
    * @return a JFreeChart object of the chart
    * @throws TSException
    */
-  private void chartIntervals(ArrayList<double[]> intervals) throws TSException {
+  private void chartIntervals(ArrayList<double[]> intervals) throws Exception {
 
     // making the data
     //
@@ -117,8 +118,8 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
    * @return
    * @throws TSException
    */
-  private XYSeries toSeries(int index, double[] series) throws TSException {
-    double[] normalizedSubseries = TSUtils.zNormalize(series);
+  private XYSeries toSeries(int index, double[] series) throws Exception {
+    double[] normalizedSubseries = tp.znorm(series);
     XYSeries res = new XYSeries("series" + String.valueOf(index));
     for (int i = 0; i < normalizedSubseries.length; i++) {
       res.add(i, normalizedSubseries[i]);
@@ -140,7 +141,7 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
       }
       chartIntervals(intervals);
     }
-    catch (TSException e) {
+    catch (Exception e) {
       System.err.println(StackTrace.toString(e));
     }
   }
@@ -160,7 +161,7 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
       }
       chartIntervals(intervals);
     }
-    catch (TSException e) {
+    catch (Exception e) {
       System.err.println(StackTrace.toString(e));
     }
   }
@@ -178,7 +179,7 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
       intervals.add(extractInterval(dr.getPosition(), dr.getPosition() + dr.getLength()));
       chartIntervals(intervals);
     }
-    catch (TSException e) {
+    catch (Exception e) {
       System.err.println(StackTrace.toString(e));
     }
   }
@@ -189,9 +190,9 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
    * @param startPos the start position.
    * @param endPos the end position.
    * @return the subsequence.
-   * @throws TSException if error occurs.
+   * @throws Exception if error occurs.
    */
-  private double[] extractInterval(int startPos, int endPos) throws TSException {
+  private double[] extractInterval(int startPos, int endPos) throws Exception {
     if (this.chartData.getOriginalTimeseries().length <= (endPos - startPos)) {
       return Arrays.copyOf(this.chartData.getOriginalTimeseries(),
           this.chartData.getOriginalTimeseries().length);

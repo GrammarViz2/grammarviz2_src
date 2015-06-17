@@ -11,12 +11,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
+import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.view.table.AnomalyTableColumns;
+import net.seninp.grammarviz.view.table.AnomalyTableModel;
+import net.seninp.grammarviz.view.table.CellDoubleRenderer;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
-import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
-import edu.hawaii.jmotif.grammarviz.view.table.AnomalyTableColumns;
-import edu.hawaii.jmotif.grammarviz.view.table.AnomalyTableModel;
-import edu.hawaii.jmotif.grammarviz.view.table.CellDoubleRenderer;
+
 
 public class AnomaliesPanel extends JPanel implements ListSelectionListener, PropertyChangeListener {
 

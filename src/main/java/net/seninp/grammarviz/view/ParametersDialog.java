@@ -9,7 +9,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
-import edu.hawaii.jmotif.grammarviz.logic.UserSession;
+import net.seninp.grammarviz.logic.UserSession;
 
 /* 1.4 example used by DialogDemo.java. */
 class ParametersDialog extends JDialog implements ActionListener {

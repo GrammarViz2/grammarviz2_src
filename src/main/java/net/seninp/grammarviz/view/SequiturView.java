@@ -33,15 +33,13 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.swing.MigLayout;
+import net.seninp.grammarviz.controller.SequiturController;
+import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.model.SequiturMessage;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.grammarviz.controller.SequiturController;
-import edu.hawaii.jmotif.grammarviz.logic.MotifChartData;
-import edu.hawaii.jmotif.grammarviz.model.SequiturMessage;
-import edu.hawaii.jmotif.sax.NumerosityReductionStrategy;
-import edu.hawaii.jmotif.timeseries.TSException;
-import edu.hawaii.jmotif.util.StackTrace;
 
 /**
  * View component of Sequitur MVC GUI.

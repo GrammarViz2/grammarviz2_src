@@ -25,68 +25,39 @@ References:
 
 ## Building
 
-We use Ant for our builds. The code is also continously built by [Travis CI](https://travis-ci.org/GrammarViz2/grammarviz2_src).
-
-First, make sure that Java and Ant are installed and running. My current dev. environment shows the next:
+We use Maven and Java 7 to build an executable. The code is also continously built by [Travis CI](https://travis-ci.org/GrammarViz2/grammarviz2_src).
 
 <pre>
+
 $ java -version
-java version "1.8.0_20"
-Java(TM) SE Runtime Environment (build 1.8.0_20-b26)
-Java HotSpot(TM) 64-Bit Server VM (build 25.20-b23, mixed mode)
+java version "1.7.0_80"
+Java(TM) SE Runtime Environment (build 1.7.0_80-b15)
+Java HotSpot(TM) 64-Bit Server VM (build 24.80-b11, mixed mode)
 
-$ ant -version
-Apache Ant(TM) version 1.8.2 compiled on December 20 2010
-</pre>
+$ mvn -version
+Apache Maven 2.2.1 (rdebian-8)
+Java version: 1.7.0_80
+Java home: /usr/lib/jvm/java-7-oracle/jre
+Default locale: fr_FR, platform encoding: UTF-8
+OS name: "linux" version: "3.2.0-86-generic" arch: "amd64" Family: "unix"
 
-In order to compile the code, simply run:
+$ mvn package -Psingle
+[INFO] Scanning for projects...
+....
 
-<pre>
-$ ant
-Buildfile: /home/psenin/git/grammarviz2_src.git/build.xml
-
-compile:
-    [javac] Compiling 83 source files to /home/psenin/git/grammarviz2_src.git/build/classes
-
-BUILD SUCCESSFUL
-Total time: 10 seconds
-</pre>
-
-In order **to build a jar file**, run Ant with `jar.build.xml` build file:
-
-<pre>
-$ ant -f jar.build.xml 
-Buildfile: /home/psenin/git/grammarviz2_src.git/jar.build.xml
-
-clean:
-   [delete] Deleting directory /home/psenin/git/grammarviz2_src.git/build
-
-compile:
-    [mkdir] Created dir: /home/psenin/git/grammarviz2_src.git/build/classes
-    [javac] Compiling 128 source files to /home/psenin/git/grammarviz2_src.git/build/classes
-
-jar:
-    [mkdir] Created dir: /home/psenin/git/grammarviz2_src.git/tmp
-     [copy] Copying 146 files to /home/psenin/git/grammarviz2_src.git/tmp
-    [unjar] Expanding: /home/psenin/git/grammarviz2_src.git/lib/JFreeChart/jcommon-1.0.16.jar into /home/psenin/git/grammarviz2_src.git/tmp
-    [unjar] Expanding: /home/psenin/git/grammarviz2_src.git/lib/JFreeChart/jfreechart-1.0.13.jar into /home/psenin/git/grammarviz2_src.git/tmp
-    [unjar] Expanding: /home/psenin/git/grammarviz2_src.git/lib/SwingX/swingx-all-1.6.4.jar into /home/psenin/git/grammarviz2_src.git/tmp
-    [unjar] Expanding: /home/psenin/git/grammarviz2_src.git/lib/miglayout/miglayout-4.0.jar into /home/psenin/git/grammarviz2_src.git/tmp
-    [unjar] Expanding: /home/psenin/git/grammarviz2_src.git/lib/DTW/fast-dtw.jar into /home/psenin/git/grammarviz2_src.git/tmp
-    [unjar] Expanding: /home/psenin/git/grammarviz2_src.git/lib/logger/logback-classic-1.1.2.jar into /home/psenin/git/grammarviz2_src.git/tmp
-    [unjar] Expanding: /home/psenin/git/grammarviz2_src.git/lib/logger/logback-core-1.1.2.jar into /home/psenin/git/grammarviz2_src.git/tmp
-    [unjar] Expanding: /home/psenin/git/grammarviz2_src.git/lib/logger/slf4j-api-1.7.7.jar into /home/psenin/git/grammarviz2_src.git/tmp
-    [unjar] Expanding: /home/psenin/git/grammarviz2_src.git/lib/time/joda-time-2.1.jar into /home/psenin/git/grammarviz2_src.git/tmp
-      [jar] Building jar: /home/psenin/git/grammarviz2_src.git/grammarviz20.jar
-   [delete] Deleting directory /home/psenin/git/grammarviz2_src.git/tmp
-
-BUILD SUCCESSFUL
-Total time: 22 seconds
+[INFO] Building jar: /media/Stock/git/grammarviz2_src.git/target/grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESSFUL
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 5 seconds
+[INFO] Finished at: Wed Jun 17 15:43:01 CEST 2015
+[INFO] Final Memory: 47M/238M
+[INFO] ------------------------------------------------------------------------
 </pre>
 
 ## Running 
 
-To run the GrammarViz 2.0 GUI use `edu.hawaii.jmotif.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar grammarviz20.jar` (here I have allocated max of 2Gb of memory for the software).
+To run the GrammarViz 2.0 GUI use `net.seninp.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar $ java -jar target/grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar` (here I have allocated max of 2Gb of memory for the software).
 
 ## Made with Aloha!
 ![Made with Aloha!](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/aloha.jpg)

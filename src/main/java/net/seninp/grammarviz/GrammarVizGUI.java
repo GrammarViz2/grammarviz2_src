@@ -1,7 +1,7 @@
 package net.seninp.grammarviz;
 
-import net.seninp.grammarviz.controller.SequiturController;
-import net.seninp.grammarviz.model.SequiturModel;
+import net.seninp.grammarviz.controller.GrammarVizController;
+import net.seninp.grammarviz.model.GrammarVizModel;
 import net.seninp.grammarviz.view.SequiturView;
 
 /**
@@ -13,10 +13,10 @@ import net.seninp.grammarviz.view.SequiturView;
 public class GrammarVizGUI {
 
   /** The model instance. */
-  private static SequiturModel model;
+  private static GrammarVizModel model;
 
   /** The controller instance. */
-  private static SequiturController controller;
+  private static GrammarVizController controller;
 
   /** The view instance. */
   private static SequiturView view;
@@ -36,10 +36,10 @@ public class GrammarVizGUI {
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "SAXSequitur");
 
     // model...
-    model = new SequiturModel();
+    model = new GrammarVizModel();
 
     // controller...
-    controller = new SequiturController(model);
+    controller = new GrammarVizController(model);
 
     // view...
     view = new SequiturView(controller);

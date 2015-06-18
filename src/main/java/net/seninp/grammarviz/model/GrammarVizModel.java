@@ -37,7 +37,7 @@ import ch.qos.logback.classic.Logger;
  * @author psenin
  * 
  */
-public class SequiturModel extends Observable {
+public class GrammarVizModel extends Observable {
 
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
@@ -58,7 +58,7 @@ public class SequiturModel extends Observable {
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SequiturModel.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizModel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -94,7 +94,7 @@ public class SequiturModel extends Observable {
 
     // notify the View
     this.setChanged();
-    notifyObservers(new SequiturMessage(SequiturMessage.DATA_FNAME, this.getDataFileName()));
+    notifyObservers(new GrammarVizMessage(GrammarVizMessage.DATA_FNAME, this.getDataFileName()));
 
     // this notification tells GUI which file was selected as the data source
     this.log("set file " + filename + " as current data source");
@@ -181,7 +181,7 @@ public class SequiturModel extends Observable {
 
     // and send the timeseries
     setChanged();
-    notifyObservers(new SequiturMessage(SequiturMessage.TIME_SERIES_MESSAGE, this.ts));
+    notifyObservers(new GrammarVizMessage(GrammarVizMessage.TIME_SERIES_MESSAGE, this.ts));
 
   }
 
@@ -291,7 +291,7 @@ public class SequiturModel extends Observable {
       consoleLogger.info("process finished");
 
       setChanged();
-      notifyObservers(new SequiturMessage(SequiturMessage.CHART_MESSAGE, this.chartData));
+      notifyObservers(new GrammarVizMessage(GrammarVizMessage.CHART_MESSAGE, this.chartData));
     }
   }
 
@@ -302,7 +302,7 @@ public class SequiturModel extends Observable {
    */
   private void log(String message) {
     this.setChanged();
-    notifyObservers(new SequiturMessage(SequiturMessage.STATUS_MESSAGE, "model: " + message));
+    notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "model: " + message));
   }
 
   private void saveGrammarStats(MotifChartData data) {

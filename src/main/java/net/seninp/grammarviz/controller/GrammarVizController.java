@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.Observable;
 import javax.swing.JFileChooser;
 import net.seninp.grammarviz.logic.UserSession;
-import net.seninp.grammarviz.model.SequiturMessage;
-import net.seninp.grammarviz.model.SequiturModel;
+import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.model.GrammarVizModel;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 
 /**
@@ -17,13 +17,13 @@ import net.seninp.jmotif.sax.NumerosityReductionStrategy;
  * @author psenin
  * 
  */
-public class SequiturController extends Observable implements ActionListener {
+public class GrammarVizController extends Observable implements ActionListener {
 
-  private SequiturModel model;
+  private GrammarVizModel model;
 
   private UserSession session;
 
-  public SequiturController(SequiturModel model) {
+  public GrammarVizController(GrammarVizModel model) {
     super();
     this.model = model;
     this.session = new UserSession();
@@ -111,7 +111,7 @@ public class SequiturController extends Observable implements ActionListener {
   @Override
   public void actionPerformed(ActionEvent e) {
     this.setChanged();
-    notifyObservers(new SequiturMessage(SequiturMessage.STATUS_MESSAGE,
+    notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE,
         "controller: Unknown action performed " + e.getActionCommand()));
   }
 
@@ -131,6 +131,6 @@ public class SequiturController extends Observable implements ActionListener {
    */
   private void log(String message) {
     this.setChanged();
-    notifyObservers(new SequiturMessage(SequiturMessage.STATUS_MESSAGE, "controller: " + message));
+    notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "controller: " + message));
   }
 }

@@ -33,9 +33,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.swing.MigLayout;
-import net.seninp.grammarviz.controller.SequiturController;
+import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.logic.MotifChartData;
-import net.seninp.grammarviz.model.SequiturMessage;
+import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
@@ -108,7 +108,7 @@ public class SequiturView implements Observer, ActionListener {
   private static final JMenuBar menuBar = new JMenuBar();
 
   /** Global controller handler - controller is supplier of action handlers. */
-  private SequiturController controller;
+  private GrammarVizController controller;
 
   // data source related variables
   //
@@ -187,7 +187,7 @@ public class SequiturView implements Observer, ActionListener {
    * 
    * @param controller The controller used for the application flow control.
    */
-  public SequiturView(SequiturController controller) {
+  public SequiturView(GrammarVizController controller) {
     this.controller = controller;
   }
 
@@ -253,7 +253,7 @@ public class SequiturView implements Observer, ActionListener {
     //
     sequiturRulesPane.addPropertyChangeListener(dataChartPane);
     sequiturRulesPane.addPropertyChangeListener(ruleChartPane);
-    dataChartPane.addPropertyChangeListener(SequiturMessage.MAIN_CHART_CLICKED_MESSAGE,
+    dataChartPane.addPropertyChangeListener(GrammarVizMessage.MAIN_CHART_CLICKED_MESSAGE,
         sequiturRulesPane);
 
     // put listeners in place for the Clustered/Packed rule panel
@@ -267,7 +267,7 @@ public class SequiturView implements Observer, ActionListener {
     //
     rulesPeriodicityPane.addPropertyChangeListener(dataChartPane);
     rulesPeriodicityPane.addPropertyChangeListener(ruleChartPane);
-    dataChartPane.addPropertyChangeListener(SequiturMessage.MAIN_CHART_CLICKED_MESSAGE,
+    dataChartPane.addPropertyChangeListener(GrammarVizMessage.MAIN_CHART_CLICKED_MESSAGE,
         rulesPeriodicityPane);
 
     // put listeners in place for the Anomalies rule panel
@@ -679,13 +679,13 @@ public class SequiturView implements Observer, ActionListener {
 
   @Override
   public void update(Observable o, Object arg) {
-    if (arg instanceof SequiturMessage) {
+    if (arg instanceof GrammarVizMessage) {
 
-      final SequiturMessage message = (SequiturMessage) arg;
+      final GrammarVizMessage message = (GrammarVizMessage) arg;
 
       // new FileName
       //
-      if (SequiturMessage.DATA_FNAME.equalsIgnoreCase(message.getType())) {
+      if (GrammarVizMessage.DATA_FNAME.equalsIgnoreCase(message.getType())) {
         Runnable doHighlight = new Runnable() {
           @Override
           public void run() {
@@ -698,13 +698,13 @@ public class SequiturView implements Observer, ActionListener {
 
       // new log message
       //
-      else if (SequiturMessage.STATUS_MESSAGE.equalsIgnoreCase(message.getType())) {
+      else if (GrammarVizMessage.STATUS_MESSAGE.equalsIgnoreCase(message.getType())) {
         log(Level.ALL, (String) message.getPayload());
       }
 
       // chart object
       //
-      else if (SequiturMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
+      else if (GrammarVizMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
 
         MotifChartData chartData = (MotifChartData) message.getPayload();
         // TODO: this is ridiculous below here
@@ -735,7 +735,7 @@ public class SequiturView implements Observer, ActionListener {
         frame.repaint();
       }
 
-      else if (SequiturMessage.TIME_SERIES_MESSAGE.equalsIgnoreCase(message.getType())) {
+      else if (GrammarVizMessage.TIME_SERIES_MESSAGE.equalsIgnoreCase(message.getType())) {
 
         // setting the chart first
         //

@@ -16,7 +16,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 import net.seninp.grammarviz.logic.MotifChartData;
-import net.seninp.grammarviz.model.SequiturMessage;
+import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.grammarviz.view.table.SequiturRulesTableColumns;
 import net.seninp.grammarviz.view.table.SequiturRulesTableModel;
 import org.jdesktop.swingx.JXTable;
@@ -210,7 +210,7 @@ public class SequiturRulesPanel extends JPanel implements ListSelectionListener,
   public void propertyChange(PropertyChangeEvent event) {
     String prop = event.getPropertyName();
 
-    if (prop.equalsIgnoreCase(SequiturMessage.MAIN_CHART_CLICKED_MESSAGE)) {
+    if (prop.equalsIgnoreCase(GrammarVizMessage.MAIN_CHART_CLICKED_MESSAGE)) {
       String rule = (String) event.getNewValue();
       for (int row = 0; row <= sequiturTable.getRowCount() - 1; row++) {
         for (int col = 0; col <= sequiturTable.getColumnCount() - 1; col++) {

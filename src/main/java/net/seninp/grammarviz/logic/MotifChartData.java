@@ -9,7 +9,7 @@ import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
 import net.seninp.gi.sequitur.SAXMotif;
-import net.seninp.grammarviz.model.SequiturMessage;
+import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 import net.seninp.util.SAXFileIOHelper;
@@ -620,7 +620,7 @@ public class MotifChartData extends Observable implements Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-    if (arg instanceof SequiturMessage) {
+    if (arg instanceof GrammarVizMessage) {
       this.setChanged();
       notifyObservers(arg);
     }

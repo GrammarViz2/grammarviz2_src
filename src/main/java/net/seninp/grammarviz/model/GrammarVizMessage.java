@@ -6,7 +6,7 @@ package net.seninp.grammarviz.model;
  * @author psenin
  * 
  */
-public class SequiturMessage {
+public class GrammarVizMessage {
 
   /** The data file name message key. */
   public static final String DATA_FNAME = "data_file_name";
@@ -35,7 +35,7 @@ public class SequiturMessage {
    * @param messageType set the message type.
    * @param payload set the payload.
    */
-  public SequiturMessage(String messageType, Object payload) {
+  public GrammarVizMessage(String messageType, Object payload) {
     this.type = messageType;
     this.payload = payload;
   }

@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
@@ -28,7 +29,6 @@ public class TS2SequiturGrammar {
   private static TSProcessor tp = new TSProcessor();
   private static NormalAlphabet na = new NormalAlphabet();
   private static SAXProcessor sp = new SAXProcessor();
-
 
   // the logger business
   //
@@ -56,17 +56,22 @@ public class TS2SequiturGrammar {
 
       sb.append("  input file:                  ").append(TS2GrammarParameters.IN_FILE).append(CR);
       sb.append("  output file:                 ").append(TS2GrammarParameters.OUT_FILE).append(CR);
-      
-      sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE).append(CR);
-      sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE).append(CR);
-      sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE).append(CR);
-      sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY).append(CR);
-      sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD).append(CR);
+
+      sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE)
+          .append(CR);
+      sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE)
+          .append(CR);
+      sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE)
+          .append(CR);
+      sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY)
+          .append(CR);
+      sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD)
+          .append(CR);
 
       sb.append(CR);
       System.out.println(sb.toString());
     }
-    
+
     // read the file
     //
     consoleLogger.info("Reading data ...");
@@ -79,6 +84,9 @@ public class TS2SequiturGrammar {
     SAXRecords saxData = sp.ts2saxViaWindow(series, TS2GrammarParameters.SAX_WINDOW_SIZE,
         TS2GrammarParameters.SAX_PAA_SIZE, na.getCuts(TS2GrammarParameters.SAX_ALPHABET_SIZE),
         TS2GrammarParameters.SAX_NR_STRATEGY, TS2GrammarParameters.SAX_NORM_THRESHOLD);
+    // SAXRecords saxData = SequiturFactory.discretize(series, TS2GrammarParameters.SAX_NR_STRATEGY,
+    // TS2GrammarParameters.SAX_WINDOW_SIZE, TS2GrammarParameters.SAX_PAA_SIZE,
+    // TS2GrammarParameters.SAX_ALPHABET_SIZE, TS2GrammarParameters.SAX_NORM_THRESHOLD);
     String str = saxData.getSAXString(" ");
 
     // infer the grammar
@@ -91,8 +99,8 @@ public class TS2SequiturGrammar {
     consoleLogger.info("Collecting stats ...");
     GrammarRules rules = grammar.toGrammarRulesData();
     SequiturFactory.updateRuleIntervals(rules, saxData, true, series,
-        TS2GrammarParameters.SAX_ALPHABET_SIZE, TS2GrammarParameters.SAX_PAA_SIZE);
-    
+        TS2GrammarParameters.SAX_WINDOW_SIZE, TS2GrammarParameters.SAX_PAA_SIZE);
+
     // collect stats
     //
     consoleLogger.info("Producing the output ...");
@@ -124,16 +132,16 @@ public class TS2SequiturGrammar {
           .append(ruleRecord.getExpandedRuleString()).append("\'").append(CR);
 
       if (!ruleRecord.getOccurrences().isEmpty()) {
-        sb.append("subsequences starts: ")
-            .append(
-                Arrays.toString(ruleRecord.getOccurrences().toArray(
-                    new Integer[ruleRecord.getOccurrences().size()]))).append(CR);
-        int[] lengths = new int[ruleRecord.getRuleIntervals().size()];
-        int i = 0;
-        for (RuleInterval r : ruleRecord.getRuleIntervals()) {
-          lengths[i] = r.getEndPos() - r.getStartPos();
-          i++;
+
+        ArrayList<RuleInterval> intervals = ruleRecord.getRuleIntervals();
+        int[] starts = new int[intervals.size()];
+        int[] lengths = new int[intervals.size()];
+        for (int i = 0; i < intervals.size(); i++) {
+          starts[i] = intervals.get(i).getStartPos();
+          lengths[i] = intervals.get(i).getEndPos() - intervals.get(i).getStartPos();
         }
+
+        sb.append("subsequences starts: ").append(Arrays.toString(starts)).append(CR);
         sb.append("subsequences lengths: ").append(Arrays.toString(lengths)).append(CR);
       }
 

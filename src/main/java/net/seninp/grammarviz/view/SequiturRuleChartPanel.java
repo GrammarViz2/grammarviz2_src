@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JPanel;
 import net.seninp.gi.RuleInterval;
-import net.seninp.grammarviz.controller.SequiturController;
+import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.logic.MotifChartData;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
@@ -36,7 +36,7 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
   private MotifChartData chartData;
 
   private TSProcessor tp;
-  private SequiturController controller;
+  private GrammarVizController controller;
 
   /**
    * Constructor.
@@ -51,7 +51,7 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
    * 
    * @param controller the controller instance.
    */
-  public void setController(SequiturController controller) {
+  public void setController(GrammarVizController controller) {
     this.controller = controller;
   }
 

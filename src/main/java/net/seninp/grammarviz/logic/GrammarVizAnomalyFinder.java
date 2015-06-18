@@ -8,7 +8,7 @@ import java.util.Observable;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.RuleInterval;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
-import net.seninp.grammarviz.model.SequiturMessage;
+import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.algorithm.LargeWindowAlgorithm;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
@@ -164,7 +164,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
   private void log(String message) {
     this.setChanged();
-    notifyObservers(new SequiturMessage(SequiturMessage.STATUS_MESSAGE, "SAXSequitur: " + message));
+    notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "SAXSequitur: " + message));
   }
 
   /**

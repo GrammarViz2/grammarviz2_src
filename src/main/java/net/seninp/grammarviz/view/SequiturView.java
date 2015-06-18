@@ -79,6 +79,8 @@ public class SequiturView implements Observer, ActionListener {
   private static final String PROCESS_DATA = "process_data";
   /** Reduce overlaps data action key. */
   protected static final String CLUSTER_RULES = "cluster_rules";
+  /** Rank rules action key. */
+  protected static final String RANK_RULES = "rank_rules";
   /** Find periodicity action key. */
   protected static final String FIND_PERIODICITY = "find_periodicity";
   /** Reduce overlaps data action key. */
@@ -160,6 +162,7 @@ public class SequiturView implements Observer, ActionListener {
   private JButton processButton;
   private JButton clusterRulesButton;
   private JButton findPeriodicityButton;
+  private JButton rankRulesButton;
   private JButton displayChartButton;
   private JButton displayRulesDensityButton;
   private JButton displayRulesLenHistogramButton;
@@ -598,6 +601,11 @@ public class SequiturView implements Observer, ActionListener {
     MigLayout workflowPaneLayout = new MigLayout(",insets 2 2 2 2", "[fill,grow]", "[fill,grow]");
     workflowManagementPane.setLayout(workflowPaneLayout);
 
+    rankRulesButton = new JButton("Rank rules");
+    rankRulesButton.setMnemonic('U');
+    rankRulesButton.setActionCommand(RANK_RULES);
+    rankRulesButton.addActionListener(this);
+
     clusterRulesButton = new JButton("Prune rules");
     clusterRulesButton.setMnemonic('C');
     clusterRulesButton.setActionCommand(CLUSTER_RULES);
@@ -632,6 +640,7 @@ public class SequiturView implements Observer, ActionListener {
     workflowManagementPane.add(displayChartButton);
     workflowManagementPane.add(displayRulesLenHistogramButton);
     workflowManagementPane.add(clusterRulesButton);
+    workflowManagementPane.add(rankRulesButton);
     workflowManagementPane.add(displayRulesDensityButton);
     workflowManagementPane.add(displayAnomaliesButton);
     workflowManagementPane.add(saveChartButton);
@@ -930,6 +939,22 @@ public class SequiturView implements Observer, ActionListener {
           packedRulesPane.setChartData(chartData);
         }
 
+      }
+    }
+    else if (RANK_RULES.equalsIgnoreCase(command)) {
+      log(Level.INFO, "rank rules action performed");
+      if (null == this.chartData) {
+        raiseValidationError("No chart data recieved yet.");
+      }
+      else {
+        dataChartPane.resetChartPanel();
+        packedRulesPane.resetSelection();
+        ruleChartPane.resetChartPanel();
+
+        MotifChartData chartData = this.dataChartPane.getChartData();
+        chartData.performRanking();
+
+        packedRulesPane.setChartData(chartData);
       }
     }
 

@@ -662,4 +662,9 @@ public class MotifChartData extends Observable implements Observer {
     return this.slidingWindowOn;
   }
 
+  public void performRanking() {
+    // TODO Auto-generated method stub
+    
+  }
+
 }

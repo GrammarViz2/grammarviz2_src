@@ -640,7 +640,7 @@ public class SequiturView implements Observer, ActionListener {
     workflowManagementPane.add(displayChartButton);
     workflowManagementPane.add(displayRulesLenHistogramButton);
     workflowManagementPane.add(clusterRulesButton);
-    workflowManagementPane.add(rankRulesButton);
+//    workflowManagementPane.add(rankRulesButton);
     workflowManagementPane.add(displayRulesDensityButton);
     workflowManagementPane.add(displayAnomaliesButton);
     workflowManagementPane.add(saveChartButton);

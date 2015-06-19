@@ -663,8 +663,23 @@ public class MotifChartData extends Observable implements Observer {
   }
 
   public void performRanking() {
-    // TODO Auto-generated method stub
-    
+
+    // first - remove rules overlap
+    // this is done by throwing away rules that overlap others
+    //
+    GrammarRules dereplicatedRules = new GrammarRules();
+    for (GrammarRuleRecord rule : grammarRules) {
+      dereplicatedRules.addRule(dereplicate(rule));
+    }
+
+  }
+
+  private GrammarRuleRecord dereplicate(GrammarRuleRecord rule) {
+    ArrayList<Integer> order = new ArrayList<Integer>();
+    for (int i = 0; i < order.size(); i++) {
+
+    }
+    return null;
   }
 
 }

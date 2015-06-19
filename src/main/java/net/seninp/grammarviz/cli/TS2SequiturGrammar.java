@@ -13,7 +13,6 @@ import net.seninp.gi.sequitur.SAXRule;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
-import net.seninp.jmotif.sax.algorithm.BitmapParameters;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.sax.datastructures.SAXRecords;
 import net.seninp.util.StackTrace;
@@ -76,7 +75,7 @@ public class TS2SequiturGrammar {
     //
     consoleLogger.info("Reading data ...");
     double[] series = tp.readTS(TS2GrammarParameters.IN_FILE, 0);
-    consoleLogger.info("read " + series.length + " points from " + BitmapParameters.IN_FILE);
+    consoleLogger.info("read " + series.length + " points from " + TS2GrammarParameters.IN_FILE);
 
     // discretize
     //

@@ -14,7 +14,7 @@ It is implemented in Java and is based on continuous signal discretization with 
 
 GrammarViz2 also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**" algorithms for time series anomaly discovery [5], that significantly outperform HOT-SAX algorithm for time series discord discovery  which is current state of the art. In the table below, the algorithms performance is measured in the amount of calls to the distance function (less is better). The last column shows the RRA performance improvement over HOT-SAX:
 
-| Dataset and SAX parameters         | Size    | Brute Force          | HOT-SAX     | RRA        | Reduction |
+| Dataset and SAX parameters         | Dataset size    | Brute Force          | HOT-SAX     | RRA        | Reduction |
 |:-----------------------------------|--------:|---------------------:|------------:|-----------:|------:|
 | Daily commute (350,15,4)           | 17,175  | 271,442,101          | 879,067     | 112,405    | 87.2% |
 | Dutch power demand (750,6,3)       | 35,040  | 1.13 * 10^9          | 6,196,356   | 327,950    | 95.7% |

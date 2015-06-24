@@ -3,9 +3,14 @@ GrammarViz 2.0
 
 GrammarViz 2.0 source code public repository. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
 
-##### For the software description, please visit our [demo site](http://grammarviz2.github.io/grammarviz2_site).
+##### For the detailed software description, please visit our [demo site](http://grammarviz2.github.io/grammarviz2_site).
 
-GrammarViz 2.0 is implemented in Java and is based on [Symbolic Aggregate approXimaion (SAX)](https://github.com/jMotif/SAX), Grammatical Inference with [Sequitur](https://github.com/jMotif/GI) and [Re-Pair](https://github.com/jMotif/GI), and [algorithmic (Kolmogorov) complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity). Its GUI enables interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]. It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly**" (RRA) algorithms for time series anomaly discovery [5].
+0.0 In a nutshell
+------------
+GrammarViz 2.0 is a software for *time series exploratory analysis* with GUI and CLI interfaces:
+![GrammarViz2 screen](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/src/resources/assets/screen.png)
+
+It is implemented in Java and is based on continuous signal discretization with [SAX](https://github.com/jMotif/SAX), Grammatical Inference with [Sequitur](https://github.com/jMotif/GI) and [Re-Pair](https://github.com/jMotif/GI), and [algorithmic (Kolmogorov) complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity). The GUI enables interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]. It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly**" (RRA) algorithms for time series anomaly discovery [5].
 
 References:
 

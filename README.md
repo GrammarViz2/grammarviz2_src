@@ -19,7 +19,7 @@ References:
 
 ## Building
 
-We use Maven and Java 7 to build an executable. The code is also continously built by [Travis CI](https://travis-ci.org/GrammarViz2/grammarviz2_src).
+We use Maven and Java 7 to build an executable. The code is also built and tested by Travis CI [![Build Status](https://travis-ci.org/GrammarViz2/grammarviz2_src.svg?branch=master)](https://travis-ci.org/GrammarViz2/grammarviz2_src).
 
 <pre>
 

@@ -10,9 +10,9 @@ import net.seninp.gi.RuleInterval;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.SAXProcessor;
-import net.seninp.jmotif.sax.algorithm.LargeWindowAlgorithm;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
+import net.seninp.jmotif.sax.registry.LargeWindowAlgorithm;
 import net.seninp.jmotif.sax.registry.VisitRegistry;
 import net.seninp.util.StackTrace;
 

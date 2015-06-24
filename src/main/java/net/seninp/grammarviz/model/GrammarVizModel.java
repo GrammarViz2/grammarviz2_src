@@ -19,7 +19,7 @@ import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
 import net.seninp.gi.repair.RePairFactory;
-import net.seninp.gi.repair.RePairRule;
+import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.gi.sequitur.SAXRule;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.logic.MotifChartData;
@@ -269,13 +269,12 @@ public class GrammarVizModel extends Observable {
           SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
               NumerosityReductionStrategy.EXACT, normalizationThreshold);
 
-          @SuppressWarnings("unused")
-          RePairRule rePairGrammar = RePairFactory.buildGrammar(parallelRes);
+          RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
 
-          RePairRule.expandRules();
-          RePairRule.buildIntervals(parallelRes, ts, windowSize);
+          rePairGrammar.expandRules();
+          rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
 
-          GrammarRules rules = RePairRule.toGrammarRulesData();
+          GrammarRules rules = rePairGrammar.toGrammarRulesData();
 
           this.chartData.setGrammarRules(rules);
 
@@ -305,7 +304,12 @@ public class GrammarVizModel extends Observable {
     notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "model: " + message));
   }
 
-  private void saveGrammarStats(MotifChartData data) {
+  /**
+   * Saves the grammar stats.
+   * 
+   * @param data the data for collecting stats.
+   */
+  protected void saveGrammarStats(MotifChartData data) {
 
     boolean fileOpen = false;
 
@@ -330,7 +334,7 @@ public class GrammarVizModel extends Observable {
           + "\n");
     }
 
-    ArrayList<int[]> ruleLengths = new ArrayList<int[]>();
+    // ArrayList<int[]> ruleLengths = new ArrayList<int[]>();
 
     for (GrammarRuleRecord ruleRecord : data.getGrammarRules()) {
 

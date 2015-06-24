@@ -21,10 +21,10 @@ import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
-import net.seninp.jmotif.sax.algorithm.LargeWindowAlgorithm;
 import net.seninp.jmotif.sax.discord.BruteForceDiscordImplementation;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 import net.seninp.jmotif.sax.discord.HOTSAXImplementation;
+import net.seninp.jmotif.sax.registry.LargeWindowAlgorithm;
 import net.seninp.jmotif.sax.trie.TrieException;
 import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
@@ -419,8 +419,8 @@ public class GrammarVizAnomaly {
     consoleLogger.info("running brute force algorithm...");
 
     Date start = new Date();
-    DiscordRecords discords = BruteForceDiscordImplementation.series2BruteForceDiscords(ts, windowSize,
-        discordsToReport, new LargeWindowAlgorithm());
+    DiscordRecords discords = BruteForceDiscordImplementation.series2BruteForceDiscords(ts,
+        windowSize, discordsToReport, new LargeWindowAlgorithm());
     Date end = new Date();
 
     System.out.println(discords.toString());

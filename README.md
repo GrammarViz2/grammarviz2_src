@@ -7,10 +7,30 @@ GrammarViz 2.0 source code public repository. This code is released under [GPL v
 
 0.0 In a nutshell
 ------------
-GrammarViz 2.0 is a software for *time series exploratory analysis* with GUI and CLI interfaces:
+GrammarViz 2.0 is a software for *time series exploratory analysis* with GUI and CLI interfaces. The GUI enables interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]:
 ![GrammarViz2 screen](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/src/resources/assets/screen.png)
 
-It is implemented in Java and is based on continuous signal discretization with [SAX](https://github.com/jMotif/SAX), Grammatical Inference with [Sequitur](https://github.com/jMotif/GI) and [Re-Pair](https://github.com/jMotif/GI), and [algorithmic (Kolmogorov) complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity). The GUI enables interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]. It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly**" (RRA) algorithms for time series anomaly discovery [5].
+It is implemented in Java and is based on continuous signal discretization with [SAX](https://github.com/jMotif/SAX), Grammatical Inference with [Sequitur](https://github.com/jMotif/GI) and [Re-Pair](https://github.com/jMotif/GI), and [algorithmic (Kolmogorov) complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity). 
+
+GrammarViz2 also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly**" (RRA) algorithms for time series anomaly discovery [5], that significantly outperform the HOT-SAX algorithm for time series discord discovery which is current state of the art. In the table below algorithms performance is measured in their calls to distance function. The last column shows the improvement over HOT-SAX:
+
+| Dataset and SAX parameters         | Size    | Brute Force          | HOT-SAX     | RRA        | Reduction |
+|:-----------------------------------|--------:|---------------------:|------------:|-----------:|------:|
+| Daily commute (350,15,4)           | 17,175  | 271,442,101          | 879,067     | 112,405    | 87.2% |
+| Dutch power demand (750,6,3)       | 35,040  | 1.13 * 10^9          | 6,196,356   | 327,950    | 95.7% |
+| ECG 0606 (120,4,4)                 | 2,300   | 4,241,541            | 72,390      | 16,717     | 76.9% |
+| ECG 308 (300,4,4)                  | 5,400   | 23,044,801           | 327,454     | 14,655     | 95.5% |
+| ECG 15 (300,4,4)                   | 15,000  | 207,374,401          | 1,434,665   | 111,348    | 92.2% |
+| ECG 108 (300,4,4)                  | 21,600  | 441,021,001          | 6,041,145   | 150,184    | 97.5% |
+| ECG 300 (300,4,4)                  | 536,976 | 288 * 10^9           | 101,427,254 | 17,712,845 | 82.6% |
+| ECG 318 (300,4,4)                  | 586,086 | 343 * 10^9           | 45,513,790  | 10,000,632 | 78.0% |
+| Respiration, NPRS 43 (128,5,4)     | 4,000   | 14,021,281           | 89,570      | 45,352     | 49.3% |
+| Respiration, NPRS 44 (128,5,4)     | 24,125  | 569,753,031          | 1,146,145   | 257,529    | 77.5% |
+| Video dataset (gun) (150,5,3)      | 11,251  | 119,935,353          | 758,456     | 69,910     | 90.8% |
+| Shuttle telemetry, TEK14 (128,4,4) | 5,000   | 22,510,281           | 691,194     | 48,226     | 93.0% |
+| Shuttle telemetry, TEK16 (128,4,4) | 5,000   | 22,491,306           | 61,682      | 15,573     | 74.8% |
+| Shuttle telemetry, TEK17 (128,4,4) | 5,000   | 22,491,306           | 164,225     | 78,211     | 52.4% |
+
 
 ### References:
 

@@ -1,15 +1,9 @@
 GrammarViz 2.0
 ==========
 
-GrammarViz 2.0 source code public repository. For the documentation, please visit http://grammarviz2.github.io/grammarviz2_site. The software is released under [GPL v.2.0.](http://www.gnu.org/licenses/gpl-2.0.html)
+GrammarViz 2.0 source code public repository. For the documentation, please visit http://grammarviz2.github.io/grammarviz2_site. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
 
-GrammarViz 2.0 implements in Java:
-
-  - Symbolic Aggregate approXimaion (SAX) and its parallelized version [1]
-  - Sequitur grammar induction algorithm, our implementation is based on the [reference Java code by Craig Nevill-Manning and Ian Witten](https://github.com/craignm/sequitur) [2]
-  - Re-Pair grammar induction algorithm and its parallelized version [3]
-  - Interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]
-  - "**Rule Density Curve**" and "**Rare Rule Anomaly**" (RRA) algorithms for time series anomaly discovery based on Kolmogorov complexity [5]
+GrammarViz 2.0 is implemented in Java and is based on [Symbolic Aggregate approXimaion (SAX)](https://github.com/jMotif/SAX), Grammatical Inference with [Sequitur](https://github.com/jMotif/GI) and [Re-Pair](https://github.com/jMotif/GI), and [algorithmic (Kolmogorov) complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity). Its GUI enables interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series. It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly**" (RRA) algorithms for time series anomaly discovery [5].
 
 References:
 

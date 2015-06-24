@@ -3,7 +3,7 @@ GrammarViz 2.0
 
 GrammarViz 2.0 source code public repository. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
 
-##### For the software description, please visit our [demo site](http://grammarviz2.github.io/grammarviz2_site).
+##### For the detailed software description, please visit our [demo site](http://grammarviz2.github.io/grammarviz2_site).
 
 0.0 In a nutshell
 ------------

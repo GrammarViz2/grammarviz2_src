@@ -29,7 +29,7 @@ It is implemented in Java and is based on continuous signal discretization with 
 1.0 Building
 ------------
 
-We use Maven and Java 7 to build an executable. The code is also built and tested by Travis CI [![Build Status](https://travis-ci.org/GrammarViz2/grammarviz2_src.svg?branch=master)](https://travis-ci.org/GrammarViz2/grammarviz2_src).
+We use Maven and Java 7 to build an executable. The code is also built by Travis CI [![Build Status](https://travis-ci.org/GrammarViz2/grammarviz2_src.svg?branch=master)](https://travis-ci.org/GrammarViz2/grammarviz2_src).
 
 <pre>
 

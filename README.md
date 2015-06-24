@@ -1,4 +1,4 @@
-GrammarViz 2.0
+GrammarViz 2.0 [![Build Status](https://travis-ci.org/GrammarViz2/grammarviz2_src.svg?branch=master)](https://travis-ci.org/GrammarViz2/grammarviz2_src)
 ==========
 
 GrammarViz 2.0 source code public repository. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
@@ -49,7 +49,7 @@ GrammarViz2 also implements the "**Rule Density Curve**" and "**Rare Rule Anomal
 1.0 Building
 ------------
 
-We use Maven and Java 7 to build an executable. The code is also built by Travis CI [![Build Status](https://travis-ci.org/GrammarViz2/grammarviz2_src.svg?branch=master)](https://travis-ci.org/GrammarViz2/grammarviz2_src).
+We use Maven and Java 7 to build an executable.
 
 <pre>
 

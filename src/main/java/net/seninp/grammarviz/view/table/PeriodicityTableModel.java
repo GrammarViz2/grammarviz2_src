@@ -1,5 +1,6 @@
 package net.seninp.grammarviz.view.table;
 
+import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 
 /**
@@ -26,18 +27,24 @@ public class PeriodicityTableModel extends SequiturRulesTableDataModel {
   }
 
   public void update(GrammarRules grammarRules) {
-    int rowIndex = 0;
     rows.clear();
     if (!(null == grammarRules)) {
-      for (rowIndex = 0; rowIndex < grammarRules.size(); rowIndex++) {
-        Object[] item = new Object[getColumnCount() + 1];
-        int nColumn = 0;
-        item[nColumn++] = grammarRules.get(rowIndex).ruleNumber();
-        item[nColumn++] = grammarRules.get(rowIndex).getOccurrences().size();
-        item[nColumn++] = grammarRules.get(rowIndex).getMeanLength();
-        item[nColumn++] = grammarRules.get(rowIndex).getPeriod();
-        item[nColumn++] = grammarRules.get(rowIndex).getPeriodError();
-        rows.add(item);
+      // TODO: it breaks here assuming the sequential order of rules... see Issue #23
+      //
+      int ruleCounter = 0;
+      while (ruleCounter < grammarRules.size()) {
+        GrammarRuleRecord rule = grammarRules.get(ruleCounter);
+        if (null != rule) {
+          Object[] item = new Object[getColumnCount() + 1];
+          int nColumn = 0;
+          item[nColumn++] = rule.ruleNumber();
+          item[nColumn++] = rule.getOccurrences().size();
+          item[nColumn++] = rule.getMeanLength();
+          item[nColumn++] = rule.getPeriod();
+          item[nColumn++] = rule.getPeriodError();
+          rows.add(item);
+        }
+        ruleCounter++;
       }
     }
 

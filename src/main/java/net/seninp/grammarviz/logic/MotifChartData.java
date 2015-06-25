@@ -663,6 +663,13 @@ public class MotifChartData extends Observable implements Observer {
     return this.slidingWindowOn;
   }
 
+  // EXPERIMENTAL FUNCTIONALITY
+  //
+  //
+  //
+  //
+  //
+
   public void performRanking() {
 
     // this is where we keep range coverage
@@ -683,7 +690,7 @@ public class MotifChartData extends Observable implements Observer {
           continue;
         }
         else {
-          double delta = getCoverDelta(range, rule.getRuleIntervals());
+          double delta = getCoverDelta(range, rule);
           if (delta > bestDelta) {
             bestDelta = delta;
             bestRule = rule;
@@ -727,10 +734,15 @@ public class MotifChartData extends Observable implements Observer {
     return res;
   }
 
-  private double getCoverDelta(boolean[] range, ArrayList<RuleInterval> ruleIntervals) {
+  private double getCoverDelta(boolean[] range, GrammarRuleRecord rule) {
+
+    // counts which uncovered points shall be covered
     int cover = 0;
+
+    // counts overlaps with previously covered ranges
     int overlap = 0;
-    for (RuleInterval i : ruleIntervals) {
+
+    for (RuleInterval i : rule.getRuleIntervals()) {
       int start = i.getStartPos();
       int end = i.getEndPos();
       for (int j = start; j <= end; j++) {
@@ -742,10 +754,18 @@ public class MotifChartData extends Observable implements Observer {
         }
       }
     }
+    // if covers nothing, return 0
+    if (0 == cover) {
+      return 0.0;
+    }
+    // if zero overlap, return full cover
     if (0 == overlap) {
       return (double) cover;
     }
-    return (double) cover / (double) overlap;
+    // else divide newly covered points mount by the sum of the rule string length and occurrence
+    // (i.e. encoding size)
+    return ((double) cover / (double) overlap)
+        / (double) (rule.getExpandedRuleString().length() + rule.getRuleIntervals().size());
   }
 
   private boolean hasEmptyRanges(boolean[] range) {

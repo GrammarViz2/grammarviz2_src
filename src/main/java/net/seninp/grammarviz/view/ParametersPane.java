@@ -104,7 +104,7 @@ public class ParametersPane extends JPanel {
     tabbedPane.addTab("Options", null, buildOptionsPanel(), "Other GrammarViz options");
 
     this.add(tabbedPane, "grow");
-
+    
     // set params finally
     this.setValues(userSession);
 

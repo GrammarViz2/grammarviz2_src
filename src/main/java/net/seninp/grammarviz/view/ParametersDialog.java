@@ -40,7 +40,7 @@ class ParametersDialog extends JDialog implements ActionListener {
 
     getContentPane().setLayout(mainFrameLayout);
 
-    getContentPane().add(this.optionPane, "h 200:300:,w 400:500:,growx,growy,wrap");
+    getContentPane().add(this.optionPane, "h 200:300:,w 500:550:,growx,growy,wrap");
 
     JPanel buttonPane = new JPanel();
     JButton okButton = new JButton(OK_BUTTON_TEXT);

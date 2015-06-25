@@ -26,6 +26,7 @@ class ParametersDialog extends JDialog implements ActionListener {
   public ParametersDialog(JFrame parentFrame, JPanel optionPanel, UserSession session) {
 
     super(parentFrame, true);
+
     if (parentFrame != null) {
       Dimension parentSize = parentFrame.getSize();
       Point p = parentFrame.getLocation();

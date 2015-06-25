@@ -669,6 +669,7 @@ public class MotifChartData extends Observable implements Observer {
     boolean[] range = new boolean[this.originalTimeSeries.length];
     // these are rules used in current cover
     HashSet<Integer> usedRules = new HashSet<Integer>();
+    usedRules.add(0);
     // do until all ranges are covered
     while (hasEmptyRanges(range)) {
 
@@ -688,6 +689,10 @@ public class MotifChartData extends Observable implements Observer {
             bestRule = rule;
           }
         }
+      }
+
+      if (0.0 == bestDelta) {
+        break;
       }
 
       // keep track of cover

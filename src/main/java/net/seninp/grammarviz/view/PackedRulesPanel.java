@@ -52,7 +52,7 @@ public class PackedRulesPanel extends JPanel implements ListSelectionListener,
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SequiturChartPanel.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizChartPanel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 

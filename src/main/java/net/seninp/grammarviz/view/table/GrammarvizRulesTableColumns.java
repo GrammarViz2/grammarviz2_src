@@ -6,7 +6,7 @@ package net.seninp.grammarviz.view.table;
  * @author Manfred Lerner, seninp
  * 
  */
-public enum SequiturRulesTableColumns {
+public enum GrammarvizRulesTableColumns {
   
   RULE_NUMBER("R#"),
   RULE_LEVEL("Level"), 
@@ -20,7 +20,7 @@ public enum SequiturRulesTableColumns {
 
   private final String columnName;
 
-  SequiturRulesTableColumns(String columnName) {
+  GrammarvizRulesTableColumns(String columnName) {
     this.columnName = columnName;
   }
 

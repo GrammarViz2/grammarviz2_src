@@ -17,8 +17,8 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 import net.seninp.grammarviz.logic.MotifChartData;
 import net.seninp.grammarviz.model.GrammarVizMessage;
-import net.seninp.grammarviz.view.table.SequiturRulesTableColumns;
-import net.seninp.grammarviz.view.table.SequiturRulesTableModel;
+import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
+import net.seninp.grammarviz.view.table.GrammarvizRulesTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ import ch.qos.logback.classic.Logger;
  * 
  */
 
-public class SequiturRulesPanel extends JPanel implements ListSelectionListener,
+public class GrammarvizRulesPanel extends JPanel implements ListSelectionListener,
     PropertyChangeListener {
 
   /** Fancy serial. */
@@ -41,7 +41,7 @@ public class SequiturRulesPanel extends JPanel implements ListSelectionListener,
 
   public static final String FIRING_PROPERTY = "selectedRow";
 
-  private SequiturRulesTableModel sequiturTableModel = new SequiturRulesTableModel();
+  private GrammarvizRulesTableModel sequiturTableModel = new GrammarvizRulesTableModel();
 
   private JXTable sequiturTable;
 
@@ -58,7 +58,7 @@ public class SequiturRulesPanel extends JPanel implements ListSelectionListener,
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SequiturRulesPanel.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizRulesPanel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -76,9 +76,9 @@ public class SequiturRulesPanel extends JPanel implements ListSelectionListener,
   /**
    * Constructor.
    */
-  public SequiturRulesPanel() {
+  public GrammarvizRulesPanel() {
     super();
-    this.sequiturTableModel = new SequiturRulesTableModel();
+    this.sequiturTableModel = new GrammarvizRulesTableModel();
     this.sequiturTable = new JXTable() {
 
       private static final long serialVersionUID = 2L;
@@ -114,19 +114,19 @@ public class SequiturRulesPanel extends JPanel implements ListSelectionListener,
 
     // Make some columns wider than the rest, so that the info fits in.
     TableColumnModel columnModel = sequiturTable.getColumnModel();
-    columnModel.getColumn(SequiturRulesTableColumns.RULE_NUMBER.ordinal()).setPreferredWidth(30);
-    columnModel.getColumn(SequiturRulesTableColumns.RULE_USE_FREQUENCY.ordinal())
+    columnModel.getColumn(GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()).setPreferredWidth(30);
+    columnModel.getColumn(GrammarvizRulesTableColumns.RULE_USE_FREQUENCY.ordinal())
         .setPreferredWidth(40);
-    columnModel.getColumn(SequiturRulesTableColumns.SEQUITUR_RULE.ordinal()).setPreferredWidth(100);
-    columnModel.getColumn(SequiturRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal())
+    columnModel.getColumn(GrammarvizRulesTableColumns.SEQUITUR_RULE.ordinal()).setPreferredWidth(100);
+    columnModel.getColumn(GrammarvizRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal())
         .setPreferredWidth(150);
-    columnModel.getColumn(SequiturRulesTableColumns.RULE_MEAN_LENGTH.ordinal()).setPreferredWidth(
+    columnModel.getColumn(GrammarvizRulesTableColumns.RULE_MEAN_LENGTH.ordinal()).setPreferredWidth(
         120);
 
-    TableRowSorter<SequiturRulesTableModel> sorter = new TableRowSorter<SequiturRulesTableModel>(
+    TableRowSorter<GrammarvizRulesTableModel> sorter = new TableRowSorter<GrammarvizRulesTableModel>(
         sequiturTableModel);
     sequiturTable.setRowSorter(sorter);
-    sorter.setComparator(SequiturRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal(),
+    sorter.setComparator(GrammarvizRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal(),
         expandedRuleComparator);
 
     DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
@@ -173,7 +173,7 @@ public class SequiturRulesPanel extends JPanel implements ListSelectionListener,
   /**
    * @return sequitur table model
    */
-  public SequiturRulesTableModel getSequiturTableModel() {
+  public GrammarvizRulesTableModel getSequiturTableModel() {
     return sequiturTableModel;
   }
 
@@ -192,7 +192,7 @@ public class SequiturRulesPanel extends JPanel implements ListSelectionListener,
       int row = sequiturTable.getSelectedRow();
       consoleLogger.debug("Selected ROW: " + row + " - COL: " + col);
       String rule = String.valueOf(sequiturTable.getValueAt(row,
-          SequiturRulesTableColumns.RULE_NUMBER.ordinal()));
+          GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
       this.firePropertyChange(FIRING_PROPERTY, this.selectedRule, rule);
       this.selectedRule = rule;
     }

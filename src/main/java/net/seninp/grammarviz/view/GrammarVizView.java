@@ -48,7 +48,7 @@ import ch.qos.logback.classic.Logger;
  * @author psenin
  * 
  */
-public class SequiturView implements Observer, ActionListener {
+public class GrammarVizView implements Observer, ActionListener {
 
   private static final String APPLICATION_VERSION = "GrammarViz 2.0: visualizing time series grammars";
 
@@ -59,7 +59,7 @@ public class SequiturView implements Observer, ActionListener {
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.INFO;
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SequiturView.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizView.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -141,19 +141,19 @@ public class SequiturView implements Observer, ActionListener {
 
   // data chart place
   //
-  private SequiturChartPanel dataChartPane;
+  private GrammarvizChartPanel dataChartPane;
 
   // sequitur rule list
   //
   private JTabbedPane tabbedRulesPane;
-  private SequiturRulesPanel sequiturRulesPane;
+  private GrammarvizRulesPanel sequiturRulesPane;
   private PackedRulesPanel packedRulesPane;
   private RulesPeriodicityPanel rulesPeriodicityPane;
   private AnomaliesPanel anomaliesPane;
 
   // small rule show panel
   //
-  private SequiturRuleChartPanel ruleChartPane;
+  private GrammarvizRuleChartPanel ruleChartPane;
 
   // workflow pane - buttons
   //
@@ -190,7 +190,7 @@ public class SequiturView implements Observer, ActionListener {
    * 
    * @param controller The controller used for the application flow control.
    */
-  public SequiturView(GrammarVizController controller) {
+  public GrammarVizView(GrammarVizController controller) {
     this.controller = controller;
   }
 
@@ -518,7 +518,7 @@ public class SequiturView implements Observer, ActionListener {
 
   private void buildChartPane() {
     // MotifChartPanel _chart = new MotifChartPanel(null);
-    dataChartPane = new SequiturChartPanel();
+    dataChartPane = new GrammarvizChartPanel();
     dataChartPane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Data display", TitledBorder.LEFT,
         TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
@@ -537,7 +537,7 @@ public class SequiturView implements Observer, ActionListener {
 
     // now add the raw Sequitur rules panel
     //
-    sequiturRulesPane = new SequiturRulesPanel();
+    sequiturRulesPane = new GrammarvizRulesPanel();
     MigLayout sequiturPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
     sequiturRulesPane.setLayout(sequiturPaneLayout);
 
@@ -581,7 +581,7 @@ public class SequiturView implements Observer, ActionListener {
 
     // the rule chart panel
     //
-    ruleChartPane = new SequiturRuleChartPanel();
+    ruleChartPane = new GrammarvizRuleChartPanel();
     ruleChartPane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Rule subsequences, normalized",
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));

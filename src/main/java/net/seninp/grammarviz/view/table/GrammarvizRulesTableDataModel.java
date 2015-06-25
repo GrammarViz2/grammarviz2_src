@@ -13,7 +13,7 @@ import javax.swing.table.AbstractTableModel;
  * @author Manfred Lerner
  * 
  */
-public class SequiturRulesTableDataModel extends AbstractTableModel {
+public class GrammarvizRulesTableDataModel extends AbstractTableModel {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -6894512220338171366L;
@@ -25,7 +25,7 @@ public class SequiturRulesTableDataModel extends AbstractTableModel {
   /**
    * Constructor.
    */
-  public SequiturRulesTableDataModel() {
+  public GrammarvizRulesTableDataModel() {
     rows = new ArrayList<Object>();
   }
 
@@ -65,9 +65,9 @@ public class SequiturRulesTableDataModel extends AbstractTableModel {
    * @param row the row index.
    * @param rowData the row data map.
    */
-  protected void updateRow(int row, EnumMap<SequiturRulesTableColumns, Object> rowData) {
+  protected void updateRow(int row, EnumMap<GrammarvizRulesTableColumns, Object> rowData) {
     Object[] changedItem = (Object[]) rows.get(row);
-    for (Map.Entry<SequiturRulesTableColumns, Object> entry : rowData.entrySet()) {
+    for (Map.Entry<GrammarvizRulesTableColumns, Object> entry : rowData.entrySet()) {
       changedItem[entry.getKey().ordinal()] = entry.getValue();
     }
     fireTableRowsUpdated(row, row);

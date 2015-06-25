@@ -21,7 +21,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public class SequiturRuleChartPanel extends JPanel implements PropertyChangeListener {
+public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeListener {
 
   /** Fancy serial. */
   private static final long serialVersionUID = 5334407476500195779L;
@@ -41,7 +41,7 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
   /**
    * Constructor.
    */
-  public SequiturRuleChartPanel() {
+  public GrammarvizRuleChartPanel() {
     super();
     tp = new TSProcessor();
   }
@@ -224,7 +224,7 @@ public class SequiturRuleChartPanel extends JPanel implements PropertyChangeList
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    if (SequiturRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
+    if (GrammarvizRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
       String newlySelectedRaw = (String) evt.getNewValue();
       chartIntervalsForRule(newlySelectedRaw);
     }

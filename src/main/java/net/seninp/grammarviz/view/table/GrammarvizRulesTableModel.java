@@ -9,7 +9,7 @@ import net.seninp.gi.GrammarRules;
  * @author Manfred Lerner, seninp
  * 
  */
-public class SequiturRulesTableModel extends SequiturRulesTableDataModel {
+public class GrammarvizRulesTableModel extends GrammarvizRulesTableDataModel {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -2952232752352963293L;
@@ -17,8 +17,8 @@ public class SequiturRulesTableModel extends SequiturRulesTableDataModel {
   /**
    * Constructor.
    */
-  public SequiturRulesTableModel() {
-    SequiturRulesTableColumns[] columns = SequiturRulesTableColumns.values();
+  public GrammarvizRulesTableModel() {
+    GrammarvizRulesTableColumns[] columns = GrammarvizRulesTableColumns.values();
     String[] schemaColumns = new String[columns.length];
     for (int i = 0; i < columns.length; i++) {
       schemaColumns[i] = columns[i].getColumnName();
@@ -72,21 +72,21 @@ public class SequiturRulesTableModel extends SequiturRulesTableDataModel {
      * for the RuleNumber and RuleFrequency column we use column class Integer.class so we can sort
      * it correctly in numerical order
      */
-    if (columnIndex == SequiturRulesTableColumns.RULE_NUMBER.ordinal())
+    if (columnIndex == GrammarvizRulesTableColumns.RULE_NUMBER.ordinal())
       return Integer.class;
-    if (columnIndex == SequiturRulesTableColumns.RULE_LEVEL.ordinal())
+    if (columnIndex == GrammarvizRulesTableColumns.RULE_LEVEL.ordinal())
       return Integer.class;
-    if (columnIndex == SequiturRulesTableColumns.RULE_FREQUENCY.ordinal())
+    if (columnIndex == GrammarvizRulesTableColumns.RULE_FREQUENCY.ordinal())
       return Integer.class;
-    if (columnIndex == SequiturRulesTableColumns.SEQUITUR_RULE.ordinal())
+    if (columnIndex == GrammarvizRulesTableColumns.SEQUITUR_RULE.ordinal())
       return String.class;
-    if (columnIndex == SequiturRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal())
+    if (columnIndex == GrammarvizRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal())
       return String.class;
-    if (columnIndex == SequiturRulesTableColumns.RULE_USE_FREQUENCY.ordinal())
+    if (columnIndex == GrammarvizRulesTableColumns.RULE_USE_FREQUENCY.ordinal())
       return Integer.class;
-    if (columnIndex == SequiturRulesTableColumns.RULE_MEAN_LENGTH.ordinal())
+    if (columnIndex == GrammarvizRulesTableColumns.RULE_MEAN_LENGTH.ordinal())
       return Integer.class;
-    if (columnIndex == SequiturRulesTableColumns.LENGTH.ordinal())
+    if (columnIndex == GrammarvizRulesTableColumns.LENGTH.ordinal())
       return String.class;
     // if (columnIndex == SequiturTableColumns.RULE_INDEXES.ordinal())
     // return String.class;

@@ -9,7 +9,7 @@ import net.seninp.gi.GrammarRules;
  * @author seninp
  * 
  */
-public class PeriodicityTableModel extends SequiturRulesTableDataModel {
+public class PeriodicityTableModel extends GrammarvizRulesTableDataModel {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -2952232752352693293L;

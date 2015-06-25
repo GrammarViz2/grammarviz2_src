@@ -2,7 +2,7 @@ package net.seninp.grammarviz;
 
 import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.model.GrammarVizModel;
-import net.seninp.grammarviz.view.SequiturView;
+import net.seninp.grammarviz.view.GrammarVizView;
 
 /**
  * Main runnable of Sequitur GUI.
@@ -19,7 +19,7 @@ public class GrammarVizGUI {
   private static GrammarVizController controller;
 
   /** The view instance. */
-  private static SequiturView view;
+  private static GrammarVizView view;
 
   /**
    * Runnable GIU.
@@ -42,7 +42,7 @@ public class GrammarVizGUI {
     controller = new GrammarVizController(model);
 
     // view...
-    view = new SequiturView(controller);
+    view = new GrammarVizView(controller);
 
     // make sure these two met...
     model.addObserver(view);

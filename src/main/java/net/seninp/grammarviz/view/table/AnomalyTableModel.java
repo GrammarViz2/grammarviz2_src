@@ -8,7 +8,7 @@ import net.seninp.jmotif.sax.discord.DiscordRecords;
  * @author seninp
  * 
  */
-public class AnomalyTableModel extends SequiturRulesTableDataModel {
+public class AnomalyTableModel extends GrammarvizRulesTableDataModel {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -2952232752352693293L;

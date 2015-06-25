@@ -63,7 +63,7 @@ import ch.qos.logback.classic.Logger;
  * @author Manfred Lerner, seninp
  * 
  */
-public class SequiturChartPanel extends JPanel implements PropertyChangeListener,
+public class GrammarvizChartPanel extends JPanel implements PropertyChangeListener,
     ChartProgressListener, ActionListener {
 
   /** Fancy serial. */
@@ -102,14 +102,14 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SequiturChartPanel.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizChartPanel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
   /**
    * Constructor.
    */
-  public SequiturChartPanel() {
+  public GrammarvizChartPanel() {
     super();
   }
 
@@ -623,7 +623,7 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    if (SequiturRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
+    if (GrammarvizRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
       String newlySelectedRaw = (String) evt.getNewValue();
       highlightPatternInChart(newlySelectedRaw);
       TitledBorder tb = (TitledBorder) this.getBorder();
@@ -656,20 +656,20 @@ public class SequiturChartPanel extends JPanel implements PropertyChangeListener
 
   @Override
   public void actionPerformed(ActionEvent e) {
-    if (SequiturView.DISPLAY_DENSITY_DATA.equalsIgnoreCase(e.getActionCommand())) {
+    if (GrammarVizView.DISPLAY_DENSITY_DATA.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_DENSITY + "coverage count strategy: "
           + this.session.getCountStrategy().toString() + " ");
       this.repaint();
       displayRuleDensity();
     }
-    else if (SequiturView.DISPLAY_LENGTH_HISTOGRAM.equalsIgnoreCase(e.getActionCommand())) {
+    else if (GrammarVizView.DISPLAY_LENGTH_HISTOGRAM.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_HISTOGRAMM);
       this.repaint();
       displayRulesLengthHistogram();
     }
-    else if (SequiturView.SAVE_CHART.equalsIgnoreCase(e.getActionCommand())) {
+    else if (GrammarVizView.SAVE_CHART.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SAVING_CHART);
       this.repaint();

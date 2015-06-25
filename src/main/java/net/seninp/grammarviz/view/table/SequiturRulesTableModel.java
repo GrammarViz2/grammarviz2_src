@@ -1,5 +1,6 @@
 package net.seninp.grammarviz.view.table;
 
+import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 
 /**
@@ -31,22 +32,30 @@ public class SequiturRulesTableModel extends SequiturRulesTableDataModel {
    * @param grammarRules the data for table.
    */
   public void update(GrammarRules grammarRules) {
-    int rowIndex = 0;
     rows.clear();
     if (!(null == grammarRules)) {
-      for (rowIndex = 0; rowIndex < grammarRules.size(); rowIndex++) {
-        Object[] item = new Object[getColumnCount() + 1];
-        int nColumn = 0;
-        item[nColumn++] = grammarRules.get(rowIndex).ruleNumber();
-        item[nColumn++] = grammarRules.get(rowIndex).getRuleLevel();
-        item[nColumn++] = grammarRules.get(rowIndex).getOccurrences().size();
-        item[nColumn++] = grammarRules.get(rowIndex).getRuleString();
-        item[nColumn++] = grammarRules.get(rowIndex).getExpandedRuleString();
-        item[nColumn++] = grammarRules.get(rowIndex).getRuleUseFrequency();
-        item[nColumn++] = grammarRules.get(rowIndex).getMeanLength();
-        item[nColumn++] = grammarRules.get(rowIndex).minMaxLengthAsString();
-        // item[nColumn++] = saxContainerList.get(rowIndex).getOccurenceIndexes();
-        rows.add(item);
+      // TODO: it breaks here assuming the sequential order of rules... see Issue #23
+      //
+      int ruleCounter = 0;
+      int rulesInTable = 0;
+      while (rulesInTable < grammarRules.size()) {
+        GrammarRuleRecord rule = grammarRules.get(ruleCounter);
+        if (null != rule) {
+          Object[] item = new Object[getColumnCount() + 1];
+          int nColumn = 0;
+          item[nColumn++] = rule.ruleNumber();
+          item[nColumn++] = rule.getRuleLevel();
+          item[nColumn++] = rule.getOccurrences().size();
+          item[nColumn++] = rule.getRuleString();
+          item[nColumn++] = rule.getExpandedRuleString();
+          item[nColumn++] = rule.getRuleUseFrequency();
+          item[nColumn++] = rule.getMeanLength();
+          item[nColumn++] = rule.minMaxLengthAsString();
+          // item[nColumn++] = saxContainerList.get(rowIndex).getOccurenceIndexes();
+          rows.add(item);
+          rulesInTable++;
+        }
+        ruleCounter++;
       }
     }
 

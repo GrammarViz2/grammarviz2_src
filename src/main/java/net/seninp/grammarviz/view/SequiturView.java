@@ -640,7 +640,7 @@ public class SequiturView implements Observer, ActionListener {
     workflowManagementPane.add(displayChartButton);
     workflowManagementPane.add(displayRulesLenHistogramButton);
     workflowManagementPane.add(clusterRulesButton);
-//    workflowManagementPane.add(rankRulesButton);
+    workflowManagementPane.add(rankRulesButton);
     workflowManagementPane.add(displayRulesDensityButton);
     workflowManagementPane.add(displayAnomaliesButton);
     workflowManagementPane.add(saveChartButton);
@@ -947,14 +947,36 @@ public class SequiturView implements Observer, ActionListener {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
-        dataChartPane.resetChartPanel();
-        packedRulesPane.resetSelection();
-        ruleChartPane.resetChartPanel();
 
         MotifChartData chartData = this.dataChartPane.getChartData();
         chartData.performRanking();
 
-        packedRulesPane.setChartData(chartData);
+        this.chartData = chartData;
+
+        // setting the chart first
+        //
+        dataChartPane.setChartData(chartData, this.controller.getSession());
+
+        // and the rules pane second
+        //
+        sequiturRulesPane.setChartData(chartData);
+
+        // and the "snapshots panel"
+        //
+        ruleChartPane.setChartData(chartData);
+
+        // and the rules periodicity panel
+        //
+        rulesPeriodicityPane.setChartData(chartData);
+
+        // and the anomalies panel
+        //
+        anomaliesPane.setChartData(chartData);
+
+        // dataChartPane.getChart().setNotify(true);
+        frame.validate();
+        frame.repaint();
+        
       }
     }
 

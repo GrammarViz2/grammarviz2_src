@@ -3,6 +3,7 @@ package net.seninp.grammarviz.logic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 import net.seninp.gi.GrammarRuleRecord;
@@ -664,22 +665,108 @@ public class MotifChartData extends Observable implements Observer {
 
   public void performRanking() {
 
-    // first - remove rules overlap
-    // this is done by throwing away rules that overlap others
-    //
-    GrammarRules dereplicatedRules = new GrammarRules();
-    for (GrammarRuleRecord rule : grammarRules) {
-      dereplicatedRules.addRule(dereplicate(rule));
+    // this is where we keep range coverage
+    boolean[] range = new boolean[this.originalTimeSeries.length];
+    // these are rules used in current cover
+    HashSet<Integer> usedRules = new HashSet<Integer>();
+    // do until all ranges are covered
+    while (hasEmptyRanges(range)) {
+
+      // iterate over rules set finding new optimal cover
+      //
+      GrammarRuleRecord bestRule = null;
+      double bestDelta = Integer.MIN_VALUE;
+      for (GrammarRuleRecord rule : grammarRules) {
+        int id = rule.getRuleNumber();
+        if (usedRules.contains(id)) {
+          continue;
+        }
+        else {
+          double delta = getCoverDelta(range, rule.getRuleIntervals());
+          if (delta > bestDelta) {
+            bestDelta = delta;
+            bestRule = rule;
+          }
+        }
+      }
+
+      // keep track of cover
+      //
+      usedRules.add(bestRule.getRuleNumber());
+      range = updateRanges(range, bestRule.getRuleIntervals());
     }
+
+    System.out.println("Best cover "
+        + Arrays.toString(usedRules.toArray(new Integer[usedRules.size()])));
+
+    GrammarRules prunedRules = new GrammarRules();
+    prunedRules.addRule(grammarRules.get(0));
+
+    for (Integer rId : usedRules) {
+      prunedRules.addRule(grammarRules.get(rId));
+    }
+
+    this.grammarRules = prunedRules;
 
   }
 
-  private GrammarRuleRecord dereplicate(GrammarRuleRecord rule) {
-    ArrayList<Integer> order = new ArrayList<Integer>();
-    for (int i = 0; i < order.size(); i++) {
-
+  private boolean[] updateRanges(boolean[] range, ArrayList<RuleInterval> ruleIntervals) {
+    boolean[] res = Arrays.copyOf(range, range.length);
+    for (RuleInterval i : ruleIntervals) {
+      int start = i.getStartPos();
+      int end = i.getEndPos();
+      for (int j = start; j <= end; j++) {
+        res[j] = true;
+      }
     }
-    return null;
+    return res;
+  }
+
+  private double getCoverDelta(boolean[] range, ArrayList<RuleInterval> ruleIntervals) {
+    int cover = 0;
+    int overlap = 0;
+    for (RuleInterval i : ruleIntervals) {
+      int start = i.getStartPos();
+      int end = i.getEndPos();
+      for (int j = start; j <= end; j++) {
+        if (false == range[j]) {
+          cover++;
+        }
+        else {
+          overlap++;
+        }
+      }
+    }
+    if (0 == overlap) {
+      return (double) cover;
+    }
+    return (double) cover / (double) overlap;
+  }
+
+  private boolean hasEmptyRanges(boolean[] range) {
+    StringBuffer sb = new StringBuffer();
+    boolean inUncovered = false;
+    int start = 0;
+    for (int i = 0; i < range.length; i++) {
+      if (false == range[i] && false == inUncovered) {
+        start = i;
+        inUncovered = true;
+      }
+      if (true == range[i] && true == inUncovered) {
+        sb.append("[" + start + ", " + i + "], ");
+        inUncovered = false;
+      }
+    }
+    if (inUncovered) {
+      sb.append("[" + start + ", " + range.length + "], ");
+    }
+    System.out.println(sb);
+    for (boolean p : range) {
+      if (false == p) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

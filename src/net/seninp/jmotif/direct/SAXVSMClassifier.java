@@ -1,21 +1,22 @@
 package net.seninp.jmotif.direct;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import net.seninp.jmotif.text.SAXNumerosityReductionStrategy;
+import net.seninp.jmotif.sax.SAXException;
+import net.seninp.jmotif.text.Params;
 import net.seninp.jmotif.text.TextProcessor;
 import net.seninp.jmotif.text.WordBag;
-import net.seninp.jmotif.util.UCRUtils;
+import net.seninp.util.StackTrace;
+import net.seninp.util.UCRUtils;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.beust.jcommander.JCommander;
 
 /**
  * This implements a classifier.
@@ -27,18 +28,13 @@ public class SAXVSMClassifier {
 
   private static final DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.US);
   private static DecimalFormat fmt = new DecimalFormat("0.00###", otherSymbols);
-
+  private static final Object CR = "\n";
   private static final String COMMA = ", ";
 
-  private static String TRAINING_DATA;
-  private static String TEST_DATA;
+  private static TextProcessor tp = new TextProcessor();
 
-  private static Integer WINDOW_SIZE;
-  private static Integer PAA_SIZE;
-  private static Integer ALPHABET_SIZE;
   private static Map<String, List<double[]>> trainData;
   private static Map<String, List<double[]>> testData;
-  private static SAXNumerosityReductionStrategy STRATEGY;
 
   // static block - we instantiate the logger
   //
@@ -50,48 +46,60 @@ public class SAXVSMClassifier {
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
-  public static void main(String[] args) throws IOException, IndexOutOfBoundsException, Exception {
+  public static void main(String[] args) throws SAXException{
 
     try {
-      // args: <train dataset>, <test dataset>, Wsize , Psize, Asize, Startegy
-      consoleLogger.info("processing paramleters: " + Arrays.toString(args));
+      
+      SAXVSMClassifierParams params = new SAXVSMClassifierParams();
+      JCommander jct = new JCommander(params, args);
 
-      TRAINING_DATA = args[0];
-      TEST_DATA = args[1];
-      trainData = UCRUtils.readUCRData(TRAINING_DATA);
+      if (0 == args.length) {
+        jct.usage();
+        System.exit(-10);
+      }
+
+      StringBuffer sb = new StringBuffer(1024);
+      sb.append("SAX-VSM Classifier").append(CR);
+      sb.append("parameters:").append(CR);
+
+      sb.append("  train data:                  ").append(SAXVSMClassifierParams.TRAIN_FILE).append(CR);
+      sb.append("  test data:                   ").append(SAXVSMClassifierParams.TEST_FILE).append(CR);
+      sb.append("  SAX sliding window size:     ").append(SAXVSMClassifierParams.SAX_WINDOW_SIZE).append(CR);
+      sb.append("  SAX PAA size:                ").append(SAXVSMClassifierParams.SAX_PAA_SIZE).append(CR);
+      sb.append("  SAX alphabet size:           ").append(SAXVSMClassifierParams.SAX_ALPHABET_SIZE).append(CR);
+      sb.append("  SAX numerosity reduction:    ").append(SAXVSMClassifierParams.SAX_NR_STRATEGY).append(CR);
+      sb.append("  SAX normalization threshold: ").append(SAXVSMClassifierParams.SAX_NORM_THRESHOLD).append(CR);
+
+      trainData = UCRUtils.readUCRData(SAXVSMClassifierParams.TRAIN_FILE);
       consoleLogger.info("trainData classes: " + trainData.size() + ", series length: "
           + trainData.entrySet().iterator().next().getValue().get(0).length);
       for (Entry<String, List<double[]>> e : trainData.entrySet()) {
         consoleLogger.info(" training class: " + e.getKey() + " series: " + e.getValue().size());
       }
 
-      testData = UCRUtils.readUCRData(TEST_DATA);
+      testData = UCRUtils.readUCRData(SAXVSMClassifierParams.TEST_FILE);
       consoleLogger.info("testData classes: " + testData.size() + ", series length: "
           + testData.entrySet().iterator().next().getValue().get(0).length);
       for (Entry<String, List<double[]>> e : testData.entrySet()) {
         consoleLogger.info(" test class: " + e.getKey() + " series: " + e.getValue().size());
       }
 
-      WINDOW_SIZE = Integer.valueOf(args[2]);
-      PAA_SIZE = Integer.valueOf(args[3]);
-      ALPHABET_SIZE = Integer.valueOf(args[4]);
-
-      STRATEGY = SAXNumerosityReductionStrategy.valueOf(args[5].toUpperCase());
-
     }
     catch (Exception e) {
-      System.err.println("There was parameters error....");
+      System.err.println("There was an error...." + StackTrace.toString(e));
       System.exit(-10);
     }
-    int[] params = new int[] { WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, STRATEGY.index() };
+    Params params = new Params(SAXVSMClassifierParams.SAX_WINDOW_SIZE,
+        SAXVSMClassifierParams.SAX_PAA_SIZE, SAXVSMClassifierParams.SAX_ALPHABET_SIZE,
+        SAXVSMClassifierParams.SAX_NORM_THRESHOLD, SAXVSMClassifierParams.SAX_NR_STRATEGY);
     classify(params);
   }
 
-  private static void classify(int[] params) throws IndexOutOfBoundsException, Exception {
+  private static void classify(Params params) throws SAXException {
     // making training bags collection
-    List<WordBag> bags = TextProcessor.labeledSeries2WordBags(trainData, params);
+    List<WordBag> bags = tp.labeledSeries2WordBags(trainData, params);
     // getting TFIDF done
-    HashMap<String, HashMap<String, Double>> tfidf = TextProcessor.computeTFIDF(bags);
+    HashMap<String, HashMap<String, Double>> tfidf = tp.computeTFIDF(bags);
     // classifying
     int testSampleSize = 0;
     int positiveTestCounter = 0;
@@ -99,7 +107,7 @@ public class SAXVSMClassifier {
       List<double[]> testD = testData.get(label);
       for (double[] series : testD) {
         positiveTestCounter = positiveTestCounter
-            + TextProcessor.classify(label, series, tfidf, params);
+            + tp.classify(label, series, tfidf, params);
         testSampleSize++;
       }
     }
@@ -109,28 +117,18 @@ public class SAXVSMClassifier {
     double error = 1.0d - accuracy;
 
     // report results
-    consoleLogger.info("classification results: " + toLogStr(params, accuracy, error));
+    System.out.println("classification results: " + toLogStr(params, accuracy, error));
 
   }
 
-  protected static String toLogStr(int[] p, double accuracy, double error) {
-
+  protected static String toLogStr(Params params, double accuracy, double error) {
     StringBuffer sb = new StringBuffer();
-    if (SAXNumerosityReductionStrategy.CLASSIC.index() == p[3]) {
-      sb.append("CLASSIC, ");
-    }
-    else if (SAXNumerosityReductionStrategy.EXACT.index() == p[3]) {
-      sb.append("EXACT, ");
-    }
-    else if (SAXNumerosityReductionStrategy.NOREDUCTION.index() == p[3]) {
-      sb.append("NOREDUCTION, ");
-    }
-    sb.append("window ").append(p[0]).append(COMMA);
-    sb.append("PAA ").append(p[1]).append(COMMA);
-    sb.append("alphabet ").append(p[2]).append(COMMA);
+    sb.append(params.getNrStartegy().toString()).append(COMMA);
+    sb.append("window ").append(params.getWindowSize()).append(COMMA);
+    sb.append("PAA ").append(params.getPaaSize()).append(COMMA);
+    sb.append("alphabet ").append(params.getAlphabetSize()).append(COMMA);
     sb.append(" accuracy ").append(fmt.format(accuracy)).append(COMMA);
     sb.append(" error ").append(fmt.format(error));
-
     return sb.toString();
   }
 

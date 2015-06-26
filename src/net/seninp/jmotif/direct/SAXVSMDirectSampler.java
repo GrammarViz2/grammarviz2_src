@@ -12,15 +12,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import net.seninp.jmotif.text.SAXNumerosityReductionStrategy;
 import net.seninp.jmotif.text.TextProcessor;
 import net.seninp.jmotif.text.WordBag;
-import net.seninp.jmotif.util.StackTrace;
-import net.seninp.jmotif.util.UCRUtils;
+import net.seninp.util.StackTrace;
+import net.seninp.util.UCRUtils;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.timeseries.TSException;
 
 /**
  * Implements a cross-validation DIRECT-based procedure for SAX-VSM parameters optimization.

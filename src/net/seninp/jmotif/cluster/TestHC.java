@@ -3,7 +3,7 @@ package net.seninp.jmotif.cluster;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import java.util.HashMap;
-import net.seninp.jmotif.text.TextUtils;
+import net.seninp.jmotif.text.TextProcessor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,9 +47,9 @@ public class TestHC {
 
   @Test
   public void testDotProduct() {
-    assertEquals(TextUtils.dotProduct(a, b), 0.32D, 0.0001);
-    assertEquals(TextUtils.dotProduct(c, b), 0.71D, 0.0001);
-    assertEquals(TextUtils.magnitude(c), 1.330413D, 0.0001);
+    assertEquals(TextProcessor.dotProduct(a, b), 0.32D, 0.0001);
+    assertEquals(TextProcessor.dotProduct(c, b), 0.71D, 0.0001);
+    assertEquals(TextProcessor.magnitude(c), 1.330413D, 0.0001);
   }
 
   @Test

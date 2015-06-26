@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXException;
 import net.seninp.jmotif.sax.SAXProcessor;
@@ -24,7 +27,7 @@ import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
  * @author psenin
  * 
  */
-public final class TextUtils {
+public final class TextProcessor {
 
   @SuppressWarnings("unused")
   private static final String COMMA = ",";
@@ -37,8 +40,97 @@ public final class TextUtils {
 
   private static final SAXProcessor sp = new SAXProcessor();
 
-  private TextUtils() {
-    assert true;
+  // logging stuff
+  //
+  private static Logger consoleLogger;
+  private static Level LOGGING_LEVEL = Level.DEBUG;
+  static {
+    consoleLogger = (Logger) LoggerFactory.getLogger(TextProcessor.class);
+    consoleLogger.setLevel(LOGGING_LEVEL);
+  }
+
+  /**
+   * Constructor.
+   */
+  public TextProcessor() {
+    super();
+  }
+
+  /**
+   * Converts time series to a word bag.
+   * 
+   * @param label the wordbag label.
+   * @param ts timeseries.
+   * @param params parameters for SAX transform.
+   * @return word bag.
+   * @throws SAXException if error occurs.
+   */
+  public WordBag seriesToWordBag(String label, double[] ts, Params params) throws SAXException {
+
+    WordBag resultBag = new WordBag(label);
+
+    // scan across the time series extract sub sequences, and convert them to strings
+    char[] previousString = null;
+
+    for (int i = 0; i < ts.length - (params.windowSize - 1); i++) {
+
+      // fix the current subsection
+      double[] subSection = Arrays.copyOfRange(ts, i, i + params.windowSize);
+
+      // Z normalize it
+      subSection = tp.znorm(subSection, params.nThreshold);
+
+      // perform PAA conversion if needed
+      double[] paa = tp.paa(subSection, params.paaSize);
+
+      // Convert the PAA to a string.
+      char[] currentString = tp.ts2String(paa, na.getCuts(params.alphabetSize));
+
+      if (null != previousString) {
+
+        if (NumerosityReductionStrategy.EXACT.equals(params.nrStartegy)
+            && Arrays.equals(previousString, currentString)) {
+          // NumerosityReduction
+          continue;
+        }
+        else if (NumerosityReductionStrategy.MINDIST.equals(params.nrStartegy)
+            && sp.checkMinDistIsZero(previousString, currentString)) {
+          continue;
+        }
+
+      }
+
+      previousString = currentString;
+
+      resultBag.addWord(String.valueOf(currentString));
+    }
+
+    return resultBag;
+  }
+
+  public List<WordBag> labeledSeries2WordBags(Map<String, List<double[]>> data, Params params)
+      throws SAXException {
+
+    // make a map of resulting bags
+    Map<String, WordBag> preRes = new HashMap<String, WordBag>();
+
+    // process series one by one building word bags
+    for (Entry<String, List<double[]>> e : data.entrySet()) {
+
+      String classLabel = e.getKey();
+      WordBag bag = new WordBag(classLabel);
+
+      for (double[] series : e.getValue()) {
+        WordBag cb = seriesToWordBag("tmp", series, params);
+        bag.mergeWith(cb);
+      }
+
+      preRes.put(classLabel, bag);
+    }
+
+    List<WordBag> res = new ArrayList<WordBag>();
+    res.addAll(preRes.values());
+    return res;
   }
 
   /**
@@ -47,8 +139,7 @@ public final class TextUtils {
    * @param texts The collection of text documents for which the statistics need to be computed.
    * @return The map of source documents names to the word - tf*idf weight collections.
    */
-  public static synchronized HashMap<String, HashMap<String, Double>> computeTFIDF(
-      Collection<WordBag> texts) {
+  public HashMap<String, HashMap<String, Double>> computeTFIDF(Collection<WordBag> texts) {
 
     // the number of docs
     int totalDocs = texts.size();
@@ -135,68 +226,6 @@ public final class TextUtils {
     return res;
   }
 
-  public static synchronized HashMap<String, HashMap<Bigram, Double>> computeTFIDF(
-      List<BigramBag> bags) {
-
-    // the result. map of document names to the pairs word - tfidf weight
-    HashMap<String, HashMap<Bigram, Double>> res = new HashMap<String, HashMap<Bigram, Double>>();
-
-    // build a collection of all observed words
-    TreeSet<Bigram> allWords = new TreeSet<Bigram>();
-    for (BigramBag bag : bags) {
-      allWords.addAll(bag.getBigramSet());
-    }
-
-    // outer loop - iterating over documents
-    for (BigramBag bag : bags) {
-
-      // fix the doc name
-      String bagName = bag.getLabel();
-      HashMap<Bigram, Integer> bagWords = bag.getBigrams(); // these are words of documents
-
-      // what we want to do for TF*IDF is to compute it for all WORDS ever seen in set
-      //
-      for (Bigram word : allWords) {
-
-        // get the TF first
-        //
-        int wordFrequency = 0;
-
-        if (bagWords.containsKey(word)) {
-          wordFrequency = bagWords.get(word);
-        }
-
-        // TF = we take a log and correct for 0 by adding 1
-        double tfLOGValue = Math.log(Integer.valueOf(wordFrequency).doubleValue()
-            / Integer.valueOf(bag.getTotalWordCount()).doubleValue() + 1.0D);
-        // double tfLOGValue = Math.log(Integer.valueOf(wordFrequency).doubleValue()) + 1.0D;
-
-        // compute the IDF
-        //
-        int totalDocs = bags.size();
-        int docsWithWord = 0;
-        for (BigramBag wb : bags) {
-          if (wb.contains(word)) {
-            docsWithWord = docsWithWord + 1;
-          }
-        }
-        double idfLOGValue = Math.log(Integer.valueOf(totalDocs).doubleValue()
-            / Integer.valueOf(docsWithWord).doubleValue());
-
-        // and the TF-IDF
-        //
-        double tfIdf = tfLOGValue * idfLOGValue;
-
-        if (null == res.get(bagName)) {
-          res.put(bagName, new HashMap<Bigram, Double>());
-        }
-        res.get(bagName).put(word, tfIdf);
-
-      }
-    }
-    return res;
-  }
-
   /**
    * Compute TF (term frequency) metrics. This is logarithmically scaled TF.
    * 
@@ -204,7 +233,7 @@ public final class TextUtils {
    * @param term The term.
    * @return The term frequency value.
    */
-  public static synchronized double logTF(WordBag bag, String term) {
+  public double logTF(WordBag bag, String term) {
     if (bag.contains(term)) {
       return 1.0d + Math.log(bag.getWordFrequency(term).doubleValue());
     }
@@ -219,7 +248,7 @@ public final class TextUtils {
    * @param term The term.
    * @return The term frequency value.
    */
-  public static synchronized double normalizedTF(WordBag bag, String term) {
+  public double normalizedTF(WordBag bag, String term) {
     if (bag.contains(term)) {
       return Integer.valueOf(bag.getWordFrequency(term)).doubleValue()
           / Integer.valueOf(bag.getMaxFrequency()).doubleValue();
@@ -235,7 +264,7 @@ public final class TextUtils {
    * @param term The term.
    * @return The term frequency value.
    */
-  public static synchronized double augmentedTF(WordBag bag, String term) {
+  public double augmentedTF(WordBag bag, String term) {
     if (bag.contains(term)) {
       return 0.5D + (Integer.valueOf(bag.getWordFrequency(term)).doubleValue())
           / (2.0D * Integer.valueOf(bag.getMaxFrequency()).doubleValue());
@@ -251,7 +280,7 @@ public final class TextUtils {
    * @param term The term.
    * @return The term frequency value.
    */
-  public static synchronized double logAveTF(WordBag bag, String term) {
+  public double logAveTF(WordBag bag, String term) {
     if (bag.contains(term)) {
       return (1D + Math.log(Integer.valueOf(bag.getWordFrequency(term)).doubleValue()))
           / (1D + Math.log(bag.getAverageFrequency()));
@@ -266,7 +295,7 @@ public final class TextUtils {
    * @param string The string term.
    * @return The DF value.
    */
-  public static synchronized int df(HashMap<String, WordBag> bags, String string) {
+  public int df(HashMap<String, WordBag> bags, String string) {
     int res = 0;
     for (WordBag b : bags.values()) {
       if (b.contains(string)) {
@@ -283,12 +312,12 @@ public final class TextUtils {
    * @param string The string (term).
    * @return The idf value.
    */
-  public static synchronized double idf(HashMap<String, WordBag> bags, String string) {
+  public double idf(HashMap<String, WordBag> bags, String string) {
     return Integer.valueOf(bags.size()).doubleValue()
         / Integer.valueOf(df(bags, string)).doubleValue();
   }
 
-  public static synchronized String tfidfToTable(HashMap<String, HashMap<String, Double>> tfidf) {
+  public String tfidfToTable(HashMap<String, HashMap<String, Double>> tfidf) {
 
     // melt together sets of keys
     //
@@ -345,8 +374,7 @@ public final class TextUtils {
    * @param vector the vector.
    * @return normalized vector.
    */
-  public static synchronized HashMap<String, Double> normalizeToUnitVector(
-      HashMap<String, Double> vector) {
+  public HashMap<String, Double> normalizeToUnitVector(HashMap<String, Double> vector) {
     double sum = 0d;
     for (double value : vector.values()) {
       sum = sum + value * value;
@@ -365,7 +393,7 @@ public final class TextUtils {
    * @param data The data.
    * @return The normalized tfidf statistics.
    */
-  public static synchronized HashMap<String, HashMap<String, Double>> normalizeToUnitVectors(
+  public HashMap<String, HashMap<String, Double>> normalizeToUnitVectors(
       HashMap<String, HashMap<String, Double>> data) {
     // result
     HashMap<String, HashMap<String, Double>> res = new HashMap<String, HashMap<String, Double>>();
@@ -401,28 +429,6 @@ public final class TextUtils {
     return res;
   }
 
-  public static HashMap<String, HashMap<Bigram, Double>> normalizeBigramsToUnitVectors(
-      HashMap<String, HashMap<Bigram, Double>> data) {
-    // result
-    HashMap<String, HashMap<Bigram, Double>> res = new HashMap<String, HashMap<Bigram, Double>>();
-    // cosine normalize these rows corresponding to docs TFIDF
-    //
-    for (Entry<String, HashMap<Bigram, Double>> e : data.entrySet()) {
-      double sum = 0D;
-      for (Double el : e.getValue().values()) {
-        sum = sum + el * el;
-      }
-      double sqRoot = Math.sqrt(sum);
-      HashMap<Bigram, Double> newEntry = new HashMap<Bigram, Double>();
-      for (Entry<Bigram, Double> val : e.getValue().entrySet()) {
-        double newValue = val.getValue() / sqRoot;
-        newEntry.put(val.getKey(), newValue);
-      }
-      res.put(e.getKey(), newEntry);
-    }
-    return res;
-  }
-
   /**
    * Computes a cosine similarity.
    * 
@@ -430,8 +436,7 @@ public final class TextUtils {
    * @param data2 The data vector 2.
    * @return The cosine distance.
    */
-  public static synchronized double cosineDistance(HashMap<String, Double> data1,
-      HashMap<String, Double> data2) {
+  public double cosineDistance(HashMap<String, Double> data1, HashMap<String, Double> data2) {
     // sanity word order check
     if (!(data2.keySet().containsAll(data1.keySet()))
         || !(data2.keySet().size() == data1.keySet().size())) {
@@ -454,8 +459,7 @@ public final class TextUtils {
     return numerator / denominator;
   }
 
-  public static synchronized double cosineSimilarity(WordBag testSample,
-      HashMap<String, Double> weightVector) {
+  public double cosineSimilarity(WordBag testSample, HashMap<String, Double> weightVector) {
     double res = 0;
     for (Entry<String, Integer> entry : testSample.getWords().entrySet()) {
       if (weightVector.containsKey(entry.getKey())) {
@@ -467,7 +471,44 @@ public final class TextUtils {
     return res / (m1 * m2);
   }
 
-  public static synchronized double cosineSimilarityInstrumented(WordBag testSample,
+  // private double cosineSimilarity(BigramBag testSample, HashMap<Bigram, Double> weightVector) {
+  // double res = 0;
+  // for (Entry<Bigram, Integer> entry : testSample.getBigrams().entrySet()) {
+  // if (weightVector.containsKey(entry.getKey())) {
+  // res = res + entry.getValue().doubleValue() * weightVector.get(entry.getKey()).doubleValue();
+  // }
+  // }
+  // double m1 = magnitude(testSample.getBigramsAsDoubles().values());
+  // double m2 = magnitude(weightVector.values());
+  // return res / (m1 * m2);
+  // }
+
+  public CosineDistanceMatrix getCosineDistanceMatrix(HashMap<String, HashMap<String, Double>> tfidf) {
+    CosineDistanceMatrix res = new CosineDistanceMatrix(tfidf);
+    return res;
+  }
+
+  /**
+   * Compute the magnitude of the vector.
+   * 
+   * @param vector The vector.
+   * @return The magnitude.
+   */
+  public double magnitude(double[] vector) {
+    return Math.sqrt(dotProduct(vector, vector));
+  }
+
+  /**
+   * Compute the magnitude of the vector.
+   * 
+   * @param vector The vector.
+   * @return The magnitude.
+   */
+  public double magnitude(Double[] vector) {
+    return Math.sqrt(dotProduct(vector, vector));
+  }
+
+  public double cosineSimilarityInstrumented(WordBag testSample,
       HashMap<String, Double> weightVector, HashMap<String, Double> insight) {
     double res = 0;
     for (Entry<String, Integer> entry : testSample.getWords().entrySet()) {
@@ -482,45 +523,19 @@ public final class TextUtils {
     return res / (m1 * m2);
   }
 
-  private static double cosineSimilarity(BigramBag testSample, HashMap<Bigram, Double> weightVector) {
-    double res = 0;
-    for (Entry<Bigram, Integer> entry : testSample.getBigrams().entrySet()) {
-      if (weightVector.containsKey(entry.getKey())) {
-        res = res + entry.getValue().doubleValue() * weightVector.get(entry.getKey()).doubleValue();
-      }
-    }
-    double m1 = magnitude(testSample.getBigramsAsDoubles().values());
-    double m2 = magnitude(weightVector.values());
-    return res / (m1 * m2);
-  }
+  // private double cosineSimilarity(BigramBag testSample, HashMap<Bigram, Double> weightVector) {
+  // double res = 0;
+  // for (Entry<Bigram, Integer> entry : testSample.getBigrams().entrySet()) {
+  // if (weightVector.containsKey(entry.getKey())) {
+  // res = res + entry.getValue().doubleValue() * weightVector.get(entry.getKey()).doubleValue();
+  // }
+  // }
+  // double m1 = magnitude(testSample.getBigramsAsDoubles().values());
+  // double m2 = magnitude(weightVector.values());
+  // return res / (m1 * m2);
+  // }
 
-  public static synchronized CosineDistanceMatrix getCosineDistanceMatrix(
-      HashMap<String, HashMap<String, Double>> tfidf) {
-    CosineDistanceMatrix res = new CosineDistanceMatrix(tfidf);
-    return res;
-  }
-
-  /**
-   * Compute the magnitude of the vector.
-   * 
-   * @param vector The vector.
-   * @return The magnitude.
-   */
-  public static synchronized double magnitude(double[] vector) {
-    return Math.sqrt(dotProduct(vector, vector));
-  }
-
-  /**
-   * Compute the magnitude of the vector.
-   * 
-   * @param vector The vector.
-   * @return The magnitude.
-   */
-  public static synchronized double magnitude(Double[] vector) {
-    return Math.sqrt(dotProduct(vector, vector));
-  }
-
-  private static synchronized double magnitude(Collection<Double> values) {
+  private double magnitude(Collection<Double> values) {
     Double res = 0.0D;
     for (Double v : values) {
       res = res + v * v;
@@ -535,7 +550,7 @@ public final class TextUtils {
    * @param vector2 The vector 2.
    * @return The dot product.
    */
-  public static synchronized double dotProduct(double[] vector1, double[] vector2) {
+  public double dotProduct(double[] vector1, double[] vector2) {
     double res = 0.0D;
     for (int i = 0; i < vector1.length; i++) {
       res = res + vector1[i] * vector2[i];
@@ -550,7 +565,7 @@ public final class TextUtils {
    * @param vector2 The vector 2.
    * @return The dot product.
    */
-  public static synchronized double dotProduct(Double[] vector1, Double[] vector2) {
+  public double dotProduct(Double[] vector1, Double[] vector2) {
     double res = 0.0D;
     for (int i = 0; i < vector1.length; i++) {
       res = res + vector1[i] * vector2[i];
@@ -558,141 +573,7 @@ public final class TextUtils {
     return res;
   }
 
-  /**
-   * Converts time series to a word bag.
-   * 
-   * @param label the wordbag label.
-   * @param ts timeseries.
-   * @param params parameters for SAX transform.
-   * @return word bag.
-   * @throws SAXException if error occurs.
-   */
-  public static synchronized WordBag seriesToWordBag(String label, double[] ts, Params params)
-      throws SAXException {
-
-    WordBag resultBag = new WordBag(label);
-
-    // scan across the time series extract sub sequences, and convert them to strings
-    char[] previousString = null;
-
-    for (int i = 0; i < ts.length - (params.windowSize - 1); i++) {
-
-      // fix the current subsection
-      double[] subSection = Arrays.copyOfRange(ts, i, i + params.windowSize);
-
-      // Z normalize it
-      subSection = tp.znorm(subSection, params.nThreshold);
-
-      // perform PAA conversion if needed
-      double[] paa = tp.paa(subSection, params.paaSize);
-
-      // Convert the PAA to a string.
-      char[] currentString = tp.ts2String(paa, na.getCuts(params.alphabetSize));
-
-      if (null != previousString) {
-
-        if (NumerosityReductionStrategy.EXACT.equals(params.nrStartegy)
-            && Arrays.equals(previousString, currentString)) {
-          // NumerosityReduction
-          continue;
-        }
-        else if (NumerosityReductionStrategy.MINDIST.equals(params.nrStartegy)
-            && sp.checkMinDistIsZero(previousString, currentString)) {
-          continue;
-        }
-
-      }
-
-      previousString = currentString;
-
-      resultBag.addWord(String.valueOf(currentString));
-    }
-
-    return resultBag;
-  }
-
-  // protected static synchronized BigramBag seriesToBigramBag(String label, double[] series,
-  // int[][] params) throws Exception {
-  //
-  // BigramBag resultBag = new BigramBag(label);
-  //
-  // for (int[] p : params) {
-  //
-  // ArrayList<String> text = new ArrayList<String>();
-  //
-  // int windowSize = p[0];
-  // int paaSize = p[1];
-  // int alphabetSize = p[2];
-  // SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(p[3]);
-  //
-  // String oldStr = "";
-  // for (int i = 0; i <= series.length - windowSize; i++) {
-  //
-  // double[] paa = tp.optimizedPaa(tp.zNormalize(tp.subseries(series, i, windowSize)), paaSize);
-  //
-  // char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
-  //
-  // // System.out.println(Arrays.toString(tp.subseries(series, i, windowSize)) + "->"
-  // // + Arrays.toString(paa));
-  //
-  // if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
-  // if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
-  // continue;
-  // }
-  // }
-  // else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
-  // if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
-  // continue;
-  // }
-  // }
-  //
-  // oldStr = String.valueOf(sax);
-  // text.add(String.valueOf(sax));
-  // }
-  //
-  // // need to text into bigrams
-  // //
-  // Bigram cBigram = new Bigram();
-  // for (String str : text) {
-  // cBigram.setNext(str);
-  // if (cBigram.isComplete()) {
-  // resultBag.add(cBigram);
-  // cBigram = new Bigram();
-  // cBigram.setNext(str);
-  // }
-  // }
-  //
-  // }
-  //
-  // return resultBag;
-  // }
-
-  public static synchronized List<WordBag> labeledSeries2WordBags(Map<String, List<double[]>> data,
-      Params params) throws SAXException {
-
-    // make a map of resulting bags
-    Map<String, WordBag> preRes = new HashMap<String, WordBag>();
-
-    // process series one by one building word bags
-    for (Entry<String, List<double[]>> e : data.entrySet()) {
-
-      String classLabel = e.getKey();
-      WordBag bag = new WordBag(classLabel);
-
-      for (double[] series : e.getValue()) {
-        WordBag cb = seriesToWordBag("tmp", series, params);
-        bag.mergeWith(cb);
-      }
-
-      preRes.put(classLabel, bag);
-    }
-
-    List<WordBag> res = new ArrayList<WordBag>();
-    res.addAll(preRes.values());
-    return res;
-  }
-
-  // public static synchronized List<WordBag> labeledMultivariateSeries2WordBags(
+  // public List<WordBag> labeledMultivariateSeries2WordBags(
   // Map<String, List<double[][]>> data, int[] params) throws IndexOutOfBoundsException, Exception {
   //
   // // make a summary map
@@ -723,7 +604,7 @@ public final class TextUtils {
   // return res;
   // }
 
-  // public static synchronized List<BigramBag> labeledSeries2BigramBags(
+  // public List<BigramBag> labeledSeries2BigramBags(
   // Map<String, List<double[]>> data, int[][] params) throws IndexOutOfBoundsException, Exception {
   // // make a map of resulting bags
   // Map<String, BigramBag> preRes = new HashMap<String, BigramBag>();
@@ -750,7 +631,7 @@ public final class TextUtils {
   // return res;
   // }
 
-  public static synchronized int classify(String classKey, double[] series,
+  public int classify(String classKey, double[] series,
       HashMap<String, HashMap<String, Double>> tfidf, Params params) throws SAXException {
 
     WordBag test = seriesToWordBag("test", series, params);
@@ -766,7 +647,7 @@ public final class TextUtils {
     int index = 0;
     for (Entry<String, HashMap<String, Double>> e : tfidf.entrySet()) {
 
-      double dist = TextUtils.cosineSimilarity(test, e.getValue());
+      double dist = cosineSimilarity(test, e.getValue());
       cosines[index] = dist;
       index++;
 
@@ -797,8 +678,7 @@ public final class TextUtils {
     return 0;
   }
 
-  public static synchronized String classify(WordBag test,
-      HashMap<String, HashMap<String, Double>> tfidf) {
+  public String classify(WordBag test, HashMap<String, HashMap<String, Double>> tfidf) {
 
     // it is Cosine similarity,
     //
@@ -811,7 +691,7 @@ public final class TextUtils {
     int index = 0;
     for (Entry<String, HashMap<String, Double>> e : tfidf.entrySet()) {
 
-      double dist = TextUtils.cosineSimilarity(test, e.getValue());
+      double dist = cosineSimilarity(test, e.getValue());
       cosines[index] = dist;
       index++;
 
@@ -825,7 +705,7 @@ public final class TextUtils {
     return className;
   }
 
-  // public static synchronized int classifyBigrams(String classKey, double[] series,
+  // public int classifyBigrams(String classKey, double[] series,
   // HashMap<String, HashMap<Bigram, Double>> tfidf, int[][] params) throws Exception {
   //
   // BigramBag test = seriesToBigramBag("test", series, params);
@@ -858,7 +738,7 @@ public final class TextUtils {
   // return 0;
   // }
 
-  // public static synchronized int classify(String classKey, double[][] data,
+  // public int classify(String classKey, double[][] data,
   // HashMap<String, HashMap<String, Double>> tfidf, int[][] params)
   // throws IndexOutOfBoundsException, Exception {
   //
@@ -922,7 +802,7 @@ public final class TextUtils {
   // return 0;
   // }
 
-  public static synchronized String wordBagToTable(WordBag bag) {
+  public String wordBagToTable(WordBag bag) {
 
     TreeSet<String> words = new TreeSet<String>();
     words.addAll(bag.getWordSet());
@@ -947,7 +827,7 @@ public final class TextUtils {
     return sb.toString();
   }
 
-  public static synchronized String bagsToTable(List<WordBag> bags) {
+  public String bagsToTable(List<WordBag> bags) {
 
     // melt together sets of keys
     //
@@ -1002,4 +882,143 @@ public final class TextUtils {
     }
     return sb.toString();
   }
+
+  // public HashMap<String, HashMap<Bigram, Double>> computeTFIDF(List<BigramBag> bags) {
+  //
+  // // the result. map of document names to the pairs word - tfidf weight
+  // HashMap<String, HashMap<Bigram, Double>> res = new HashMap<String, HashMap<Bigram, Double>>();
+  //
+  // // build a collection of all observed words
+  // TreeSet<Bigram> allWords = new TreeSet<Bigram>();
+  // for (BigramBag bag : bags) {
+  // allWords.addAll(bag.getBigramSet());
+  // }
+  //
+  // // outer loop - iterating over documents
+  // for (BigramBag bag : bags) {
+  //
+  // // fix the doc name
+  // String bagName = bag.getLabel();
+  // HashMap<Bigram, Integer> bagWords = bag.getBigrams(); // these are words of documents
+  //
+  // // what we want to do for TF*IDF is to compute it for all WORDS ever seen in set
+  // //
+  // for (Bigram word : allWords) {
+  //
+  // // get the TF first
+  // //
+  // int wordFrequency = 0;
+  //
+  // if (bagWords.containsKey(word)) {
+  // wordFrequency = bagWords.get(word);
+  // }
+  //
+  // // TF = we take a log and correct for 0 by adding 1
+  // double tfLOGValue = Math.log(Integer.valueOf(wordFrequency).doubleValue()
+  // / Integer.valueOf(bag.getTotalWordCount()).doubleValue() + 1.0D);
+  // // double tfLOGValue = Math.log(Integer.valueOf(wordFrequency).doubleValue()) + 1.0D;
+  //
+  // // compute the IDF
+  // //
+  // int totalDocs = bags.size();
+  // int docsWithWord = 0;
+  // for (BigramBag wb : bags) {
+  // if (wb.contains(word)) {
+  // docsWithWord = docsWithWord + 1;
+  // }
+  // }
+  // double idfLOGValue = Math.log(Integer.valueOf(totalDocs).doubleValue()
+  // / Integer.valueOf(docsWithWord).doubleValue());
+  //
+  // // and the TF-IDF
+  // //
+  // double tfIdf = tfLOGValue * idfLOGValue;
+  //
+  // if (null == res.get(bagName)) {
+  // res.put(bagName, new HashMap<Bigram, Double>());
+  // }
+  // res.get(bagName).put(word, tfIdf);
+  //
+  // }
+  // }
+  // return res;
+  // }
+
+  // protected BigramBag seriesToBigramBag(String label, double[] series,
+  // int[][] params) throws Exception {
+  //
+  // BigramBag resultBag = new BigramBag(label);
+  //
+  // for (int[] p : params) {
+  //
+  // ArrayList<String> text = new ArrayList<String>();
+  //
+  // int windowSize = p[0];
+  // int paaSize = p[1];
+  // int alphabetSize = p[2];
+  // SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(p[3]);
+  //
+  // String oldStr = "";
+  // for (int i = 0; i <= series.length - windowSize; i++) {
+  //
+  // double[] paa = tp.optimizedPaa(tp.zNormalize(tp.subseries(series, i, windowSize)), paaSize);
+  //
+  // char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
+  //
+  // // System.out.println(Arrays.toString(tp.subseries(series, i, windowSize)) + "->"
+  // // + Arrays.toString(paa));
+  //
+  // if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
+  // if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
+  // continue;
+  // }
+  // }
+  // else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
+  // if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
+  // continue;
+  // }
+  // }
+  //
+  // oldStr = String.valueOf(sax);
+  // text.add(String.valueOf(sax));
+  // }
+  //
+  // // need to text into bigrams
+  // //
+  // Bigram cBigram = new Bigram();
+  // for (String str : text) {
+  // cBigram.setNext(str);
+  // if (cBigram.isComplete()) {
+  // resultBag.add(cBigram);
+  // cBigram = new Bigram();
+  // cBigram.setNext(str);
+  // }
+  // }
+  //
+  // }
+  //
+  // return resultBag;
+  // }
+
+  // public static HashMap<String, HashMap<Bigram, Double>> normalizeBigramsToUnitVectors(
+  // HashMap<String, HashMap<Bigram, Double>> data) {
+  // // result
+  // HashMap<String, HashMap<Bigram, Double>> res = new HashMap<String, HashMap<Bigram, Double>>();
+  // // cosine normalize these rows corresponding to docs TFIDF
+  // //
+  // for (Entry<String, HashMap<Bigram, Double>> e : data.entrySet()) {
+  // double sum = 0D;
+  // for (Double el : e.getValue().values()) {
+  // sum = sum + el * el;
+  // }
+  // double sqRoot = Math.sqrt(sum);
+  // HashMap<Bigram, Double> newEntry = new HashMap<Bigram, Double>();
+  // for (Entry<Bigram, Double> val : e.getValue().entrySet()) {
+  // double newValue = val.getValue() / sqRoot;
+  // newEntry.put(val.getKey(), newValue);
+  // }
+  // res.put(e.getKey(), newEntry);
+  // }
+  // return res;
+  // }
 }

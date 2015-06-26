@@ -45,7 +45,7 @@ public class CosineDistanceMatrix {
       for (int j = 0; j < i; j++) {
         HashMap<String, Double> vectorA = tfidf.get(rows[i]);
         HashMap<String, Double> vectorB = tfidf.get(rows[j]);
-        double distance = TextUtils.cosineDistance(vectorA, vectorB);
+        double distance = TextProcessor.cosineDistance(vectorA, vectorB);
         distances[i][j] = distance;
       }
     }

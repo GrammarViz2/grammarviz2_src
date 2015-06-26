@@ -13,7 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import net.seninp.jmotif.text.SAXNumerosityReductionStrategy;
-import net.seninp.jmotif.text.TextUtils;
+import net.seninp.jmotif.text.TextProcessor;
 import net.seninp.jmotif.text.WordBag;
 import net.seninp.jmotif.util.StackTrace;
 import net.seninp.jmotif.util.UCRUtils;
@@ -181,9 +181,9 @@ public class SAXVSMDirectSampler {
 
   private static void classify(int[] params) throws IndexOutOfBoundsException, TSException {
     // making training bags collection
-    List<WordBag> bags = TextUtils.labeledSeries2WordBags(trainData, params);
+    List<WordBag> bags = TextProcessor.labeledSeries2WordBags(trainData, params);
     // getting TFIDF done
-    HashMap<String, HashMap<String, Double>> tfidf = TextUtils.computeTFIDF(bags);
+    HashMap<String, HashMap<String, Double>> tfidf = TextProcessor.computeTFIDF(bags);
     // classifying
     int testSampleSize = 0;
     int positiveTestCounter = 0;
@@ -191,7 +191,7 @@ public class SAXVSMDirectSampler {
       List<double[]> testD = testData.get(label);
       for (double[] series : testD) {
         positiveTestCounter = positiveTestCounter
-            + TextUtils.classify(label, series, tfidf, params);
+            + TextProcessor.classify(label, series, tfidf, params);
         testSampleSize++;
       }
     }

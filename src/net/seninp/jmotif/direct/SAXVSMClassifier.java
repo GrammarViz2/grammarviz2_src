@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import net.seninp.jmotif.text.SAXNumerosityReductionStrategy;
-import net.seninp.jmotif.text.TextUtils;
+import net.seninp.jmotif.text.TextProcessor;
 import net.seninp.jmotif.text.WordBag;
 import net.seninp.jmotif.util.UCRUtils;
 import org.slf4j.LoggerFactory;
@@ -89,9 +89,9 @@ public class SAXVSMClassifier {
 
   private static void classify(int[] params) throws IndexOutOfBoundsException, Exception {
     // making training bags collection
-    List<WordBag> bags = TextUtils.labeledSeries2WordBags(trainData, params);
+    List<WordBag> bags = TextProcessor.labeledSeries2WordBags(trainData, params);
     // getting TFIDF done
-    HashMap<String, HashMap<String, Double>> tfidf = TextUtils.computeTFIDF(bags);
+    HashMap<String, HashMap<String, Double>> tfidf = TextProcessor.computeTFIDF(bags);
     // classifying
     int testSampleSize = 0;
     int positiveTestCounter = 0;
@@ -99,7 +99,7 @@ public class SAXVSMClassifier {
       List<double[]> testD = testData.get(label);
       for (double[] series : testD) {
         positiveTestCounter = positiveTestCounter
-            + TextUtils.classify(label, series, tfidf, params);
+            + TextProcessor.classify(label, series, tfidf, params);
         testSampleSize++;
       }
     }

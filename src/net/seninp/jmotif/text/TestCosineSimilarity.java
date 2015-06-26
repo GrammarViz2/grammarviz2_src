@@ -44,7 +44,7 @@ public class TestCosineSimilarity {
     wb2.addWord("than", 1);
     wb2.addWord("more", 1);
 
-    double cosine = TextUtils.cosineDistance(wb1.getWordsAsDoubles(), wb2.getWordsAsDoubles());
+    double cosine = TextProcessor.cosineDistance(wb1.getWordsAsDoubles(), wb2.getWordsAsDoubles());
 
     assertEquals("Testing cosine similarity", TEST_VALUE, cosine, TEST_PASS_PRECISION);
   }
@@ -76,7 +76,7 @@ public class TestCosineSimilarity {
     wb2.addWord("than", 1);
     wb2.addWord("more", 1);
 
-    double cosine = TextUtils.cosineDistance(wb1.getWordsAsDoubles(), wb2.getWordsAsDoubles());
+    double cosine = TextProcessor.cosineDistance(wb1.getWordsAsDoubles(), wb2.getWordsAsDoubles());
     assertEquals("Testing cosine similarity", TEST_VALUE, cosine, TEST_PASS_PRECISION);
 
     // grow the vector
@@ -85,7 +85,7 @@ public class TestCosineSimilarity {
     for (Entry<String, Double> e : wbLong.entrySet()) {
       wbLong.put(e.getKey(), e.getValue() * multiplier);
     }
-    double distLong = TextUtils.cosineDistance(wbLong, wb2.getWordsAsDoubles());
+    double distLong = TextProcessor.cosineDistance(wbLong, wb2.getWordsAsDoubles());
 
     assertEquals("Testing cosine similarity", TEST_VALUE, distLong, TEST_PASS_PRECISION);
 
@@ -93,9 +93,9 @@ public class TestCosineSimilarity {
     HashMap<String, HashMap<String, Double>> vectors = new HashMap<String, HashMap<String, Double>>();
     vectors.put("first", wbLong);
     vectors.put("second", wb2.getWordsAsDoubles());
-    vectors = TextUtils.normalizeToUnitVectors(vectors);
+    vectors = TextProcessor.normalizeToUnitVectors(vectors);
 
-    double distNorm = TextUtils.cosineDistance(vectors.get("first"), vectors.get("second"));
+    double distNorm = TextProcessor.cosineDistance(vectors.get("first"), vectors.get("second"));
 
     assertEquals("Testing cosine similarity", TEST_VALUE, distNorm, TEST_PASS_PRECISION);
   }

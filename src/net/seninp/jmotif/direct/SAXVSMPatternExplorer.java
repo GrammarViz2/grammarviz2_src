@@ -12,7 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import net.seninp.jmotif.text.SAXNumerosityReductionStrategy;
-import net.seninp.jmotif.text.TextUtils;
+import net.seninp.jmotif.text.TextProcessor;
 import net.seninp.jmotif.text.WordBag;
 import net.seninp.jmotif.util.UCRUtils;
 import org.slf4j.LoggerFactory;
@@ -108,13 +108,13 @@ public class SAXVSMPatternExplorer {
 
     int[] params = new int[] { WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, STRATEGY.index() };
 
-    List<WordBag> bags = TextUtils.labeledSeries2WordBags(trainData, params);
+    List<WordBag> bags = TextProcessor.labeledSeries2WordBags(trainData, params);
 
     // get tfidf statistics
-    HashMap<String, HashMap<String, Double>> tfidf = TextUtils.computeTFIDF(bags);
+    HashMap<String, HashMap<String, Double>> tfidf = TextProcessor.computeTFIDF(bags);
 
     // normalize all vectors to a unit - so it will be fair comparison
-    tfidf = TextUtils.normalizeToUnitVectors(tfidf);
+    tfidf = TextProcessor.normalizeToUnitVectors(tfidf);
 
     // sort words by their weight and print top 10 of these for each class
     for (Entry<String, HashMap<String, Double>> e : tfidf.entrySet()) {
@@ -188,7 +188,7 @@ public class SAXVSMPatternExplorer {
       List<double[]> testD = testData.get(className);
       int seriesIdx = 0;
       for (double[] series : testD) {
-        int classificationResult = TextUtils.classify(className, series, tfidf, PAA_SIZE,
+        int classificationResult = TextProcessor.classify(className, series, tfidf, PAA_SIZE,
             ALPHABET_SIZE, WINDOW_SIZE, STRATEGY);
         if (0 == classificationResult) {
           System.out.println(seriesIdx + 1);

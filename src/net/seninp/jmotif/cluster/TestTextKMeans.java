@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import net.seninp.jmotif.text.CosineDistanceMatrix;
-import net.seninp.jmotif.text.TextUtils;
+import net.seninp.jmotif.text.TextProcessor;
 
 public class TestTextKMeans {
 
@@ -41,7 +41,7 @@ public class TestTextKMeans {
       for (Entry<String, HashMap<String, Double>> e1 : tfidf.entrySet()) {
         if (!e.getKey().equalsIgnoreCase(e1.getKey())) {
           System.out.println(e.getKey() + ", " + e1.getKey() + ", "
-              + TextUtils.cosineDistance(e.getValue(), e1.getValue()) + ", " + e.getValue() + ", " + e1.getValue());
+              + TextProcessor.cosineDistance(e.getValue(), e1.getValue()) + ", " + e.getValue() + ", " + e1.getValue());
         }
       }
     }

@@ -27,6 +27,8 @@ public class TestHC {
 
   private static final String[] words = { "a", "b", "c", "d" };
 
+  private static final TextProcessor tp = new TextProcessor();
+
   private HashMap<String, HashMap<String, Double>> data;
   private HashMap<String, HashMap<String, Double>> data1;
 
@@ -47,9 +49,9 @@ public class TestHC {
 
   @Test
   public void testDotProduct() {
-    assertEquals(TextProcessor.dotProduct(a, b), 0.32D, 0.0001);
-    assertEquals(TextProcessor.dotProduct(c, b), 0.71D, 0.0001);
-    assertEquals(TextProcessor.magnitude(c), 1.330413D, 0.0001);
+    assertEquals(tp.dotProduct(a, b), 0.32D, 0.0001);
+    assertEquals(tp.dotProduct(c, b), 0.71D, 0.0001);
+    assertEquals(tp.magnitude(c), 1.330413D, 0.0001);
   }
 
   @Test

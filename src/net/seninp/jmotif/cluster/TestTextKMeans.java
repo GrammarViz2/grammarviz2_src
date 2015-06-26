@@ -23,6 +23,8 @@ public class TestTextKMeans {
       { 6.17700092897287, 6.92640462552435, 6.96067286425928 },
       { 4.89846939451114, 6.20772361067014, 4.08115382280967 }, };
 
+  private static final TextProcessor tp = new TextProcessor();
+
   public static void main(String[] args) throws Exception {
 
     HashMap<String, HashMap<String, Double>> tfidf = new HashMap<String, HashMap<String, Double>>();
@@ -41,11 +43,13 @@ public class TestTextKMeans {
       for (Entry<String, HashMap<String, Double>> e1 : tfidf.entrySet()) {
         if (!e.getKey().equalsIgnoreCase(e1.getKey())) {
           System.out.println(e.getKey() + ", " + e1.getKey() + ", "
-              + TextProcessor.cosineDistance(e.getValue(), e1.getValue()) + ", " + e.getValue() + ", " + e1.getValue());
+              + tp.cosineDistance(e.getValue(), e1.getValue()) + ", " + e.getValue() + ", "
+              + e1.getValue());
         }
       }
     }
 
+    @SuppressWarnings("unused")
     HashMap<String, List<String>> clustersK = TextKMeans.cluster(tfidf, 3,
         new RandomStartStrategy());
 

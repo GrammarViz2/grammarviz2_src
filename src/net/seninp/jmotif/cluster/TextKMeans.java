@@ -22,6 +22,8 @@ public class TextKMeans {
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.INFO;
 
+  private static final TextProcessor tp = new TextProcessor();
+
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(TextKMeans.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
@@ -77,7 +79,7 @@ public class TextKMeans {
 
   private static char[] centroidsToString(LinkedHashMap<String, HashMap<String, Double>> centroids) {
     // build all words
-    return TextProcessor.tfidfToTable(centroids).toCharArray();
+    return tp.tfidfToTable(centroids).toCharArray();
   }
 
   private static double computeIntraSS(HashMap<String, HashMap<String, Double>> tfidf,
@@ -89,7 +91,7 @@ public class TextKMeans {
           String key1 = e.getValue().get(i);
           String key2 = e.getValue().get(j);
 
-          res = res + TextProcessor.cosineDistance(tfidf.get(key1), tfidf.get(key2));
+          res = res + tp.cosineDistance(tfidf.get(key1), tfidf.get(key2));
         }
       }
     }
@@ -105,7 +107,7 @@ public class TextKMeans {
     //
     for (Entry<String, List<String>> cluster : clusters.entrySet()) {
       HashMap<String, Double> newCentroid = computeCentroid(tfidf, cluster.getValue());
-      double dist = TextProcessor.cosineDistance(newCentroid, centroids.get(cluster.getKey()));
+      double dist = tp.cosineDistance(newCentroid, centroids.get(cluster.getKey()));
       if ((1.0d - dist) > THRESHOLD) {
         res = true;
         centroids.put(cluster.getKey(), newCentroid);
@@ -145,7 +147,7 @@ public class TextKMeans {
 
     // re-normalize to units and return
     //
-    return TextProcessor.normalizeToUnitVector(res);
+    return tp.normalizeToUnitVector(res);
   }
 
   /**
@@ -173,7 +175,7 @@ public class TextKMeans {
       String centroidKey = "";
       double minDist = -1.0D;
       for (Entry<String, HashMap<String, Double>> centroid : centroids.entrySet()) {
-        double dist = TextProcessor.cosineDistance(centroid.getValue(), bagEntry.getValue());
+        double dist = tp.cosineDistance(centroid.getValue(), bagEntry.getValue());
         if (dist > minDist) {
           centroidKey = centroid.getKey();
           minDist = dist;

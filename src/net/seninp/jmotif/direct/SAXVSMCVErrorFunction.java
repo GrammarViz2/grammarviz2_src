@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.alphabet.Alphabet;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.text.WordBag;
@@ -36,7 +37,7 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
   private static final double NORMALIZATION_THRESHOLD = 0.05D;
 
   // the default numerosity strategy
-  private SAXNumerosityReductionStrategy numerosityReductionStrategy;
+  private NumerosityReductionStrategy numerosityReductionStrategy;
 
   // the data
   private Map<String, double[]> tsData;
@@ -60,7 +61,7 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
    * @param holdOutSampleSize
    */
   public SAXVSMCVErrorFunction(Map<String, List<double[]>> data, int holdOutSampleSize,
-      SAXNumerosityReductionStrategy strategy) {
+      NumerosityReductionStrategy strategy) {
 
     this.tsData = new HashMap<String, double[]>();
 

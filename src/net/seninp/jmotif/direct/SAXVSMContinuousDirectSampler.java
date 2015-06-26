@@ -94,7 +94,7 @@ public class SAXVSMContinuousDirectSampler {
   private static Map<String, List<double[]>> trainData;
   private static Map<String, List<double[]>> testData;
 
-  public static void main(String[] args) throws IOException, IndexOutOfBoundsException, TSException {
+  public static void main(String[] args) throws IOException, IndexOutOfBoundsException, Exception {
 
     try {
       // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout, Iterations
@@ -176,7 +176,7 @@ public class SAXVSMContinuousDirectSampler {
     return sb.toString();
   }
 
-  private static void classify(int[] params) throws IndexOutOfBoundsException, TSException {
+  private static void classify(int[] params) throws IndexOutOfBoundsException, Exception {
     // making training bags collection
     List<WordBag> bags = TextProcessor.labeledSeries2WordBags(trainData, params);
     // getting TFIDF done
@@ -428,7 +428,7 @@ public class SAXVSMContinuousDirectSampler {
       Point pointToSample1 = Point.at(x_m1);
       // TODO: here needs to be a check
       Double f_m1 = function.valueAt(pointToSample1);
-      consoleLogger.info("@" + f_m1 + "\t"+pointToSample1.toLogString());
+      consoleLogger.info("@" + f_m1 + "\t" + pointToSample1.toLogString());
 
       // add to all points
       coordinates.add(ValuePointColored.at(pointToSample1, f_m1, false));
@@ -447,7 +447,7 @@ public class SAXVSMContinuousDirectSampler {
       Point pointToSample2 = Point.at(x_m2);
       // TODO: here needs to be a check
       Double f_m2 = function.valueAt(pointToSample2);
-      consoleLogger.info("@" + f_m2 + "\t"+pointToSample2.toLogString());
+      consoleLogger.info("@" + f_m2 + "\t" + pointToSample2.toLogString());
 
       // add to all points
       coordinates.add(ValuePointColored.at(pointToSample2, f_m2, false));

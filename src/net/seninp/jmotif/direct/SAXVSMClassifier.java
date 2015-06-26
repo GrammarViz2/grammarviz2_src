@@ -123,7 +123,7 @@ public class SAXVSMClassifier {
 
   protected static String toLogStr(Params params, double accuracy, double error) {
     StringBuffer sb = new StringBuffer();
-    sb.append(params.getNrStartegy().toString()).append(COMMA);
+    sb.append("strategy ").append(params.getNrStartegy().toString()).append(COMMA);
     sb.append("window ").append(params.getWindowSize()).append(COMMA);
     sb.append("PAA ").append(params.getPaaSize()).append(COMMA);
     sb.append("alphabet ").append(params.getAlphabetSize()).append(COMMA);

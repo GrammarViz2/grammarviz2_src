@@ -9,8 +9,6 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
-import net.seninp.jmotif.sax.alphabet.Alphabet;
-import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.text.Params;
 import net.seninp.jmotif.text.TextProcessor;
 import net.seninp.jmotif.text.WordBag;

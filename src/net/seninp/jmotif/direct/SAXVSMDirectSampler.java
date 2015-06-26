@@ -1,6 +1,5 @@
 package net.seninp.jmotif.direct;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -19,9 +18,9 @@ import net.seninp.jmotif.text.WordBag;
 import net.seninp.util.StackTrace;
 import net.seninp.util.UCRUtils;
 import org.slf4j.LoggerFactory;
-import com.beust.jcommander.JCommander;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.beust.jcommander.JCommander;
 
 /**
  * Implements a cross-validation DIRECT-based procedure for SAX-VSM parameters optimization.
@@ -93,6 +92,8 @@ public class SAXVSMDirectSampler {
 
   private static Map<String, List<double[]>> trainData;
   private static Map<String, List<double[]>> testData;
+
+  private static TextProcessor tp = new TextProcessor();
 
   public static void main(String[] args) throws Exception {
 
@@ -167,38 +168,18 @@ public class SAXVSMDirectSampler {
     classify(noredParams);
   }
 
-  private static String printHelp() {
-    StringBuffer sb = new StringBuffer();
-    sb.append("SAX-VSM parameters optimization sampler ").append(CR);
-    sb.append("Expects 10 parameters:").append(CR);
-    sb.append(" [1] training dataset filename").append(CR);
-    sb.append(" [2] test dataset filename").append(CR);
-    sb.append(" [3] minimal sliding window size").append(CR);
-    sb.append(" [4] maximal sliding window size").append(CR);
-    sb.append(" [5] minimal PAA size").append(CR);
-    sb.append(" [6] maximal PAA size").append(CR);
-    sb.append(" [7] minimal Alphabet size").append(CR);
-    sb.append(" [8] maximal Alphabet size").append(CR);
-    sb.append(" [8] cross-validation hold-out number").append(CR);
-    sb.append(" [8] maximal amount of sampling iterations").append(CR);
-    sb.append("An execution example: $java -cp \"sax-vsm-classic20.jar\" edu.hawaii.jmotif.direct.SAXVSMDirectSampler");
-    sb.append(" data/cbf/CBF_TRAIN data/cbf/CBF_TEST 10 120 5 60 2 18 1 10").append(CR);
-    return sb.toString();
-  }
-
   private static void classify(Params params) throws Exception {
     // making training bags collection
-    List<WordBag> bags = TextProcessor.labeledSeries2WordBags(trainData, params);
+    List<WordBag> bags = tp.labeledSeries2WordBags(trainData, params);
     // getting TFIDF done
-    HashMap<String, HashMap<String, Double>> tfidf = TextProcessor.computeTFIDF(bags);
+    HashMap<String, HashMap<String, Double>> tfidf = tp.computeTFIDF(bags);
     // classifying
     int testSampleSize = 0;
     int positiveTestCounter = 0;
     for (String label : tfidf.keySet()) {
       List<double[]> testD = testData.get(label);
       for (double[] series : testD) {
-        positiveTestCounter = positiveTestCounter
-            + TextProcessor.classify(label, series, tfidf, params);
+        positiveTestCounter = positiveTestCounter + tp.classify(label, series, tfidf, params);
         testSampleSize++;
       }
     }
@@ -214,7 +195,11 @@ public class SAXVSMDirectSampler {
 
   private static Params sample(NumerosityReductionStrategy strategy) {
 
-    function = new SAXVSMCVErrorFunction(trainData, HOLD_OUT_NUM, strategy);
+    // instantiate the target function
+    //
+    function = new SAXVSMCVErrorFunction(trainData, SAXVSMDirectSamplerParams.HOLD_OUT_NUM,
+        SAXVSMDirectSamplerParams.SAX_NORM_THRESHOLD, strategy);
+
     // the whole bunch of inits
     //
     centerPoints = new ArrayList<Double[]>();
@@ -271,7 +256,7 @@ public class SAXVSMDirectSampler {
 
     // optimization loop
     //
-    for (int ctr = 0; ctr < ITERATIONS_NUM; ctr++) {
+    for (int ctr = 0; ctr < SAXVSMDirectSamplerParams.ITERATIONS_NUM; ctr++) {
       resultMinimum = minimum(functionValues);
       double[] params = coordinates.get((int) resultMinimum[1]).getPoint().toArray();
       consoleLogger.info("iteration: " + ctr + ", minimal value " + resultMinimum[0] + " at "
@@ -299,11 +284,8 @@ public class SAXVSMDirectSampler {
     int[] params = null;
 
     for (int i = 0; i < functionValues.size(); i++) {
-
       if (minimalValue == functionValues.get(i)) {
-
         int[] new_params = coordinates.get(i).getPoint().toIntArray();
-
         if (null == params) {
           int[] asArray = Arrays.copyOf(new_params, new_params.length);
           params = asArray;
@@ -317,10 +299,10 @@ public class SAXVSMDirectSampler {
       }
     }
 
-    consoleLogger.info(sb.toString());
+    Params res = new Params(params[0], params[1], params[2],
+        SAXVSMDirectSamplerParams.SAX_NORM_THRESHOLD, strategy);
 
-    int[] res = Arrays.copyOf(params, 4);
-    res[3] = strategy.index();
+    consoleLogger.info(sb.append(", will use ").append(res.toString()).toString());
     return res;
   }
 
@@ -441,7 +423,7 @@ public class SAXVSMDirectSampler {
       Double f_m1 = checkCache(pointToSample1, functionHash);
       if (null == f_m1) {
         f_m1 = function.valueAt(pointToSample1);
-        consoleLogger.info("@" + f_m1 + "\t"+pointToSample1.toLogString());
+        consoleLogger.info("@" + f_m1 + "\t" + pointToSample1.toLogString());
         saveCache(pointToSample1, f_m1, functionHash);
       }
       else {
@@ -467,7 +449,7 @@ public class SAXVSMDirectSampler {
       Double f_m2 = checkCache(pointToSample2, functionHash);
       if (null == f_m2) {
         f_m2 = function.valueAt(pointToSample2);
-        consoleLogger.info("@" + f_m2 + "\t"+pointToSample2.toLogString());
+        consoleLogger.info("@" + f_m2 + "\t" + pointToSample2.toLogString());
         saveCache(pointToSample2, f_m2, functionHash);
       }
       else {
@@ -902,24 +884,14 @@ public class SAXVSMDirectSampler {
     return res.toArray(new Integer[res.size()]);
   }
 
-  protected static String toLogStr(int[] p, double accuracy, double error) {
-
+  protected static String toLogStr(Params params, double accuracy, double error) {
     StringBuffer sb = new StringBuffer();
-    if (NumerosityReductionStrategy.CLASSIC.index() == p[3]) {
-      sb.append("CLASSIC, ");
-    }
-    else if (NumerosityReductionStrategy.EXACT.index() == p[3]) {
-      sb.append("EXACT, ");
-    }
-    else if (NumerosityReductionStrategy.NOREDUCTION.index() == p[3]) {
-      sb.append("NOREDUCTION, ");
-    }
-    sb.append("window ").append(p[0]).append(COMMA);
-    sb.append("PAA ").append(p[1]).append(COMMA);
-    sb.append("alphabet ").append(p[2]).append(COMMA);
+    sb.append("strategy ").append(params.getNrStartegy().toString()).append(COMMA);
+    sb.append("window ").append(params.getWindowSize()).append(COMMA);
+    sb.append("PAA ").append(params.getPaaSize()).append(COMMA);
+    sb.append("alphabet ").append(params.getAlphabetSize()).append(COMMA);
     sb.append(" accuracy ").append(fmt.format(accuracy)).append(COMMA);
     sb.append(" error ").append(fmt.format(error));
-
     return sb.toString();
   }
 

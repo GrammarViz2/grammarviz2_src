@@ -1,6 +1,5 @@
 package net.seninp.jmotif.direct;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -12,8 +11,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.alphabet.Alphabet;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
+import net.seninp.jmotif.text.Params;
 import net.seninp.jmotif.text.TextProcessor;
 import net.seninp.jmotif.text.WordBag;
 import net.seninp.util.UCRUtils;
@@ -46,15 +47,17 @@ public class SAXVSMPatternExplorer {
   private static Integer ALPHABET_SIZE;
   private static Map<String, List<double[]>> trainData;
   private static Map<String, List<double[]>> testData;
-  private static NumerosityReductionStrategy STRATEGY;
+  private static NumerosityReductionStrategy STRATEGY = NumerosityReductionStrategy.EXACT;
 
   private static final DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.US);
   private static DecimalFormat df = new DecimalFormat("0.00###", otherSymbols);
+
   private static final String COMMA = ", ";
   private static final String CR = "\n";
 
+  private static final TSProcessor tsp = new TSProcessor();
   private static final TextProcessor tp = new TextProcessor();
-  
+
   // static block - we instantiate the logger
   //
   private static final Logger consoleLogger;
@@ -104,15 +107,15 @@ public class SAXVSMPatternExplorer {
       System.exit(-10);
     }
 
-    int[] params = new int[] { WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, STRATEGY.index() };
+    Params params = new Params(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, 0.01, STRATEGY);
 
     List<WordBag> bags = tp.labeledSeries2WordBags(trainData, params);
 
     // get tfidf statistics
-    HashMap<String, HashMap<String, Double>> tfidf = TextProcessor.computeTFIDF(bags);
+    HashMap<String, HashMap<String, Double>> tfidf = tp.computeTFIDF(bags);
 
     // normalize all vectors to a unit - so it will be fair comparison
-    tfidf = TextProcessor.normalizeToUnitVectors(tfidf);
+    tfidf = tp.normalizeToUnitVectors(tfidf);
 
     // sort words by their weight and print top 10 of these for each class
     for (Entry<String, HashMap<String, Double>> e : tfidf.entrySet()) {
@@ -155,7 +158,7 @@ public class SAXVSMPatternExplorer {
         StringBuffer seriesBuff = new StringBuffer("series = c(");
         StringBuffer offsetBuff = new StringBuffer("offsets = c(");
         Map<Integer, Integer[]> hits = getPatternLocationsForTheClass(className, trainData,
-            pattern, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE);
+            pattern, params);
 
         int k = 0;
         int printedK = 0;
@@ -164,7 +167,7 @@ public class SAXVSMPatternExplorer {
             System.out.print(k + ": " + Arrays.toString(hits.get(k)) + ", ");
             System.out.println(Arrays.toString(trainData.get(className).get(k)));
             System.out.println(Arrays.toString(seriesValuesAsHeat(trainData.get(className).get(k),
-                className, tfidf, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE)));
+                className, tfidf, params)));
             for (int offset : hits.get(k)) {
               seriesBuff.append(String.valueOf(k + 1) + ",");
               offsetBuff.append(String.valueOf(offset + 1) + ",");
@@ -186,8 +189,7 @@ public class SAXVSMPatternExplorer {
       List<double[]> testD = testData.get(className);
       int seriesIdx = 0;
       for (double[] series : testD) {
-        int classificationResult = TextProcessor.classify(className, series, tfidf, PAA_SIZE,
-            ALPHABET_SIZE, WINDOW_SIZE, STRATEGY);
+        int classificationResult = tp.classify(className, series, tfidf, params);
         if (0 == classificationResult) {
           System.out.println(seriesIdx + 1);
         }
@@ -199,18 +201,17 @@ public class SAXVSMPatternExplorer {
   }
 
   private static double[] seriesValuesAsHeat(double[] series, String className,
-      HashMap<String, HashMap<String, Double>> tfidf, int window_size, int paa_size,
-      int alphabet_size) throws TSException {
+      HashMap<String, HashMap<String, Double>> tfidf, Params params) throws Exception {
 
     Alphabet a = new NormalAlphabet();
 
     double[] weights = new double[series.length];
     HashMap<String, Integer> words = new HashMap<String, Integer>();
 
-    for (int i = 0; i <= series.length - window_size; i++) {
-      double[] subseries = TSUtils.subseries(series, i, window_size);
-      double[] paa = TSUtils.paa(TSUtils.zNormalize(subseries), paa_size);
-      char[] sax = TSUtils.ts2String(paa, a.getCuts(alphabet_size));
+    for (int i = 0; i <= series.length - params.getWindowSize(); i++) {
+      double[] subseries = tsp.subseriesByCopy(series, i, i + params.getWindowSize());
+      double[] paa = tsp.paa(tsp.znorm(subseries, params.getnThreshold()), params.getPaaSize());
+      char[] sax = tsp.ts2String(paa, a.getCuts(params.getAlphabetSize()));
       words.put(String.valueOf(sax), i);
     }
 
@@ -226,7 +227,7 @@ public class SAXVSMPatternExplorer {
             // increment = -e1.getValue();
           }
 
-          for (int i = 0; i < window_size; i++) {
+          for (int i = 0; i < params.getWindowSize(); i++) {
             weights[idx + i] = weights[idx + i] + increment;
           }
         }
@@ -238,8 +239,8 @@ public class SAXVSMPatternExplorer {
   }
 
   private static Map<Integer, Integer[]> getPatternLocationsForTheClass(String className,
-      Map<String, List<double[]>> trainData, String pattern, int windowSize, int paaSize,
-      int alphabetSize) throws IndexOutOfBoundsException, TSException {
+      Map<String, List<double[]>> trainData, String pattern, Params params)
+      throws IndexOutOfBoundsException, Exception {
 
     Alphabet a = new NormalAlphabet();
 
@@ -250,10 +251,11 @@ public class SAXVSMPatternExplorer {
 
       List<Integer> arr = new ArrayList<Integer>();
 
-      for (int i = 0; i <= series.length - windowSize; i++) {
-        double[] paa = TSUtils.paa(TSUtils.zNormalize(TSUtils.subseries(series, i, windowSize)),
-            paaSize);
-        char[] sax = TSUtils.ts2String(paa, a.getCuts(alphabetSize));
+      for (int i = 0; i <= series.length - params.getWindowSize(); i++) {
+        double[] paa = tsp.paa(
+            tsp.znorm(tsp.subseriesByCopy(series, i, i + params.getWindowSize()),
+                params.getnThreshold()), params.getPaaSize());
+        char[] sax = tsp.ts2String(paa, a.getCuts(params.getAlphabetSize()));
         if (pattern.equalsIgnoreCase(String.valueOf(sax))) {
           arr.add(i);
         }

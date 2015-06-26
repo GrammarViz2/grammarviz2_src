@@ -10,11 +10,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import edu.hawaii.jmotif.sax.SAXFactory;
-import edu.hawaii.jmotif.sax.alphabet.Alphabet;
-import edu.hawaii.jmotif.sax.alphabet.NormalAlphabet;
-import edu.hawaii.jmotif.timeseries.TSException;
-import edu.hawaii.jmotif.timeseries.TSUtils;
+import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.alphabet.Alphabet;
+import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 
 /**
  * Implements text statistics and mining utilities.
@@ -30,6 +28,8 @@ public final class TextUtils {
   private static final DecimalFormat df = new DecimalFormat("#0.00000");
 
   private static final Alphabet a = new NormalAlphabet();
+
+  private static final TSProcessor tp = new TSProcessor();
 
   private TextUtils() {
     assert true;
@@ -97,19 +97,19 @@ public final class TextUtils {
           // compute TF: we take a log and correct for 0 by adding 1
 
           // OSULeaf: 0.09091
-//          double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
+          // double tfValue = Math.log(1.0D + Integer.valueOf(wordInBagFrequency).doubleValue());
 
           // OSULeaf: 0.08678
           double tfValue = 1.0D + Math.log(Integer.valueOf(wordInBagFrequency).doubleValue());
 
           // OSULeaf: 0.1405
-//           double tfValue = normalizedTF(bag, word.getKey());
+          // double tfValue = normalizedTF(bag, word.getKey());
 
           // OSULeaf: 0.08678
-//           double tfValue = augmentedTF(bag, word.getKey());
+          // double tfValue = augmentedTF(bag, word.getKey());
 
           // OSULeaf: 0.08678
-//           double tfValue = logAveTF(bag, word.getKey());
+          // double tfValue = logAveTF(bag, word.getKey());
 
           // compute the IDF
           //
@@ -553,7 +553,7 @@ public final class TextUtils {
   }
 
   public static synchronized WordBag seriesToWordBag(String label, double[] series, int[] params)
-      throws IndexOutOfBoundsException, TSException {
+      throws IndexOutOfBoundsException, Exception {
 
     WordBag resultBag = new WordBag(label);
 
@@ -567,10 +567,9 @@ public final class TextUtils {
     String oldStr = "";
     for (int i = 0; i <= series.length - windowSize; i++) {
 
-      double[] paa = TSUtils.optimizedPaa(
-          TSUtils.zNormalize(TSUtils.subseries(series, i, windowSize)), paaSize);
+      double[] paa = tp.paa(tp.znorm(tp.subseriesByCopy(series, i, i + windowSize)), paaSize);
 
-      char[] sax = TSUtils.ts2String(paa, a.getCuts(alphabetSize));
+      char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
 
       if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
         if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
@@ -592,7 +591,7 @@ public final class TextUtils {
   }
 
   protected static synchronized BigramBag seriesToBigramBag(String label, double[] series,
-      int[][] params) throws TSException {
+      int[][] params) throws Exception {
 
     BigramBag resultBag = new BigramBag(label);
 
@@ -608,12 +607,11 @@ public final class TextUtils {
       String oldStr = "";
       for (int i = 0; i <= series.length - windowSize; i++) {
 
-        double[] paa = TSUtils.optimizedPaa(
-            TSUtils.zNormalize(TSUtils.subseries(series, i, windowSize)), paaSize);
+        double[] paa = tp.optimizedPaa(tp.zNormalize(tp.subseries(series, i, windowSize)), paaSize);
 
-        char[] sax = TSUtils.ts2String(paa, a.getCuts(alphabetSize));
+        char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
 
-        // System.out.println(Arrays.toString(TSUtils.subseries(series, i, windowSize)) + "->"
+        // System.out.println(Arrays.toString(tp.subseries(series, i, windowSize)) + "->"
         // + Arrays.toString(paa));
 
         if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
@@ -650,7 +648,7 @@ public final class TextUtils {
 
   public static synchronized List<WordBag> labeledSeries2WordBags(Map<String, List<double[]>> data,
       int paaSize, int alphabetSize, int windowSize, SAXNumerosityReductionStrategy strategy)
-      throws IndexOutOfBoundsException, TSException {
+      throws IndexOutOfBoundsException, Exception {
     int[] params = new int[4];
     params[0] = windowSize;
     params[1] = paaSize;
@@ -669,10 +667,10 @@ public final class TextUtils {
    * size, index 2 - alphabet size.
    * @return The words bag.
    * @throws IndexOutOfBoundsException If error occurs.
-   * @throws TSException If error occurs.
+   * @throws Exception If error occurs.
    */
   public static synchronized List<WordBag> labeledSeries2WordBags(Map<String, List<double[]>> data,
-      int[] params) throws IndexOutOfBoundsException, TSException {
+      int[] params) throws IndexOutOfBoundsException, Exception {
 
     // make a map of resulting bags
     Map<String, WordBag> preRes = new HashMap<String, WordBag>();
@@ -697,8 +695,7 @@ public final class TextUtils {
   }
 
   public static synchronized List<WordBag> labeledMultivariateSeries2WordBags(
-      Map<String, List<double[][]>> data, int[] params) throws IndexOutOfBoundsException,
-      TSException {
+      Map<String, List<double[][]>> data, int[] params) throws IndexOutOfBoundsException, Exception {
 
     // make a summary map
     Map<String, WordBag> preRes = new HashMap<String, WordBag>();
@@ -729,8 +726,7 @@ public final class TextUtils {
   }
 
   public static synchronized List<BigramBag> labeledSeries2BigramBags(
-      Map<String, List<double[]>> data, int[][] params) throws IndexOutOfBoundsException,
-      TSException {
+      Map<String, List<double[]>> data, int[][] params) throws IndexOutOfBoundsException, Exception {
     // make a map of resulting bags
     Map<String, BigramBag> preRes = new HashMap<String, BigramBag>();
     for (String tag : data.keySet()) {
@@ -759,7 +755,7 @@ public final class TextUtils {
   public static synchronized int classify(String classKey, double[] series,
       HashMap<String, HashMap<String, Double>> tfidf, int paaSize, int alphabetSize,
       int windowSize, SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException,
-      TSException {
+      Exception {
     int[] params = new int[4];
     params[0] = windowSize;
     params[1] = paaSize;
@@ -778,11 +774,11 @@ public final class TextUtils {
    * @return 1 if the series vector aligns with a class vector, or 0 otherwise.
    * 
    * @throws IndexOutOfBoundsException
-   * @throws TSException
+   * @throws Exception
    */
   public static synchronized int classify(String classKey, double[] series,
       HashMap<String, HashMap<String, Double>> tfidf, int[] params)
-      throws IndexOutOfBoundsException, TSException {
+      throws IndexOutOfBoundsException, Exception {
 
     WordBag test = seriesToWordBag("test", series, params);
 
@@ -857,7 +853,7 @@ public final class TextUtils {
   }
 
   public static synchronized int classifyBigrams(String classKey, double[] series,
-      HashMap<String, HashMap<Bigram, Double>> tfidf, int[][] params) throws TSException {
+      HashMap<String, HashMap<Bigram, Double>> tfidf, int[][] params) throws Exception {
 
     BigramBag test = seriesToBigramBag("test", series, params);
 
@@ -891,7 +887,7 @@ public final class TextUtils {
 
   public static synchronized int classify(String classKey, double[][] data,
       HashMap<String, HashMap<String, Double>> tfidf, int[][] params)
-      throws IndexOutOfBoundsException, TSException {
+      throws IndexOutOfBoundsException, Exception {
 
     WordBag test = new WordBag("test");
 
@@ -905,9 +901,9 @@ public final class TextUtils {
       for (double[] series : data) {
 
         for (int j = 0; j <= series.length - windowSize; j++) {
-          double[] paa = TSUtils.optimizedPaa(
-              TSUtils.zNormalize(TSUtils.subseries(series, j, windowSize)), paaSize);
-          char[] sax = TSUtils.ts2String(paa, a.getCuts(alphabetSize));
+          double[] paa = tp.optimizedPaa(tp.zNormalize(tp.subseries(series, j, windowSize)),
+              paaSize);
+          char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
           if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
             if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
               continue;

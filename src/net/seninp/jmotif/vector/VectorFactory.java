@@ -1,4 +1,4 @@
-package net.seninp.jmotif.algorithm;
+package net.seninp.jmotif.vector;
 
 /**
  * Implements vector methods.

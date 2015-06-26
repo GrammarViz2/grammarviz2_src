@@ -16,7 +16,6 @@ import net.seninp.jmotif.util.UCRUtils;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import edu.hawaii.jmotif.timeseries.TSException;
 
 /**
  * This implements a classifier.
@@ -51,7 +50,7 @@ public class SAXVSMClassifier {
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
-  public static void main(String[] args) throws IOException, IndexOutOfBoundsException, TSException {
+  public static void main(String[] args) throws IOException, IndexOutOfBoundsException, Exception {
 
     try {
       // args: <train dataset>, <test dataset>, Wsize , Psize, Asize, Startegy
@@ -88,7 +87,7 @@ public class SAXVSMClassifier {
     classify(params);
   }
 
-  private static void classify(int[] params) throws IndexOutOfBoundsException, TSException {
+  private static void classify(int[] params) throws IndexOutOfBoundsException, Exception {
     // making training bags collection
     List<WordBag> bags = TextUtils.labeledSeries2WordBags(trainData, params);
     // getting TFIDF done

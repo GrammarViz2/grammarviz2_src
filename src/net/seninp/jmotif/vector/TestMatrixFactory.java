@@ -1,4 +1,4 @@
-package net.seninp.jmotif.algorithm;
+package net.seninp.jmotif.vector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

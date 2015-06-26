@@ -1,4 +1,4 @@
-package net.seninp.jmotif.algorithm;
+package net.seninp.jmotif.vector;
 
 import java.util.Formatter;
 import java.util.Locale;

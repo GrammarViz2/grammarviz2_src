@@ -60,7 +60,6 @@ public class SAXVSMCVErrorFunction implements AbstractErrorFunction {
   public SAXVSMCVErrorFunction(Map<String, List<double[]>> data, int holdOutSampleSize,
       double nThreshold, NumerosityReductionStrategy strategy) {
 
-    this.na = new NormalAlphabet();
     this.tp = new TextProcessor();
     this.tsData = new HashMap<String, double[]>();
 

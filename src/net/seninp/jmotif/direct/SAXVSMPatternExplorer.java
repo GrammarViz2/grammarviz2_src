@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.alphabet.Alphabet;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.text.TextProcessor;
@@ -45,29 +46,29 @@ public class SAXVSMPatternExplorer {
   private static Integer ALPHABET_SIZE;
   private static Map<String, List<double[]>> trainData;
   private static Map<String, List<double[]>> testData;
-  private static SAXNumerosityReductionStrategy STRATEGY;
+  private static NumerosityReductionStrategy STRATEGY;
 
   private static final DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.US);
   private static DecimalFormat df = new DecimalFormat("0.00###", otherSymbols);
   private static final String COMMA = ", ";
   private static final String CR = "\n";
 
+  private static final TextProcessor tp = new TextProcessor();
+  
   // static block - we instantiate the logger
   //
   private static final Logger consoleLogger;
   private static final Level LOGGING_LEVEL = Level.INFO;
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SAXVSMClassifier.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(SAXVSMPatternExplorer.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
   /**
    * @param args
-   * @throws TSException
-   * @throws IndexOutOfBoundsException
-   * @throws IOException
+   * @throws Exception
    */
-  public static void main(String[] args) throws IndexOutOfBoundsException, TSException, IOException {
+  public static void main(String[] args) throws Exception {
 
     // parsing the parameters
     //
@@ -95,7 +96,7 @@ public class SAXVSMPatternExplorer {
       PAA_SIZE = Integer.valueOf(args[3]);
       ALPHABET_SIZE = Integer.valueOf(args[4]);
 
-      STRATEGY = SAXNumerosityReductionStrategy.valueOf(args[5].toUpperCase());
+      STRATEGY = NumerosityReductionStrategy.valueOf(args[5].toUpperCase());
 
     }
     catch (Exception e) {
@@ -105,7 +106,7 @@ public class SAXVSMPatternExplorer {
 
     int[] params = new int[] { WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, STRATEGY.index() };
 
-    List<WordBag> bags = TextProcessor.labeledSeries2WordBags(trainData, params);
+    List<WordBag> bags = tp.labeledSeries2WordBags(trainData, params);
 
     // get tfidf statistics
     HashMap<String, HashMap<String, Double>> tfidf = TextProcessor.computeTFIDF(bags);

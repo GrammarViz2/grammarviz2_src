@@ -17,8 +17,6 @@ public class TestCosineSimilarity {
 
   private static final double TEST_PASS_PRECISION = 0.000000000000001;
 
-  private static final double TEST_FAIL_PRECISION = 0.0000000000000001;
-
   /**
    * Using a dumb example.
    */

@@ -2,6 +2,7 @@ package net.seninp.jmotif.text;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,6 +11,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.sax.SAXException;
+import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.alphabet.Alphabet;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
@@ -27,9 +31,11 @@ public final class TextUtils {
   private static final String CR = "\n";
   private static final DecimalFormat df = new DecimalFormat("#0.00000");
 
-  private static final Alphabet a = new NormalAlphabet();
+  private static final Alphabet na = new NormalAlphabet();
 
   private static final TSProcessor tp = new TSProcessor();
+
+  private static final SAXProcessor sp = new SAXProcessor();
 
   private TextUtils() {
     assert true;
@@ -552,125 +558,117 @@ public final class TextUtils {
     return res;
   }
 
-  public static synchronized WordBag seriesToWordBag(String label, double[] series, int[] params)
-      throws IndexOutOfBoundsException, Exception {
+  /**
+   * Converts time series to a word bag.
+   * 
+   * @param label the wordbag label.
+   * @param ts timeseries.
+   * @param params parameters for SAX transform.
+   * @return word bag.
+   * @throws SAXException if error occurs.
+   */
+  public static synchronized WordBag seriesToWordBag(String label, double[] ts, Params params)
+      throws SAXException {
 
     WordBag resultBag = new WordBag(label);
 
-    int windowSize = params[0];
-    int paaSize = params[1];
-    int alphabetSize = params[2];
-    SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(params[3]);
+    // scan across the time series extract sub sequences, and convert them to strings
+    char[] previousString = null;
 
-    // System.out.println("Strategy: " + strategy.index());
+    for (int i = 0; i < ts.length - (params.windowSize - 1); i++) {
 
-    String oldStr = "";
-    for (int i = 0; i <= series.length - windowSize; i++) {
+      // fix the current subsection
+      double[] subSection = Arrays.copyOfRange(ts, i, i + params.windowSize);
 
-      double[] paa = tp.paa(tp.znorm(tp.subseriesByCopy(series, i, i + windowSize)), paaSize);
+      // Z normalize it
+      subSection = tp.znorm(subSection, params.nThreshold);
 
-      char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
+      // perform PAA conversion if needed
+      double[] paa = tp.paa(subSection, params.paaSize);
 
-      if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
-        if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
+      // Convert the PAA to a string.
+      char[] currentString = tp.ts2String(paa, na.getCuts(params.alphabetSize));
+
+      if (null != previousString) {
+
+        if (NumerosityReductionStrategy.EXACT.equals(params.nrStartegy)
+            && Arrays.equals(previousString, currentString)) {
+          // NumerosityReduction
           continue;
         }
-      }
-      else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
-        if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
+        else if (NumerosityReductionStrategy.MINDIST.equals(params.nrStartegy)
+            && sp.checkMinDistIsZero(previousString, currentString)) {
           continue;
         }
+
       }
 
-      oldStr = String.valueOf(sax);
+      previousString = currentString;
 
-      resultBag.addWord(String.valueOf(sax));
+      resultBag.addWord(String.valueOf(currentString));
     }
 
     return resultBag;
   }
 
-  protected static synchronized BigramBag seriesToBigramBag(String label, double[] series,
-      int[][] params) throws Exception {
-
-    BigramBag resultBag = new BigramBag(label);
-
-    for (int[] p : params) {
-
-      ArrayList<String> text = new ArrayList<String>();
-
-      int windowSize = p[0];
-      int paaSize = p[1];
-      int alphabetSize = p[2];
-      SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(p[3]);
-
-      String oldStr = "";
-      for (int i = 0; i <= series.length - windowSize; i++) {
-
-        double[] paa = tp.optimizedPaa(tp.zNormalize(tp.subseries(series, i, windowSize)), paaSize);
-
-        char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
-
-        // System.out.println(Arrays.toString(tp.subseries(series, i, windowSize)) + "->"
-        // + Arrays.toString(paa));
-
-        if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
-          if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
-            continue;
-          }
-        }
-        else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
-          if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
-            continue;
-          }
-        }
-
-        oldStr = String.valueOf(sax);
-        text.add(String.valueOf(sax));
-      }
-
-      // need to text into bigrams
-      //
-      Bigram cBigram = new Bigram();
-      for (String str : text) {
-        cBigram.setNext(str);
-        if (cBigram.isComplete()) {
-          resultBag.add(cBigram);
-          cBigram = new Bigram();
-          cBigram.setNext(str);
-        }
-      }
-
-    }
-
-    return resultBag;
-  }
+  // protected static synchronized BigramBag seriesToBigramBag(String label, double[] series,
+  // int[][] params) throws Exception {
+  //
+  // BigramBag resultBag = new BigramBag(label);
+  //
+  // for (int[] p : params) {
+  //
+  // ArrayList<String> text = new ArrayList<String>();
+  //
+  // int windowSize = p[0];
+  // int paaSize = p[1];
+  // int alphabetSize = p[2];
+  // SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(p[3]);
+  //
+  // String oldStr = "";
+  // for (int i = 0; i <= series.length - windowSize; i++) {
+  //
+  // double[] paa = tp.optimizedPaa(tp.zNormalize(tp.subseries(series, i, windowSize)), paaSize);
+  //
+  // char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
+  //
+  // // System.out.println(Arrays.toString(tp.subseries(series, i, windowSize)) + "->"
+  // // + Arrays.toString(paa));
+  //
+  // if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
+  // if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
+  // continue;
+  // }
+  // }
+  // else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
+  // if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
+  // continue;
+  // }
+  // }
+  //
+  // oldStr = String.valueOf(sax);
+  // text.add(String.valueOf(sax));
+  // }
+  //
+  // // need to text into bigrams
+  // //
+  // Bigram cBigram = new Bigram();
+  // for (String str : text) {
+  // cBigram.setNext(str);
+  // if (cBigram.isComplete()) {
+  // resultBag.add(cBigram);
+  // cBigram = new Bigram();
+  // cBigram.setNext(str);
+  // }
+  // }
+  //
+  // }
+  //
+  // return resultBag;
+  // }
 
   public static synchronized List<WordBag> labeledSeries2WordBags(Map<String, List<double[]>> data,
-      int paaSize, int alphabetSize, int windowSize, SAXNumerosityReductionStrategy strategy)
-      throws IndexOutOfBoundsException, Exception {
-    int[] params = new int[4];
-    params[0] = windowSize;
-    params[1] = paaSize;
-    params[2] = alphabetSize;
-    params[3] = strategy.index();
-    return labeledSeries2WordBags(data, params);
-  }
-
-  /**
-   * Converts timeseries datastructure into the bag of words. It is assumed that every key in the
-   * parameters map is the timeseries class label. The corresponding list of double arrays, is a set
-   * of representatives of this class.
-   * 
-   * @param data The map of class labels and representatives.
-   * @param params The set of SAX parameters to use, index 0 - sliding window size, index 1 - PAA
-   * size, index 2 - alphabet size.
-   * @return The words bag.
-   * @throws IndexOutOfBoundsException If error occurs.
-   * @throws Exception If error occurs.
-   */
-  public static synchronized List<WordBag> labeledSeries2WordBags(Map<String, List<double[]>> data,
-      int[] params) throws IndexOutOfBoundsException, Exception {
+      Params params) throws SAXException {
 
     // make a map of resulting bags
     Map<String, WordBag> preRes = new HashMap<String, WordBag>();
@@ -694,91 +692,66 @@ public final class TextUtils {
     return res;
   }
 
-  public static synchronized List<WordBag> labeledMultivariateSeries2WordBags(
-      Map<String, List<double[][]>> data, int[] params) throws IndexOutOfBoundsException, Exception {
+  // public static synchronized List<WordBag> labeledMultivariateSeries2WordBags(
+  // Map<String, List<double[][]>> data, int[] params) throws IndexOutOfBoundsException, Exception {
+  //
+  // // make a summary map
+  // Map<String, WordBag> preRes = new HashMap<String, WordBag>();
+  // for (String tag : data.keySet()) {
+  // preRes.put(tag, new WordBag(tag));
+  // }
+  //
+  // // process series one by one building word bags
+  // for (Entry<String, List<double[][]>> e : data.entrySet()) {
+  //
+  // String seriesLabel = e.getKey();
+  // WordBag bag = preRes.get(seriesLabel);
+  //
+  // for (double[][] series : e.getValue()) {
+  //
+  // for (double[] currSeries : series) {
+  //
+  // WordBag cb = seriesToWordBag("tmp", currSeries, params);
+  // bag.mergeWith(cb);
+  //
+  // }
+  //
+  // }
+  // }
+  // List<WordBag> res = new ArrayList<WordBag>();
+  // res.addAll(preRes.values());
+  // return res;
+  // }
 
-    // make a summary map
-    Map<String, WordBag> preRes = new HashMap<String, WordBag>();
-    for (String tag : data.keySet()) {
-      preRes.put(tag, new WordBag(tag));
-    }
-
-    // process series one by one building word bags
-    for (Entry<String, List<double[][]>> e : data.entrySet()) {
-
-      String seriesLabel = e.getKey();
-      WordBag bag = preRes.get(seriesLabel);
-
-      for (double[][] series : e.getValue()) {
-
-        for (double[] currSeries : series) {
-
-          WordBag cb = seriesToWordBag("tmp", currSeries, params);
-          bag.mergeWith(cb);
-
-        }
-
-      }
-    }
-    List<WordBag> res = new ArrayList<WordBag>();
-    res.addAll(preRes.values());
-    return res;
-  }
-
-  public static synchronized List<BigramBag> labeledSeries2BigramBags(
-      Map<String, List<double[]>> data, int[][] params) throws IndexOutOfBoundsException, Exception {
-    // make a map of resulting bags
-    Map<String, BigramBag> preRes = new HashMap<String, BigramBag>();
-    for (String tag : data.keySet()) {
-      preRes.put(tag, new BigramBag(tag));
-    }
-
-    // process series one by one building word bags
-    for (Entry<String, List<double[]>> e : data.entrySet()) {
-
-      String seriesLabel = e.getKey();
-      BigramBag bag = preRes.get(seriesLabel);
-
-      for (double[] series : e.getValue()) {
-
-        BigramBag cb = seriesToBigramBag("tmp", series, params);
-        bag.mergeWith(cb);
-
-      }
-    }
-
-    List<BigramBag> res = new ArrayList<BigramBag>();
-    res.addAll(preRes.values());
-    return res;
-  }
+  // public static synchronized List<BigramBag> labeledSeries2BigramBags(
+  // Map<String, List<double[]>> data, int[][] params) throws IndexOutOfBoundsException, Exception {
+  // // make a map of resulting bags
+  // Map<String, BigramBag> preRes = new HashMap<String, BigramBag>();
+  // for (String tag : data.keySet()) {
+  // preRes.put(tag, new BigramBag(tag));
+  // }
+  //
+  // // process series one by one building word bags
+  // for (Entry<String, List<double[]>> e : data.entrySet()) {
+  //
+  // String seriesLabel = e.getKey();
+  // BigramBag bag = preRes.get(seriesLabel);
+  //
+  // for (double[] series : e.getValue()) {
+  //
+  // BigramBag cb = seriesToBigramBag("tmp", series, params);
+  // bag.mergeWith(cb);
+  //
+  // }
+  // }
+  //
+  // List<BigramBag> res = new ArrayList<BigramBag>();
+  // res.addAll(preRes.values());
+  // return res;
+  // }
 
   public static synchronized int classify(String classKey, double[] series,
-      HashMap<String, HashMap<String, Double>> tfidf, int paaSize, int alphabetSize,
-      int windowSize, SAXNumerosityReductionStrategy strategy) throws IndexOutOfBoundsException,
-      Exception {
-    int[] params = new int[4];
-    params[0] = windowSize;
-    params[1] = paaSize;
-    params[2] = alphabetSize;
-    params[3] = strategy.index();
-    return classify(classKey, series, tfidf, params);
-  }
-
-  /**
-   * Performs classification.
-   * 
-   * @param classKey The target class key, if series will appear of this class, returns 1.
-   * @param series The series to test.
-   * @param tfidf The TF*IDF weights data structure.
-   * @param params SAX parameters to use.
-   * @return 1 if the series vector aligns with a class vector, or 0 otherwise.
-   * 
-   * @throws IndexOutOfBoundsException
-   * @throws Exception
-   */
-  public static synchronized int classify(String classKey, double[] series,
-      HashMap<String, HashMap<String, Double>> tfidf, int[] params)
-      throws IndexOutOfBoundsException, Exception {
+      HashMap<String, HashMap<String, Double>> tfidf, Params params) throws SAXException {
 
     WordBag test = seriesToWordBag("test", series, params);
 
@@ -852,102 +825,102 @@ public final class TextUtils {
     return className;
   }
 
-  public static synchronized int classifyBigrams(String classKey, double[] series,
-      HashMap<String, HashMap<Bigram, Double>> tfidf, int[][] params) throws Exception {
+  // public static synchronized int classifyBigrams(String classKey, double[] series,
+  // HashMap<String, HashMap<Bigram, Double>> tfidf, int[][] params) throws Exception {
+  //
+  // BigramBag test = seriesToBigramBag("test", series, params);
+  //
+  // double minDist = -1.0d;
+  // String className = "";
+  // double[] cosines = new double[tfidf.entrySet().size()];
+  // int index = 0;
+  // for (Entry<String, HashMap<Bigram, Double>> e : tfidf.entrySet()) {
+  // double dist = TextUtils.cosineSimilarity(test, e.getValue());
+  // cosines[index] = dist;
+  // index++;
+  // if (dist > minDist) {
+  // className = e.getKey();
+  // minDist = dist;
+  // }
+  // }
+  //
+  // boolean allEqual = true;
+  // double cosine = cosines[0];
+  // for (int i = 1; i < cosines.length; i++) {
+  // if (!(cosines[i] == cosine)) {
+  // allEqual = false;
+  // }
+  // }
+  //
+  // if (!(allEqual) && className.equalsIgnoreCase(classKey)) {
+  // return 1;
+  // }
+  // return 0;
+  // }
 
-    BigramBag test = seriesToBigramBag("test", series, params);
-
-    double minDist = -1.0d;
-    String className = "";
-    double[] cosines = new double[tfidf.entrySet().size()];
-    int index = 0;
-    for (Entry<String, HashMap<Bigram, Double>> e : tfidf.entrySet()) {
-      double dist = TextUtils.cosineSimilarity(test, e.getValue());
-      cosines[index] = dist;
-      index++;
-      if (dist > minDist) {
-        className = e.getKey();
-        minDist = dist;
-      }
-    }
-
-    boolean allEqual = true;
-    double cosine = cosines[0];
-    for (int i = 1; i < cosines.length; i++) {
-      if (!(cosines[i] == cosine)) {
-        allEqual = false;
-      }
-    }
-
-    if (!(allEqual) && className.equalsIgnoreCase(classKey)) {
-      return 1;
-    }
-    return 0;
-  }
-
-  public static synchronized int classify(String classKey, double[][] data,
-      HashMap<String, HashMap<String, Double>> tfidf, int[][] params)
-      throws IndexOutOfBoundsException, Exception {
-
-    WordBag test = new WordBag("test");
-
-    for (int[] p : params) {
-      int windowSize = p[0];
-      int paaSize = p[1];
-      int alphabetSize = p[2];
-      SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(p[3]);
-      String oldStr = "";
-
-      for (double[] series : data) {
-
-        for (int j = 0; j <= series.length - windowSize; j++) {
-          double[] paa = tp.optimizedPaa(tp.zNormalize(tp.subseries(series, j, windowSize)),
-              paaSize);
-          char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
-          if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
-            if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
-              continue;
-            }
-          }
-          else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
-            if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
-              continue;
-            }
-          }
-          oldStr = String.valueOf(sax);
-          test.addWord(String.valueOf(sax));
-        }
-
-      }
-    }
-
-    double minDist = -1.0d;
-    String className = "";
-    double[] cosines = new double[tfidf.entrySet().size()];
-    int index = 0;
-    for (Entry<String, HashMap<String, Double>> e : tfidf.entrySet()) {
-      double dist = TextUtils.cosineSimilarity(test, e.getValue());
-      cosines[index] = dist;
-      index++;
-      if (dist > minDist) {
-        className = e.getKey();
-        minDist = dist;
-      }
-    }
-
-    boolean allEqual = true;
-    double cosine = cosines[0];
-    for (int i = 1; i < cosines.length; i++) {
-      if (!(cosines[i] == cosine)) {
-        allEqual = false;
-      }
-    }
-
-    if (!(allEqual) && className.equalsIgnoreCase(classKey)) {
-      return 1;
-    }
-    return 0;
-  }
+  // public static synchronized int classify(String classKey, double[][] data,
+  // HashMap<String, HashMap<String, Double>> tfidf, int[][] params)
+  // throws IndexOutOfBoundsException, Exception {
+  //
+  // WordBag test = new WordBag("test");
+  //
+  // for (int[] p : params) {
+  // int windowSize = p[0];
+  // int paaSize = p[1];
+  // int alphabetSize = p[2];
+  // SAXNumerosityReductionStrategy strategy = SAXNumerosityReductionStrategy.fromValue(p[3]);
+  // String oldStr = "";
+  //
+  // for (double[] series : data) {
+  //
+  // for (int j = 0; j <= series.length - windowSize; j++) {
+  // double[] paa = tp.optimizedPaa(tp.zNormalize(tp.subseries(series, j, windowSize)),
+  // paaSize);
+  // char[] sax = tp.ts2String(paa, a.getCuts(alphabetSize));
+  // if (SAXNumerosityReductionStrategy.CLASSIC.equals(strategy)) {
+  // if (oldStr.length() > 0 && SAXFactory.strDistance(sax, oldStr.toCharArray()) == 0) {
+  // continue;
+  // }
+  // }
+  // else if (SAXNumerosityReductionStrategy.EXACT.equals(strategy)) {
+  // if (oldStr.equalsIgnoreCase(String.valueOf(sax))) {
+  // continue;
+  // }
+  // }
+  // oldStr = String.valueOf(sax);
+  // test.addWord(String.valueOf(sax));
+  // }
+  //
+  // }
+  // }
+  //
+  // double minDist = -1.0d;
+  // String className = "";
+  // double[] cosines = new double[tfidf.entrySet().size()];
+  // int index = 0;
+  // for (Entry<String, HashMap<String, Double>> e : tfidf.entrySet()) {
+  // double dist = TextUtils.cosineSimilarity(test, e.getValue());
+  // cosines[index] = dist;
+  // index++;
+  // if (dist > minDist) {
+  // className = e.getKey();
+  // minDist = dist;
+  // }
+  // }
+  //
+  // boolean allEqual = true;
+  // double cosine = cosines[0];
+  // for (int i = 1; i < cosines.length; i++) {
+  // if (!(cosines[i] == cosine)) {
+  // allEqual = false;
+  // }
+  // }
+  //
+  // if (!(allEqual) && className.equalsIgnoreCase(classKey)) {
+  // return 1;
+  // }
+  // return 0;
+  // }
 
   public static synchronized String wordBagToTable(WordBag bag) {
 

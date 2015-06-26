@@ -36,7 +36,7 @@ public class SAXVSMDirectSamplerParams {
   @Parameter(names = { "--word_size_min", "-pmin" }, description = "min SAX PAA word size")
   public static int SAX_PAA_SIZE_MIN = 3;
 
-  @Parameter(names = { "--word_size_min", "-pmin" }, description = "max SAX PAA word size")
+  @Parameter(names = { "--word_size_max", "-pmax" }, description = "max SAX PAA word size")
   public static int SAX_PAA_SIZE_MAX = 10;
 
   @Parameter(names = { "--alphabet_size_min", "-amin" }, description = "min SAX alphabet size")

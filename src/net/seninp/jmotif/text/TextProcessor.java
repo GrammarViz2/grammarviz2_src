@@ -11,15 +11,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXException;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.alphabet.Alphabet;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 /**
  * Implements text statistics and mining utilities.
@@ -636,6 +636,12 @@ public final class TextProcessor {
 
     WordBag test = seriesToWordBag("test", series, params);
 
+    return classify(classKey, test, tfidf, params);
+  }
+
+  public int classify(String trueClassLabel, WordBag test,
+      HashMap<String, HashMap<String, Double>> tfidf, Params params) {
+
     // it is Cosine similarity,
     //
     // which ranges from 0.0 for the angle of 90 to 1.0 for the angle of 0
@@ -668,7 +674,7 @@ public final class TextProcessor {
     }
 
     // report our findings
-    if (!(allEqual) && className.equalsIgnoreCase(classKey)) {
+    if (!(allEqual) && className.equalsIgnoreCase(trueClassLabel)) {
       return 1;
     }
 

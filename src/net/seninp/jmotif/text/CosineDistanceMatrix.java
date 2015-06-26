@@ -25,6 +25,8 @@ public class CosineDistanceMatrix {
   private static final String CR = "\n";
   private static final DecimalFormat df = new DecimalFormat("#0.00000");
 
+  private static final TextProcessor tp = new TextProcessor();
+
   /**
    * Builds a distance matrix.
    * 
@@ -33,7 +35,7 @@ public class CosineDistanceMatrix {
   public CosineDistanceMatrix(HashMap<String, HashMap<String, Double>> tfidf) {
 
     Locale.setDefault(Locale.US);
-    
+
     rows = tfidf.keySet().toArray(new String[0]);
 
     Arrays.sort(rows);
@@ -45,7 +47,7 @@ public class CosineDistanceMatrix {
       for (int j = 0; j < i; j++) {
         HashMap<String, Double> vectorA = tfidf.get(rows[i]);
         HashMap<String, Double> vectorB = tfidf.get(rows[j]);
-        double distance = TextProcessor.cosineDistance(vectorA, vectorB);
+        double distance = tp.cosineDistance(vectorA, vectorB);
         distances[i][j] = distance;
       }
     }

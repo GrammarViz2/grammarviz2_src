@@ -17,6 +17,8 @@ public class TestCosineSimilarity {
 
   private static final double TEST_PASS_PRECISION = 0.000000000000001;
 
+  private static final TextProcessor tp = new TextProcessor();
+
   /**
    * Using a dumb example.
    */
@@ -44,7 +46,7 @@ public class TestCosineSimilarity {
     wb2.addWord("than", 1);
     wb2.addWord("more", 1);
 
-    double cosine = TextProcessor.cosineDistance(wb1.getWordsAsDoubles(), wb2.getWordsAsDoubles());
+    double cosine = tp.cosineDistance(wb1.getWordsAsDoubles(), wb2.getWordsAsDoubles());
 
     assertEquals("Testing cosine similarity", TEST_VALUE, cosine, TEST_PASS_PRECISION);
   }
@@ -76,7 +78,7 @@ public class TestCosineSimilarity {
     wb2.addWord("than", 1);
     wb2.addWord("more", 1);
 
-    double cosine = TextProcessor.cosineDistance(wb1.getWordsAsDoubles(), wb2.getWordsAsDoubles());
+    double cosine = tp.cosineDistance(wb1.getWordsAsDoubles(), wb2.getWordsAsDoubles());
     assertEquals("Testing cosine similarity", TEST_VALUE, cosine, TEST_PASS_PRECISION);
 
     // grow the vector
@@ -85,7 +87,7 @@ public class TestCosineSimilarity {
     for (Entry<String, Double> e : wbLong.entrySet()) {
       wbLong.put(e.getKey(), e.getValue() * multiplier);
     }
-    double distLong = TextProcessor.cosineDistance(wbLong, wb2.getWordsAsDoubles());
+    double distLong = tp.cosineDistance(wbLong, wb2.getWordsAsDoubles());
 
     assertEquals("Testing cosine similarity", TEST_VALUE, distLong, TEST_PASS_PRECISION);
 
@@ -93,9 +95,9 @@ public class TestCosineSimilarity {
     HashMap<String, HashMap<String, Double>> vectors = new HashMap<String, HashMap<String, Double>>();
     vectors.put("first", wbLong);
     vectors.put("second", wb2.getWordsAsDoubles());
-    vectors = TextProcessor.normalizeToUnitVectors(vectors);
+    vectors = tp.normalizeToUnitVectors(vectors);
 
-    double distNorm = TextProcessor.cosineDistance(vectors.get("first"), vectors.get("second"));
+    double distNorm = tp.cosineDistance(vectors.get("first"), vectors.get("second"));
 
     assertEquals("Testing cosine similarity", TEST_VALUE, distNorm, TEST_PASS_PRECISION);
   }

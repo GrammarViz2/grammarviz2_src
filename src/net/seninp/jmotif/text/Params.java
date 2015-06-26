@@ -102,4 +102,10 @@ public class Params {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "Params [windowSize=" + windowSize + ", paaSize=" + paaSize + ", alphabetSize="
+        + alphabetSize + ", nThreshold=" + nThreshold + ", nrStartegy=" + nrStartegy + "]";
+  }
+
 }

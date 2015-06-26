@@ -12,11 +12,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.text.Params;
 import net.seninp.jmotif.text.TextProcessor;
 import net.seninp.jmotif.text.WordBag;
 import net.seninp.util.StackTrace;
 import net.seninp.util.UCRUtils;
 import org.slf4j.LoggerFactory;
+import com.beust.jcommander.JCommander;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -87,71 +90,77 @@ public class SAXVSMDirectSampler {
 
   private static int[] upperBounds;
   private static int[] lowerBounds;
-  private static String TRAINING_DATA;
-  private static String TEST_DATA;
-  private static int HOLD_OUT_NUM = 1;
-  private static int ITERATIONS_NUM = 1;
 
   private static Map<String, List<double[]>> trainData;
   private static Map<String, List<double[]>> testData;
 
-  public static void main(String[] args) throws IOException, IndexOutOfBoundsException, TSException {
+  public static void main(String[] args) throws Exception {
 
     try {
-      // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout, Iterations
-      consoleLogger.info("processing paramleters: " + Arrays.toString(args));
+      
+      SAXVSMDirectSamplerParams params = new SAXVSMDirectSamplerParams();
+      JCommander jct = new JCommander(params, args);
 
-      if (10 == args.length) {
-        TRAINING_DATA = args[0];
-        TEST_DATA = args[1];
-        trainData = UCRUtils.readUCRData(TRAINING_DATA);
-        consoleLogger.info("trainData classes: " + trainData.size() + ", series length: "
-            + trainData.entrySet().iterator().next().getValue().get(0).length);
-        for (Entry<String, List<double[]>> e : trainData.entrySet()) {
-          consoleLogger.info(" training class: " + e.getKey() + " series: " + e.getValue().size());
-        }
-        testData = UCRUtils.readUCRData(TEST_DATA);
-        consoleLogger.info("testData classes: " + testData.size() + ", series length: "
-            + testData.entrySet().iterator().next().getValue().get(0).length);
-        for (Entry<String, List<double[]>> e : testData.entrySet()) {
-          consoleLogger.info(" test class: " + e.getKey() + " series: " + e.getValue().size());
-        }
-
-        // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout,
-        // Iterations
-        lowerBounds = new int[] { Integer.valueOf(args[2]).intValue(),
-            Integer.valueOf(args[4]).intValue(), Integer.valueOf(args[6]).intValue() };
-        upperBounds = new int[] { Integer.valueOf(args[3]).intValue(),
-            Integer.valueOf(args[5]).intValue(), Integer.valueOf(args[7]).intValue() };
-
-        // args: <train dataset>, <test dataset>, Wmin Wmax, Pmin Pmax, Amin Amax, Holdout,
-        // Iterations
-        HOLD_OUT_NUM = Integer.valueOf(args[8]);
-        ITERATIONS_NUM = Integer.valueOf(args[9]);
-      }
-      else {
-        System.out.print(printHelp());
+      if (0 == args.length) {
+        jct.usage();
         System.exit(-10);
       }
+
+      StringBuffer sb = new StringBuffer(1024);
+      sb.append("SAX-VSM DiRect Sampler").append(CR);
+      sb.append("parameters:").append(CR);
+
+      sb.append("  train data:                  ").append(SAXVSMDirectSamplerParams.TRAIN_FILE).append(CR);
+      sb.append("  test data:                   ").append(SAXVSMDirectSamplerParams.TEST_FILE).append(CR);
+      sb.append("  SAX sliding window sizes:    ").append("[").append(SAXVSMDirectSamplerParams.SAX_WINDOW_SIZE_MIN)
+         .append(" - ").append(SAXVSMDirectSamplerParams.SAX_WINDOW_SIZE_MAX).append("]").append(CR);
+      sb.append("  SAX PAA sizes:    ").append("[").append(SAXVSMDirectSamplerParams.SAX_PAA_SIZE_MIN)
+         .append(" - ").append(SAXVSMDirectSamplerParams.SAX_PAA_SIZE_MAX).append("]").append(CR);
+      sb.append("  SAX alphabet sizes:    ").append("[").append(SAXVSMDirectSamplerParams.SAX_ALPHABET_SIZE_MIN)
+         .append(" - ").append(SAXVSMDirectSamplerParams.SAX_ALPHABET_SIZE_MAX).append("]").append(CR);
+
+      sb.append("  SAX normalization threshold: ").append(SAXVSMDirectSamplerParams.SAX_NORM_THRESHOLD).append(CR);
+      
+      sb.append("  CV hold out:                 ").append(SAXVSMDirectSamplerParams.HOLD_OUT_NUM).append(CR);
+      sb.append("  max Iterations:              ").append(SAXVSMDirectSamplerParams.ITERATIONS_NUM).append(CR);
+
+      trainData = UCRUtils.readUCRData(SAXVSMDirectSamplerParams.TRAIN_FILE);
+      consoleLogger.info("trainData classes: " + trainData.size() + ", series length: "
+          + trainData.entrySet().iterator().next().getValue().get(0).length);
+      for (Entry<String, List<double[]>> e : trainData.entrySet()) {
+        consoleLogger.info(" training class: " + e.getKey() + " series: " + e.getValue().size());
+      }
+
+      testData = UCRUtils.readUCRData(SAXVSMDirectSamplerParams.TEST_FILE);
+      consoleLogger.info("testData classes: " + testData.size() + ", series length: "
+          + testData.entrySet().iterator().next().getValue().get(0).length);
+      for (Entry<String, List<double[]>> e : testData.entrySet()) {
+        consoleLogger.info(" test class: " + e.getKey() + " series: " + e.getValue().size());
+      }
+
     }
     catch (Exception e) {
-      System.err.println("There was parameters error....");
-      System.err.println(StackTrace.toString(e));
-      System.out.print(printHelp());
+      System.err.println("There was an error...." + StackTrace.toString(e));
       System.exit(-10);
     }
 
-    consoleLogger.info("running sampling for " + SAXNumerosityReductionStrategy.CLASSIC.toString()
-        + " strategy...");
-    int[] classicParams = sample(SAXNumerosityReductionStrategy.CLASSIC);
+    lowerBounds = new int[] { SAXVSMDirectSamplerParams.SAX_WINDOW_SIZE_MIN,
+        SAXVSMDirectSamplerParams.SAX_PAA_SIZE_MIN, SAXVSMDirectSamplerParams.SAX_ALPHABET_SIZE_MIN };
 
-    consoleLogger.info("running sampling for " + SAXNumerosityReductionStrategy.EXACT.toString()
-        + " strategy...");
-    int[] exactParams = sample(SAXNumerosityReductionStrategy.EXACT);
+    upperBounds = new int[] { SAXVSMDirectSamplerParams.SAX_WINDOW_SIZE_MAX,
+        SAXVSMDirectSamplerParams.SAX_PAA_SIZE_MAX, SAXVSMDirectSamplerParams.SAX_ALPHABET_SIZE_MAX };
 
-    consoleLogger.info("running sampling for "
-        + SAXNumerosityReductionStrategy.NOREDUCTION.toString() + " strategy...");
-    int[] noredParams = sample(SAXNumerosityReductionStrategy.NOREDUCTION);
+    consoleLogger.info("running sampling for " + NumerosityReductionStrategy.MINDIST.toString()
+        + " strategy...");
+    Params classicParams = sample(NumerosityReductionStrategy.MINDIST);
+
+    consoleLogger.info("running sampling for " + NumerosityReductionStrategy.EXACT.toString()
+        + " strategy...");
+    Params exactParams = sample(NumerosityReductionStrategy.EXACT);
+
+    consoleLogger.info("running sampling for " + NumerosityReductionStrategy.NONE.toString()
+        + " strategy...");
+    Params noredParams = sample(NumerosityReductionStrategy.NONE);
 
     classify(classicParams);
     classify(exactParams);
@@ -177,7 +186,7 @@ public class SAXVSMDirectSampler {
     return sb.toString();
   }
 
-  private static void classify(int[] params) throws IndexOutOfBoundsException, TSException {
+  private static void classify(Params params) throws Exception {
     // making training bags collection
     List<WordBag> bags = TextProcessor.labeledSeries2WordBags(trainData, params);
     // getting TFIDF done
@@ -203,7 +212,7 @@ public class SAXVSMDirectSampler {
 
   }
 
-  private static int[] sample(SAXNumerosityReductionStrategy strategy) {
+  private static Params sample(NumerosityReductionStrategy strategy) {
 
     function = new SAXVSMCVErrorFunction(trainData, HOLD_OUT_NUM, strategy);
     // the whole bunch of inits
@@ -896,13 +905,13 @@ public class SAXVSMDirectSampler {
   protected static String toLogStr(int[] p, double accuracy, double error) {
 
     StringBuffer sb = new StringBuffer();
-    if (SAXNumerosityReductionStrategy.CLASSIC.index() == p[3]) {
+    if (NumerosityReductionStrategy.CLASSIC.index() == p[3]) {
       sb.append("CLASSIC, ");
     }
-    else if (SAXNumerosityReductionStrategy.EXACT.index() == p[3]) {
+    else if (NumerosityReductionStrategy.EXACT.index() == p[3]) {
       sb.append("EXACT, ");
     }
-    else if (SAXNumerosityReductionStrategy.NOREDUCTION.index() == p[3]) {
+    else if (NumerosityReductionStrategy.NOREDUCTION.index() == p[3]) {
       sb.append("NOREDUCTION, ");
     }
     sb.append("window ").append(p[0]).append(COMMA);

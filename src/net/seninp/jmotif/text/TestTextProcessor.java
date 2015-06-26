@@ -24,11 +24,14 @@ public class TestTextProcessor {
   private WordBag bag3;
   private HashMap<String, WordBag> bags;
 
+  private TextProcessor tp;
+
   /**
    * Test set-up.
    */
   @Before
   public void setUp() {
+    tp = new TextProcessor();
     bag1 = buildBag("bag1", BAG1);
     bag2 = buildBag("bag2", BAG2);
     bag3 = buildBag("bag3", BAG3);
@@ -43,9 +46,9 @@ public class TestTextProcessor {
    */
   @Test
   public void testTF() {
-    assertTrue(Double.valueOf(3.0D / 5D).doubleValue() == TextProcessor.normalizedTF(bag1, BAG1[0][0]));
-    assertTrue(Double.valueOf(2.0D / 4D).doubleValue() == TextProcessor.normalizedTF(bag2, BAG2[1][0]));
-    assertTrue(Double.valueOf(4.0D / 4D).doubleValue() == TextProcessor.normalizedTF(bag3, BAG3[3][0]));
+    assertTrue(Double.valueOf(3.0D / 5D).doubleValue() == tp.normalizedTF(bag1, BAG1[0][0]));
+    assertTrue(Double.valueOf(2.0D / 4D).doubleValue() == tp.normalizedTF(bag2, BAG2[1][0]));
+    assertTrue(Double.valueOf(4.0D / 4D).doubleValue() == tp.normalizedTF(bag3, BAG3[3][0]));
   }
 
   /**
@@ -53,8 +56,8 @@ public class TestTextProcessor {
    */
   @Test
   public void testDF() {
-    assertTrue(3 == TextProcessor.df(bags, "the"));
-    assertTrue(1 == TextProcessor.df(bags, "meadow"));
+    assertTrue(3 == tp.df(bags, "the"));
+    assertTrue(1 == tp.df(bags, "meadow"));
   }
 
   /**
@@ -62,10 +65,10 @@ public class TestTextProcessor {
    */
   @Test
   public void testIDF() {
-    assertTrue(Double.POSITIVE_INFINITY == TextProcessor.idf(bags, "non"));
-    assertTrue(1.0D == TextProcessor.idf(bags, "the"));
-    assertTrue(3.0D / 2.0D == TextProcessor.idf(bags, "hill"));
-    assertTrue(3.0D / 1.0D == TextProcessor.idf(bags, "air"));
+    assertTrue(Double.POSITIVE_INFINITY == tp.idf(bags, "non"));
+    assertTrue(1.0D == tp.idf(bags, "the"));
+    assertTrue(3.0D / 2.0D == tp.idf(bags, "hill"));
+    assertTrue(3.0D / 1.0D == tp.idf(bags, "air"));
   }
 
   /**
@@ -73,13 +76,13 @@ public class TestTextProcessor {
    */
   @Test
   public void testTFIDF() {
-    HashMap<String, HashMap<String, Double>> tfidf = TextProcessor.computeTFIDF(bags.values());
+    HashMap<String, HashMap<String, Double>> tfidf = tp.computeTFIDF(bags.values());
     assertTrue(0.0D == tfidf.get("bag1").get("the"));
 
-    double tfHill2 = TextProcessor.logTF(bag2, "hill");
-    double tfHill3 = TextProcessor.logTF(bag3, "hill");
+    double tfHill2 = tp.logTF(bag2, "hill");
+    double tfHill3 = tp.logTF(bag3, "hill");
 
-    double idfHill = TextProcessor.idf(bags, "hill");
+    double idfHill = tp.idf(bags, "hill");
 
     double tfidfHill2 = tfHill2 * Math.log10(idfHill);
 

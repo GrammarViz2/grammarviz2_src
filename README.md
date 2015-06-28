@@ -16,20 +16,20 @@ GrammarViz2 also implements the "**Rule Density Curve**" and "**Rare Rule Anomal
 
 | Dataset and SAX parameters         | Dataset size    | Brute Force          | HOT-SAX     | RRA        | Reduction |
 |:-----------------------------------|--------:|---------------------:|------------:|-----------:|------:|
-| (Daily commute)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/anomaly_pruned_hilbert_curve_4Sequitur.csv] (350,15,4)           | 17,175  | 271,442,101          | 879,067     | 112,405    | 87.2% |
-| (Dutch power demand)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/dutch_power_demand.txt] (750,6,3)       | 35,040  | 1.13 * 10^9          | 6,196,356   | 327,950    | 95.7% |
-| (ECG 0606)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/ecg0606_1.csv] (120,4,4)                 | 2,300   | 4,241,541            | 72,390      | 16,717     | 76.9% |
-| (ECG 308)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/stdb_308_0.txt] (300,4,4)                  | 5,400   | 23,044,801           | 327,454     | 14,655     | 95.5% |
-| (ECG 15)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/chfdbchf15_1.csv] (300,4,4)                   | 15,000  | 207,374,401          | 1,434,665   | 111,348    | 92.2% |
-| (ECG 108)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/mitdbx_mitdbx_108_1.txt] (300,4,4)                  | 21,600  | 441,021,001          | 6,041,145   | 150,184    | 97.5% |
-| (ECG 300)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/300_signal1.txt] (300,4,4)                  | 536,976 | 288 * 10^9           | 101,427,254 | 17,712,845 | 82.6% |
-| (ECG 318)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/318_signal1.txt] (300,4,4)                  | 586,086 | 343 * 10^9           | 45,513,790  | 10,000,632 | 78.0% |
-| (Respiration, NPRS 43)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/nprs43.txt] (128,5,4)     | 4,000   | 14,021,281           | 89,570      | 45,352     | 49.3% |
-| (Respiration, NPRS 44)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/nprs44.txt] (128,5,4)     | 24,125  | 569,753,031          | 1,146,145   | 257,529    | 77.5% |
-| (Video dataset)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/ann_gun_CentroidA1.csv] (150,5,3)      | 11,251  | 119,935,353          | 758,456     | 69,910     | 90.8% |
-| (Shuttle telemetry, TEK14)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/TEK14.txt] (128,4,4) | 5,000   | 22,510,281           | 691,194     | 48,226     | 93.0% |
-| (Shuttle telemetry, TEK16)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/TEK16.txt] (128,4,4) | 5,000   | 22,491,306           | 61,682      | 15,573     | 74.8% |
-| (Shuttle telemetry, TEK17)[https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/TEK17.txt] (128,4,4) | 5,000   | 22,491,306           | 164,225     | 78,211     | 52.4% |
+| [Daily commute](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/anomaly_pruned_hilbert_curve_4Sequitur.csv) (350,15,4)           | 17,175  | 271,442,101          | 879,067     | 112,405    | 87.2% |
+| [Dutch power demand](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/dutch_power_demand.txt) (750,6,3)       | 35,040  | 1.13 * 10^9          | 6,196,356   | 327,950    | 95.7% |
+| [ECG 0606](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/ecg0606_1.csv) (120,4,4)                 | 2,300   | 4,241,541            | 72,390      | 16,717     | 76.9% |
+| [ECG 308](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/stdb_308_0.txt) (300,4,4)                  | 5,400   | 23,044,801           | 327,454     | 14,655     | 95.5% |
+| [ECG 15](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/chfdbchf15_1.csv) (300,4,4)                   | 15,000  | 207,374,401          | 1,434,665   | 111,348    | 92.2% |
+| [ECG 108](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/mitdbx_mitdbx_108_1.txt) (300,4,4)                  | 21,600  | 441,021,001          | 6,041,145   | 150,184    | 97.5% |
+| [ECG 300](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/300_signal1.txt) (300,4,4)                  | 536,976 | 288 * 10^9           | 101,427,254 | 17,712,845 | 82.6% |
+| [ECG 318](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/318_signal1.txt) (300,4,4)                  | 586,086 | 343 * 10^9           | 45,513,790  | 10,000,632 | 78.0% |
+| [Respiration, NPRS 43](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/nprs43.txt) (128,5,4)     | 4,000   | 14,021,281           | 89,570      | 45,352     | 49.3% |
+| [Respiration, NPRS 44](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/nprs44.txt) (128,5,4)     | 24,125  | 569,753,031          | 1,146,145   | 257,529    | 77.5% |
+| [Video dataset](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/ann_gun_CentroidA1.csv) (150,5,3)      | 11,251  | 119,935,353          | 758,456     | 69,910     | 90.8% |
+| [Shuttle telemetry, TEK14](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/TEK14.txt) (128,4,4) | 5,000   | 22,510,281           | 691,194     | 48,226     | 93.0% |
+| [Shuttle telemetry, TEK16](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/TEK16.txt) (128,4,4) | 5,000   | 22,491,306           | 61,682      | 15,573     | 74.8% |
+| [Shuttle telemetry, TEK17](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/data/TEK17.txt) (128,4,4) | 5,000   | 22,491,306           | 164,225     | 78,211     | 52.4% |
 
 
 ### References:

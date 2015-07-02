@@ -304,7 +304,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // Show frame
     frame.pack();
-    frame.setSize(new Dimension(1000, 840));
+    frame.setSize(new Dimension(1020, 840));
     frame.setVisible(true);
   }
 

@@ -80,7 +80,7 @@ public class GrammarVizView implements Observer, ActionListener {
   /** Reduce overlaps data action key. */
   protected static final String CLUSTER_RULES = "cluster_rules";
   /** Rank rules action key. */
-  protected static final String RANK_RULES = "rank_rules";
+  protected static final String PRUNE_RULES = "rank_rules";
   /** Find periodicity action key. */
   protected static final String FIND_PERIODICITY = "find_periodicity";
   /** Reduce overlaps data action key. */
@@ -601,12 +601,12 @@ public class GrammarVizView implements Observer, ActionListener {
     MigLayout workflowPaneLayout = new MigLayout(",insets 2 2 2 2", "[fill,grow]", "[fill,grow]");
     workflowManagementPane.setLayout(workflowPaneLayout);
 
-    rankRulesButton = new JButton("Rank rules");
+    rankRulesButton = new JButton("Prune rules");
     rankRulesButton.setMnemonic('U');
-    rankRulesButton.setActionCommand(RANK_RULES);
+    rankRulesButton.setActionCommand(PRUNE_RULES);
     rankRulesButton.addActionListener(this);
 
-    clusterRulesButton = new JButton("Prune rules");
+    clusterRulesButton = new JButton("Cluster rules");
     clusterRulesButton.setMnemonic('C');
     clusterRulesButton.setActionCommand(CLUSTER_RULES);
     clusterRulesButton.addActionListener(this);
@@ -941,7 +941,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
       }
     }
-    else if (RANK_RULES.equalsIgnoreCase(command)) {
+    else if (PRUNE_RULES.equalsIgnoreCase(command)) {
       log(Level.INFO, "rank rules action performed");
       if (null == this.chartData) {
         raiseValidationError("No chart data recieved yet.");
@@ -949,7 +949,7 @@ public class GrammarVizView implements Observer, ActionListener {
       else {
 
         MotifChartData chartData = this.dataChartPane.getChartData();
-        chartData.performRanking();
+        chartData.performPruning();
 
         this.chartData = chartData;
 

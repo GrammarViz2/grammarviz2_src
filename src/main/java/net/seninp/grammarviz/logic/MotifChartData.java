@@ -670,7 +670,7 @@ public class MotifChartData extends Observable implements Observer {
   //
   //
 
-  public void performRanking() {
+  public void performPruning() {
 
     // this is where we keep range coverage
     boolean[] range = new boolean[this.originalTimeSeries.length];

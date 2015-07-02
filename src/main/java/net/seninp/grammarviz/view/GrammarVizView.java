@@ -34,7 +34,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.controller.GrammarVizController;
-import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
@@ -174,7 +174,7 @@ public class GrammarVizView implements Observer, ActionListener {
   private SimpleDateFormat logDateFormat = new SimpleDateFormat("HH:mm:ss' '");
 
   // we keep the data pointer here
-  private MotifChartData chartData;
+  private GrammarVizChartData chartData;
 
   private boolean isTimeSeriesLoaded = false;
 
@@ -715,10 +715,10 @@ public class GrammarVizView implements Observer, ActionListener {
       //
       else if (GrammarVizMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
 
-        MotifChartData chartData = (MotifChartData) message.getPayload();
+        GrammarVizChartData chartData = (GrammarVizChartData) message.getPayload();
         // TODO: this is ridiculous below here
         //
-        this.chartData = (MotifChartData) message.getPayload();
+        this.chartData = (GrammarVizChartData) message.getPayload();
         // setting the chart first
         //
         dataChartPane.setChartData(chartData, this.controller.getSession());
@@ -933,7 +933,7 @@ public class GrammarVizView implements Observer, ActionListener {
           packedRulesPane.resetSelection();
           ruleChartPane.resetChartPanel();
 
-          MotifChartData chartData = this.dataChartPane.getChartData();
+          GrammarVizChartData chartData = this.dataChartPane.getChartData();
           chartData.performRemoveOverlapping(thresholdLength, thresholdCommon);
 
           packedRulesPane.setChartData(chartData);
@@ -948,7 +948,7 @@ public class GrammarVizView implements Observer, ActionListener {
       }
       else {
 
-        MotifChartData chartData = this.dataChartPane.getChartData();
+        GrammarVizChartData chartData = this.dataChartPane.getChartData();
         chartData.performPruning();
 
         this.chartData = chartData;

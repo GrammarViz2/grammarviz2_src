@@ -15,7 +15,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
-import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
 import net.seninp.grammarviz.view.table.GrammarvizRulesTableModel;
@@ -45,7 +45,7 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
 
   private JXTable sequiturTable;
 
-  private MotifChartData chartData;
+  private GrammarVizChartData chartData;
 
   private JScrollPane sequiturRulesPane;
 
@@ -141,7 +141,7 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
    * 
    * @param chartData the new data.
    */
-  public void setChartData(MotifChartData chartData) {
+  public void setChartData(GrammarVizChartData chartData) {
 
     this.acceptListEvents = false;
 

@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
-import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.view.table.AnomalyTableColumns;
 import net.seninp.grammarviz.view.table.AnomalyTableModel;
 import net.seninp.grammarviz.view.table.CellDoubleRenderer;
@@ -25,7 +25,7 @@ public class AnomaliesPanel extends JPanel implements ListSelectionListener, Pro
 
   public static final String FIRING_PROPERTY_ANOMALY = "selectedRow_anomaly";
 
-  private MotifChartData chartData;
+  private GrammarVizChartData chartData;
 
   private AnomalyTableModel anomalyTableModel;
 
@@ -90,7 +90,7 @@ public class AnomaliesPanel extends JPanel implements ListSelectionListener, Pro
    * 
    * @param chartData the new data.
    */
-  public void setChartData(MotifChartData chartData) {
+  public void setChartData(GrammarVizChartData chartData) {
     this.acceptListEvents = false;
     this.chartData = chartData;
     this.acceptListEvents = true;

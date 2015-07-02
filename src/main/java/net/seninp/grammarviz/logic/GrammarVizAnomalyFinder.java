@@ -25,14 +25,14 @@ import net.seninp.util.StackTrace;
 public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
   /** The chart data handler. */
-  private MotifChartData chartData;
+  private GrammarVizChartData chartData;
 
   /**
    * Constructor.
    * 
    * @param motifChartData The chartdata object -- i.e., info about the input and parameters.
    */
-  public GrammarVizAnomalyFinder(MotifChartData motifChartData) {
+  public GrammarVizAnomalyFinder(GrammarVizChartData motifChartData) {
     super();
     this.chartData = motifChartData;
   }

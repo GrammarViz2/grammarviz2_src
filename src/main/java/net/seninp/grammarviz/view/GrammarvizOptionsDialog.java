@@ -12,7 +12,7 @@ import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.logic.UserSession;
 
 /* 1.4 example used by DialogDemo.java. */
-class ParametersDialog extends JDialog implements ActionListener {
+class GrammarvizOptionsDialog extends JDialog implements ActionListener {
 
   private static final long serialVersionUID = -8273240774350932580L;
 
@@ -20,10 +20,10 @@ class ParametersDialog extends JDialog implements ActionListener {
   private static final String CANCEL_BUTTON_TEXT = "Cancel";
 
   private UserSession session;
-  private ParametersPane optionPane;
+  private GrammarvizOptionsPane optionPane;
 
   /** Creates the reusable dialog. */
-  public ParametersDialog(JFrame parentFrame, JPanel optionPanel, UserSession session) {
+  public GrammarvizOptionsDialog(JFrame parentFrame, JPanel optionPanel, UserSession session) {
 
     super(parentFrame, true);
 
@@ -35,7 +35,7 @@ class ParametersDialog extends JDialog implements ActionListener {
 
     this.session = session;
 
-    this.optionPane = (ParametersPane) optionPanel;
+    this.optionPane = (GrammarvizOptionsPane) optionPanel;
 
     MigLayout mainFrameLayout = new MigLayout("fill", "[grow,center]", "[grow]5[]");
 

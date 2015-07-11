@@ -24,7 +24,7 @@ import net.seninp.grammarviz.logic.UserSession;
  * @author psenin
  * 
  */
-public class ParametersPane extends JPanel {
+public class GrammarvizOptionsPane extends JPanel {
 
   /** Serial id. */
   private static final long serialVersionUID = -1883929065855038047L;
@@ -60,6 +60,13 @@ public class ParametersPane extends JPanel {
   public static final JFormattedTextField normalizationThresholdField = new JFormattedTextField(
       new NumberFormatter(NumberFormat.getNumberInstance(Locale.US)));
   //
+  // Normalization threshold option
+  //
+  public static final String RULE_PRUNER_THRESHOLD_LABEL = "Prune rules threshold:";
+  public static final JFormattedTextField rulePrunerThresholdField = new JFormattedTextField(
+      new NumberFormatter(NumberFormat.getNumberInstance(Locale.US)));
+
+  //
   // Output options section
   //
   public static final String OUTPUT_RULE_DENSITY_CURVE_LABEL = "Rule density curve filename:";
@@ -79,7 +86,7 @@ public class ParametersPane extends JPanel {
    * 
    * @param userSession
    */
-  public ParametersPane(UserSession userSession) {
+  public GrammarvizOptionsPane(UserSession userSession) {
 
     super(new MigLayout("fill", "[grow]", "[grow]"));
 

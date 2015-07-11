@@ -778,9 +778,9 @@ public class GrammarVizView implements Observer, ActionListener {
     if (OPTIONS_MENU_ITEM.equalsIgnoreCase(command)) {
       log(Level.INFO, "options menu action performed");
 
-      ParametersPane parametersPanel = new ParametersPane(this.controller.getSession());
+      GrammarvizOptionsPane parametersPanel = new GrammarvizOptionsPane(this.controller.getSession());
 
-      ParametersDialog parametersDialog = new ParametersDialog(frame, parametersPanel,
+      GrammarvizOptionsDialog parametersDialog = new GrammarvizOptionsDialog(frame, parametersPanel,
           this.controller.getSession());
 
       parametersDialog.setVisible(true);

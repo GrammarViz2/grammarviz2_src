@@ -9,7 +9,7 @@ import java.util.Arrays;
 import javax.swing.JPanel;
 import net.seninp.gi.RuleInterval;
 import net.seninp.grammarviz.controller.GrammarVizController;
-import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.util.StackTrace;
@@ -33,7 +33,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
   private XYPlot plot;
 
   /** Current chart data instance. */
-  private MotifChartData chartData;
+  private GrammarVizChartData chartData;
 
   private TSProcessor tp;
   private GrammarVizController controller;
@@ -55,7 +55,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     this.controller = controller;
   }
 
-  public void setChartData(MotifChartData chartData) {
+  public void setChartData(GrammarVizChartData chartData) {
     this.chartData = chartData;
     resetChartPanel();
   }

@@ -23,7 +23,7 @@ import javax.swing.border.TitledBorder;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.RuleInterval;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
-import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.logic.UserSession;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import org.jfree.chart.ChartFactory;
@@ -86,7 +86,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
   private XYPlot timeseriesPlot;
 
   /** Current chart data instance. */
-  private MotifChartData chartData;
+  private GrammarVizChartData chartData;
 
   /** JFreeChart Object holding the chart times series */
   XYSeriesCollection chartXYSeriesCollection;
@@ -127,7 +127,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
    * 
    * @param chartData the data to use.
    */
-  public void setChartData(MotifChartData chartData, UserSession session) {
+  public void setChartData(GrammarVizChartData chartData, UserSession session) {
     this.chartData = chartData;
     this.resetChartPanel();
     this.session = session;
@@ -138,7 +138,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
    * 
    * @return chartData the data in use.
    */
-  public MotifChartData getChartData() {
+  public GrammarVizChartData getChartData() {
     return this.chartData;
   }
 

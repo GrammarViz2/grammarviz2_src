@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
-import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.view.table.CellDoubleRenderer;
 import net.seninp.grammarviz.view.table.PeriodicityTableModel;
 import net.seninp.grammarviz.view.table.PrunedRulesTableColumns;
@@ -40,7 +40,7 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
 
   private JXTable periodicityTable;
 
-  private MotifChartData chartData;
+  private GrammarVizChartData chartData;
 
   private JScrollPane periodicityRulesPane;
 
@@ -110,7 +110,7 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
    * 
    * @param chartData the new data.
    */
-  public void setChartData(MotifChartData chartData) {
+  public void setChartData(GrammarVizChartData chartData) {
 
     this.acceptListEvents = false;
 

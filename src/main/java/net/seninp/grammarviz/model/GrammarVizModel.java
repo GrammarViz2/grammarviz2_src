@@ -22,7 +22,7 @@ import net.seninp.gi.repair.RePairFactory;
 import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.gi.sequitur.SAXRule;
 import net.seninp.gi.sequitur.SequiturFactory;
-import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.datastructures.SAXRecords;
 import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
@@ -51,7 +51,7 @@ public class GrammarVizModel extends Observable {
   private double[] ts;
 
   /** Data structure to keep chart data. */
-  private MotifChartData chartData;
+  private GrammarVizChartData chartData;
 
   // the logger business
   //
@@ -228,7 +228,7 @@ public class GrammarVizModel extends Observable {
       this.log(sb.toString());
 
       consoleLogger.debug("creating ChartDataStructure");
-      this.chartData = new MotifChartData(this.dataFileName, this.ts, useSlidingWindow,
+      this.chartData = new GrammarVizChartData(this.dataFileName, this.ts, useSlidingWindow,
           numerosityReductionStrategy, windowSize, paaSize, alphabetSize);
 
       try {
@@ -309,7 +309,7 @@ public class GrammarVizModel extends Observable {
    * 
    * @param data the data for collecting stats.
    */
-  protected void saveGrammarStats(MotifChartData data) {
+  protected void saveGrammarStats(GrammarVizChartData data) {
 
     boolean fileOpen = false;
 

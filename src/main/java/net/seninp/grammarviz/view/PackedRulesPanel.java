@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
-import net.seninp.grammarviz.logic.MotifChartData;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.view.table.PrunedRulesTableColumns;
 import net.seninp.grammarviz.view.table.PrunedRulesTableModel;
 import org.jdesktop.swingx.JXTable;
@@ -39,7 +39,7 @@ public class PackedRulesPanel extends JPanel implements ListSelectionListener,
 
   private JXTable packedTable;
 
-  private MotifChartData chartData;
+  private GrammarVizChartData chartData;
 
   private JScrollPane packedRulesPane;
 
@@ -114,7 +114,7 @@ public class PackedRulesPanel extends JPanel implements ListSelectionListener,
    * 
    * @param chartData the new data.
    */
-  public void setChartData(MotifChartData chartData) {
+  public void setChartData(GrammarVizChartData chartData) {
 
     this.acceptListEvents = false;
 

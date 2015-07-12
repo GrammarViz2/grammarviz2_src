@@ -949,7 +949,7 @@ public class GrammarVizView implements Observer, ActionListener {
       else {
 
         GrammarVizChartData chartData = this.dataChartPane.getChartData();
-        chartData.performPruning();
+        chartData.performRanking();
 
         this.chartData = chartData;
 

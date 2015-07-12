@@ -145,12 +145,14 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
    * 
    * @param index index of the rule in the sequitur table.
    */
-  protected void chartIntervalsForRule(String rule) {
+  protected void chartIntervalsForRule(ArrayList<String> newlySelectedRaw) {
     try {
-      ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(Integer.valueOf(rule));
       ArrayList<double[]> intervals = new ArrayList<double[]>();
-      for (RuleInterval saxPos : arrPos) {
-        intervals.add(extractInterval(saxPos.getStartPos(), saxPos.getEndPos()));
+      for (String str : newlySelectedRaw) {
+        ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(Integer.valueOf(str));
+        for (RuleInterval saxPos : arrPos) {
+          intervals.add(extractInterval(saxPos.getStartPos(), saxPos.getEndPos()));
+        }
       }
       chartIntervals(intervals);
     }
@@ -224,8 +226,10 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
+
     if (GrammarvizRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
-      String newlySelectedRaw = (String) evt.getNewValue();
+      @SuppressWarnings("unchecked")
+      ArrayList<String> newlySelectedRaw = (ArrayList<String>) evt.getNewValue();
       chartIntervalsForRule(newlySelectedRaw);
     }
     else if (PackedRulesPanel.FIRING_PROPERTY_PACKED.equalsIgnoreCase(evt.getPropertyName())) {
@@ -235,7 +239,9 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     }
     else if (RulesPeriodicityPanel.FIRING_PROPERTY_PERIOD.equalsIgnoreCase(evt.getPropertyName())) {
       String newlySelectedRaw = (String) evt.getNewValue();
-      chartIntervalsForRule(newlySelectedRaw);
+      ArrayList<String> param = new ArrayList<String>(1);
+      param.add(newlySelectedRaw);
+      chartIntervalsForRule(param);
     }
     else if (AnomaliesPanel.FIRING_PROPERTY_ANOMALY.equalsIgnoreCase(evt.getPropertyName())) {
       String newlySelectedRaw = (String) evt.getNewValue();

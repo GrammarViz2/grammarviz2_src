@@ -760,7 +760,8 @@ public class MotifChartData extends Observable implements Observer {
     }
     // if zero overlap, return full cover
     if (0 == overlap) {
-      return (double) cover;
+      return (double) cover
+          / (double) (rule.getExpandedRuleString().length() + rule.getRuleIntervals().size());
     }
     // else divide newly covered points mount by the sum of the rule string length and occurrence
     // (i.e. encoding size)

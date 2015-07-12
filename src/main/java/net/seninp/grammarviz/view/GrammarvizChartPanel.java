@@ -185,13 +185,15 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
    * 
    * @param The rule index.
    */
-  private void highlightPatternInChart(String rule) {
-    consoleLogger.debug("Selected rule: " + rule);
-    ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(Integer.valueOf(rule));
-    consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+  private void highlightPatternInChart(ArrayList<String> rules) {
+    consoleLogger.debug("Selected rules: " + rules.toString());
     timeseriesPlot.clearDomainMarkers();
-    for (RuleInterval saxPos : arrPos) {
-      addMarker(timeseriesPlot, saxPos.getStartPos(), saxPos.getEndPos());
+    for (String rule : rules) {
+      ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(Integer.valueOf(rule));
+      consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+      for (RuleInterval saxPos : arrPos) {
+        addMarker(timeseriesPlot, saxPos.getStartPos(), saxPos.getEndPos());
+      }
     }
   }
 
@@ -624,8 +626,9 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
     if (GrammarvizRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
-      String newlySelectedRaw = (String) evt.getNewValue();
-      highlightPatternInChart(newlySelectedRaw);
+      @SuppressWarnings("unchecked")
+      ArrayList<String> newlySelectedRaws = (ArrayList<String>) evt.getNewValue();
+      highlightPatternInChart(newlySelectedRaws);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_RULES);
       this.repaint();

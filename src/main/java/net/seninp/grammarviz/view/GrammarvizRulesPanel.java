@@ -2,6 +2,8 @@ package net.seninp.grammarviz.view;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -39,7 +41,7 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
   /** Fancy serial. */
   private static final long serialVersionUID = -2710973854572981568L;
 
-  public static final String FIRING_PROPERTY = "selectedRow";
+  public static final String FIRING_PROPERTY = "selectedRows";
 
   private GrammarvizRulesTableModel sequiturTableModel = new GrammarvizRulesTableModel();
 
@@ -49,7 +51,7 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
 
   private JScrollPane sequiturRulesPane;
 
-  private String selectedRule;
+  private ArrayList<String> selectedRules;
 
   private boolean acceptListEvents;
 
@@ -103,7 +105,9 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
     };
 
     this.sequiturTable.setModel(sequiturTableModel);
-    this.sequiturTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    // this.sequiturTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    this.sequiturTable.getSelectionModel().setSelectionMode(
+        ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     this.sequiturTable.setShowGrid(false);
 
     this.sequiturTable.getSelectionModel().addListSelectionListener(this);
@@ -117,11 +121,12 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
     columnModel.getColumn(GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()).setPreferredWidth(30);
     columnModel.getColumn(GrammarvizRulesTableColumns.RULE_USE_FREQUENCY.ordinal())
         .setPreferredWidth(40);
-    columnModel.getColumn(GrammarvizRulesTableColumns.SEQUITUR_RULE.ordinal()).setPreferredWidth(100);
+    columnModel.getColumn(GrammarvizRulesTableColumns.SEQUITUR_RULE.ordinal()).setPreferredWidth(
+        100);
     columnModel.getColumn(GrammarvizRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal())
         .setPreferredWidth(150);
-    columnModel.getColumn(GrammarvizRulesTableColumns.RULE_MEAN_LENGTH.ordinal()).setPreferredWidth(
-        120);
+    columnModel.getColumn(GrammarvizRulesTableColumns.RULE_MEAN_LENGTH.ordinal())
+        .setPreferredWidth(120);
 
     TableRowSorter<GrammarvizRulesTableModel> sorter = new TableRowSorter<GrammarvizRulesTableModel>(
         sequiturTableModel);
@@ -188,13 +193,17 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
   public void valueChanged(ListSelectionEvent arg) {
 
     if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
-      int col = sequiturTable.getSelectedColumn();
-      int row = sequiturTable.getSelectedRow();
-      consoleLogger.debug("Selected ROW: " + row + " - COL: " + col);
-      String rule = String.valueOf(sequiturTable.getValueAt(row,
-          GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
-      this.firePropertyChange(FIRING_PROPERTY, this.selectedRule, rule);
-      this.selectedRule = rule;
+      int[] rows = sequiturTable.getSelectedRows();
+      consoleLogger.debug("Selected ROWS: " + Arrays.toString(rows));
+      ArrayList<String> rules = new ArrayList<String>(rows.length);
+      for (int i = 0; i < rows.length; i++) {
+        int ridx = rows[i];
+        String rule = String.valueOf(sequiturTable.getValueAt(ridx,
+            GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
+        rules.add(rule);
+      }
+      this.firePropertyChange(FIRING_PROPERTY, this.selectedRules, rules);
+      this.selectedRules = rules;
     }
   }
 

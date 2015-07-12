@@ -24,7 +24,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * @author Manfred Lerner, seninp
  * 
  */
-public class MotifChartData extends Observable implements Observer {
+public class GrammarVizChartData extends Observable implements Observer {
 
   /** SAX conversion parameters. */
   protected final boolean slidingWindowOn;
@@ -68,7 +68,7 @@ public class MotifChartData extends Observable implements Observer {
    * @param alphabetSize SAX alphabet size.
    * @param paaSize SAX PAA size.
    */
-  public MotifChartData(String dataFileName, double[] ts, boolean useSlidingWindow,
+  public GrammarVizChartData(String dataFileName, double[] ts, boolean useSlidingWindow,
       NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
       int alphabetSize) {
 

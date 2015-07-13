@@ -702,8 +702,26 @@ public class GrammarVizChartData extends Observable implements Observer {
         break;
       }
 
-      // keep track of cover
+      // check for overlap artifacts
       //
+      ArrayList<Integer> rulesToRemove = new ArrayList<Integer>();
+      for (int rid : usedRules) {
+        if (0 != rid) {
+          ArrayList<RuleInterval> intervalsA = grammarRules.get(rid).getRuleIntervals();
+          ArrayList<RuleInterval> intervalsB = bestRule.getRuleIntervals();
+          if (isCompletlyCovered(intervalsB, intervalsA)) {
+            rulesToRemove.add(rid);
+          }
+        }
+      }
+      if (!(rulesToRemove.isEmpty())) {
+        System.out.println("Going to remove rules: " + rulesToRemove.toString());
+      }
+      usedRules.removeAll(rulesToRemove);
+
+      // add the new candidate and keep the track of cover
+      //
+      System.out.println("Adding the best rule: " + bestRule.getRuleNumber());
       usedRules.add(bestRule.getRuleNumber());
       range = updateRanges(range, bestRule.getRuleIntervals());
     }
@@ -720,6 +738,48 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     this.grammarRules = prunedRules;
 
+  }
+
+  private boolean isCompletlyCovered(ArrayList<RuleInterval> cover,
+      ArrayList<RuleInterval> intervals) {
+
+    int min = cover.get(0).getStartPos();
+    int max = cover.get(0).getEndPos();
+    for (RuleInterval i : cover) {
+      if (i.getStartPos() < min) {
+        min = i.getStartPos();
+      }
+      if (i.getEndPos() > max) {
+        max = i.getEndPos();
+      }
+    }
+
+    boolean[] coverrange = new boolean[max - min];
+
+    for (RuleInterval i : cover) {
+      for (int j = i.getStartPos(); j < i.getEndPos(); j++) {
+        coverrange[j - min] = true;
+      }
+    }
+
+    boolean covered = true;
+    for (RuleInterval i : intervals) {
+      for (int j = i.getStartPos(); j < i.getEndPos(); j++) {
+        if (j < min || j >= max) {
+          covered = false;
+          break;
+        }
+        if (coverrange[j - min]) {
+          continue;
+        }
+        else {
+          covered = false;
+          break;
+        }
+      }
+    }
+
+    return covered;
   }
 
   private boolean[] updateRanges(boolean[] range, ArrayList<RuleInterval> ruleIntervals) {

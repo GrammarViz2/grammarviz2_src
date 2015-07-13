@@ -702,27 +702,49 @@ public class GrammarVizChartData extends Observable implements Observer {
         break;
       }
 
+      System.out.println("Adding the best rule: " + bestRule.getRuleNumber());
+      usedRules.add(bestRule.getRuleNumber());
+      System.out.println("Pruning set by overlaps...");
+
       // check for overlap artifacts
       //
-      ArrayList<Integer> rulesToRemove = new ArrayList<Integer>();
-      for (int rid : usedRules) {
-        if (0 != rid) {
-          ArrayList<RuleInterval> intervalsA = grammarRules.get(rid).getRuleIntervals();
-          ArrayList<RuleInterval> intervalsB = bestRule.getRuleIntervals();
-          if (isCompletlyCovered(intervalsB, intervalsA)) {
-            rulesToRemove.add(rid);
+      boolean continueSearch = true;
+      while (continueSearch) {
+
+        continueSearch = false;
+
+        for (int rid : usedRules) {
+
+          if (0 == rid) {
+            continue;
           }
+
+          ArrayList<RuleInterval> intervalsA = grammarRules.get(rid).getRuleIntervals();
+
+          ArrayList<RuleInterval> intervalsB = new ArrayList<RuleInterval>();
+
+          for (int ridB : usedRules) {
+            if (0 == ridB || rid == ridB) {
+              continue;
+            }
+            intervalsB.addAll(grammarRules.get(ridB).getRuleIntervals());
+          }
+
+          if (intervalsB.isEmpty()) {
+            break;
+          }
+          else if (isCompletlyCovered(intervalsB, intervalsA)) {
+            System.out.println("Going to remove rule: " + grammarRules.get(rid).getRuleName());
+            usedRules.remove(rid);
+            continueSearch = true;
+            break;
+          }
+
         }
       }
-      if (!(rulesToRemove.isEmpty())) {
-        System.out.println("Going to remove rules: " + rulesToRemove.toString());
-      }
-      usedRules.removeAll(rulesToRemove);
 
       // add the new candidate and keep the track of cover
       //
-      System.out.println("Adding the best rule: " + bestRule.getRuleNumber());
-      usedRules.add(bestRule.getRuleNumber());
       range = updateRanges(range, bestRule.getRuleIntervals());
     }
 
@@ -825,7 +847,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     }
     // else divide newly covered points mount by the sum of the rule string length and occurrence
     // (i.e. encoding size)
-    return ((double) cover / (double) overlap)
+    return ((double) cover / (double) (cover + overlap))
         / (double) (rule.getExpandedRuleString().length() + rule.getRuleIntervals().size());
   }
 

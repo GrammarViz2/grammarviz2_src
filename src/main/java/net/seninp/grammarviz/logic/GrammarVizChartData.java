@@ -698,6 +698,10 @@ public class GrammarVizChartData extends Observable implements Observer {
         }
       }
 
+      if (null == bestRule) {
+        break;
+      }
+
       if (0.0 == bestDelta) {
         break;
       }

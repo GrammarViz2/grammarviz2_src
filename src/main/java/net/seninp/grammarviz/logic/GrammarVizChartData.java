@@ -741,7 +741,7 @@ public class GrammarVizChartData extends Observable implements Observer {
           else if (isCompletlyCovered(intervalsB, intervalsA)) {
             System.out.println("Going to remove rule: " + grammarRules.get(rid).getRuleName());
             usedRules.remove(rid);
-//            removedRules.add(rid);
+            removedRules.add(rid);
             continueSearch = true;
             break;
           }
@@ -834,11 +834,11 @@ public class GrammarVizChartData extends Observable implements Observer {
       int start = i.getStartPos();
       int end = i.getEndPos();
       for (int j = start; j <= end; j++) {
-        if (false == range[j]) {
-          cover++;
+        if (range[j]) {
+          overlap++;
         }
         else {
-          overlap++;
+          cover++;
         }
       }
     }

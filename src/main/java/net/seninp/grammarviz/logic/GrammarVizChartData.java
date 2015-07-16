@@ -677,6 +677,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     // these are rules used in current cover
     HashSet<Integer> usedRules = new HashSet<Integer>();
     usedRules.add(0);
+    HashSet<Integer> removedRules = new HashSet<Integer>();
     // do until all ranges are covered
     while (hasEmptyRanges(range)) {
 
@@ -740,6 +741,7 @@ public class GrammarVizChartData extends Observable implements Observer {
           else if (isCompletlyCovered(intervalsB, intervalsA)) {
             System.out.println("Going to remove rule: " + grammarRules.get(rid).getRuleName());
             usedRules.remove(rid);
+//            removedRules.add(rid);
             continueSearch = true;
             break;
           }

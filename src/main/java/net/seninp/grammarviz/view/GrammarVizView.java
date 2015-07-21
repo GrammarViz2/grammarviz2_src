@@ -149,7 +149,7 @@ public class GrammarVizView implements Observer, ActionListener {
   private GrammarvizRulesPanel sequiturRulesPane;
   private PackedRulesPanel packedRulesPane;
   private RulesPeriodicityPanel rulesPeriodicityPane;
-  private AnomaliesPanel anomaliesPane;
+  private GrammarVizAnomaliesPanel anomaliesPane;
 
   // small rule show panel
   //
@@ -161,7 +161,7 @@ public class GrammarVizView implements Observer, ActionListener {
   private JButton dataLoadButton;
   private JButton processButton;
   private JButton clusterRulesButton;
-  private JButton findPeriodicityButton;
+  // private JButton findPeriodicityButton;
   private JButton rankRulesButton;
   private JButton displayChartButton;
   private JButton displayRulesDensityButton;
@@ -564,7 +564,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // now add the anomalies panel
     //
-    anomaliesPane = new AnomaliesPanel();
+    anomaliesPane = new GrammarVizAnomaliesPanel();
     MigLayout anomaliesPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
     anomaliesPane.setLayout(anomaliesPaneLayout);
     tabbedRulesPane.addTab("GrammarViz anomalies", null, anomaliesPane,
@@ -778,10 +778,11 @@ public class GrammarVizView implements Observer, ActionListener {
     if (OPTIONS_MENU_ITEM.equalsIgnoreCase(command)) {
       log(Level.INFO, "options menu action performed");
 
-      GrammarvizOptionsPane parametersPanel = new GrammarvizOptionsPane(this.controller.getSession());
-
-      GrammarvizOptionsDialog parametersDialog = new GrammarvizOptionsDialog(frame, parametersPanel,
+      GrammarvizOptionsPane parametersPanel = new GrammarvizOptionsPane(
           this.controller.getSession());
+
+      GrammarvizOptionsDialog parametersDialog = new GrammarvizOptionsDialog(frame,
+          parametersPanel, this.controller.getSession());
 
       parametersDialog.setVisible(true);
     }
@@ -976,7 +977,7 @@ public class GrammarVizView implements Observer, ActionListener {
         // dataChartPane.getChart().setNotify(true);
         frame.validate();
         frame.repaint();
-        
+
       }
     }
 

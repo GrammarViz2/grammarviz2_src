@@ -212,7 +212,7 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
    */
   public void resetSelection() {
     // TODO: there is the bug. commented out.
-    // sequiturTable.getSelectionModel().clearSelection();
+    sequiturTable.getSelectionModel().clearSelection();
     // sequiturTable.setSortOrder(0, SortOrder.ASCENDING);
   }
 

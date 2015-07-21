@@ -230,11 +230,14 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     }
   }
 
-  private void highlightAnomaly(String newlySelectedRaw) {
-    // find the anomaly
+  private void highlightAnomaly(ArrayList<String> anomalies) {
+    consoleLogger.debug("Selected anomalies: " + anomalies.toString());
     timeseriesPlot.clearDomainMarkers();
-    DiscordRecord dr = this.chartData.getAnomalies().get(Integer.valueOf(newlySelectedRaw));
-    addAnomalyMarker(timeseriesPlot, dr.getPosition(), dr.getPosition() + dr.getLength());
+    for (String anomaly : anomalies) {
+      DiscordRecord dr = this.chartData.getAnomalies().get(Integer.valueOf(anomaly));
+      consoleLogger.debug(dr.toString());
+      addAnomalyMarker(timeseriesPlot, dr.getPosition(), dr.getPosition() + dr.getLength());
+    }
   }
 
   /**
@@ -647,9 +650,10 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
       tb.setTitle(LABEL_SHOWING_PERIODS);
       this.repaint();
     }
-    if (AnomaliesPanel.FIRING_PROPERTY_ANOMALY.equalsIgnoreCase(evt.getPropertyName())) {
-      String newlySelectedRaw = (String) evt.getNewValue();
-      highlightAnomaly(newlySelectedRaw);
+    if (GrammarVizAnomaliesPanel.FIRING_PROPERTY_ANOMALY.equalsIgnoreCase(evt.getPropertyName())) {
+      @SuppressWarnings("unchecked")
+      ArrayList<String> newlySelectedRaws = (ArrayList<String>) evt.getNewValue();
+      highlightAnomaly(newlySelectedRaws);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_ANOMALY);
       this.repaint();

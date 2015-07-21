@@ -2,6 +2,8 @@ package net.seninp.grammarviz.view;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -12,13 +14,17 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
-import net.seninp.grammarviz.view.table.AnomalyTableColumns;
 import net.seninp.grammarviz.view.table.AnomalyTableModel;
 import net.seninp.grammarviz.view.table.CellDoubleRenderer;
+import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
-public class AnomaliesPanel extends JPanel implements ListSelectionListener, PropertyChangeListener {
+public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionListener,
+    PropertyChangeListener {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -2710973845672981568L;
@@ -33,14 +39,23 @@ public class AnomaliesPanel extends JPanel implements ListSelectionListener, Pro
 
   private JScrollPane anomaliesPane;
 
-  private String selectedAnomaly;
+  private ArrayList<String> selectedAnomalies;
 
   private boolean acceptListEvents;
+
+  // the logger business
+  //
+  private static Logger consoleLogger;
+  private static Level LOGGING_LEVEL = Level.DEBUG;
+  static {
+    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizAnomaliesPanel.class);
+    consoleLogger.setLevel(LOGGING_LEVEL);
+  }
 
   /**
    * Constructor.
    */
-  public AnomaliesPanel() {
+  public GrammarVizAnomaliesPanel() {
     super();
     this.anomalyTableModel = new AnomalyTableModel();
     this.anomalyTable = new JXTable() {
@@ -66,7 +81,9 @@ public class AnomaliesPanel extends JPanel implements ListSelectionListener, Pro
 
     };
     this.anomalyTable.setModel(anomalyTableModel);
-    this.anomalyTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    // this.anomalyTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    this.anomalyTable.getSelectionModel().setSelectionMode(
+        ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     this.anomalyTable.setShowGrid(false);
     this.anomalyTable.setDefaultRenderer(Double.class, new CellDoubleRenderer());
 
@@ -126,13 +143,16 @@ public class AnomaliesPanel extends JPanel implements ListSelectionListener, Pro
   @Override
   public void valueChanged(ListSelectionEvent arg) {
     if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
-      // int col = anomalyTable.getSelectedColumn();
-      int row = anomalyTable.getSelectedRow();
-      String rule = String.valueOf(anomalyTable.getValueAt(row,
-          AnomalyTableColumns.ANOMALY_RANK.ordinal()));
-      // System.out.println("Selected ROW: " + row + " - COL: " + col + "; rule: " + rule);
-      this.firePropertyChange(FIRING_PROPERTY_ANOMALY, this.selectedAnomaly, rule);
-      this.selectedAnomaly = rule;
+      int[] rows = anomalyTable.getSelectedRows();
+      consoleLogger.debug("Selected ROWS: " + Arrays.toString(rows));
+      ArrayList<String> rules = new ArrayList<String>(rows.length);
+      for (int i = 0; i < rows.length; i++) {
+        int ridx = rows[i];
+        String rule = String.valueOf(anomalyTable.getValueAt(ridx,
+            GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
+        rules.add(rule);
+      }
+      this.firePropertyChange(FIRING_PROPERTY_ANOMALY, this.selectedAnomalies, rules);
     }
 
   }

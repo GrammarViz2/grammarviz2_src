@@ -184,14 +184,15 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
   /**
    * Charts a subsequence for a selected row in the anomaly table.
    * 
-   * @param selectedRow
+   * @param newlySelectedAnomalies
    */
-  private void chartIntervalForAnomaly(String selectedRow) {
-    // find the anomaly
+  private void chartIntervalForAnomaly(ArrayList<String> newlySelectedAnomalies) {
     try {
-      DiscordRecord dr = this.chartData.getAnomalies().get(Integer.valueOf(selectedRow));
       ArrayList<double[]> intervals = new ArrayList<double[]>();
-      intervals.add(extractInterval(dr.getPosition(), dr.getPosition() + dr.getLength()));
+      for (String str : newlySelectedAnomalies) {
+        DiscordRecord dr = this.chartData.getAnomalies().get(Integer.valueOf(str));
+        intervals.add(extractInterval(dr.getPosition(), dr.getPosition() + dr.getLength()));
+      }
       chartIntervals(intervals);
     }
     catch (Exception e) {
@@ -243,8 +244,10 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
       param.add(newlySelectedRaw);
       chartIntervalsForRule(param);
     }
-    else if (AnomaliesPanel.FIRING_PROPERTY_ANOMALY.equalsIgnoreCase(evt.getPropertyName())) {
-      String newlySelectedRaw = (String) evt.getNewValue();
+    else if (GrammarVizAnomaliesPanel.FIRING_PROPERTY_ANOMALY.equalsIgnoreCase(evt
+        .getPropertyName())) {
+      @SuppressWarnings("unchecked")
+      ArrayList<String> newlySelectedRaw = (ArrayList<String>) evt.getNewValue();
       chartIntervalForAnomaly(newlySelectedRaw);
     }
 

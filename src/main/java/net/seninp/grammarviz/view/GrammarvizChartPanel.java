@@ -588,7 +588,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     // X - the time axis
     //
     NumberAxis timeAxis = new NumberAxis();
-    timeAxis.setLabel("Time");
+    timeAxis.setLabel("Time. (zoom: select with mouse; panning: Ctrl+mouse)");
 
     // Y axis
     //

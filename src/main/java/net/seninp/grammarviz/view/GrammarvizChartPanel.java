@@ -160,11 +160,15 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     // this is the new "insert" - elastic boundaries chart panel
     //
     paintTheChart(this.chartData.getOriginalTimeseries());
+
     ChartPanel chartPanel = new ChartPanel(this.chart);
+
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);
     chartPanel.setMaximumDrawHeight(1200);
+
+    chartPanel.setMouseWheelEnabled(true);
 
     // cleanup all the content
     //
@@ -595,6 +599,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     // put these into collection of dots
     //
     this.timeseriesPlot = new XYPlot(chartXYSeriesCollection, timeAxis, valueAxis, xyRenderer);
+    this.timeseriesPlot.setDomainPannable(true);
 
     // finally, create the chart
     this.chart = new JFreeChart("", JFreeChart.DEFAULT_TITLE_FONT, timeseriesPlot, false);

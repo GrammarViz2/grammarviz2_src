@@ -96,6 +96,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     // put these into collection of dots
     //
     this.plot = new XYPlot(collection, timeAxis, valueAxis, xyRenderer);
+    this.plot.setDomainPannable(true);
 
     // finally, create the chart
     this.chart = new JFreeChart("", JFreeChart.DEFAULT_TITLE_FONT, plot, false);
@@ -106,6 +107,8 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);
     chartPanel.setMaximumDrawHeight(1200);
+    
+    chartPanel.setMouseWheelEnabled(true);
 
     // cleanup all the content
     //

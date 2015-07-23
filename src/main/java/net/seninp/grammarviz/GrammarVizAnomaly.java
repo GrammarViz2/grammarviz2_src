@@ -176,6 +176,7 @@ public class GrammarVizAnomaly {
 
       dataFName = args[1];
       ts = TSProcessor.readFileColumn(dataFName, 0, 0);
+      consoleLogger.info("Loaded " + ts.length + " points as time series...");
 
       windowSize = Integer.valueOf(args[2]);
       paaSize = Integer.valueOf(args[3]);

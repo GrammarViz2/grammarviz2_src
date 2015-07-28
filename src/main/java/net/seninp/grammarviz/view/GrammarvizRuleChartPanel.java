@@ -85,18 +85,19 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     // X - the time axis
     //
     NumberAxis timeAxis = new NumberAxis();
-    // timeAxis.setLabel("Time");
 
     // Y axis
     //
     NumberAxis valueAxis = new NumberAxis();
-    valueAxis.setAutoRangeIncludesZero(false);
-    // valueAxis.setLabel("Values");
 
     // put these into collection of dots
     //
     this.plot = new XYPlot(collection, timeAxis, valueAxis, xyRenderer);
+
+    // enable panning
+    //
     this.plot.setDomainPannable(true);
+    this.plot.setRangePannable(true);
 
     // finally, create the chart
     this.chart = new JFreeChart("", JFreeChart.DEFAULT_TITLE_FONT, plot, false);
@@ -107,7 +108,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);
     chartPanel.setMaximumDrawHeight(1200);
-    
+
     chartPanel.setMouseWheelEnabled(true);
 
     // cleanup all the content

@@ -60,11 +60,10 @@ public class GrammarvizOptionsPane extends JPanel {
   public static final JFormattedTextField normalizationThresholdField = new JFormattedTextField(
       new NumberFormatter(NumberFormat.getNumberInstance(Locale.US)));
   //
-  // Normalization threshold option
+  // Input file params
   //
-  public static final String RULE_PRUNER_THRESHOLD_LABEL = "Prune rules threshold:";
-  public static final JFormattedTextField rulePrunerThresholdField = new JFormattedTextField(
-      new NumberFormatter(NumberFormat.getNumberInstance(Locale.US)));
+  public static final String DELIMETER_MASK_LABEL = "Delimeter mask:";
+  public static final JTextField delimeterMask = new JTextField();
 
   //
   // Output options section

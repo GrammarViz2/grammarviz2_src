@@ -587,19 +587,21 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
     // X - the time axis
     //
-    NumberAxis timeAxis = new NumberAxis();
-    timeAxis.setLabel("Time. (zoom: select with mouse; panning: Ctrl+mouse)");
+    NumberAxis timeAxis = new NumberAxis("Time. (zoom: select with mouse; panning: Ctrl+mouse)");
 
     // Y axis
     //
     NumberAxis valueAxis = new NumberAxis("Values");
     valueAxis.setAutoRangeIncludesZero(false);
-    valueAxis.setLabel("Values");
 
     // put these into collection of dots
     //
     this.timeseriesPlot = new XYPlot(chartXYSeriesCollection, timeAxis, valueAxis, xyRenderer);
+    
+    // enabling panning
+    //
     this.timeseriesPlot.setDomainPannable(true);
+    this.timeseriesPlot.setRangePannable(true);
 
     // finally, create the chart
     this.chart = new JFreeChart("", JFreeChart.DEFAULT_TITLE_FONT, timeseriesPlot, false);

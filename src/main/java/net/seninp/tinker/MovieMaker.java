@@ -57,7 +57,7 @@ public class MovieMaker {
 
     // load the data
     //
-    ts = ExperimentUtils.loadData(DATA_FILENAME);
+    ts = MovieUtils.loadData(DATA_FILENAME);
 
     // we keep discretized data here
     //
@@ -142,7 +142,7 @@ public class MovieMaker {
         }
 
         String outFname = OUT_PREFIX + String.format("%04d", saveFileCounter) + ".csv";
-        ExperimentUtils.saveColumn(coverageArray, outFname);
+        MovieUtils.saveColumn(coverageArray, outFname);
 
       }
 

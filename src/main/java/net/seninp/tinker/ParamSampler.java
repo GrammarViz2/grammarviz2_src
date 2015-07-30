@@ -90,8 +90,9 @@ public class ParamSampler {
 
         // write the data file
         //
-        String samplerInputFilename = file.getName() + ".dat";
-        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(samplerInputFilename)));
+        String samplerInputFilename = file.getName().concat(".column");
+        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(prefix
+            + samplerInputFilename)));
         for (Double v : values) {
           bw.write(v + "\n");
         }
@@ -121,7 +122,7 @@ public class ParamSampler {
         samplerCommand.append(samplingBoundaries.toString()).append("\"");
 
         samplerCommand.append(" -o ");
-        samplerCommand.append(samplerInputFilename).append("_out");
+        samplerCommand.append(samplerInputFilename).append(".out");
 
         samplerBatch.add(samplerCommand.toString());
 

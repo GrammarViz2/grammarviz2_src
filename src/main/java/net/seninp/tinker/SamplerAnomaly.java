@@ -1,5 +1,8 @@
 package net.seninp.tinker;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -12,6 +15,7 @@ import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
 import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 import net.seninp.util.StackTrace;
 import org.slf4j.LoggerFactory;
@@ -58,18 +62,25 @@ public class SamplerAnomaly {
         StringBuffer sb = new StringBuffer(1024);
         sb.append("Sampler anomaly").append(CR);
         sb.append("parameters:").append(CR);
-        sb.append("  input file:                  ").append(SamplerAnomalyParameters.IN_FILE).append(CR);
-        sb.append("  output file:                 ").append(SamplerAnomalyParameters.OUT_FILE).append(CR);
-        sb.append("  SAX sliding window size:     ").append(SamplerAnomalyParameters.SAX_WINDOW_SIZE).append(CR);
-        sb.append("  SAX PAA size:                ").append(SamplerAnomalyParameters.SAX_PAA_SIZE).append(CR);
-        sb.append("  SAX alphabet size:           ").append(SamplerAnomalyParameters.SAX_ALPHABET_SIZE).append(CR);
-        sb.append("  SAX numerosity reduction:    ").append(SamplerAnomalyParameters.SAX_NR_STRATEGY).append(CR);
-        sb.append("  SAX normalization threshold: ").append(SamplerAnomalyParameters.SAX_NORM_THRESHOLD).append(CR);
+        sb.append("  input file:                  ").append(SamplerAnomalyParameters.IN_FILE)
+            .append(CR);
+        sb.append("  output file:                 ").append(SamplerAnomalyParameters.OUT_FILE)
+            .append(CR);
+        sb.append("  SAX sliding window size:     ")
+            .append(SamplerAnomalyParameters.SAX_WINDOW_SIZE).append(CR);
+        sb.append("  SAX PAA size:                ").append(SamplerAnomalyParameters.SAX_PAA_SIZE)
+            .append(CR);
+        sb.append("  SAX alphabet size:           ")
+            .append(SamplerAnomalyParameters.SAX_ALPHABET_SIZE).append(CR);
+        sb.append("  SAX numerosity reduction:    ")
+            .append(SamplerAnomalyParameters.SAX_NR_STRATEGY).append(CR);
+        sb.append("  SAX normalization threshold: ")
+            .append(SamplerAnomalyParameters.SAX_NORM_THRESHOLD).append(CR);
 
         // read the data
         //
         String dataFName = SamplerAnomalyParameters.IN_FILE;
-        double[] ts = TSProcessor.readFileColumn(dataFName, 0, 0);
+        ts = TSProcessor.readFileColumn(dataFName, 0, 0);
 
         // infer the grammar
         //
@@ -125,6 +136,23 @@ public class SamplerAnomaly {
         //
         DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts,
             SamplerAnomalyParameters.DISCORDS_NUM, intervals);
+
+        // now compose the output file with anomalies
+        //
+        int[] isAnomaly = new int[ts.length];
+        for (int discordId = 0; discordId < discords.getSize(); discordId++) {
+          DiscordRecord d = discords.get(discordId);
+          for (int i = d.getPosition(); i < d.getPosition() + d.getLength(); i++) {
+            isAnomaly[i] = discordId + 1;
+          }
+        }
+
+        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
+            SamplerAnomalyParameters.OUT_FILE)));
+        for (int i : isAnomaly) {
+          bw.write(i + "\n");
+        }
+        bw.close();
 
       }
     }

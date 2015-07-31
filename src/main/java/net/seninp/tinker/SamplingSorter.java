@@ -20,7 +20,7 @@ public class SamplingSorter {
   private static final String fileExtension = ".out";
 
   private static final Logger consoleLogger;
-  private static final Level LOGGING_LEVEL = Level.INFO;
+  private static final Level LOGGING_LEVEL = Level.OFF;
 
   // static block - we instantiate the logger
   //
@@ -70,7 +70,7 @@ public class SamplingSorter {
 
         // filter the data
         //
-        List<SamplerRecord> cleanValues = cleanValuesByCoverage(values, 0.99);
+        List<SamplerRecord> cleanValues = cleanValuesByCoverage(values, 1.00);
 
         // sort the data
         //
@@ -81,7 +81,30 @@ public class SamplingSorter {
           }
         });
 
-        consoleLogger.info(cleanValues.get(0).toString());
+        SamplerRecord bestParams = cleanValues.get(0);
+        consoleLogger.info(bestParams.toString());
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("java -cp \"grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar\"");
+        sb.append(" net.seninp.tinker.SamplerAnomaly");
+        sb.append(" -d ").append(prefix).append(file.getName().replaceAll(".out", ""));
+        sb.append(" -o ").append(prefix).append(file.getName().replaceAll(".out", ""))
+            .append(".anomaly");
+        sb.append(" -w ").append(bestParams.window);
+        if (bestParams.paa < 4) {
+          sb.append(" -p ").append(bestParams.paa * 2);
+        }
+        else {
+          sb.append(" -p ").append(bestParams.paa);
+        }
+        if (bestParams.paa < 4) {
+          sb.append(" -a ").append(bestParams.alphabet * 2);
+        }
+        else {
+          sb.append(" -a ").append(bestParams.alphabet);
+        }
+        sb.append(" -n 5");
+        System.out.println(sb.toString());
 
         // // print the top
         // //

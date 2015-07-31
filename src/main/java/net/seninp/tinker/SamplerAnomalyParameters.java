@@ -51,7 +51,7 @@ public class SamplerAnomalyParameters {
 
   // GI parameter
   //
-  @Parameter(names = { "--algorithm", "-a" }, description = "algorithm to use")
+  @Parameter(names = { "--algorithm" }, description = "algorithm to use")
   public static GIAlgorithm GI_ALGORITHM_IMPLEMENTATION = GIAlgorithm.SEQUITUR;
 
 }

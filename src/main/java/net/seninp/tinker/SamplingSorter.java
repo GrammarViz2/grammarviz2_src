@@ -16,7 +16,7 @@ import ch.qos.logback.classic.Logger;
 
 public class SamplingSorter {
 
-  private static final String prefix = "/media/Stock/tmp/ydata-labeled-time-series-anomalies-v1_0/A2Benchmark/";
+  private static final String prefix = "/media/Stock/tmp/ydata-labeled-time-series-anomalies-v1_0/A4Benchmark/";
   private static final String fileExtension = ".out";
 
   private static final Logger consoleLogger;

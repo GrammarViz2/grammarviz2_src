@@ -16,7 +16,7 @@ import ch.qos.logback.classic.Logger;
 
 public class ParamSampler {
 
-  private static final String prefix = "/media/Stock/tmp/ydata-labeled-time-series-anomalies-v1_0/A1Benchmark/";
+  private static final String prefix = "/media/Stock/tmp/ydata-labeled-time-series-anomalies-v1_0/A4Benchmark/";
   private static final String fileExtension = ".csv";
 
   private static final Logger consoleLogger;
@@ -64,7 +64,7 @@ public class ParamSampler {
           if (str.equalsIgnoreCase("value")) {
             valueIdx = i;
           }
-          else if (str.equalsIgnoreCase("is_anomaly")) {
+          else if (str.equalsIgnoreCase("anomaly")) {
             anomalyFlagIdx = i;
           }
         }

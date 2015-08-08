@@ -238,8 +238,8 @@ public class GrammarVizModel extends Observable {
           SAXRecords saxFrequencyData = null;
           if (useSlidingWindow) {
             consoleLogger.debug("discretizing string ...");
-            saxFrequencyData = SequiturFactory.discretize(this.ts, numerosityReductionStrategy,
-                windowSize, paaSize, alphabetSize, normalizationThreshold);
+            saxFrequencyData = SequiturFactory.discretize(this.ts, windowSize, paaSize,
+                alphabetSize, normalizationThreshold, numerosityReductionStrategy);
           }
           else {
             saxFrequencyData = SequiturFactory.discretizeNoSlidingWindow(this.ts, paaSize,

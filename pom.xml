@@ -11,9 +11,9 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>GI</name>
-  <description>An implementation of grammar inference algorithms for JMotif libraries.</description>
-  <url>https://github.com/jMotif/GI</url>
+  <name>GrammarViz2</name>
+  <description>GrammarViz2 implementation.</description>
+  <url>http://grammarviz2.github.io/grammarviz2_site/</url>
 
   <licenses>
     <license>

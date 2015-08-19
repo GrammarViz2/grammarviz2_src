@@ -7,12 +7,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JPanel;
-import net.seninp.gi.RuleInterval;
-import net.seninp.grammarviz.controller.GrammarVizController;
-import net.seninp.grammarviz.logic.GrammarVizChartData;
-import net.seninp.jmotif.sax.TSProcessor;
-import net.seninp.jmotif.sax.discord.DiscordRecord;
-import net.seninp.util.StackTrace;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -20,6 +14,12 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import net.seninp.gi.RuleInterval;
+import net.seninp.grammarviz.controller.GrammarVizController;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
+import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.discord.DiscordRecord;
+import net.seninp.util.StackTrace;
 
 public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeListener {
 

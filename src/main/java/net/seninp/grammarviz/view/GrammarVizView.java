@@ -32,15 +32,15 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 /**
  * View component of Sequitur MVC GUI.
@@ -75,6 +75,8 @@ public class GrammarVizView implements Observer, ActionListener {
   private static final String SELECT_FILE = "select_file";
   /** Load data action key. */
   private static final String LOAD_DATA = "load_data";
+  /** Guess parameters action key. */
+  private static final String GUESS_PARAMETERS = "guess_parameters";
   /** Process data action key. */
   private static final String PROCESS_DATA = "process_data";
   /** Reduce overlaps data action key. */
@@ -128,6 +130,8 @@ public class GrammarVizView implements Observer, ActionListener {
   private JLabel paaSizeLabel;
   private JTextField SAXpaaSizeField;
   private JTextField SAXalphabetSizeField;
+  
+  private JButton guessParametersButton;
 
   private JPanel numerosityReductionPane;
   private ButtonGroup numerosityButtonsGroup = new ButtonGroup();
@@ -427,6 +431,9 @@ public class GrammarVizView implements Observer, ActionListener {
 
   }
 
+  /**
+   * Builds a parameters pane.
+   */
   private void buildSAXParamsPane() {
 
     saxParametersPane = new JPanel();
@@ -436,7 +443,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // insets: T, L, B, R.
     MigLayout saxPaneLayout = new MigLayout("insets 3 2 2 2",
-        "[][]10[][fill,grow]10[][fill,grow]10[][fill,grow]", "[]");
+        "[][]10[][fill,grow]10[][fill,grow]10[][fill,grow]10[][]", "[]");
     saxParametersPane.setLayout(saxPaneLayout);
 
     // the sliding window parameter
@@ -467,6 +474,13 @@ public class GrammarVizView implements Observer, ActionListener {
 
     saxParametersPane.add(alphabetSizeLabel);
     saxParametersPane.add(SAXalphabetSizeField);
+    
+    guessParametersButton = new JButton("Guess");
+    guessParametersButton.setMnemonic('G');
+    guessParametersButton.setActionCommand(GUESS_PARAMETERS);
+    guessParametersButton.addActionListener(this);
+
+    saxParametersPane.add(guessParametersButton, "");
 
     // numerosity reduction pane
     //
@@ -500,7 +514,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // PROCESS button
     //
-    processButton = new JButton("Process data");
+    processButton = new JButton("Discretize");
     processButton.setMnemonic('P');
     processButton.setActionCommand(PROCESS_DATA);
     processButton.addActionListener(this);

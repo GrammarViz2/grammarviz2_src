@@ -17,15 +17,15 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
-import net.seninp.grammarviz.logic.GrammarVizChartData;
-import net.seninp.grammarviz.model.GrammarVizMessage;
-import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
-import net.seninp.grammarviz.view.table.GrammarvizRulesTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
+import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
+import net.seninp.grammarviz.view.table.GrammarvizRulesTableModel;
 
 /**
  * 

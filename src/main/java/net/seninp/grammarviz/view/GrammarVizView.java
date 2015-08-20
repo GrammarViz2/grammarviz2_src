@@ -58,6 +58,7 @@ public class GrammarVizView implements Observer, ActionListener {
   //
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.INFO;
+
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizView.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
@@ -72,11 +73,11 @@ public class GrammarVizView implements Observer, ActionListener {
   // String is the king - constants for actions
   //
   /** Select data file action key. */
-  private static final String SELECT_FILE = "select_file";
+  protected static final String SELECT_FILE = "select_file";
   /** Load data action key. */
-  private static final String LOAD_DATA = "load_data";
+  protected static final String LOAD_DATA = "load_data";
   /** Guess parameters action key. */
-  private static final String GUESS_PARAMETERS = "guess_parameters";
+  protected static final String GUESS_PARAMETERS = "guess_parameters";
   /** Process data action key. */
   private static final String PROCESS_DATA = "process_data";
   /** Reduce overlaps data action key. */
@@ -130,7 +131,7 @@ public class GrammarVizView implements Observer, ActionListener {
   private JLabel paaSizeLabel;
   private JTextField SAXpaaSizeField;
   private JTextField SAXalphabetSizeField;
-  
+
   private JButton guessParametersButton;
 
   private JPanel numerosityReductionPane;
@@ -438,8 +439,8 @@ public class GrammarVizView implements Observer, ActionListener {
 
     saxParametersPane = new JPanel();
     saxParametersPane.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "SAX parameteres",
-        TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
+        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "SAX parameteres", TitledBorder.LEFT,
+        TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
 
     // insets: T, L, B, R.
     MigLayout saxPaneLayout = new MigLayout("insets 3 2 2 2",
@@ -454,14 +455,15 @@ public class GrammarVizView implements Observer, ActionListener {
     useSlidingWindowCheckBox.addActionListener(this);
 
     windowSizeLabel = new JLabel("Window size:");
-    SAXwindowSizeField = new JTextField(String.valueOf(this.controller.getSession().getSaxWindow()));
+    SAXwindowSizeField = new JTextField(
+        String.valueOf(this.controller.getSession().getSaxWindow()));
 
     paaSizeLabel = new JLabel("PAA size:");
     SAXpaaSizeField = new JTextField(String.valueOf(this.controller.getSession().getSaxPAA()));
 
     JLabel alphabetSizeLabel = new JLabel("Alphabet size:");
-    SAXalphabetSizeField = new JTextField(String.valueOf(this.controller.getSession()
-        .getSaxAlphabet()));
+    SAXalphabetSizeField = new JTextField(
+        String.valueOf(this.controller.getSession().getSaxAlphabet()));
 
     saxParametersPane.add(slideWindowLabel);
     saxParametersPane.add(useSlidingWindowCheckBox);
@@ -474,7 +476,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     saxParametersPane.add(alphabetSizeLabel);
     saxParametersPane.add(SAXalphabetSizeField);
-    
+
     guessParametersButton = new JButton("Guess");
     guessParametersButton.setMnemonic('G');
     guessParametersButton.setActionCommand(GUESS_PARAMETERS);
@@ -503,8 +505,8 @@ public class GrammarVizView implements Observer, ActionListener {
     numerosityReductionExactButton.addActionListener(this);
     numerosityReductionPane.add(numerosityReductionExactButton);
 
-    numerosityReductionMINDISTButton.setActionCommand(NumerosityReductionStrategy.MINDIST
-        .toString());
+    numerosityReductionMINDISTButton
+        .setActionCommand(NumerosityReductionStrategy.MINDIST.toString());
     numerosityButtonsGroup.add(numerosityReductionMINDISTButton);
     numerosityReductionMINDISTButton.addActionListener(this);
     numerosityReductionPane.add(numerosityReductionMINDISTButton);
@@ -562,7 +564,8 @@ public class GrammarVizView implements Observer, ActionListener {
     // now add the prototype of reduced rules panel
     //
     packedRulesPane = new PackedRulesPanel();
-    MigLayout packedRulesPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
+    MigLayout packedRulesPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]",
+        "[fill,grow]");
     packedRulesPane.setLayout(packedRulesPaneLayout);
     tabbedRulesPane.addTab("Regularized rules", null, packedRulesPane,
         "Shows reduced by overlapping criterion rules subset");
@@ -586,12 +589,13 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // now format the tabbed pane
     //
-    tabbedRulesPane.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
-        "Grammar rules (search in list by clicking into list and pressing CTRL-F)",
-        TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
-    // MigLayout tabbedPaneLayout = new MigLayout(",insets 0 0 0 2", "[fill,grow]", "[fill,grow]");
-    // tabbedRulesPane.setLayout(tabbedPaneLayout);
+    tabbedRulesPane.setBorder(
+        BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
+            "Grammar rules (search in list by clicking into list and pressing CTRL-F)",
+            TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
+            // MigLayout tabbedPaneLayout = new MigLayout(",insets 0 0 0 2", "[fill,grow]",
+            // "[fill,grow]");
+            // tabbedRulesPane.setLayout(tabbedPaneLayout);
 
     // the rule chart panel
     //
@@ -608,10 +612,10 @@ public class GrammarVizView implements Observer, ActionListener {
   private void buildWorkflowPane() {
 
     workflowManagementPane = new JPanel();
-    workflowManagementPane.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
-        "Workflow management: load > process > display", TitledBorder.LEFT, TitledBorder.CENTER,
-        new Font(TITLE_FONT, Font.PLAIN, 10)));
+    workflowManagementPane.setBorder(
+        BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
+            "Workflow management: load > process > display", TitledBorder.LEFT, TitledBorder.CENTER,
+            new Font(TITLE_FONT, Font.PLAIN, 10)));
     MigLayout workflowPaneLayout = new MigLayout(",insets 2 2 2 2", "[fill,grow]", "[fill,grow]");
     workflowManagementPane.setLayout(workflowPaneLayout);
 
@@ -795,8 +799,8 @@ public class GrammarVizView implements Observer, ActionListener {
       GrammarvizOptionsPane parametersPanel = new GrammarvizOptionsPane(
           this.controller.getSession());
 
-      GrammarvizOptionsDialog parametersDialog = new GrammarvizOptionsDialog(frame,
-          parametersPanel, this.controller.getSession());
+      GrammarvizOptionsDialog parametersDialog = new GrammarvizOptionsDialog(frame, parametersPanel,
+          this.controller.getSession());
 
       parametersDialog.setVisible(true);
     }
@@ -830,11 +834,11 @@ public class GrammarVizView implements Observer, ActionListener {
       log(Level.INFO, "process data action performed");
       if (this.isTimeSeriesLoaded) {
         // check the values for window/paa/alphabet, etc.
-        this.controller.getSession().setSaxWindow(
-            Integer.valueOf(this.SAXwindowSizeField.getText()));
+        this.controller.getSession()
+            .setSaxWindow(Integer.valueOf(this.SAXwindowSizeField.getText()));
         this.controller.getSession().setSaxPAA(Integer.valueOf(this.SAXpaaSizeField.getText()));
-        this.controller.getSession().setSaxAlphabet(
-            Integer.valueOf(this.SAXalphabetSizeField.getText()));
+        this.controller.getSession()
+            .setSaxAlphabet(Integer.valueOf(this.SAXalphabetSizeField.getText()));
         this.controller.getProcessDataListener().actionPerformed(new ActionEvent(this, 2, null));
       }
       else {
@@ -909,6 +913,11 @@ public class GrammarVizView implements Observer, ActionListener {
       else {
         this.dataChartPane.actionPerformed(new ActionEvent(this, 2, SAVE_CHART));
       }
+    }
+
+    else if (GUESS_PARAMETERS.equalsIgnoreCase(command)) {
+      log(Level.INFO, "starting the guessing params dialog");
+      this.dataChartPane.actionPerformed(new ActionEvent(this, 2, GUESS_PARAMETERS));
     }
 
     else if (FIND_PERIODICITY.equalsIgnoreCase(command)) {
@@ -1023,8 +1032,8 @@ public class GrammarVizView implements Observer, ActionListener {
         || NumerosityReductionStrategy.EXACT.toString().equalsIgnoreCase(command)
         || NumerosityReductionStrategy.MINDIST.toString().equalsIgnoreCase(command)) {
       log(Level.INFO, "numerosity reduction option toggled");
-      this.controller.getSession().setNumerosityReductionStrategy(
-          NumerosityReductionStrategy.fromString(command));
+      this.controller.getSession()
+          .setNumerosityReductionStrategy(NumerosityReductionStrategy.fromString(command));
     }
 
     else if ("Exit".equalsIgnoreCase(command)) {

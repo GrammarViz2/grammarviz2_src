@@ -78,6 +78,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
   private static final String LABEL_SHOWING_PERIODS = " Data display: showing periods between selected rules ";
   private static final String LABEL_SHOWING_ANOMALY = " Data display: showing anomaly ";
   private static final String LABEL_SAVING_CHART = " Data display: saving the rules density chart ";
+  private static final String LABEL_SELECT_INTERVAL = " Select the timeseries interval for guessing ";
 
   /** The chart container. */
   private JFreeChart chart;
@@ -96,6 +97,8 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
   /** The user session var - holds all parameters. */
   private UserSession session;
+
+  private ChartPanel chartPanel;
 
   // the logger business
   //
@@ -161,7 +164,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     //
     paintTheChart(this.chartData.getOriginalTimeseries());
 
-    ChartPanel chartPanel = new ChartPanel(this.chart);
+    chartPanel = new ChartPanel(this.chart);
 
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
@@ -252,7 +255,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     // this is the new "insert" - elastic boundaries chart panel
     //
     paintTheChart(this.chartData.getOriginalTimeseries());
-    ChartPanel chartPanel = new ChartPanel(this.chart);
+    chartPanel = new ChartPanel(this.chart);
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);
@@ -454,7 +457,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
     this.chart.getXYPlot().setDomainAxis(myAxis);
 
-    ChartPanel chartPanel = new ChartPanel(this.chart);
+    chartPanel = new ChartPanel(this.chart);
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);
@@ -551,7 +554,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
    */
   public void showTimeSeries(double[] tsData) {
     paintTheChart(tsData);
-    ChartPanel chartPanel = new ChartPanel(this.chart);
+    chartPanel = new ChartPanel(this.chart);
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);
@@ -688,7 +691,17 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
       tb.setTitle(LABEL_SAVING_CHART);
       this.repaint();
       saveCurrentChart();
+    }    else if (GrammarVizView.GUESS_PARAMETERS.equalsIgnoreCase(e.getActionCommand())) {
+      TitledBorder tb = (TitledBorder) this.getBorder();
+      tb.setTitle(LABEL_SELECT_INTERVAL);
+      this.repaint();
+      chartPanel.setRangeZoomable(false);
+      chartPanel.setDomainZoomable(false);
+      MouseMarker listener = new MouseMarker(chartPanel);
+      chartPanel.addMouseListener(listener);
+      chartPanel.addMouseMotionListener(listener);
     }
+
 
   }
 

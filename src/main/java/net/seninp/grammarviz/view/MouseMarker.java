@@ -26,6 +26,8 @@ public class MouseMarker extends MouseAdapter {
 
   private final ChartPanel panel;
 
+  private Object selectionLock;
+
   public MouseMarker(ChartPanel panel) {
     this.panel = panel;
     this.chart = panel.getChart();
@@ -39,8 +41,8 @@ public class MouseMarker extends MouseAdapter {
     if (!(markerStart.isNaN() && markerEnd.isNaN())) {
       if (markerEnd > markerStart) {
         marker = new IntervalMarker(markerStart, markerEnd);
-        marker.setPaint(new Color(0xDD, 0xFF, 0xDD, 0x80));
-        marker.setAlpha(0.5f);
+        marker.setPaint(new Color(0xDD, 0xFF, 0xDD, 0x90));
+        marker.setAlpha(0.7f);
         plot.addDomainMarker(marker, Layer.BACKGROUND);
       }
     }
@@ -66,11 +68,18 @@ public class MouseMarker extends MouseAdapter {
     isMarking.set(false);
     markerEnd = getPosition(e);
     updateMarker();
+    synchronized (selectionLock) {
+      selectionLock.notifyAll();
+    }
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
     isMarking.set(true);
     markerStart = getPosition(e);
+  }
+
+  public void setLockObject(Object selectionLock) {
+    this.selectionLock = selectionLock;
   }
 }

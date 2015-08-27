@@ -5,6 +5,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -16,6 +17,9 @@ import org.jfree.ui.Layer;
 public class MouseMarker extends MouseAdapter {
 
   private static AtomicBoolean isMarking = new AtomicBoolean(false);
+
+  private static final DecimalFormat dfFormatter = (new DecimalFormat("0.00"));
+
   private Marker marker;
   private Double markerStart = Double.NaN;
   private Double markerEnd = Double.NaN;
@@ -81,5 +85,17 @@ public class MouseMarker extends MouseAdapter {
 
   public void setLockObject(Object selectionLock) {
     this.selectionLock = selectionLock;
+  }
+
+  public String getIntervalStr() {
+    return dfFormatter.format(this.markerStart) + " - " + dfFormatter.format(this.markerEnd);
+  }
+
+  public double getSelectionStart() {
+    return this.markerStart;
+  }
+
+  public double getSelectionEnd() {
+    return this.markerEnd;
   }
 }

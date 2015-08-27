@@ -81,14 +81,21 @@ public class GrammarvizChartPanel extends JPanel
   private static final String LABEL_SAVING_CHART = " Data display: saving the rules density chart ";
   private static final String LABEL_SELECT_INTERVAL = " Select the timeseries interval for guessing ";
 
+  public static final String SELECTION_CANCELLED = "interval_selection_cancelled";
+
+  public static final String SAMPLING_SUCCEEDED = "parameters_sampling_succeeded";
+
+  public static final String SELECTION_FINISHED = "interval_selection_finished";
+
+  /** Current chart data instance. */
+  private GrammarVizChartData chartData;
+  private double[] tsData;
+
   /** The chart container. */
   private JFreeChart chart;
 
   /** The timeseries plot itself. */
   private XYPlot timeseriesPlot;
-
-  /** Current chart data instance. */
-  private GrammarVizChartData chartData;
 
   /** JFreeChart Object holding the chart times series */
   XYSeriesCollection chartXYSeriesCollection;
@@ -99,7 +106,10 @@ public class GrammarvizChartPanel extends JPanel
   /** The user session var - holds all parameters. */
   private UserSession session;
 
+  /** The inner panel which displays the chart in place. */
   private ChartPanel chartPanel;
+
+  private Thread guessRefreshThread;
 
   // the logger business
   //
@@ -117,15 +127,6 @@ public class GrammarvizChartPanel extends JPanel
   public GrammarvizChartPanel() {
     super();
   }
-
-  // /**
-  // * Constructor.
-  // *
-  // * @param chartData the chart data.
-  // */
-  // public SequiturChartPanel(MotifChartData chartData) {
-  // this.chartData = chartData;
-  // }
 
   /**
    * This sets the chartData and forces the panel to repaint itself showing the new chart.
@@ -164,7 +165,12 @@ public class GrammarvizChartPanel extends JPanel
 
     // this is the new "insert" - elastic boundaries chart panel
     //
-    paintTheChart(this.chartData.getOriginalTimeseries());
+    if (null == this.chartData && null != this.tsData) {
+      paintTheChart(this.tsData);
+    }
+    else {
+      paintTheChart(this.chartData.getOriginalTimeseries());
+    }
 
     chartPanel = new ChartPanel(this.chart);
 
@@ -555,6 +561,7 @@ public class GrammarvizChartPanel extends JPanel
    * @param tsData The time series data.
    */
   public void showTimeSeries(double[] tsData) {
+    this.tsData = tsData;
     paintTheChart(tsData);
     chartPanel = new ChartPanel(this.chart);
     chartPanel.setMinimumDrawWidth(0);
@@ -617,6 +624,7 @@ public class GrammarvizChartPanel extends JPanel
   }
 
   public void chartProgress(ChartProgressEvent chartprogressevent) {
+
     if (chartprogressevent.getType() != 2)
       return;
 
@@ -625,8 +633,9 @@ public class GrammarvizChartPanel extends JPanel
     double pos = xyplot.getDomainCrosshairValue();
 
     // this is needed because the call of highlightPatternInChart triggers a ChartProgessEvent
-    if (previousClickPosition == pos)
+    if (previousClickPosition == pos) {
       return;
+    }
 
     // SAXString sax = new SAXString(chartData.getFreqData(), " ");
     // String rule = sax.getRuleFromPosition(chartData, (int) pos);
@@ -709,22 +718,23 @@ public class GrammarvizChartPanel extends JPanel
 
       // attaching the custom mouse listener
       //
-      MouseMarker listener = new MouseMarker(chartPanel);
+      final MouseMarker listener = new MouseMarker(chartPanel);
       chartPanel.addMouseListener(listener);
       chartPanel.addMouseMotionListener(listener);
 
       // creating the sampler object
       //
-      final GrammarvizParamsSampler paramsSampler = new GrammarvizParamsSampler();
+      final GrammarvizParamsSampler paramsSampler = new GrammarvizParamsSampler(this);
 
       // running the thread which will look over the selection
       //
       final Object selectionLock = new Object();
       listener.setLockObject(selectionLock);
 
-      Thread guessRefreshThread = new Thread(new Runnable() {
+      guessRefreshThread = new Thread(new Runnable() {
         public void run() {
-          while (true) {
+          boolean selectionSucceeded = false;
+          while (!(selectionSucceeded)) {
             synchronized (selectionLock) {
               try {
                 selectionLock.wait(); // Send this thread to sleep until dirtyLock is unlocked
@@ -732,18 +742,40 @@ public class GrammarvizChartPanel extends JPanel
               catch (InterruptedException e1) {
               }
             }
-            int result = JOptionPane.showConfirmDialog(chartPanel, "Narrative", "Title",
-                JOptionPane.INFORMATION_MESSAGE);
+            int result = JOptionPane.showConfirmDialog(chartPanel,
+                "Is interval selection " + listener.getIntervalStr() + " correct?",
+                "Interval selection", JOptionPane.INFORMATION_MESSAGE);
             if (result == JOptionPane.OK_OPTION) {
-              GrammarvizParamsSampler.sample();
+              selectionSucceeded = true;
+              paramsSampler.setSampleIntervalStart((int) Math.floor(listener.getSelectionStart()));
+              paramsSampler.setSampleIntervalEnd((int) Math.ceil(listener.getSelectionEnd()));
+              consoleLogger
+                  .debug("Selected range [" + (int) Math.floor(listener.getSelectionStart()) + ", "
+                      + (int) Math.ceil(listener.getSelectionEnd()) + "]");
+            }
+            else if (result == JOptionPane.NO_OPTION) {
+              consoleLogger.debug("Selection needs to be refined...");
             }
             else if (result == JOptionPane.CANCEL_OPTION) {
-
+              consoleLogger.debug("Selection process has been cancelled...");
+              paramsSampler.cancel();
             }
+          }
+          if (selectionSucceeded) {
+            consoleLogger.debug("Running the sampler...");
+            paramsSampler.sample();
           }
         }
       });
       guessRefreshThread.start();
+    }
+    else if (GrammarvizChartPanel.SELECTION_CANCELLED.equalsIgnoreCase(e.getActionCommand())) {
+      this.resetChartPanel();
+    }
+    else if (GrammarvizChartPanel.SELECTION_FINISHED.equalsIgnoreCase(e.getActionCommand())) {
+      this.resetChartPanel();
+    }
+    else if (GrammarvizChartPanel.SAMPLING_SUCCEEDED.equalsIgnoreCase(e.getActionCommand())) {
 
     }
 

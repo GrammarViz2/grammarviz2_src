@@ -89,7 +89,7 @@ public class GrammarvizChartPanel extends JPanel
 
   /** Current chart data instance. */
   private GrammarVizChartData chartData;
-  private double[] tsData;
+  protected double[] tsData;
 
   /** The chart container. */
   private JFreeChart chart;
@@ -763,7 +763,13 @@ public class GrammarvizChartPanel extends JPanel
           }
           if (selectionSucceeded) {
             consoleLogger.debug("Running the sampler...");
-            paramsSampler.sample();
+            try {
+              paramsSampler.sample();
+            }
+            catch (Exception e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
           }
         }
       });
@@ -781,6 +787,10 @@ public class GrammarvizChartPanel extends JPanel
 
   }
 
+  /**
+   * Quick and dirty hack for saving the current chart -- because normally the chart parameters need
+   * to be defined and modifiable by the user.
+   */
   private void saveCurrentChart() {
     String fileName = new SimpleDateFormat("yyyyMMddhhmmssSS'.png'").format(new Date());
     try {

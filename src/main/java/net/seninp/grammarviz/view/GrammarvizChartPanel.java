@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -764,7 +767,12 @@ public class GrammarvizChartPanel extends JPanel
           if (selectionSucceeded) {
             consoleLogger.debug("Running the sampler...");
             try {
-              paramsSampler.sample();
+              ExecutorService executorService = Executors.newSingleThreadExecutor();
+              Future<String> bestParams = executorService.submit(paramsSampler);
+              Thread.currentThread().sleep(5000);
+              bestParams.cancel(true);
+              consoleLogger.debug("Finished with sampler...");
+              executorService.shutdown();
             }
             catch (Exception e) {
               // TODO Auto-generated catch block

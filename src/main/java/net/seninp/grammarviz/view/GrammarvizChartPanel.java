@@ -202,8 +202,11 @@ public class GrammarvizChartPanel extends JPanel
     consoleLogger.debug("Selected rules: " + rules.toString());
     timeseriesPlot.clearDomainMarkers();
     for (String rule : rules) {
-      ArrayList<RuleInterval> arrPos = this.session.chartData
-          .getRulePositionsByRuleNum(Integer.valueOf(rule));
+      int ruleId = Integer.valueOf(rule);
+      if (0 == ruleId) {
+        continue;
+      }
+      ArrayList<RuleInterval> arrPos = this.session.chartData.getRulePositionsByRuleNum(ruleId);
       consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
       for (RuleInterval saxPos : arrPos) {
         addMarker(timeseriesPlot, saxPos.getStartPos(), saxPos.getEndPos());
@@ -652,8 +655,8 @@ public class GrammarvizChartPanel extends JPanel
   public void propertyChange(PropertyChangeEvent evt) {
     if (GrammarvizRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
       @SuppressWarnings("unchecked")
-      ArrayList<String> newlySelectedRaws = (ArrayList<String>) evt.getNewValue();
-      highlightPatternInChart(newlySelectedRaws);
+      ArrayList<String> newlySelectedRows = (ArrayList<String>) evt.getNewValue();
+      highlightPatternInChart(newlySelectedRows);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_RULES);
       revalidate();

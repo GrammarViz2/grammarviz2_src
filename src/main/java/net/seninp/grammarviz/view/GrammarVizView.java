@@ -744,11 +744,15 @@ public class GrammarVizView implements Observer, ActionListener {
         Runnable clearPanels = new Runnable() {
           @Override
           public void run() {
-            sequiturRulesPane.clear();
+            sequiturRulesPane.clearPanel();
             ruleChartPane.clear();
             rulesPeriodicityPane.clear();
             anomaliesPane.clear();
             frame.repaint();
+            disableAllExceptSelectButton();
+            dataLoadButton.setEnabled(true);
+            guessParametersButton.setEnabled(true);
+            discretizeButton.setEnabled(true);
           }
         };
         SwingUtilities.invokeLater(clearPanels);
@@ -783,6 +787,7 @@ public class GrammarVizView implements Observer, ActionListener {
         //
         anomaliesPane.setChartData(this.controller.getSession());
 
+        enableAllButtons();
         // dataChartPane.getChart().setNotify(true);
         frame.validate();
         frame.repaint();
@@ -1077,6 +1082,19 @@ public class GrammarVizView implements Observer, ActionListener {
     this.displayRulesDensityButton.setEnabled(false);
     this.displayRulesLenHistogramButton.setEnabled(false);
     this.saveChartButton.setEnabled(false);
+  }
+
+  private void enableAllButtons() {
+    this.dataLoadButton.setEnabled(true);
+    this.guessParametersButton.setEnabled(true);
+    this.discretizeButton.setEnabled(true);
+    this.findAnomaliesButton.setEnabled(true);
+    this.displayChartButton.setEnabled(true);
+    this.clusterRulesButton.setEnabled(true);
+    this.rankRulesButton.setEnabled(true);
+    this.displayRulesDensityButton.setEnabled(true);
+    this.displayRulesLenHistogramButton.setEnabled(true);
+    this.saveChartButton.setEnabled(true);
   }
 
 }

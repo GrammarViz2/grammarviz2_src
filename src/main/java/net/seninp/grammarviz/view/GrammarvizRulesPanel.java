@@ -219,10 +219,9 @@ public class GrammarvizRulesPanel extends JPanel
   /**
    * Clears the panel.
    */
-  public void clear() {
+  public void clearPanel() {
     this.acceptListEvents = false;
     this.removeAll();
-    this.session = null;
     sequiturTableModel.update(null);
     this.validate();
     this.repaint();
@@ -230,7 +229,9 @@ public class GrammarvizRulesPanel extends JPanel
   }
 
   public void setChartData(UserSession session) {
+    clearPanel();
     this.session = session;
+    resetPanel();
   }
 
 }

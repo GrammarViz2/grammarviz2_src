@@ -15,6 +15,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
@@ -28,9 +31,6 @@ import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.datastructures.SAXRecords;
 import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 import net.seninp.util.StackTrace;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 /**
  * Implements the Sequitur Model component of MVC GUI pattern.

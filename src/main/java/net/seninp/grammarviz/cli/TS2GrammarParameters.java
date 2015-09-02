@@ -2,8 +2,8 @@ package net.seninp.grammarviz.cli;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import com.beust.jcommander.Parameter;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 
 /**
  * Implements a parameters template for CLI conversion.

@@ -11,6 +11,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
@@ -27,9 +30,6 @@ import net.seninp.jmotif.sax.discord.HOTSAXImplementation;
 import net.seninp.jmotif.sax.registry.LargeWindowAlgorithm;
 import net.seninp.jmotif.sax.trie.TrieException;
 import net.seninp.util.StackTrace;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 /**
  * Main executable wrapping all the discord discovery methods.

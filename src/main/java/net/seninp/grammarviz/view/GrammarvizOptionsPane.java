@@ -16,7 +16,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.NumberFormatter;
 import net.miginfocom.swing.MigLayout;
-import net.seninp.grammarviz.logic.UserSession;
+import net.seninp.gi.GIAlgorithm;
+import net.seninp.grammarviz.logic.CoverageCountStrategy;
+import net.seninp.grammarviz.session.UserSession;
 
 /**
  * Implements the parameter panel for GrammarViz.
@@ -31,15 +33,14 @@ public class GrammarvizOptionsPane extends JPanel {
 
   private static final String TITLE_FONT = "helvetica";
 
-  //
   // The coverage count strategies
   //
-  public static final String STRATEGY_COUNT = "count";
-  public static final String STRATEGY_LEVEL = "level";
-  public static final String STRATEGY_OCCURRENCE = "occurrence";
-  public static final String STRATEGY_YIELD = "yield";
-  public static final String STRATEGY_PRODUCT = "product";
-  //
+  private static final String STRATEGY_COUNT = CoverageCountStrategy.COUNT.toString();
+  private static final String STRATEGY_LEVEL = CoverageCountStrategy.LEVEL.toString();
+  private static final String STRATEGY_OCCURRENCE = CoverageCountStrategy.OCCURRENCE.toString();
+  private static final String STRATEGY_YIELD = CoverageCountStrategy.YIELD.toString();
+  private static final String STRATEGY_PRODUCT = CoverageCountStrategy.PRODUCT.toString();
+
   // and their UI widgets
   //
   private static final int STRATEGY_BUTTONS_NUM = 5;
@@ -48,37 +49,37 @@ public class GrammarvizOptionsPane extends JPanel {
   //
   // The GI algorithm variables
   //
-  public static final String GI_SEQUITUR = "Sequitur";
-  public static final String GI_REPAIR = "Re-Pair";
+  private static final String GI_SEQUITUR = GIAlgorithm.SEQUITUR.toString();
+  private static final String GI_REPAIR = GIAlgorithm.REPAIR.toString();
   private static final int GI_BUTTONS_NUM = 2;
   private static final JRadioButton[] giRadioButtons = new JRadioButton[GI_BUTTONS_NUM];
   private static final ButtonGroup giRadioGroup = new ButtonGroup();
   //
   // Normalization threshold option
   //
-  public static final String SAX_NORMALIZATION_THRESHOLD_LABEL = "Normalization threshold:";
-  public static final JFormattedTextField normalizationThresholdField = new JFormattedTextField(
+  private static final String SAX_NORMALIZATION_THRESHOLD_LABEL = "Normalization threshold:";
+  private static final JFormattedTextField normalizationThresholdField = new JFormattedTextField(
       new NumberFormatter(NumberFormat.getNumberInstance(Locale.US)));
   //
   // Input file params
   //
-  public static final String DELIMETER_MASK_LABEL = "Delimeter mask:";
-  public static final JTextField delimeterMask = new JTextField();
+  private static final String DELIMETER_MASK_LABEL = "Delimeter mask:";
+  private static final JTextField delimeterMask = new JTextField();
 
   //
   // Output options section
   //
-  public static final String OUTPUT_RULE_DENSITY_CURVE_LABEL = "Rule density curve filename:";
-  public static final JTextField outputRuleCoverageFilename = new JTextField();
+  private static final String OUTPUT_RULE_DENSITY_CURVE_LABEL = "Rule density curve filename:";
+  private static final JTextField outputRuleCoverageFilename = new JTextField();
   //
-  public static final String OUTPUT_GRAMMAR_LABEL = "Grammar filename:";
-  public static final JTextField outputGrammarFileName = new JTextField();
+  private static final String OUTPUT_GRAMMAR_LABEL = "Grammar filename:";
+  private static final JTextField outputGrammarFileName = new JTextField();
   //
-  public static final String OUTPUT_ANOMALY_LABEL = "Anomalies filename:";
-  public static final JTextField outputAnomalyFileName = new JTextField();
+  private static final String OUTPUT_ANOMALY_LABEL = "Anomalies filename:";
+  private static final JTextField outputAnomalyFileName = new JTextField();
   //
-  public static final String OUTPUT_CHARTS_LABEL = "Charts folder:";
-  public static final JTextField outputChartsFolderName = new JTextField();
+  private static final String OUTPUT_CHARTS_LABEL = "Charts folder:";
+  private static final JTextField outputChartsFolderName = new JTextField();
 
   /**
    * Constructor.
@@ -110,7 +111,7 @@ public class GrammarvizOptionsPane extends JPanel {
     tabbedPane.addTab("Options", null, buildOptionsPanel(), "Other GrammarViz options");
 
     this.add(tabbedPane, "grow");
-    
+
     // set params finally
     this.setValues(userSession);
 
@@ -289,43 +290,20 @@ public class GrammarvizOptionsPane extends JPanel {
   private void setValues(UserSession userSession) {
     //
     // the computation params
-    strategyRadioButtons[userSession.getCountStrategy().index()].setSelected(true);
-    giRadioButtons[userSession.getGiAlgorithm()].setSelected(true);
-    normalizationThresholdField.setText(userSession.getNormalizationThreshold().toString());
+    strategyRadioButtons[userSession.countStrategy.index()].setSelected(true);
+    giRadioButtons[userSession.giAlgorithm.toAlgIndex()].setSelected(true);
+    normalizationThresholdField.setText(userSession.normalizationThreshold.toString());
     //
     // the output parameters
-    outputRuleCoverageFilename.setText(userSession.getRuleDensityOutputFileName());
+    outputRuleCoverageFilename.setText(userSession.ruleDensityOutputFileName);
   }
 
-  public int getSelectedStrategyValue() {
-    if (STRATEGY_COUNT.equalsIgnoreCase(strategyRadioGroup.getSelection().getActionCommand())) {
-      return 0;
-    }
-    else if (STRATEGY_LEVEL.equalsIgnoreCase(strategyRadioGroup.getSelection().getActionCommand())) {
-      return 1;
-    }
-    else if (STRATEGY_OCCURRENCE.equalsIgnoreCase(strategyRadioGroup.getSelection()
-        .getActionCommand())) {
-      return 2;
-    }
-    else if (STRATEGY_YIELD.equalsIgnoreCase(strategyRadioGroup.getSelection().getActionCommand())) {
-      return 3;
-    }
-    else if (STRATEGY_PRODUCT
-        .equalsIgnoreCase(strategyRadioGroup.getSelection().getActionCommand())) {
-      return 4;
-    }
-    return 0;
+  public CoverageCountStrategy getSelectedStrategyValue() {
+    return CoverageCountStrategy.fromValue(strategyRadioGroup.getSelection().getActionCommand());
   }
 
-  public int getSelectedAlgorithmValue() {
-    if (GI_SEQUITUR.equalsIgnoreCase(giRadioGroup.getSelection().getActionCommand())) {
-      return 0;
-    }
-    else if (GI_REPAIR.equalsIgnoreCase(giRadioGroup.getSelection().getActionCommand())) {
-      return 1;
-    }
-    return 0;
+  public GIAlgorithm getSelectedAlgorithmValue() {
+    return GIAlgorithm.fromValue(strategyRadioGroup.getSelection().getActionCommand());
   }
 
   /**

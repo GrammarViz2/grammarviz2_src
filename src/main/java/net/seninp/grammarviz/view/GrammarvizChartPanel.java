@@ -57,7 +57,7 @@ import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.RuleInterval;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
-import net.seninp.grammarviz.logic.UserSession;
+import net.seninp.grammarviz.session.UserSession;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 
 /**
@@ -292,19 +292,19 @@ public class GrammarvizChartPanel extends JPanel
         int start = saxPos.getStartPos();
         int end = saxPos.getEndPos();
         for (int j = start; j < end; j++) {
-          if (CoverageCountStrategy.COUNT == this.session.getCountStrategy()) {
+          if (CoverageCountStrategy.COUNT.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + 1;
           }
-          else if (CoverageCountStrategy.LEVEL == this.session.getCountStrategy()) {
+          else if (CoverageCountStrategy.LEVEL.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + r.getRuleLevel();
           }
-          else if (CoverageCountStrategy.OCCURRENCE == this.session.getCountStrategy()) {
+          else if (CoverageCountStrategy.OCCURRENCE.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + r.getOccurrences().size();
           }
-          else if (CoverageCountStrategy.YIELD == this.session.getCountStrategy()) {
+          else if (CoverageCountStrategy.YIELD.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + r.getRuleYield();
           }
-          else if (CoverageCountStrategy.PRODUCT == this.session.getCountStrategy()) {
+          else if (CoverageCountStrategy.PRODUCT.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + r.getRuleLevel() * r.getOccurrences().size();
           }
           if (maxObservedCoverage < coverageArray[j]) {
@@ -330,19 +330,19 @@ public class GrammarvizChartPanel extends JPanel
         marker.setPaint(Color.BLUE);
 
         // marker.setAlpha((float) 0.05);
-        if (CoverageCountStrategy.COUNT == this.session.getCountStrategy()) {
+        if (CoverageCountStrategy.COUNT.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement);
         }
-        else if (CoverageCountStrategy.LEVEL == this.session.getCountStrategy()) {
+        else if (CoverageCountStrategy.LEVEL.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement * r.getRuleLevel());
         }
-        else if (CoverageCountStrategy.OCCURRENCE == this.session.getCountStrategy()) {
+        else if (CoverageCountStrategy.OCCURRENCE.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement * r.getOccurrences().size());
         }
-        else if (CoverageCountStrategy.YIELD == this.session.getCountStrategy()) {
+        else if (CoverageCountStrategy.YIELD.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement * r.getRuleYield());
         }
-        else if (CoverageCountStrategy.PRODUCT == this.session.getCountStrategy()) {
+        else if (CoverageCountStrategy.PRODUCT.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement * (r.getRuleLevel() * r.getOccurrences().size()));
         }
         marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -369,7 +369,7 @@ public class GrammarvizChartPanel extends JPanel
     // write down the coverage array
     //
     try {
-      String filename = session.getRuleDensityOutputFileName();
+      String filename = session.ruleDensityOutputFileName;
       BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename)));
       for (int c : coverageArray) {
         bw.write(String.valueOf(c) + "\n");
@@ -690,7 +690,7 @@ public class GrammarvizChartPanel extends JPanel
     if (GrammarVizView.DISPLAY_DENSITY_DATA.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_DENSITY + "coverage count strategy: "
-          + this.session.getCountStrategy().toString() + " ");
+          + this.session.countStrategy.toString() + " ");
       this.repaint();
       displayRuleDensity();
     }

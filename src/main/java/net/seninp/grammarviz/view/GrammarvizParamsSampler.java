@@ -12,7 +12,6 @@ import net.seninp.gi.rulepruner.ReductionSorter;
 import net.seninp.gi.rulepruner.RulePruner;
 import net.seninp.gi.rulepruner.RulePrunerParameters;
 import net.seninp.gi.rulepruner.SampledPoint;
-import net.seninp.grammarviz.logic.GrammarVizChartData;
 
 public class GrammarvizParamsSampler implements Callable<String> {
 

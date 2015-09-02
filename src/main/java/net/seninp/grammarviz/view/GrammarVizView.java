@@ -50,7 +50,7 @@ import net.seninp.util.StackTrace;
  */
 public class GrammarVizView implements Observer, ActionListener {
 
-  private static final String APPLICATION_VERSION = "GrammarViz 2.0: visualizing time series grammars";
+  private static final String APPLICATION_MOTTO = "GrammarViz 2.0: visualizing time series grammars";
 
   // static block - we instantiate the logger
   //
@@ -64,11 +64,12 @@ public class GrammarVizView implements Observer, ActionListener {
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
-  // relevant string constants go here
+  // relevant string constants and formatters go here
   //
   // private static final String COMMA = ",";
   private static final String CR = "\n";
   private static final String TITLE_FONT = "helvetica";
+  private SimpleDateFormat logDateFormat = new SimpleDateFormat("HH:mm:ss' '");
 
   // String is the king - constants for actions
   //
@@ -79,7 +80,7 @@ public class GrammarVizView implements Observer, ActionListener {
   /** Guess parameters action key. */
   protected static final String GUESS_PARAMETERS = "guess_parameters";
   /** Process data action key. */
-  private static final String PROCESS_DATA = "process_data";
+  protected static final String PROCESS_DATA = "process_data";
   /** Reduce overlaps data action key. */
   protected static final String CLUSTER_RULES = "cluster_rules";
   /** Rank rules action key. */
@@ -107,7 +108,7 @@ public class GrammarVizView implements Observer, ActionListener {
   private static final String ABOUT_MENU_ITEM = "menu_item_about";
 
   /** Frame for the GUI. */
-  private static final JFrame frame = new JFrame(APPLICATION_VERSION);
+  private static final JFrame frame = new JFrame(APPLICATION_MOTTO);
 
   /** The main menu bar. */
   private static final JMenuBar menuBar = new JMenuBar();
@@ -121,6 +122,7 @@ public class GrammarVizView implements Observer, ActionListener {
   private JTextField dataFilePathField;
   private JButton selectFileButton;
   private JTextField dataRowsLimitTextField;
+  private JButton dataLoadButton;
 
   // SAX parameters related fields
   //
@@ -131,9 +133,10 @@ public class GrammarVizView implements Observer, ActionListener {
   private JLabel paaSizeLabel;
   private JTextField SAXpaaSizeField;
   private JTextField SAXalphabetSizeField;
+  private JButton guessParametersButton; // the guess dialog trigger
 
-  private JButton guessParametersButton;
-
+  // SAX numerosity reduction dialog group
+  //
   private JPanel numerosityReductionPane;
   private ButtonGroup numerosityButtonsGroup = new ButtonGroup();
   private JRadioButton numerosityReductionOFFButton = new JRadioButton("OFF");
@@ -142,13 +145,14 @@ public class GrammarVizView implements Observer, ActionListener {
 
   // The process action pane
   //
-  private JPanel processPane;
+  private JPanel discretizePane;
+  private JButton discretizeButton;
 
-  // data chart place
+  // data charting panel
   //
   private GrammarvizChartPanel dataChartPane;
 
-  // sequitur rule list
+  // sequitur rules table and other tables panel
   //
   private JTabbedPane tabbedRulesPane;
   private GrammarvizRulesPanel sequiturRulesPane;
@@ -156,15 +160,13 @@ public class GrammarVizView implements Observer, ActionListener {
   private RulesPeriodicityPanel rulesPeriodicityPane;
   private GrammarVizAnomaliesPanel anomaliesPane;
 
-  // small rule show panel
+  // rule(s) charting auxiliary panel
   //
   private GrammarvizRuleChartPanel ruleChartPane;
 
   // workflow pane - buttons
   //
   private JPanel workflowManagementPane;
-  private JButton dataLoadButton;
-  private JButton processButton;
   private JButton clusterRulesButton;
   // private JButton findPeriodicityButton;
   private JButton rankRulesButton;
@@ -173,10 +175,6 @@ public class GrammarVizView implements Observer, ActionListener {
   private JButton displayRulesLenHistogramButton;
   private JButton displayAnomaliesButton;
   private JButton saveChartButton;
-
-  // The log panel configuration section
-  //
-  private SimpleDateFormat logDateFormat = new SimpleDateFormat("HH:mm:ss' '");
 
   // we keep the data pointer here
   private GrammarVizChartData chartData;
@@ -209,7 +207,6 @@ public class GrammarVizView implements Observer, ActionListener {
       public void run() {
         try {
           UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-          // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
           // UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         }
         catch (ClassNotFoundException e) {
@@ -296,7 +293,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     frame.getContentPane().add(saxParametersPane, "grow, split");
     frame.getContentPane().add(numerosityReductionPane, "split");
-    frame.getContentPane().add(processPane, "wrap");
+    frame.getContentPane().add(discretizePane, "wrap");
 
     frame.getContentPane().add(dataChartPane, "wrap");
 
@@ -450,20 +447,18 @@ public class GrammarVizView implements Observer, ActionListener {
     // the sliding window parameter
     JLabel slideWindowLabel = new JLabel("Slide the window");
     useSlidingWindowCheckBox = new JCheckBox();
-    useSlidingWindowCheckBox.setSelected(this.controller.getSession().isUseSlidingWindow());
+    useSlidingWindowCheckBox.setSelected(this.controller.getSession().useSlidingWindow);
     useSlidingWindowCheckBox.setActionCommand(USE_SLIDING_WINDOW_ACTION_KEY);
     useSlidingWindowCheckBox.addActionListener(this);
 
     windowSizeLabel = new JLabel("Window size:");
-    SAXwindowSizeField = new JTextField(
-        String.valueOf(this.controller.getSession().getSaxWindow()));
+    SAXwindowSizeField = new JTextField(String.valueOf(this.controller.getSession().saxWindow));
 
     paaSizeLabel = new JLabel("PAA size:");
-    SAXpaaSizeField = new JTextField(String.valueOf(this.controller.getSession().getSaxPAA()));
+    SAXpaaSizeField = new JTextField(String.valueOf(this.controller.getSession().saxPAA));
 
     JLabel alphabetSizeLabel = new JLabel("Alphabet size:");
-    SAXalphabetSizeField = new JTextField(
-        String.valueOf(this.controller.getSession().getSaxAlphabet()));
+    SAXalphabetSizeField = new JTextField(String.valueOf(this.controller.getSession().saxAlphabet));
 
     saxParametersPane.add(slideWindowLabel);
     saxParametersPane.add(useSlidingWindowCheckBox);
@@ -511,24 +506,24 @@ public class GrammarVizView implements Observer, ActionListener {
     numerosityReductionMINDISTButton.addActionListener(this);
     numerosityReductionPane.add(numerosityReductionMINDISTButton);
 
-    this.controller.getSession().setNumerosityReductionStrategy(NumerosityReductionStrategy.EXACT);
+    this.controller.getSession().numerosityReductionStrategy = NumerosityReductionStrategy.EXACT;
     numerosityReductionExactButton.setSelected(true);
 
     // PROCESS button
     //
-    processButton = new JButton("Discretize");
-    processButton.setMnemonic('P');
-    processButton.setActionCommand(PROCESS_DATA);
-    processButton.addActionListener(this);
+    discretizeButton = new JButton("Discretize");
+    discretizeButton.setMnemonic('P');
+    discretizeButton.setActionCommand(PROCESS_DATA);
+    discretizeButton.addActionListener(this);
 
-    processPane = new JPanel();
-    processPane.setBorder(BorderFactory.createTitledBorder(
+    discretizePane = new JPanel();
+    discretizePane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Hit to run GI", TitledBorder.LEFT,
         TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
     // insets: T, L, B, R.
     MigLayout processPaneLayout = new MigLayout("insets 3 2 4 2", "5[]5", "[]");
-    processPane.setLayout(processPaneLayout);
-    processPane.add(processButton, "");
+    discretizePane.setLayout(processPaneLayout);
+    discretizePane.add(discretizeButton, "");
 
   }
 
@@ -834,12 +829,15 @@ public class GrammarVizView implements Observer, ActionListener {
       log(Level.INFO, "process data action performed");
       if (this.isTimeSeriesLoaded) {
         // check the values for window/paa/alphabet, etc.
-        this.controller.getSession()
-            .setSaxWindow(Integer.valueOf(this.SAXwindowSizeField.getText()));
-        this.controller.getSession().setSaxPAA(Integer.valueOf(this.SAXpaaSizeField.getText()));
-        this.controller.getSession()
-            .setSaxAlphabet(Integer.valueOf(this.SAXalphabetSizeField.getText()));
-        this.controller.getProcessDataListener().actionPerformed(new ActionEvent(this, 2, null));
+        this.controller.getSession().saxWindow = Integer.valueOf(this.SAXwindowSizeField.getText());
+        this.controller.getSession().saxPAA = Integer.valueOf(this.SAXpaaSizeField.getText());
+        this.controller.getSession().saxAlphabet = Integer
+            .valueOf(this.SAXalphabetSizeField.getText());
+        this.controller.getProcessDataListener().actionPerformed(new ActionEvent(this, 0, null)); // only
+                                                                                                  // one
+                                                                                                  // handler
+                                                                                                  // over
+                                                                                                  // there
       }
       else {
         raiseValidationError("The timeseries is not loaded yet.");
@@ -1007,18 +1005,17 @@ public class GrammarVizView implements Observer, ActionListener {
     else if (USE_SLIDING_WINDOW_ACTION_KEY.equalsIgnoreCase(command)) {
       log(Level.INFO, "sliding window toggled");
       if (this.useSlidingWindowCheckBox.isSelected()) {
-        this.controller.getSession().setUseSlidingWindow(true);
+        this.controller.getSession().useSlidingWindow = true;
         this.windowSizeLabel.setText("Window size:");
         this.windowSizeLabel.setEnabled(true);
         this.windowSizeLabel.setVisible(true);
-        this.SAXwindowSizeField
-            .setText(String.valueOf(this.controller.getSession().getSaxWindow()));
+        this.SAXwindowSizeField.setText(String.valueOf(this.controller.getSession().saxWindow));
         this.SAXwindowSizeField.setEnabled(true);
         this.SAXwindowSizeField.setVisible(true);
         this.paaSizeLabel.setText("PAA size:");
       }
       else {
-        this.controller.getSession().setUseSlidingWindow(false);
+        this.controller.getSession().useSlidingWindow = false;
         this.windowSizeLabel.setText("");
         this.windowSizeLabel.setEnabled(false);
         this.windowSizeLabel.setVisible(false);
@@ -1032,8 +1029,8 @@ public class GrammarVizView implements Observer, ActionListener {
         || NumerosityReductionStrategy.EXACT.toString().equalsIgnoreCase(command)
         || NumerosityReductionStrategy.MINDIST.toString().equalsIgnoreCase(command)) {
       log(Level.INFO, "numerosity reduction option toggled");
-      this.controller.getSession()
-          .setNumerosityReductionStrategy(NumerosityReductionStrategy.fromString(command));
+      this.controller.getSession().numerosityReductionStrategy = NumerosityReductionStrategy
+          .fromString(command);
     }
 
     else if ("Exit".equalsIgnoreCase(command)) {

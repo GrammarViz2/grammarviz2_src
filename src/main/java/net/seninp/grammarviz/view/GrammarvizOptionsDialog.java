@@ -9,7 +9,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
-import net.seninp.grammarviz.logic.UserSession;
+import net.seninp.grammarviz.session.UserSession;
 
 /* 1.4 example used by DialogDemo.java. */
 class GrammarvizOptionsDialog extends JDialog implements ActionListener {
@@ -64,17 +64,17 @@ class GrammarvizOptionsDialog extends JDialog implements ActionListener {
     if (OK_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {
 
       // collect settings
-      this.session.setCountStrategy(this.optionPane.getSelectedStrategyValue());
+      this.session.countStrategy = this.optionPane.getSelectedStrategyValue();
 
-      this.session.setGIAlgorithm(this.optionPane.getSelectedAlgorithmValue());
+      this.session.giAlgorithm = this.optionPane.getSelectedAlgorithmValue();
 
-      this.session.setNormalizationThreshold(this.optionPane.getNormalizationThreshold());
+      this.session.normalizationThreshold = this.optionPane.getNormalizationThreshold();
 
       // the output file names
-      this.session.setGrammarOutputFileName(this.optionPane.getGrammarOutputFileName());
-      this.session.setRuleDensityOutputFileName(this.optionPane.getRuleCoverageFileName());
-      this.session.setAnomaliesOutputFileName(this.optionPane.getAnomalyOutputFileName());
-      this.session.setChartsSaveFolder(this.optionPane.getChartsFolderName());
+      this.session.grammarOutputFileName = this.optionPane.getGrammarOutputFileName();
+      this.session.ruleDensityOutputFileName = this.optionPane.getRuleCoverageFileName();
+      this.session.anomaliesOutputFileName = this.optionPane.getAnomalyOutputFileName();
+      this.session.chartsSaveFolder = this.optionPane.getChartsFolderName();
 
     }
     else if (CANCEL_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {

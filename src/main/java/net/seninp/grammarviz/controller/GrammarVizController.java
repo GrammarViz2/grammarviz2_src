@@ -6,10 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 import javax.swing.JFileChooser;
-import net.seninp.grammarviz.logic.UserSession;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.grammarviz.model.GrammarVizModel;
-import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.grammarviz.session.UserSession;
 
 /**
  * Implements the Controler component for GrammarViz2 GUI MVC.
@@ -76,31 +75,34 @@ public class GrammarVizController extends Observable implements ActionListener {
    * @return
    */
   public ActionListener getProcessDataListener() {
-    ActionListener loadDataActionListener = new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
 
-        int algorithm = session.getGiAlgorithm();
-        boolean useSlidingWindow = session.isUseSlidingWindow();
-        NumerosityReductionStrategy numerosityReductionStrategy = session
-            .getNumerosityReductionStrategy();
-        int windowSize = session.getSaxWindow();
-        int paaSize = session.getSaxPAA();
-        int alphabetSize = session.getSaxAlphabet();
-        double normalizationThreshold = session.getNormalizationThreshold();
-        String grammarOutputFileName = session.getGrammarOutputFileName();
-        log("controller: running inference with settings alg: " + algorithm + ", sliding window: "
-            + useSlidingWindow + ", num.reduction:" + numerosityReductionStrategy.toString()
-            + ", SAX window: " + windowSize + ", SAX paa: " + paaSize + ", SAX alphabet: "
-            + alphabetSize + ", norm.threshold: " + normalizationThreshold + ", grammar filename: "
-            + grammarOutputFileName);
+    ActionListener loadDataActionListener = new ActionListener() {
+      public void actionPerformed(ActionEvent event) {
+
+        StringBuffer logSB = new StringBuffer("controller: running inference with settings:");
+
+        logSB.append(" SAX window: ").append(session.useSlidingWindow);
+        logSB.append(", SAX paa: ").append(session.useSlidingWindow);
+        logSB.append(", SAX alphabet: ").append(session.useSlidingWindow);
+
+        logSB.append(", sliding window:").append(session.useSlidingWindow);
+        logSB.append(", num.reduction:").append(session.useSlidingWindow);
+        logSB.append(", norm.threshold: ").append(session.useSlidingWindow);
+
+        logSB.append(", GI alg: ").append(session.giAlgorithm);
+
+        logSB.append(", grammar filename: ").append(session.useSlidingWindow);
+
+        log(logSB.toString());
 
         try {
-          model.processData(algorithm, useSlidingWindow, numerosityReductionStrategy, windowSize,
-              paaSize, alphabetSize, normalizationThreshold, grammarOutputFileName);
+          model.processData(session.giAlgorithm, session.useSlidingWindow,
+              session.numerosityReductionStrategy, session.saxWindow, session.saxPAA,
+              session.saxAlphabet, session.normalizationThreshold, session.grammarOutputFileName);
         }
-        catch (IOException e1) {
+        catch (IOException exception) {
           // TODO Auto-generated catch block
-          e1.printStackTrace();
+          exception.printStackTrace();
         }
 
       }
@@ -131,6 +133,7 @@ public class GrammarVizController extends Observable implements ActionListener {
    */
   private void log(String message) {
     this.setChanged();
-    notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "controller: " + message));
+    notifyObservers(
+        new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "controller: " + message));
   }
 }

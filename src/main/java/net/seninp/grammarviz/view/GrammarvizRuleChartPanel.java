@@ -135,8 +135,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
    * @throws TSException
    */
   private XYSeries toSeries(int index, double[] series) throws Exception {
-    double[] normalizedSubseries = tp.znorm(series, controller.getSession()
-        .getNormalizationThreshold());
+    double[] normalizedSubseries = tp.znorm(series, controller.getSession().normalizationThreshold);
     XYSeries res = new XYSeries("series" + String.valueOf(index));
     for (int i = 0; i < normalizedSubseries.length; i++) {
       res.add(i, normalizedSubseries[i]);
@@ -172,8 +171,8 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
    */
   protected void chartIntervalsForClass(String classIndex) {
     try {
-      ArrayList<RuleInterval> arrPos = chartData.getSubsequencesPositionsByClassNum(Integer
-          .valueOf(classIndex));
+      ArrayList<RuleInterval> arrPos = chartData
+          .getSubsequencesPositionsByClassNum(Integer.valueOf(classIndex));
       ArrayList<double[]> intervals = new ArrayList<double[]>();
       for (RuleInterval saxPos : arrPos) {
         intervals.add(extractInterval(saxPos.getStartPos(), saxPos.getEndPos()));
@@ -248,8 +247,8 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
       param.add(newlySelectedRaw);
       chartIntervalsForRule(param);
     }
-    else if (GrammarVizAnomaliesPanel.FIRING_PROPERTY_ANOMALY.equalsIgnoreCase(evt
-        .getPropertyName())) {
+    else if (GrammarVizAnomaliesPanel.FIRING_PROPERTY_ANOMALY
+        .equalsIgnoreCase(evt.getPropertyName())) {
       @SuppressWarnings("unchecked")
       ArrayList<String> newlySelectedRaw = (ArrayList<String>) evt.getNewValue();
       chartIntervalForAnomaly(newlySelectedRaw);

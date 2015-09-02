@@ -84,31 +84,35 @@ public class GrammarvizParamsSampler implements Callable<String> {
             System.err.println("Ooops -- was interrupted, finilizing sampling ...");
 
             Collections.sort(res, new ReductionSorter());
+
+            parent.session.saxWindow = res.get(0).getWindow();
+            parent.session.saxPAA = res.get(0).getPAA();
+            parent.session.saxAlphabet = res.get(0).getAlphabet();
+
             System.out.println("\nApparently, the best parameters are " + res.get(0).toString());
             this.parent
                 .actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SAMPLING_SUCCEEDED));
-            return res.get(0).toString();
+
+            return res.get(0).getWindow() + " " + res.get(0).getPAA() + " "
+                + res.get(0).getAlphabet();
 
           }
 
         }
       }
     }
-    // bw.close();
 
     Collections.sort(res, new ReductionSorter());
 
+    parent.session.saxWindow = res.get(0).getWindow();
+    parent.session.saxPAA = res.get(0).getPAA();
+    parent.session.saxAlphabet = res.get(0).getAlphabet();
+
     System.out.println("\nApparently, the best parameters are " + res.get(0).toString());
-    //
-    //
+
     this.parent.actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SAMPLING_SUCCEEDED));
 
-    return res.get(0).toString();
-
-  }
-
-  public void interrupt() {
-    // TODO Auto-generated method stub
+    return res.get(0).getWindow() + " " + res.get(0).getPAA() + " " + res.get(0).getAlphabet();
 
   }
 

@@ -60,11 +60,11 @@ public class GrammarvizOptionsPane extends JPanel {
   private static final String SAX_NORMALIZATION_THRESHOLD_LABEL = "Normalization threshold:";
   private static final JFormattedTextField normalizationThresholdField = new JFormattedTextField(
       new NumberFormatter(NumberFormat.getNumberInstance(Locale.US)));
-  //
+
   // Input file params
   //
-  private static final String DELIMETER_MASK_LABEL = "Delimeter mask:";
-  private static final JTextField delimeterMask = new JTextField();
+  // private static final String DELIMETER_MASK_LABEL = "Delimeter mask:";
+  // private static final JTextField delimeterMask = new JTextField();
 
   //
   // Output options section
@@ -303,7 +303,7 @@ public class GrammarvizOptionsPane extends JPanel {
   }
 
   public GIAlgorithm getSelectedAlgorithmValue() {
-    return GIAlgorithm.fromValue(strategyRadioGroup.getSelection().getActionCommand());
+    return GIAlgorithm.fromValue(giRadioGroup.getSelection().getActionCommand());
   }
 
   /**

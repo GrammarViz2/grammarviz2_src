@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -75,6 +77,7 @@ public class GrammarvizChartPanel extends JPanel
 
   // various display string constants
   //
+  private static final String LABEL_DEFAULT = " Data display ";
   private static final String LABEL_SHOWING_RULES = " Data display: showing rule subsequences ";
   private static final String LABEL_SHOWING_HISTOGRAMM = " Data display: showing rules length histogramm ";
   private static final String LABEL_SHOWING_DENSITY = " Data display: showing grammar rules density, ";
@@ -107,12 +110,16 @@ public class GrammarvizChartPanel extends JPanel
   double previousClickPosition = 0;
 
   /** The user session var - holds all parameters. */
-  private UserSession session;
+  protected UserSession session;
 
   /** The inner panel which displays the chart in place. */
   private ChartPanel chartPanel;
 
   private Thread guessRefreshThread;
+
+  private JButton setOperationalButton;
+
+  private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
   // the logger business
   //
@@ -177,10 +184,10 @@ public class GrammarvizChartPanel extends JPanel
 
     chartPanel = new ChartPanel(this.chart);
 
-    chartPanel.setMinimumDrawWidth(0);
-    chartPanel.setMinimumDrawHeight(0);
-    chartPanel.setMaximumDrawWidth(1920);
-    chartPanel.setMaximumDrawHeight(1200);
+    // chartPanel.setMinimumDrawWidth(0);
+    // chartPanel.setMinimumDrawHeight(0);
+    // chartPanel.setMaximumDrawWidth(1920);
+    // chartPanel.setMaximumDrawHeight(1200);
 
     chartPanel.setMouseWheelEnabled(true);
 
@@ -194,7 +201,7 @@ public class GrammarvizChartPanel extends JPanel
 
     // not sure if I need this
     //
-    validate();
+    revalidate();
     repaint();
   }
 
@@ -355,7 +362,7 @@ public class GrammarvizChartPanel extends JPanel
 
     // not sure if I need this
     //
-    validate();
+    revalidate();
     repaint();
 
     // and finally save the coverage curve
@@ -386,7 +393,7 @@ public class GrammarvizChartPanel extends JPanel
     // cleanup all the content
     //
     this.removeAll();
-    validate();
+    revalidate();
     repaint();
 
     // construct the dataset
@@ -482,7 +489,7 @@ public class GrammarvizChartPanel extends JPanel
     //
     this.add(chartPanel);
 
-    validate();
+    revalidate();
     repaint();
   }
 
@@ -567,13 +574,13 @@ public class GrammarvizChartPanel extends JPanel
     this.tsData = tsData;
     paintTheChart(tsData);
     chartPanel = new ChartPanel(this.chart);
-    chartPanel.setMinimumDrawWidth(0);
-    chartPanel.setMinimumDrawHeight(0);
-    chartPanel.setMaximumDrawWidth(1920);
-    chartPanel.setMaximumDrawHeight(1200);
+    // chartPanel.setMinimumDrawWidth(0);
+    // chartPanel.setMinimumDrawHeight(0);
+    // chartPanel.setMaximumDrawWidth(1920);
+    // chartPanel.setMaximumDrawHeight(1200);
     this.removeAll();
     this.add(chartPanel);
-    validate();
+    revalidate();
     repaint();
   }
 
@@ -658,21 +665,24 @@ public class GrammarvizChartPanel extends JPanel
       highlightPatternInChart(newlySelectedRaws);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_RULES);
-      this.repaint();
+      revalidate();
+      repaint();
     }
     if (PackedRulesPanel.FIRING_PROPERTY_PACKED.equalsIgnoreCase(evt.getPropertyName())) {
       String newlySelectedRaw = (String) evt.getNewValue();
       highlightPatternInChartPacked(newlySelectedRaw);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_PACKED_RULES);
-      this.repaint();
+      revalidate();
+      repaint();
     }
     if (RulesPeriodicityPanel.FIRING_PROPERTY_PERIOD.equalsIgnoreCase(evt.getPropertyName())) {
       String newlySelectedRaw = (String) evt.getNewValue();
       highlightPeriodsBetweenPatterns(newlySelectedRaw);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_PERIODS);
-      this.repaint();
+      revalidate();
+      repaint();
     }
     if (GrammarVizAnomaliesPanel.FIRING_PROPERTY_ANOMALY.equalsIgnoreCase(evt.getPropertyName())) {
       @SuppressWarnings("unchecked")
@@ -680,7 +690,8 @@ public class GrammarvizChartPanel extends JPanel
       highlightAnomaly(newlySelectedRaws);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_ANOMALY);
-      this.repaint();
+      revalidate();
+      repaint();
     }
 
   }
@@ -691,19 +702,21 @@ public class GrammarvizChartPanel extends JPanel
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_DENSITY + "coverage count strategy: "
           + this.session.countStrategy.toString() + " ");
-      this.repaint();
+      revalidate();
+      repaint();
       displayRuleDensity();
     }
     else if (GrammarVizView.DISPLAY_LENGTH_HISTOGRAM.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_HISTOGRAMM);
-      this.repaint();
+      revalidate();
       displayRulesLengthHistogram();
     }
     else if (GrammarVizView.SAVE_CHART.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SAVING_CHART);
-      this.repaint();
+      revalidate();
+      repaint();
       saveCurrentChart();
     }
     else if (GrammarVizView.GUESS_PARAMETERS.equalsIgnoreCase(e.getActionCommand())) {
@@ -712,7 +725,8 @@ public class GrammarvizChartPanel extends JPanel
       //
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SELECT_INTERVAL);
-      this.repaint();
+      revalidate();
+      repaint();
 
       // disabling zoom on the panel
       //
@@ -767,12 +781,30 @@ public class GrammarvizChartPanel extends JPanel
           if (selectionSucceeded) {
             consoleLogger.debug("Running the sampler...");
             try {
-              ExecutorService executorService = Executors.newSingleThreadExecutor();
-              Future<String> bestParams = executorService.submit(paramsSampler);
-              Thread.currentThread().sleep(5000);
-              bestParams.cancel(true);
+
+              final ExecutorService executorService = Executors.newSingleThreadExecutor();
+              final Future<String> bestParams = executorService.submit(paramsSampler);
+
+              setOperationalButton.setText("Stop!");
+              setOperationalButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                  bestParams.cancel(true);
+                  executorService.shutdown();
+                }
+              });
+              setOperationalButton.revalidate();
+              setOperationalButton.repaint();
+
               consoleLogger.debug("Finished with sampler...");
-              executorService.shutdown();
+
+              if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {
+                executorService.shutdownNow(); // Cancel currently executing tasks
+                if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+                  System.err.println("Pool did not terminate... FATAL ERROR");
+                }
+              }
+
             }
             catch (Exception e) {
               // TODO Auto-generated catch block
@@ -790,7 +822,14 @@ public class GrammarvizChartPanel extends JPanel
       this.resetChartPanel();
     }
     else if (GrammarvizChartPanel.SAMPLING_SUCCEEDED.equalsIgnoreCase(e.getActionCommand())) {
-
+      TitledBorder tb = (TitledBorder) this.getBorder();
+      tb.setTitle(LABEL_DEFAULT);
+      resetChartPanel();
+      this.session.notifyParametersChangeListeners();
+      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
+      for (ActionListener l : this.listeners) {
+        l.actionPerformed(event);
+      }
     }
 
   }
@@ -832,11 +871,19 @@ public class GrammarvizChartPanel extends JPanel
 
       // this.paintTheChart();
 
-      ChartUtilities.saveChartAsPNG(new File(fileName), this.chart, 1400, 425);
+      ChartUtilities.saveChartAsPNG(new File(fileName), this.chart, 900, 600);
     }
     catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public void setOperationalButton(JButton guessParametersButton) {
+    this.setOperationalButton = guessParametersButton;
+  }
+
+  public void addActionListener(ActionListener listener) {
+    this.listeners.add(listener);
   }
 
 }

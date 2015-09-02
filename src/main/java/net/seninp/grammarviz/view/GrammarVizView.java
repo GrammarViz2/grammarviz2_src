@@ -39,6 +39,7 @@ import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.session.UserSession;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
 
@@ -97,6 +98,8 @@ public class GrammarVizView implements Observer, ActionListener {
   protected static final String DISPLAY_ANOMALIES_DATA = "display_anomalies_data";
   /** Save chart action key. */
   protected static final String SAVE_CHART = "save_chart";
+
+  protected static final String RESET_GUESS_BUTTON_LISTENER = "reset_guess_button_listener";
 
   /** Chunking/Sliding switch action key. */
   protected static final String USE_SLIDING_WINDOW_ACTION_KEY = "sliding_window_key";
@@ -195,6 +198,7 @@ public class GrammarVizView implements Observer, ActionListener {
    */
   public GrammarVizView(GrammarVizController controller) {
     this.controller = controller;
+    this.controller.getSession().addActionListener(this);
   }
 
   /**
@@ -476,7 +480,6 @@ public class GrammarVizView implements Observer, ActionListener {
     guessParametersButton.setMnemonic('G');
     guessParametersButton.setActionCommand(GUESS_PARAMETERS);
     guessParametersButton.addActionListener(this);
-
     saxParametersPane.add(guessParametersButton, "");
 
     // numerosity reduction pane
@@ -530,11 +533,17 @@ public class GrammarVizView implements Observer, ActionListener {
   private void buildChartPane() {
     // MotifChartPanel _chart = new MotifChartPanel(null);
     dataChartPane = new GrammarvizChartPanel();
+    dataChartPane.addActionListener(this);
+    dataChartPane.session = this.controller.getSession();
     dataChartPane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Data display", TitledBorder.LEFT,
         TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
     MigLayout chartPaneLayout = new MigLayout("insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
     dataChartPane.setLayout(chartPaneLayout);
+
+    // needed to be able to stop guessing...
+    //
+    dataChartPane.setOperationalButton(this.guessParametersButton);
   }
 
   /**
@@ -915,7 +924,21 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (GUESS_PARAMETERS.equalsIgnoreCase(command)) {
       log(Level.INFO, "starting the guessing params dialog");
+      this.guessParametersButton.removeActionListener(this);
       this.dataChartPane.actionPerformed(new ActionEvent(this, 2, GUESS_PARAMETERS));
+    }
+
+    else if (UserSession.PARAMS_CHANGED_EVENT.equalsIgnoreCase(command)) {
+      this.SAXwindowSizeField.setText(String.valueOf(this.controller.getSession().saxWindow));
+      this.SAXpaaSizeField.setText(String.valueOf(this.controller.getSession().saxPAA));
+      this.SAXalphabetSizeField.setText(String.valueOf(this.controller.getSession().saxAlphabet));
+      this.saxParametersPane.revalidate();
+      this.saxParametersPane.repaint();
+    }
+
+    else if (RESET_GUESS_BUTTON_LISTENER.equalsIgnoreCase(command)) {
+      this.guessParametersButton.setText("Guess");
+      this.guessParametersButton.addActionListener(this);
     }
 
     else if (FIND_PERIODICITY.equalsIgnoreCase(command)) {

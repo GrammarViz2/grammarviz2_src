@@ -1,7 +1,10 @@
 package net.seninp.grammarviz.session;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
@@ -14,6 +17,9 @@ import net.seninp.util.StackTrace;
  * 
  */
 public class UserSession {
+
+  /** Params change event. */
+  public static final String PARAMS_CHANGED_EVENT = "parameters_changed";
 
   private static final int DEFAULT_SAX_WINDOW = 170;
   private static final int DEFAULT_SAX_PAA = 4;
@@ -51,6 +57,7 @@ public class UserSession {
   public volatile String grammarOutputFileName;
   public volatile String anomaliesOutputFileName;
   public volatile String chartsSaveFolder;
+  private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
   public UserSession() {
 
@@ -82,6 +89,18 @@ public class UserSession {
           "Error has been thrown, unable to findout the current path: " + StackTrace.toString(e));
     }
     this.ruleDensityOutputFileName = filename;
+
+  }
+
+  public void addActionListener(ActionListener e) {
+    this.listeners.add(e);
+  }
+
+  public void notifyParametersChangeListeners() {
+    ActionEvent event = new ActionEvent(this, 0, PARAMS_CHANGED_EVENT);
+    for (ActionListener listener : listeners) {
+      listener.actionPerformed(event);
+    }
 
   }
 

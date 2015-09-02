@@ -8,6 +8,9 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.session.UserSession;
 
@@ -21,6 +24,16 @@ class GrammarvizOptionsDialog extends JDialog implements ActionListener {
 
   private UserSession session;
   private GrammarvizOptionsPane optionPane;
+
+  // logging stuff
+  //
+  private static Logger consoleLogger;
+  private static Level LOGGING_LEVEL = Level.INFO;
+
+  static {
+    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizOptionsDialog.class);
+    consoleLogger.setLevel(LOGGING_LEVEL);
+  }
 
   /** Creates the reusable dialog. */
   public GrammarvizOptionsDialog(JFrame parentFrame, JPanel optionPanel, UserSession session) {
@@ -63,18 +76,32 @@ class GrammarvizOptionsDialog extends JDialog implements ActionListener {
   public void actionPerformed(ActionEvent e) {
     if (OK_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {
 
+      StringBuffer logStr = new StringBuffer("new params selected: ");
+
       // collect settings
       this.session.countStrategy = this.optionPane.getSelectedStrategyValue();
+      logStr.append("count strategy: ").append(this.optionPane.getSelectedStrategyValue());
 
       this.session.giAlgorithm = this.optionPane.getSelectedAlgorithmValue();
+      logStr.append(", GI algorithm: ").append(this.optionPane.getSelectedAlgorithmValue());
 
       this.session.normalizationThreshold = this.optionPane.getNormalizationThreshold();
+      logStr.append(", norm threshold: ").append(this.optionPane.getNormalizationThreshold());
 
       // the output file names
       this.session.grammarOutputFileName = this.optionPane.getGrammarOutputFileName();
+      logStr.append(", GI output: ").append(this.optionPane.getGrammarOutputFileName());
+
       this.session.ruleDensityOutputFileName = this.optionPane.getRuleCoverageFileName();
+      logStr.append(", rule density output: ").append(this.optionPane.getRuleCoverageFileName());
+
       this.session.anomaliesOutputFileName = this.optionPane.getAnomalyOutputFileName();
+      logStr.append(", anomalies output: ").append(this.optionPane.getAnomalyOutputFileName());
+
       this.session.chartsSaveFolder = this.optionPane.getChartsFolderName();
+      logStr.append(", charts output: ").append(this.optionPane.getChartsFolderName());
+
+      consoleLogger.info(logStr.toString());
 
     }
     else if (CANCEL_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {

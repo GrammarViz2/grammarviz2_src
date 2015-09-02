@@ -1,7 +1,5 @@
 package net.seninp.grammarviz.view;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JLabel;
@@ -18,20 +16,19 @@ import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import net.seninp.grammarviz.logic.GrammarVizChartData;
+import net.seninp.grammarviz.session.UserSession;
 import net.seninp.grammarviz.view.table.AnomalyTableModel;
 import net.seninp.grammarviz.view.table.CellDoubleRenderer;
 import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
 
-public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionListener,
-    PropertyChangeListener {
+public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionListener {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -2710973845672981568L;
 
   public static final String FIRING_PROPERTY_ANOMALY = "selectedRow_anomaly";
 
-  private GrammarVizChartData chartData;
+  private UserSession session;
 
   private AnomalyTableModel anomalyTableModel;
 
@@ -47,6 +44,7 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
   //
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
+
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizAnomaliesPanel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
@@ -82,8 +80,8 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
     };
     this.anomalyTable.setModel(anomalyTableModel);
     // this.anomalyTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    this.anomalyTable.getSelectionModel().setSelectionMode(
-        ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+    this.anomalyTable.getSelectionModel()
+        .setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     this.anomalyTable.setShowGrid(false);
     this.anomalyTable.setDefaultRenderer(Double.class, new CellDoubleRenderer());
 
@@ -100,17 +98,6 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
     // expandedRuleComparator);
 
     this.anomaliesPane = new JScrollPane(anomalyTable);
-  }
-
-  /**
-   * Set the new data.
-   * 
-   * @param chartData the new data.
-   */
-  public void setChartData(GrammarVizChartData chartData) {
-    this.acceptListEvents = false;
-    this.chartData = chartData;
-    this.acceptListEvents = true;
   }
 
   /**
@@ -148,8 +135,8 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
       ArrayList<String> rules = new ArrayList<String>(rows.length);
       for (int i = 0; i < rows.length; i++) {
         int ridx = rows[i];
-        String rule = String.valueOf(anomalyTable.getValueAt(ridx,
-            GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
+        String rule = String.valueOf(
+            anomalyTable.getValueAt(ridx, GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
         rules.add(rule);
       }
       this.firePropertyChange(FIRING_PROPERTY_ANOMALY, this.selectedAnomalies, rules);
@@ -157,15 +144,9 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
 
   }
 
-  @Override
-  public void propertyChange(PropertyChangeEvent evt) {
-    // TODO Auto-generated method stub
-
-  }
-
   public void updateAnomalies() {
     this.acceptListEvents = false;
-    anomalyTableModel.update(this.chartData.getAnomalies());
+    anomalyTableModel.update(this.session.chartData.getAnomalies());
     this.acceptListEvents = true;
   }
 
@@ -175,11 +156,15 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
   public void clear() {
     this.acceptListEvents = false;
     this.removeAll();
-    this.chartData = null;
+    this.session = null;
     anomalyTableModel.update(null);
     this.validate();
     this.repaint();
     this.acceptListEvents = true;
+  }
+
+  public void setChartData(UserSession session2) {
+    this.session = session2;
   }
 
 }

@@ -16,7 +16,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import net.seninp.gi.RuleInterval;
 import net.seninp.grammarviz.controller.GrammarVizController;
-import net.seninp.grammarviz.logic.GrammarVizChartData;
+import net.seninp.grammarviz.session.UserSession;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.util.StackTrace;
@@ -33,7 +33,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
   private XYPlot plot;
 
   /** Current chart data instance. */
-  private GrammarVizChartData chartData;
+  private UserSession session;
 
   private TSProcessor tp;
   private GrammarVizController controller;
@@ -53,11 +53,6 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
    */
   public void setController(GrammarVizController controller) {
     this.controller = controller;
-  }
-
-  public void setChartData(GrammarVizChartData chartData) {
-    this.chartData = chartData;
-    resetChartPanel();
   }
 
   /**
@@ -152,7 +147,8 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     try {
       ArrayList<double[]> intervals = new ArrayList<double[]>();
       for (String str : newlySelectedRaw) {
-        ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(Integer.valueOf(str));
+        ArrayList<RuleInterval> arrPos = this.session.chartData
+            .getRulePositionsByRuleNum(Integer.valueOf(str));
         for (RuleInterval saxPos : arrPos) {
           intervals.add(extractInterval(saxPos.getStartPos(), saxPos.getEndPos()));
         }
@@ -171,7 +167,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
    */
   protected void chartIntervalsForClass(String classIndex) {
     try {
-      ArrayList<RuleInterval> arrPos = chartData
+      ArrayList<RuleInterval> arrPos = this.session.chartData
           .getSubsequencesPositionsByClassNum(Integer.valueOf(classIndex));
       ArrayList<double[]> intervals = new ArrayList<double[]>();
       for (RuleInterval saxPos : arrPos) {
@@ -193,7 +189,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     try {
       ArrayList<double[]> intervals = new ArrayList<double[]>();
       for (String str : newlySelectedAnomalies) {
-        DiscordRecord dr = this.chartData.getAnomalies().get(Integer.valueOf(str));
+        DiscordRecord dr = this.session.chartData.getAnomalies().get(Integer.valueOf(str));
         intervals.add(extractInterval(dr.getPosition(), dr.getPosition() + dr.getLength()));
       }
       chartIntervals(intervals);
@@ -212,17 +208,17 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
    * @throws Exception if error occurs.
    */
   private double[] extractInterval(int startPos, int endPos) throws Exception {
-    if (this.chartData.getOriginalTimeseries().length <= (endPos - startPos)) {
-      return Arrays.copyOf(this.chartData.getOriginalTimeseries(),
-          this.chartData.getOriginalTimeseries().length);
+    if (this.session.chartData.getOriginalTimeseries().length <= (endPos - startPos)) {
+      return Arrays.copyOf(this.session.chartData.getOriginalTimeseries(),
+          this.session.chartData.getOriginalTimeseries().length);
     }
-    return Arrays.copyOfRange(this.chartData.getOriginalTimeseries(), startPos, endPos);
+    return Arrays.copyOfRange(this.session.chartData.getOriginalTimeseries(), startPos, endPos);
   }
 
   /**
    * Clears the chart panel of the content.
    */
-  public void resetChartPanel() {
+  public void clear() {
     this.removeAll();
     this.validate();
     this.repaint();
@@ -256,11 +252,8 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
 
   }
 
-  /**
-   * Clears the panel.
-   */
-  public void clear() {
-    resetChartPanel();
+  public void setChartData(UserSession session) {
+    this.session = session;
   }
 
 }

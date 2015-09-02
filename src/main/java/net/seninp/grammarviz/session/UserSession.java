@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
 
@@ -58,6 +59,8 @@ public class UserSession {
   public volatile String anomaliesOutputFileName;
   public volatile String chartsSaveFolder;
   private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+
+  public volatile GrammarVizChartData chartData;
 
   public UserSession() {
 

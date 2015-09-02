@@ -72,8 +72,13 @@ public class GrammarvizParamsSampler implements Callable<String> {
 
           SampledPoint p = null;
 
-          p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, RulePrunerParameters.SAX_NR_STRATEGY,
-              RulePrunerParameters.SAX_NORM_THRESHOLD);
+          try {
+            p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+                RulePrunerParameters.SAX_NR_STRATEGY, RulePrunerParameters.SAX_NORM_THRESHOLD);
+          }
+          catch (InterruptedException e) {
+            System.err.println("Ooops -- was interrupted, finilizing sampling ...");
+          }
 
           if (null != p) {
             res.add(p);

@@ -176,11 +176,8 @@ public class GrammarVizView implements Observer, ActionListener {
   private JButton displayChartButton;
   private JButton displayRulesDensityButton;
   private JButton displayRulesLenHistogramButton;
-  private JButton displayAnomaliesButton;
+  private JButton findAnomaliesButton;
   private JButton saveChartButton;
-
-  // we keep the data pointer here
-  private GrammarVizChartData chartData;
 
   private boolean isTimeSeriesLoaded = false;
 
@@ -230,6 +227,7 @@ public class GrammarVizView implements Observer, ActionListener {
         }
 
         configureGUI();
+        disableAllExceptSelectButton();
       }
     });
   }
@@ -276,8 +274,8 @@ public class GrammarVizView implements Observer, ActionListener {
     //
     rulesPeriodicityPane.addPropertyChangeListener(dataChartPane);
     rulesPeriodicityPane.addPropertyChangeListener(ruleChartPane);
-    dataChartPane.addPropertyChangeListener(GrammarVizMessage.MAIN_CHART_CLICKED_MESSAGE,
-        rulesPeriodicityPane);
+    // dataChartPane.addPropertyChangeListener(GrammarVizMessage.MAIN_CHART_CLICKED_MESSAGE,
+    // rulesPeriodicityPane);
 
     // put listeners in place for the Anomalies rule panel
     //
@@ -648,10 +646,10 @@ public class GrammarVizView implements Observer, ActionListener {
     displayRulesLenHistogramButton.setActionCommand(DISPLAY_LENGTH_HISTOGRAM);
     displayRulesLenHistogramButton.addActionListener(this);
 
-    displayAnomaliesButton = new JButton("Find anomalies");
-    displayAnomaliesButton.setMnemonic('A');
-    displayAnomaliesButton.setActionCommand(DISPLAY_ANOMALIES_DATA);
-    displayAnomaliesButton.addActionListener(this);
+    findAnomaliesButton = new JButton("Find anomalies");
+    findAnomaliesButton.setMnemonic('A');
+    findAnomaliesButton.setActionCommand(DISPLAY_ANOMALIES_DATA);
+    findAnomaliesButton.addActionListener(this);
 
     saveChartButton = new JButton("Save Chart");
     saveChartButton.setMnemonic('S');
@@ -664,7 +662,7 @@ public class GrammarVizView implements Observer, ActionListener {
     workflowManagementPane.add(clusterRulesButton);
     workflowManagementPane.add(rankRulesButton);
     workflowManagementPane.add(displayRulesDensityButton);
-    workflowManagementPane.add(displayAnomaliesButton);
+    workflowManagementPane.add(findAnomaliesButton);
     workflowManagementPane.add(saveChartButton);
 
   }
@@ -714,56 +712,27 @@ public class GrammarVizView implements Observer, ActionListener {
 
       final GrammarVizMessage message = (GrammarVizMessage) arg;
 
+      // new log message
+      //
+      if (GrammarVizMessage.STATUS_MESSAGE.equalsIgnoreCase(message.getType())) {
+        log(Level.ALL, (String) message.getPayload());
+      }
+
       // new FileName
       //
-      if (GrammarVizMessage.DATA_FNAME.equalsIgnoreCase(message.getType())) {
-        Runnable doHighlight = new Runnable() {
+      else if (GrammarVizMessage.DATA_FNAME.equalsIgnoreCase(message.getType())) {
+
+        Runnable doSetPath = new Runnable() {
           @Override
           public void run() {
             dataFilePathField.setText((String) message.getPayload());
             dataFilePathField.repaint();
+            disableAllExceptSelectButton();
+            dataLoadButton.setEnabled(true);
           }
         };
-        SwingUtilities.invokeLater(doHighlight);
-      }
+        SwingUtilities.invokeLater(doSetPath);
 
-      // new log message
-      //
-      else if (GrammarVizMessage.STATUS_MESSAGE.equalsIgnoreCase(message.getType())) {
-        log(Level.ALL, (String) message.getPayload());
-      }
-
-      // chart object
-      //
-      else if (GrammarVizMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
-
-        GrammarVizChartData chartData = (GrammarVizChartData) message.getPayload();
-        // TODO: this is ridiculous below here
-        //
-        this.chartData = (GrammarVizChartData) message.getPayload();
-        // setting the chart first
-        //
-        dataChartPane.setChartData(chartData, this.controller.getSession());
-
-        // and the rules pane second
-        //
-        sequiturRulesPane.setChartData(chartData);
-
-        // and the "snapshots panel"
-        //
-        ruleChartPane.setChartData(chartData);
-
-        // and the rules periodicity panel
-        //
-        rulesPeriodicityPane.setChartData(chartData);
-
-        // and the anomalies panel
-        //
-        anomaliesPane.setChartData(chartData);
-
-        // dataChartPane.getChart().setNotify(true);
-        frame.validate();
-        frame.repaint();
       }
 
       else if (GrammarVizMessage.TIME_SERIES_MESSAGE.equalsIgnoreCase(message.getType())) {
@@ -772,17 +741,51 @@ public class GrammarVizView implements Observer, ActionListener {
         //
         dataChartPane.showTimeSeries((double[]) message.getPayload());
 
-        sequiturRulesPane.clear();
-        ruleChartPane.clear();
-        rulesPeriodicityPane.clear();
-        anomaliesPane.clear();
-
-        // dataChartPane.getChart().setNotify(true);
-        // frame.validate();
-        frame.repaint();
+        Runnable clearPanels = new Runnable() {
+          @Override
+          public void run() {
+            sequiturRulesPane.clear();
+            ruleChartPane.clear();
+            rulesPeriodicityPane.clear();
+            anomaliesPane.clear();
+            frame.repaint();
+          }
+        };
+        SwingUtilities.invokeLater(clearPanels);
 
         this.isTimeSeriesLoaded = true;
-        this.chartData = null;
+        this.controller.getSession().chartData = null;
+      }
+
+      // chart object
+      //
+      else if (GrammarVizMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
+
+        this.controller.getSession().chartData = (GrammarVizChartData) message.getPayload();
+
+        // setting the chart first
+        //
+        dataChartPane.setChartData(this.controller.getSession());
+
+        // and the rules pane second
+        //
+        sequiturRulesPane.setChartData(this.controller.getSession());
+
+        // and the "snapshots panel"
+        //
+        ruleChartPane.setChartData(this.controller.getSession());
+
+        // and the rules periodicity panel
+        //
+        rulesPeriodicityPane.setChartData(this.controller.getSession());
+
+        // and the anomalies panel
+        //
+        anomaliesPane.setChartData(this.controller.getSession());
+
+        // dataChartPane.getChart().setNotify(true);
+        frame.validate();
+        frame.repaint();
       }
     }
 
@@ -855,41 +858,41 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (DISPLAY_CHART.equalsIgnoreCase(command)) {
       log(Level.INFO, "display chart action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
         dataChartPane.resetChartPanel();
         sequiturRulesPane.resetSelection();
-        ruleChartPane.resetChartPanel();
+        ruleChartPane.clear();
       }
     }
 
     else if (DISPLAY_DENSITY_DATA.equalsIgnoreCase(command)) {
       log(Level.INFO, "display density plot action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
-        ruleChartPane.resetChartPanel();
+        ruleChartPane.clear();
         this.dataChartPane.actionPerformed(new ActionEvent(this, 0, DISPLAY_DENSITY_DATA));
       }
     }
 
     else if (DISPLAY_LENGTH_HISTOGRAM.equalsIgnoreCase(command)) {
       log(Level.INFO, "display rule length histogram action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
-        ruleChartPane.resetChartPanel();
+        ruleChartPane.clear();
         this.dataChartPane.actionPerformed(new ActionEvent(this, 1, DISPLAY_LENGTH_HISTOGRAM));
       }
     }
 
     else if (DISPLAY_ANOMALIES_DATA.equalsIgnoreCase(command)) {
       log(Level.INFO, "find/display anomalies action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
@@ -897,13 +900,13 @@ public class GrammarVizView implements Observer, ActionListener {
         log(Level.INFO, "going to run anomalies search, this takes time, please wait... ");
 
         try {
-          this.chartData.addObserver(this);
+          this.controller.getSession().chartData.addObserver(this);
 
-          this.chartData.findAnomalies();
+          this.controller.getSession().chartData.findAnomalies();
           this.anomaliesPane.updateAnomalies();
           this.anomaliesPane.resetPanel();
 
-          this.chartData.deleteObserver(this);
+          this.controller.getSession().chartData.deleteObserver(this);
         }
         catch (Exception e) {
           String errorTrace = StackTrace.toString(e);
@@ -914,7 +917,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (SAVE_CHART.equalsIgnoreCase(command)) {
       log(Level.INFO, "save chart action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
@@ -948,7 +951,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (CLUSTER_RULES.equalsIgnoreCase(command)) {
       log(Level.INFO, "cluster/prune rules action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
@@ -976,47 +979,44 @@ public class GrammarVizView implements Observer, ActionListener {
 
           dataChartPane.resetChartPanel();
           packedRulesPane.resetSelection();
-          ruleChartPane.resetChartPanel();
+          ruleChartPane.clear();
 
-          GrammarVizChartData chartData = this.dataChartPane.getChartData();
-          chartData.performRemoveOverlapping(thresholdLength, thresholdCommon);
+          this.controller.getSession().chartData.performRemoveOverlapping(thresholdLength,
+              thresholdCommon);
 
-          packedRulesPane.setChartData(chartData);
+          packedRulesPane.setChartData(this.controller.getSession().chartData);
         }
 
       }
     }
     else if (PRUNE_RULES.equalsIgnoreCase(command)) {
       log(Level.INFO, "rank rules action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
 
-        GrammarVizChartData chartData = this.dataChartPane.getChartData();
-        chartData.performRanking();
-
-        this.chartData = chartData;
+        this.controller.getSession().chartData.performRanking();
 
         // setting the chart first
         //
-        dataChartPane.setChartData(chartData, this.controller.getSession());
+        dataChartPane.resetChartPanel();
 
         // and the rules pane second
         //
-        sequiturRulesPane.setChartData(chartData);
+        sequiturRulesPane.resetPanel();
 
         // and the "snapshots panel"
         //
-        ruleChartPane.setChartData(chartData);
+        ruleChartPane.clear();
 
         // and the rules periodicity panel
         //
-        rulesPeriodicityPane.setChartData(chartData);
+        rulesPeriodicityPane.resetPanel();
 
         // and the anomalies panel
         //
-        anomaliesPane.setChartData(chartData);
+        anomaliesPane.resetPanel();
 
         // dataChartPane.getChart().setNotify(true);
         frame.validate();
@@ -1064,6 +1064,19 @@ public class GrammarVizView implements Observer, ActionListener {
 
   private void raiseValidationError(String message) {
     JOptionPane.showMessageDialog(frame, message, "Validation error", JOptionPane.ERROR_MESSAGE);
+  }
+
+  private void disableAllExceptSelectButton() {
+    this.dataLoadButton.setEnabled(false);
+    this.guessParametersButton.setEnabled(false);
+    this.discretizeButton.setEnabled(false);
+    this.findAnomaliesButton.setEnabled(false);
+    this.displayChartButton.setEnabled(false);
+    this.clusterRulesButton.setEnabled(false);
+    this.rankRulesButton.setEnabled(false);
+    this.displayRulesDensityButton.setEnabled(false);
+    this.displayRulesLenHistogramButton.setEnabled(false);
+    this.saveChartButton.setEnabled(false);
   }
 
 }

@@ -22,8 +22,8 @@ import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.session.UserSession;
 import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
 import net.seninp.grammarviz.view.table.GrammarvizRulesTableModel;
 
@@ -35,8 +35,8 @@ import net.seninp.grammarviz.view.table.GrammarvizRulesTableModel;
  * 
  */
 
-public class GrammarvizRulesPanel extends JPanel implements ListSelectionListener,
-    PropertyChangeListener {
+public class GrammarvizRulesPanel extends JPanel
+    implements ListSelectionListener, PropertyChangeListener {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -2710973854572981568L;
@@ -47,7 +47,7 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
 
   private JXTable sequiturTable;
 
-  private GrammarVizChartData chartData;
+  private UserSession session;
 
   private JScrollPane sequiturRulesPane;
 
@@ -59,6 +59,7 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
   //
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
+
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizRulesPanel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
@@ -106,8 +107,8 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
 
     this.sequiturTable.setModel(sequiturTableModel);
     // this.sequiturTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    this.sequiturTable.getSelectionModel().setSelectionMode(
-        ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+    this.sequiturTable.getSelectionModel()
+        .setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     this.sequiturTable.setShowGrid(false);
 
     this.sequiturTable.getSelectionModel().addListSelectionListener(this);
@@ -121,8 +122,8 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
     columnModel.getColumn(GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()).setPreferredWidth(30);
     columnModel.getColumn(GrammarvizRulesTableColumns.RULE_USE_FREQUENCY.ordinal())
         .setPreferredWidth(40);
-    columnModel.getColumn(GrammarvizRulesTableColumns.SEQUITUR_RULE.ordinal()).setPreferredWidth(
-        100);
+    columnModel.getColumn(GrammarvizRulesTableColumns.SEQUITUR_RULE.ordinal())
+        .setPreferredWidth(100);
     columnModel.getColumn(GrammarvizRulesTableColumns.EXPANDED_SEQUITUR_RULE.ordinal())
         .setPreferredWidth(150);
     columnModel.getColumn(GrammarvizRulesTableColumns.RULE_MEAN_LENGTH.ordinal())
@@ -142,27 +143,6 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
   }
 
   /**
-   * Set the new data.
-   * 
-   * @param chartData the new data.
-   */
-  public void setChartData(GrammarVizChartData chartData) {
-
-    this.acceptListEvents = false;
-
-    // save the data
-    this.chartData = chartData;
-
-    // update
-    sequiturTableModel.update(this.chartData.getGrammarRules());
-
-    // put new data on show
-    resetPanel();
-
-    this.acceptListEvents = true;
-  }
-
-  /**
    * create the panel with the sequitur rules table
    * 
    * @return sequitur panel
@@ -171,7 +151,10 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
     // cleanup all the content
     this.removeAll();
     this.add(sequiturRulesPane);
-    this.validate();
+    this.acceptListEvents = false;
+    sequiturTableModel.update(this.session.chartData.getGrammarRules());
+    this.acceptListEvents = true;
+    this.revalidate();
     this.repaint();
   }
 
@@ -198,8 +181,8 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
       ArrayList<String> rules = new ArrayList<String>(rows.length);
       for (int i = 0; i < rows.length; i++) {
         int ridx = rows[i];
-        String rule = String.valueOf(sequiturTable.getValueAt(ridx,
-            GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
+        String rule = String.valueOf(
+            sequiturTable.getValueAt(ridx, GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
         rules.add(rule);
       }
       this.firePropertyChange(FIRING_PROPERTY, this.selectedRules, rules);
@@ -223,7 +206,7 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
       String rule = (String) event.getNewValue();
       for (int row = 0; row <= sequiturTable.getRowCount() - 1; row++) {
         for (int col = 0; col <= sequiturTable.getColumnCount() - 1; col++) {
-          if (rule.equals(chartData.convert2OriginalSAXAlphabet('1',
+          if (rule.equals(this.session.chartData.convert2OriginalSAXAlphabet('1',
               sequiturTable.getValueAt(row, col).toString()))) {
             sequiturTable.scrollRectToVisible(sequiturTable.getCellRect(row, 0, true));
             sequiturTable.setRowSelectionInterval(row, row);
@@ -239,11 +222,15 @@ public class GrammarvizRulesPanel extends JPanel implements ListSelectionListene
   public void clear() {
     this.acceptListEvents = false;
     this.removeAll();
-    this.chartData = null;
+    this.session = null;
     sequiturTableModel.update(null);
     this.validate();
     this.repaint();
     this.acceptListEvents = true;
+  }
+
+  public void setChartData(UserSession session) {
+    this.session = session;
   }
 
 }

@@ -32,15 +32,16 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.session.UserSession;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 /**
  * View component of Sequitur MVC GUI.
@@ -50,7 +51,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class GrammarVizView implements Observer, ActionListener {
 
-  private static final String APPLICATION_VERSION = "GrammarViz 2.0: visualizing time series grammars";
+  private static final String APPLICATION_MOTTO = "GrammarViz 2.0: visualizing time series grammars";
 
   // static block - we instantiate the logger
   //
@@ -58,25 +59,29 @@ public class GrammarVizView implements Observer, ActionListener {
   //
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.INFO;
+
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizView.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
-  // relevant string constants go here
+  // relevant string constants and formatters go here
   //
   // private static final String COMMA = ",";
   private static final String CR = "\n";
   private static final String TITLE_FONT = "helvetica";
+  private SimpleDateFormat logDateFormat = new SimpleDateFormat("HH:mm:ss' '");
 
   // String is the king - constants for actions
   //
   /** Select data file action key. */
-  private static final String SELECT_FILE = "select_file";
+  protected static final String SELECT_FILE = "select_file";
   /** Load data action key. */
-  private static final String LOAD_DATA = "load_data";
+  protected static final String LOAD_DATA = "load_data";
+  /** Guess parameters action key. */
+  protected static final String GUESS_PARAMETERS = "guess_parameters";
   /** Process data action key. */
-  private static final String PROCESS_DATA = "process_data";
+  protected static final String PROCESS_DATA = "process_data";
   /** Reduce overlaps data action key. */
   protected static final String CLUSTER_RULES = "cluster_rules";
   /** Rank rules action key. */
@@ -94,6 +99,8 @@ public class GrammarVizView implements Observer, ActionListener {
   /** Save chart action key. */
   protected static final String SAVE_CHART = "save_chart";
 
+  protected static final String RESET_GUESS_BUTTON_LISTENER = "reset_guess_button_listener";
+
   /** Chunking/Sliding switch action key. */
   protected static final String USE_SLIDING_WINDOW_ACTION_KEY = "sliding_window_key";
 
@@ -104,7 +111,7 @@ public class GrammarVizView implements Observer, ActionListener {
   private static final String ABOUT_MENU_ITEM = "menu_item_about";
 
   /** Frame for the GUI. */
-  private static final JFrame frame = new JFrame(APPLICATION_VERSION);
+  private static final JFrame frame = new JFrame(APPLICATION_MOTTO);
 
   /** The main menu bar. */
   private static final JMenuBar menuBar = new JMenuBar();
@@ -118,6 +125,7 @@ public class GrammarVizView implements Observer, ActionListener {
   private JTextField dataFilePathField;
   private JButton selectFileButton;
   private JTextField dataRowsLimitTextField;
+  private JButton dataLoadButton;
 
   // SAX parameters related fields
   //
@@ -128,7 +136,10 @@ public class GrammarVizView implements Observer, ActionListener {
   private JLabel paaSizeLabel;
   private JTextField SAXpaaSizeField;
   private JTextField SAXalphabetSizeField;
+  private JButton guessParametersButton; // the guess dialog trigger
 
+  // SAX numerosity reduction dialog group
+  //
   private JPanel numerosityReductionPane;
   private ButtonGroup numerosityButtonsGroup = new ButtonGroup();
   private JRadioButton numerosityReductionOFFButton = new JRadioButton("OFF");
@@ -137,13 +148,14 @@ public class GrammarVizView implements Observer, ActionListener {
 
   // The process action pane
   //
-  private JPanel processPane;
+  private JPanel discretizePane;
+  private JButton discretizeButton;
 
-  // data chart place
+  // data charting panel
   //
   private GrammarvizChartPanel dataChartPane;
 
-  // sequitur rule list
+  // sequitur rules table and other tables panel
   //
   private JTabbedPane tabbedRulesPane;
   private GrammarvizRulesPanel sequiturRulesPane;
@@ -151,30 +163,21 @@ public class GrammarVizView implements Observer, ActionListener {
   private RulesPeriodicityPanel rulesPeriodicityPane;
   private GrammarVizAnomaliesPanel anomaliesPane;
 
-  // small rule show panel
+  // rule(s) charting auxiliary panel
   //
   private GrammarvizRuleChartPanel ruleChartPane;
 
   // workflow pane - buttons
   //
   private JPanel workflowManagementPane;
-  private JButton dataLoadButton;
-  private JButton processButton;
   private JButton clusterRulesButton;
   // private JButton findPeriodicityButton;
   private JButton rankRulesButton;
   private JButton displayChartButton;
   private JButton displayRulesDensityButton;
   private JButton displayRulesLenHistogramButton;
-  private JButton displayAnomaliesButton;
+  private JButton findAnomaliesButton;
   private JButton saveChartButton;
-
-  // The log panel configuration section
-  //
-  private SimpleDateFormat logDateFormat = new SimpleDateFormat("HH:mm:ss' '");
-
-  // we keep the data pointer here
-  private GrammarVizChartData chartData;
 
   private boolean isTimeSeriesLoaded = false;
 
@@ -192,6 +195,7 @@ public class GrammarVizView implements Observer, ActionListener {
    */
   public GrammarVizView(GrammarVizController controller) {
     this.controller = controller;
+    this.controller.getSession().addActionListener(this);
   }
 
   /**
@@ -204,7 +208,6 @@ public class GrammarVizView implements Observer, ActionListener {
       public void run() {
         try {
           UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-          // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
           // UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         }
         catch (ClassNotFoundException e) {
@@ -224,6 +227,7 @@ public class GrammarVizView implements Observer, ActionListener {
         }
 
         configureGUI();
+        disableAllExceptSelectButton();
       }
     });
   }
@@ -270,8 +274,8 @@ public class GrammarVizView implements Observer, ActionListener {
     //
     rulesPeriodicityPane.addPropertyChangeListener(dataChartPane);
     rulesPeriodicityPane.addPropertyChangeListener(ruleChartPane);
-    dataChartPane.addPropertyChangeListener(GrammarVizMessage.MAIN_CHART_CLICKED_MESSAGE,
-        rulesPeriodicityPane);
+    // dataChartPane.addPropertyChangeListener(GrammarVizMessage.MAIN_CHART_CLICKED_MESSAGE,
+    // rulesPeriodicityPane);
 
     // put listeners in place for the Anomalies rule panel
     //
@@ -291,7 +295,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     frame.getContentPane().add(saxParametersPane, "grow, split");
     frame.getContentPane().add(numerosityReductionPane, "split");
-    frame.getContentPane().add(processPane, "wrap");
+    frame.getContentPane().add(discretizePane, "wrap");
 
     frame.getContentPane().add(dataChartPane, "wrap");
 
@@ -427,34 +431,36 @@ public class GrammarVizView implements Observer, ActionListener {
 
   }
 
+  /**
+   * Builds a parameters pane.
+   */
   private void buildSAXParamsPane() {
 
     saxParametersPane = new JPanel();
     saxParametersPane.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "SAX parameteres",
-        TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
+        BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "SAX parameteres", TitledBorder.LEFT,
+        TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
 
     // insets: T, L, B, R.
     MigLayout saxPaneLayout = new MigLayout("insets 3 2 2 2",
-        "[][]10[][fill,grow]10[][fill,grow]10[][fill,grow]", "[]");
+        "[][]10[][fill,grow]10[][fill,grow]10[][fill,grow]10[][]", "[]");
     saxParametersPane.setLayout(saxPaneLayout);
 
     // the sliding window parameter
     JLabel slideWindowLabel = new JLabel("Slide the window");
     useSlidingWindowCheckBox = new JCheckBox();
-    useSlidingWindowCheckBox.setSelected(this.controller.getSession().isUseSlidingWindow());
+    useSlidingWindowCheckBox.setSelected(this.controller.getSession().useSlidingWindow);
     useSlidingWindowCheckBox.setActionCommand(USE_SLIDING_WINDOW_ACTION_KEY);
     useSlidingWindowCheckBox.addActionListener(this);
 
     windowSizeLabel = new JLabel("Window size:");
-    SAXwindowSizeField = new JTextField(String.valueOf(this.controller.getSession().getSaxWindow()));
+    SAXwindowSizeField = new JTextField(String.valueOf(this.controller.getSession().saxWindow));
 
     paaSizeLabel = new JLabel("PAA size:");
-    SAXpaaSizeField = new JTextField(String.valueOf(this.controller.getSession().getSaxPAA()));
+    SAXpaaSizeField = new JTextField(String.valueOf(this.controller.getSession().saxPAA));
 
     JLabel alphabetSizeLabel = new JLabel("Alphabet size:");
-    SAXalphabetSizeField = new JTextField(String.valueOf(this.controller.getSession()
-        .getSaxAlphabet()));
+    SAXalphabetSizeField = new JTextField(String.valueOf(this.controller.getSession().saxAlphabet));
 
     saxParametersPane.add(slideWindowLabel);
     saxParametersPane.add(useSlidingWindowCheckBox);
@@ -467,6 +473,12 @@ public class GrammarVizView implements Observer, ActionListener {
 
     saxParametersPane.add(alphabetSizeLabel);
     saxParametersPane.add(SAXalphabetSizeField);
+
+    guessParametersButton = new JButton("Guess");
+    guessParametersButton.setMnemonic('G');
+    guessParametersButton.setActionCommand(GUESS_PARAMETERS);
+    guessParametersButton.addActionListener(this);
+    saxParametersPane.add(guessParametersButton, "");
 
     // numerosity reduction pane
     //
@@ -489,41 +501,47 @@ public class GrammarVizView implements Observer, ActionListener {
     numerosityReductionExactButton.addActionListener(this);
     numerosityReductionPane.add(numerosityReductionExactButton);
 
-    numerosityReductionMINDISTButton.setActionCommand(NumerosityReductionStrategy.MINDIST
-        .toString());
+    numerosityReductionMINDISTButton
+        .setActionCommand(NumerosityReductionStrategy.MINDIST.toString());
     numerosityButtonsGroup.add(numerosityReductionMINDISTButton);
     numerosityReductionMINDISTButton.addActionListener(this);
     numerosityReductionPane.add(numerosityReductionMINDISTButton);
 
-    this.controller.getSession().setNumerosityReductionStrategy(NumerosityReductionStrategy.EXACT);
+    this.controller.getSession().numerosityReductionStrategy = NumerosityReductionStrategy.EXACT;
     numerosityReductionExactButton.setSelected(true);
 
     // PROCESS button
     //
-    processButton = new JButton("Process data");
-    processButton.setMnemonic('P');
-    processButton.setActionCommand(PROCESS_DATA);
-    processButton.addActionListener(this);
+    discretizeButton = new JButton("Discretize");
+    discretizeButton.setMnemonic('P');
+    discretizeButton.setActionCommand(PROCESS_DATA);
+    discretizeButton.addActionListener(this);
 
-    processPane = new JPanel();
-    processPane.setBorder(BorderFactory.createTitledBorder(
+    discretizePane = new JPanel();
+    discretizePane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Hit to run GI", TitledBorder.LEFT,
         TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
     // insets: T, L, B, R.
     MigLayout processPaneLayout = new MigLayout("insets 3 2 4 2", "5[]5", "[]");
-    processPane.setLayout(processPaneLayout);
-    processPane.add(processButton, "");
+    discretizePane.setLayout(processPaneLayout);
+    discretizePane.add(discretizeButton, "");
 
   }
 
   private void buildChartPane() {
     // MotifChartPanel _chart = new MotifChartPanel(null);
     dataChartPane = new GrammarvizChartPanel();
+    dataChartPane.addActionListener(this);
+    dataChartPane.session = this.controller.getSession();
     dataChartPane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Data display", TitledBorder.LEFT,
         TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
     MigLayout chartPaneLayout = new MigLayout("insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
     dataChartPane.setLayout(chartPaneLayout);
+
+    // needed to be able to stop guessing...
+    //
+    dataChartPane.setOperationalButton(this.guessParametersButton);
   }
 
   /**
@@ -548,7 +566,8 @@ public class GrammarVizView implements Observer, ActionListener {
     // now add the prototype of reduced rules panel
     //
     packedRulesPane = new PackedRulesPanel();
-    MigLayout packedRulesPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
+    MigLayout packedRulesPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]",
+        "[fill,grow]");
     packedRulesPane.setLayout(packedRulesPaneLayout);
     tabbedRulesPane.addTab("Regularized rules", null, packedRulesPane,
         "Shows reduced by overlapping criterion rules subset");
@@ -572,12 +591,13 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // now format the tabbed pane
     //
-    tabbedRulesPane.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
-        "Grammar rules (search in list by clicking into list and pressing CTRL-F)",
-        TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
-    // MigLayout tabbedPaneLayout = new MigLayout(",insets 0 0 0 2", "[fill,grow]", "[fill,grow]");
-    // tabbedRulesPane.setLayout(tabbedPaneLayout);
+    tabbedRulesPane.setBorder(
+        BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
+            "Grammar rules (search in list by clicking into list and pressing CTRL-F)",
+            TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
+            // MigLayout tabbedPaneLayout = new MigLayout(",insets 0 0 0 2", "[fill,grow]",
+            // "[fill,grow]");
+            // tabbedRulesPane.setLayout(tabbedPaneLayout);
 
     // the rule chart panel
     //
@@ -594,10 +614,10 @@ public class GrammarVizView implements Observer, ActionListener {
   private void buildWorkflowPane() {
 
     workflowManagementPane = new JPanel();
-    workflowManagementPane.setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
-        "Workflow management: load > process > display", TitledBorder.LEFT, TitledBorder.CENTER,
-        new Font(TITLE_FONT, Font.PLAIN, 10)));
+    workflowManagementPane.setBorder(
+        BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
+            "Workflow management: load > process > display", TitledBorder.LEFT, TitledBorder.CENTER,
+            new Font(TITLE_FONT, Font.PLAIN, 10)));
     MigLayout workflowPaneLayout = new MigLayout(",insets 2 2 2 2", "[fill,grow]", "[fill,grow]");
     workflowManagementPane.setLayout(workflowPaneLayout);
 
@@ -626,10 +646,10 @@ public class GrammarVizView implements Observer, ActionListener {
     displayRulesLenHistogramButton.setActionCommand(DISPLAY_LENGTH_HISTOGRAM);
     displayRulesLenHistogramButton.addActionListener(this);
 
-    displayAnomaliesButton = new JButton("Find anomalies");
-    displayAnomaliesButton.setMnemonic('A');
-    displayAnomaliesButton.setActionCommand(DISPLAY_ANOMALIES_DATA);
-    displayAnomaliesButton.addActionListener(this);
+    findAnomaliesButton = new JButton("Find anomalies");
+    findAnomaliesButton.setMnemonic('A');
+    findAnomaliesButton.setActionCommand(DISPLAY_ANOMALIES_DATA);
+    findAnomaliesButton.addActionListener(this);
 
     saveChartButton = new JButton("Save Chart");
     saveChartButton.setMnemonic('S');
@@ -642,7 +662,7 @@ public class GrammarVizView implements Observer, ActionListener {
     workflowManagementPane.add(clusterRulesButton);
     workflowManagementPane.add(rankRulesButton);
     workflowManagementPane.add(displayRulesDensityButton);
-    workflowManagementPane.add(displayAnomaliesButton);
+    workflowManagementPane.add(findAnomaliesButton);
     workflowManagementPane.add(saveChartButton);
 
   }
@@ -692,56 +712,27 @@ public class GrammarVizView implements Observer, ActionListener {
 
       final GrammarVizMessage message = (GrammarVizMessage) arg;
 
+      // new log message
+      //
+      if (GrammarVizMessage.STATUS_MESSAGE.equalsIgnoreCase(message.getType())) {
+        log(Level.ALL, (String) message.getPayload());
+      }
+
       // new FileName
       //
-      if (GrammarVizMessage.DATA_FNAME.equalsIgnoreCase(message.getType())) {
-        Runnable doHighlight = new Runnable() {
+      else if (GrammarVizMessage.DATA_FNAME.equalsIgnoreCase(message.getType())) {
+
+        Runnable doSetPath = new Runnable() {
           @Override
           public void run() {
             dataFilePathField.setText((String) message.getPayload());
             dataFilePathField.repaint();
+            disableAllExceptSelectButton();
+            dataLoadButton.setEnabled(true);
           }
         };
-        SwingUtilities.invokeLater(doHighlight);
-      }
+        SwingUtilities.invokeLater(doSetPath);
 
-      // new log message
-      //
-      else if (GrammarVizMessage.STATUS_MESSAGE.equalsIgnoreCase(message.getType())) {
-        log(Level.ALL, (String) message.getPayload());
-      }
-
-      // chart object
-      //
-      else if (GrammarVizMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
-
-        GrammarVizChartData chartData = (GrammarVizChartData) message.getPayload();
-        // TODO: this is ridiculous below here
-        //
-        this.chartData = (GrammarVizChartData) message.getPayload();
-        // setting the chart first
-        //
-        dataChartPane.setChartData(chartData, this.controller.getSession());
-
-        // and the rules pane second
-        //
-        sequiturRulesPane.setChartData(chartData);
-
-        // and the "snapshots panel"
-        //
-        ruleChartPane.setChartData(chartData);
-
-        // and the rules periodicity panel
-        //
-        rulesPeriodicityPane.setChartData(chartData);
-
-        // and the anomalies panel
-        //
-        anomaliesPane.setChartData(chartData);
-
-        // dataChartPane.getChart().setNotify(true);
-        frame.validate();
-        frame.repaint();
       }
 
       else if (GrammarVizMessage.TIME_SERIES_MESSAGE.equalsIgnoreCase(message.getType())) {
@@ -750,17 +741,56 @@ public class GrammarVizView implements Observer, ActionListener {
         //
         dataChartPane.showTimeSeries((double[]) message.getPayload());
 
-        sequiturRulesPane.clear();
-        ruleChartPane.clear();
-        rulesPeriodicityPane.clear();
-        anomaliesPane.clear();
-
-        // dataChartPane.getChart().setNotify(true);
-        // frame.validate();
-        frame.repaint();
+        Runnable clearPanels = new Runnable() {
+          @Override
+          public void run() {
+            sequiturRulesPane.clearPanel();
+            ruleChartPane.clear();
+            rulesPeriodicityPane.clear();
+            anomaliesPane.clear();
+            frame.repaint();
+            disableAllExceptSelectButton();
+            dataLoadButton.setEnabled(true);
+            guessParametersButton.setEnabled(true);
+            discretizeButton.setEnabled(true);
+          }
+        };
+        SwingUtilities.invokeLater(clearPanels);
 
         this.isTimeSeriesLoaded = true;
-        this.chartData = null;
+        this.controller.getSession().chartData = null;
+      }
+
+      // chart object
+      //
+      else if (GrammarVizMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
+
+        this.controller.getSession().chartData = (GrammarVizChartData) message.getPayload();
+
+        // setting the chart first
+        //
+        dataChartPane.setChartData(this.controller.getSession());
+
+        // and the rules pane second
+        //
+        sequiturRulesPane.setChartData(this.controller.getSession());
+
+        // and the "snapshots panel"
+        //
+        ruleChartPane.setChartData(this.controller.getSession());
+
+        // and the rules periodicity panel
+        //
+        rulesPeriodicityPane.setChartData(this.controller.getSession());
+
+        // and the anomalies panel
+        //
+        anomaliesPane.setChartData(this.controller.getSession());
+
+        enableAllButtons();
+        // dataChartPane.getChart().setNotify(true);
+        frame.validate();
+        frame.repaint();
       }
     }
 
@@ -781,8 +811,8 @@ public class GrammarVizView implements Observer, ActionListener {
       GrammarvizOptionsPane parametersPanel = new GrammarvizOptionsPane(
           this.controller.getSession());
 
-      GrammarvizOptionsDialog parametersDialog = new GrammarvizOptionsDialog(frame,
-          parametersPanel, this.controller.getSession());
+      GrammarvizOptionsDialog parametersDialog = new GrammarvizOptionsDialog(frame, parametersPanel,
+          this.controller.getSession());
 
       parametersDialog.setVisible(true);
     }
@@ -816,12 +846,15 @@ public class GrammarVizView implements Observer, ActionListener {
       log(Level.INFO, "process data action performed");
       if (this.isTimeSeriesLoaded) {
         // check the values for window/paa/alphabet, etc.
-        this.controller.getSession().setSaxWindow(
-            Integer.valueOf(this.SAXwindowSizeField.getText()));
-        this.controller.getSession().setSaxPAA(Integer.valueOf(this.SAXpaaSizeField.getText()));
-        this.controller.getSession().setSaxAlphabet(
-            Integer.valueOf(this.SAXalphabetSizeField.getText()));
-        this.controller.getProcessDataListener().actionPerformed(new ActionEvent(this, 2, null));
+        this.controller.getSession().saxWindow = Integer.valueOf(this.SAXwindowSizeField.getText());
+        this.controller.getSession().saxPAA = Integer.valueOf(this.SAXpaaSizeField.getText());
+        this.controller.getSession().saxAlphabet = Integer
+            .valueOf(this.SAXalphabetSizeField.getText());
+        this.controller.getProcessDataListener().actionPerformed(new ActionEvent(this, 0, null)); // only
+                                                                                                  // one
+                                                                                                  // handler
+                                                                                                  // over
+                                                                                                  // there
       }
       else {
         raiseValidationError("The timeseries is not loaded yet.");
@@ -830,41 +863,41 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (DISPLAY_CHART.equalsIgnoreCase(command)) {
       log(Level.INFO, "display chart action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
         dataChartPane.resetChartPanel();
         sequiturRulesPane.resetSelection();
-        ruleChartPane.resetChartPanel();
+        ruleChartPane.clear();
       }
     }
 
     else if (DISPLAY_DENSITY_DATA.equalsIgnoreCase(command)) {
       log(Level.INFO, "display density plot action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
-        ruleChartPane.resetChartPanel();
+        ruleChartPane.clear();
         this.dataChartPane.actionPerformed(new ActionEvent(this, 0, DISPLAY_DENSITY_DATA));
       }
     }
 
     else if (DISPLAY_LENGTH_HISTOGRAM.equalsIgnoreCase(command)) {
       log(Level.INFO, "display rule length histogram action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
-        ruleChartPane.resetChartPanel();
+        ruleChartPane.clear();
         this.dataChartPane.actionPerformed(new ActionEvent(this, 1, DISPLAY_LENGTH_HISTOGRAM));
       }
     }
 
     else if (DISPLAY_ANOMALIES_DATA.equalsIgnoreCase(command)) {
       log(Level.INFO, "find/display anomalies action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
@@ -872,13 +905,13 @@ public class GrammarVizView implements Observer, ActionListener {
         log(Level.INFO, "going to run anomalies search, this takes time, please wait... ");
 
         try {
-          this.chartData.addObserver(this);
+          this.controller.getSession().chartData.addObserver(this);
 
-          this.chartData.findAnomalies();
+          this.controller.getSession().chartData.findAnomalies();
           this.anomaliesPane.updateAnomalies();
           this.anomaliesPane.resetPanel();
 
-          this.chartData.deleteObserver(this);
+          this.controller.getSession().chartData.deleteObserver(this);
         }
         catch (Exception e) {
           String errorTrace = StackTrace.toString(e);
@@ -889,12 +922,35 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (SAVE_CHART.equalsIgnoreCase(command)) {
       log(Level.INFO, "save chart action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
         this.dataChartPane.actionPerformed(new ActionEvent(this, 2, SAVE_CHART));
       }
+    }
+
+    else if (GUESS_PARAMETERS.equalsIgnoreCase(command)) {
+      log(Level.INFO, "starting the guessing params dialog");
+      disableAllExceptSelectButton();
+      this.dataLoadButton.setEnabled(true);
+      this.guessParametersButton.setEnabled(true);
+      this.guessParametersButton.removeActionListener(this);
+      this.dataChartPane.actionPerformed(new ActionEvent(this, 2, GUESS_PARAMETERS));
+    }
+
+    else if (UserSession.PARAMS_CHANGED_EVENT.equalsIgnoreCase(command)) {
+      this.SAXwindowSizeField.setText(String.valueOf(this.controller.getSession().saxWindow));
+      this.SAXpaaSizeField.setText(String.valueOf(this.controller.getSession().saxPAA));
+      this.SAXalphabetSizeField.setText(String.valueOf(this.controller.getSession().saxAlphabet));
+      this.saxParametersPane.revalidate();
+      this.saxParametersPane.repaint();
+    }
+
+    else if (RESET_GUESS_BUTTON_LISTENER.equalsIgnoreCase(command)) {
+      this.guessParametersButton.setText("Guess");
+      this.guessParametersButton.addActionListener(this);
+      this.discretizeButton.setEnabled(true);
     }
 
     else if (FIND_PERIODICITY.equalsIgnoreCase(command)) {
@@ -904,7 +960,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (CLUSTER_RULES.equalsIgnoreCase(command)) {
       log(Level.INFO, "cluster/prune rules action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
@@ -932,47 +988,44 @@ public class GrammarVizView implements Observer, ActionListener {
 
           dataChartPane.resetChartPanel();
           packedRulesPane.resetSelection();
-          ruleChartPane.resetChartPanel();
+          ruleChartPane.clear();
 
-          GrammarVizChartData chartData = this.dataChartPane.getChartData();
-          chartData.performRemoveOverlapping(thresholdLength, thresholdCommon);
+          this.controller.getSession().chartData.performRemoveOverlapping(thresholdLength,
+              thresholdCommon);
 
-          packedRulesPane.setChartData(chartData);
+          packedRulesPane.setChartData(this.controller.getSession().chartData);
         }
 
       }
     }
     else if (PRUNE_RULES.equalsIgnoreCase(command)) {
       log(Level.INFO, "rank rules action performed");
-      if (null == this.chartData) {
+      if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
 
-        GrammarVizChartData chartData = this.dataChartPane.getChartData();
-        chartData.performRanking();
-
-        this.chartData = chartData;
+        this.controller.getSession().chartData.performRanking();
 
         // setting the chart first
         //
-        dataChartPane.setChartData(chartData, this.controller.getSession());
+        dataChartPane.resetChartPanel();
 
         // and the rules pane second
         //
-        sequiturRulesPane.setChartData(chartData);
+        sequiturRulesPane.resetPanel();
 
         // and the "snapshots panel"
         //
-        ruleChartPane.setChartData(chartData);
+        ruleChartPane.clear();
 
         // and the rules periodicity panel
         //
-        rulesPeriodicityPane.setChartData(chartData);
+        rulesPeriodicityPane.resetPanel();
 
         // and the anomalies panel
         //
-        anomaliesPane.setChartData(chartData);
+        anomaliesPane.resetPanel();
 
         // dataChartPane.getChart().setNotify(true);
         frame.validate();
@@ -984,18 +1037,17 @@ public class GrammarVizView implements Observer, ActionListener {
     else if (USE_SLIDING_WINDOW_ACTION_KEY.equalsIgnoreCase(command)) {
       log(Level.INFO, "sliding window toggled");
       if (this.useSlidingWindowCheckBox.isSelected()) {
-        this.controller.getSession().setUseSlidingWindow(true);
+        this.controller.getSession().useSlidingWindow = true;
         this.windowSizeLabel.setText("Window size:");
         this.windowSizeLabel.setEnabled(true);
         this.windowSizeLabel.setVisible(true);
-        this.SAXwindowSizeField
-            .setText(String.valueOf(this.controller.getSession().getSaxWindow()));
+        this.SAXwindowSizeField.setText(String.valueOf(this.controller.getSession().saxWindow));
         this.SAXwindowSizeField.setEnabled(true);
         this.SAXwindowSizeField.setVisible(true);
         this.paaSizeLabel.setText("PAA size:");
       }
       else {
-        this.controller.getSession().setUseSlidingWindow(false);
+        this.controller.getSession().useSlidingWindow = false;
         this.windowSizeLabel.setText("");
         this.windowSizeLabel.setEnabled(false);
         this.windowSizeLabel.setVisible(false);
@@ -1009,8 +1061,8 @@ public class GrammarVizView implements Observer, ActionListener {
         || NumerosityReductionStrategy.EXACT.toString().equalsIgnoreCase(command)
         || NumerosityReductionStrategy.MINDIST.toString().equalsIgnoreCase(command)) {
       log(Level.INFO, "numerosity reduction option toggled");
-      this.controller.getSession().setNumerosityReductionStrategy(
-          NumerosityReductionStrategy.fromString(command));
+      this.controller.getSession().numerosityReductionStrategy = NumerosityReductionStrategy
+          .fromString(command);
     }
 
     else if ("Exit".equalsIgnoreCase(command)) {
@@ -1021,6 +1073,32 @@ public class GrammarVizView implements Observer, ActionListener {
 
   private void raiseValidationError(String message) {
     JOptionPane.showMessageDialog(frame, message, "Validation error", JOptionPane.ERROR_MESSAGE);
+  }
+
+  private void disableAllExceptSelectButton() {
+    this.dataLoadButton.setEnabled(false);
+    this.guessParametersButton.setEnabled(false);
+    this.discretizeButton.setEnabled(false);
+    this.findAnomaliesButton.setEnabled(false);
+    this.displayChartButton.setEnabled(false);
+    this.clusterRulesButton.setEnabled(false);
+    this.rankRulesButton.setEnabled(false);
+    this.displayRulesDensityButton.setEnabled(false);
+    this.displayRulesLenHistogramButton.setEnabled(false);
+    this.saveChartButton.setEnabled(false);
+  }
+
+  private void enableAllButtons() {
+    this.dataLoadButton.setEnabled(true);
+    this.guessParametersButton.setEnabled(true);
+    this.discretizeButton.setEnabled(true);
+    this.findAnomaliesButton.setEnabled(true);
+    this.displayChartButton.setEnabled(true);
+    this.clusterRulesButton.setEnabled(true);
+    this.rankRulesButton.setEnabled(true);
+    this.displayRulesDensityButton.setEnabled(true);
+    this.displayRulesLenHistogramButton.setEnabled(true);
+    this.saveChartButton.setEnabled(true);
   }
 
 }

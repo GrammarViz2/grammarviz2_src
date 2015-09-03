@@ -1,7 +1,5 @@
 package net.seninp.grammarviz.view;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -11,15 +9,15 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
-import net.seninp.grammarviz.logic.GrammarVizChartData;
-import net.seninp.grammarviz.view.table.CellDoubleRenderer;
-import net.seninp.grammarviz.view.table.PeriodicityTableModel;
-import net.seninp.grammarviz.view.table.PrunedRulesTableColumns;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import net.seninp.grammarviz.session.UserSession;
+import net.seninp.grammarviz.view.table.CellDoubleRenderer;
+import net.seninp.grammarviz.view.table.PeriodicityTableModel;
+import net.seninp.grammarviz.view.table.PrunedRulesTableColumns;
 
 /**
  * 
@@ -28,8 +26,7 @@ import ch.qos.logback.classic.Logger;
  * 
  */
 
-public class RulesPeriodicityPanel extends JPanel implements ListSelectionListener,
-    PropertyChangeListener {
+public class RulesPeriodicityPanel extends JPanel implements ListSelectionListener {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -2710973854572981568L;
@@ -40,7 +37,7 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
 
   private JXTable periodicityTable;
 
-  private GrammarVizChartData chartData;
+  private UserSession session;
 
   private JScrollPane periodicityRulesPane;
 
@@ -52,6 +49,7 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
   //
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
+
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(RulesPeriodicityPanel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
@@ -106,27 +104,6 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
   }
 
   /**
-   * Set the new data.
-   * 
-   * @param chartData the new data.
-   */
-  public void setChartData(GrammarVizChartData chartData) {
-
-    this.acceptListEvents = false;
-
-    // save the data
-    this.chartData = chartData;
-
-    // update
-    periodicityTableModel.update(this.chartData.getGrammarRules());
-
-    // put new data on show
-    resetPanel();
-
-    this.acceptListEvents = true;
-  }
-
-  /**
    * create the panel with the sequitur rules table
    * 
    * @return sequitur panel
@@ -135,6 +112,9 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
     // cleanup all the content
     this.removeAll();
     this.add(periodicityRulesPane);
+    this.acceptListEvents = false;
+    periodicityTableModel.update(this.session.chartData.getGrammarRules());
+    this.acceptListEvents = true;
     this.validate();
     this.repaint();
   }
@@ -159,18 +139,13 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
     if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
       int col = periodicityTable.getSelectedColumn();
       int row = periodicityTable.getSelectedRow();
-      String rule = String.valueOf(periodicityTable.getValueAt(row,
-          PrunedRulesTableColumns.CLASS_NUMBER.ordinal()));
+      String rule = String.valueOf(
+          periodicityTable.getValueAt(row, PrunedRulesTableColumns.CLASS_NUMBER.ordinal()));
       consoleLogger.debug("Selected ROW: " + row + " - COL: " + col + "; rule: " + rule);
       this.firePropertyChange(FIRING_PROPERTY_PERIOD, this.selectedRule, rule);
       this.selectedRule = rule;
     }
 
-  }
-
-  @Override
-  public void propertyChange(PropertyChangeEvent arg0) {
-    // TODO Auto-generated method stub
   }
 
   /**
@@ -179,11 +154,15 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
   public void clear() {
     this.acceptListEvents = false;
     this.removeAll();
-    this.chartData = null;
+    this.session = null;
     periodicityTableModel.update(null);
     this.validate();
     this.repaint();
     this.acceptListEvents = true;
+  }
+
+  public void setChartData(UserSession session2) {
+    this.session = session2;
   }
 
 }

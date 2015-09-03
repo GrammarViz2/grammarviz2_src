@@ -18,14 +18,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
-import net.seninp.gi.GrammarRuleRecord;
-import net.seninp.gi.RuleInterval;
-import net.seninp.grammarviz.logic.CoverageCountStrategy;
-import net.seninp.grammarviz.logic.GrammarVizChartData;
-import net.seninp.grammarviz.logic.UserSession;
-import net.seninp.jmotif.sax.discord.DiscordRecord;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
@@ -55,6 +55,11 @@ import org.jfree.ui.TextAnchor;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import net.seninp.gi.GrammarRuleRecord;
+import net.seninp.gi.RuleInterval;
+import net.seninp.grammarviz.logic.CoverageCountStrategy;
+import net.seninp.grammarviz.session.UserSession;
+import net.seninp.jmotif.sax.discord.DiscordRecord;
 
 /**
  * 
@@ -63,14 +68,15 @@ import ch.qos.logback.classic.Logger;
  * @author Manfred Lerner, seninp
  * 
  */
-public class GrammarvizChartPanel extends JPanel implements PropertyChangeListener,
-    ChartProgressListener, ActionListener {
+public class GrammarvizChartPanel extends JPanel
+    implements PropertyChangeListener, ChartProgressListener, ActionListener {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -2710973854572981568L;
 
   // various display string constants
   //
+  private static final String LABEL_DEFAULT = " Data display ";
   private static final String LABEL_SHOWING_RULES = " Data display: showing rule subsequences ";
   private static final String LABEL_SHOWING_HISTOGRAMM = " Data display: showing rules length histogramm ";
   private static final String LABEL_SHOWING_DENSITY = " Data display: showing grammar rules density, ";
@@ -78,15 +84,22 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
   private static final String LABEL_SHOWING_PERIODS = " Data display: showing periods between selected rules ";
   private static final String LABEL_SHOWING_ANOMALY = " Data display: showing anomaly ";
   private static final String LABEL_SAVING_CHART = " Data display: saving the rules density chart ";
+  private static final String LABEL_SELECT_INTERVAL = " Select the timeseries interval for guessing ";
+
+  public static final String SELECTION_CANCELLED = "interval_selection_cancelled";
+
+  public static final String SAMPLING_SUCCEEDED = "parameters_sampling_succeeded";
+
+  public static final String SELECTION_FINISHED = "interval_selection_finished";
+
+  /** Current chart data instance. */
+  protected double[] tsData;
 
   /** The chart container. */
   private JFreeChart chart;
 
   /** The timeseries plot itself. */
   private XYPlot timeseriesPlot;
-
-  /** Current chart data instance. */
-  private GrammarVizChartData chartData;
 
   /** JFreeChart Object holding the chart times series */
   XYSeriesCollection chartXYSeriesCollection;
@@ -95,12 +108,22 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
   double previousClickPosition = 0;
 
   /** The user session var - holds all parameters. */
-  private UserSession session;
+  protected UserSession session;
+
+  /** The inner panel which displays the chart in place. */
+  private ChartPanel chartPanel;
+
+  private Thread guessRefreshThread;
+
+  private JButton setOperationalButton;
+
+  private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
   // the logger business
   //
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
+
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizChartPanel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
@@ -113,33 +136,14 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     super();
   }
 
-  // /**
-  // * Constructor.
-  // *
-  // * @param chartData the chart data.
-  // */
-  // public SequiturChartPanel(MotifChartData chartData) {
-  // this.chartData = chartData;
-  // }
-
   /**
    * This sets the chartData and forces the panel to repaint itself showing the new chart.
    * 
    * @param chartData the data to use.
    */
-  public void setChartData(GrammarVizChartData chartData, UserSession session) {
-    this.chartData = chartData;
-    this.resetChartPanel();
+  public void setChartData(UserSession session) {
     this.session = session;
-  }
-
-  /**
-   * Get the chart data object currently on show.
-   * 
-   * @return chartData the data in use.
-   */
-  public GrammarVizChartData getChartData() {
-    return this.chartData;
+    this.resetChartPanel();
   }
 
   /**
@@ -159,14 +163,19 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
     // this is the new "insert" - elastic boundaries chart panel
     //
-    paintTheChart(this.chartData.getOriginalTimeseries());
+    if (null == this.session.chartData && null != this.tsData) {
+      paintTheChart(this.tsData);
+    }
+    else {
+      paintTheChart(this.session.chartData.getOriginalTimeseries());
+    }
 
-    ChartPanel chartPanel = new ChartPanel(this.chart);
+    chartPanel = new ChartPanel(this.chart);
 
-    chartPanel.setMinimumDrawWidth(0);
-    chartPanel.setMinimumDrawHeight(0);
-    chartPanel.setMaximumDrawWidth(1920);
-    chartPanel.setMaximumDrawHeight(1200);
+    // chartPanel.setMinimumDrawWidth(0);
+    // chartPanel.setMinimumDrawHeight(0);
+    // chartPanel.setMaximumDrawWidth(1920);
+    // chartPanel.setMaximumDrawHeight(1200);
 
     chartPanel.setMouseWheelEnabled(true);
 
@@ -180,7 +189,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
     // not sure if I need this
     //
-    validate();
+    revalidate();
     repaint();
   }
 
@@ -193,7 +202,11 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     consoleLogger.debug("Selected rules: " + rules.toString());
     timeseriesPlot.clearDomainMarkers();
     for (String rule : rules) {
-      ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(Integer.valueOf(rule));
+      int ruleId = Integer.valueOf(rule);
+      if (0 == ruleId) {
+        continue;
+      }
+      ArrayList<RuleInterval> arrPos = this.session.chartData.getRulePositionsByRuleNum(ruleId);
       consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
       for (RuleInterval saxPos : arrPos) {
         addMarker(timeseriesPlot, saxPos.getStartPos(), saxPos.getEndPos());
@@ -208,8 +221,8 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
    */
   private void highlightPatternInChartPacked(String classIndex) {
     consoleLogger.debug("Selected class: " + classIndex);
-    ArrayList<RuleInterval> arrPos = chartData.getSubsequencesPositionsByClassNum(Integer
-        .valueOf(classIndex));
+    ArrayList<RuleInterval> arrPos = this.session.chartData
+        .getSubsequencesPositionsByClassNum(Integer.valueOf(classIndex));
     consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
     timeseriesPlot.clearDomainMarkers();
     for (RuleInterval saxPos : arrPos) {
@@ -224,7 +237,8 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
    */
   private void highlightPeriodsBetweenPatterns(String rule) {
     consoleLogger.debug("Selected rule: " + rule);
-    ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(Integer.valueOf(rule));
+    ArrayList<RuleInterval> arrPos = this.session.chartData
+        .getRulePositionsByRuleNum(Integer.valueOf(rule));
     consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
     timeseriesPlot.clearDomainMarkers();
     for (int i = 1; i < arrPos.size(); i++) {
@@ -238,7 +252,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     consoleLogger.debug("Selected anomalies: " + anomalies.toString());
     timeseriesPlot.clearDomainMarkers();
     for (String anomaly : anomalies) {
-      DiscordRecord dr = this.chartData.getAnomalies().get(Integer.valueOf(anomaly));
+      DiscordRecord dr = this.session.chartData.getAnomalies().get(Integer.valueOf(anomaly));
       consoleLogger.debug(dr.toString());
       addAnomalyMarker(timeseriesPlot, dr.getPosition(), dr.getPosition() + dr.getLength());
     }
@@ -251,8 +265,8 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
     // this is the new "insert" - elastic boundaries chart panel
     //
-    paintTheChart(this.chartData.getOriginalTimeseries());
-    ChartPanel chartPanel = new ChartPanel(this.chart);
+    paintTheChart(this.session.chartData.getOriginalTimeseries());
+    chartPanel = new ChartPanel(this.chart);
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);
@@ -263,34 +277,35 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     this.add(chartPanel);
 
     // timeseriesPlot.clearDomainMarkers();
-    int rulesNum = this.chartData.getRulesNumber();
+    int rulesNum = this.session.chartData.getRulesNumber();
 
     // find the rule density value
     int maxObservedCoverage = 0;
-    int[] coverageArray = new int[chartData.getOriginalTimeseries().length];
+    int[] coverageArray = new int[this.session.chartData.getOriginalTimeseries().length];
 
-    for (GrammarRuleRecord r : chartData.getGrammarRules()) {
+    for (GrammarRuleRecord r : this.session.chartData.getGrammarRules()) {
       if (0 == r.ruleNumber()) {
         continue;
       }
-      ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(r.ruleNumber());
+      ArrayList<RuleInterval> arrPos = this.session.chartData
+          .getRulePositionsByRuleNum(r.ruleNumber());
       for (RuleInterval saxPos : arrPos) {
         int start = saxPos.getStartPos();
         int end = saxPos.getEndPos();
         for (int j = start; j < end; j++) {
-          if (CoverageCountStrategy.COUNT == this.session.getCountStrategy()) {
+          if (CoverageCountStrategy.COUNT.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + 1;
           }
-          else if (CoverageCountStrategy.LEVEL == this.session.getCountStrategy()) {
+          else if (CoverageCountStrategy.LEVEL.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + r.getRuleLevel();
           }
-          else if (CoverageCountStrategy.OCCURRENCE == this.session.getCountStrategy()) {
+          else if (CoverageCountStrategy.OCCURRENCE.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + r.getOccurrences().size();
           }
-          else if (CoverageCountStrategy.YIELD == this.session.getCountStrategy()) {
+          else if (CoverageCountStrategy.YIELD.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + r.getRuleYield();
           }
-          else if (CoverageCountStrategy.PRODUCT == this.session.getCountStrategy()) {
+          else if (CoverageCountStrategy.PRODUCT.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + r.getRuleLevel() * r.getOccurrences().size();
           }
           if (maxObservedCoverage < coverageArray[j]) {
@@ -305,30 +320,30 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     double covIncrement = 1. / (double) maxObservedCoverage;
 
     for (int i = 0; i < rulesNum; i++) {
-      GrammarRuleRecord r = chartData.getRule(i);
+      GrammarRuleRecord r = this.session.chartData.getRule(i);
       if (0 == r.ruleNumber()) {
         continue;
       }
-      ArrayList<RuleInterval> arrPos = chartData.getRulePositionsByRuleNum(i);
+      ArrayList<RuleInterval> arrPos = this.session.chartData.getRulePositionsByRuleNum(i);
       for (RuleInterval saxPos : arrPos) {
         IntervalMarker marker = new IntervalMarker(saxPos.getStartPos(), saxPos.getEndPos());
         marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
         marker.setPaint(Color.BLUE);
 
         // marker.setAlpha((float) 0.05);
-        if (CoverageCountStrategy.COUNT == this.session.getCountStrategy()) {
+        if (CoverageCountStrategy.COUNT.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement);
         }
-        else if (CoverageCountStrategy.LEVEL == this.session.getCountStrategy()) {
+        else if (CoverageCountStrategy.LEVEL.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement * r.getRuleLevel());
         }
-        else if (CoverageCountStrategy.OCCURRENCE == this.session.getCountStrategy()) {
+        else if (CoverageCountStrategy.OCCURRENCE.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement * r.getOccurrences().size());
         }
-        else if (CoverageCountStrategy.YIELD == this.session.getCountStrategy()) {
+        else if (CoverageCountStrategy.YIELD.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement * r.getRuleYield());
         }
-        else if (CoverageCountStrategy.PRODUCT == this.session.getCountStrategy()) {
+        else if (CoverageCountStrategy.PRODUCT.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement * (r.getRuleLevel() * r.getOccurrences().size()));
         }
         marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -341,7 +356,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
     // not sure if I need this
     //
-    validate();
+    revalidate();
     repaint();
 
     // and finally save the coverage curve
@@ -355,7 +370,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     // write down the coverage array
     //
     try {
-      String filename = session.getRuleDensityOutputFileName();
+      String filename = session.ruleDensityOutputFileName;
       BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename)));
       for (int c : coverageArray) {
         bw.write(String.valueOf(c) + "\n");
@@ -372,7 +387,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     // cleanup all the content
     //
     this.removeAll();
-    validate();
+    revalidate();
     repaint();
 
     // construct the dataset
@@ -380,7 +395,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
     // [1.0] extract all the rules
     ArrayList<Integer> allRules = new ArrayList<Integer>();
-    for (GrammarRuleRecord r : chartData.getGrammarRules()) {
+    for (GrammarRuleRecord r : this.session.chartData.getGrammarRules()) {
       if (0 == r.ruleNumber()) {
         continue;
       }
@@ -393,7 +408,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     Collections.sort(allRules);
     // final int minLength = allRules.get(0);
     final int maxLength = allRules.get(allRules.size() - 1);
-    final int numberOfBins = maxLength / this.chartData.getSAXWindowSize() + 1;
+    final int numberOfBins = maxLength / this.session.chartData.getSAXWindowSize() + 1;
 
     double[] values = new double[allRules.size()];
     for (int i = 0; i < allRules.size(); i++) {
@@ -404,7 +419,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     dataset.setType(HistogramType.FREQUENCY);
 
     dataset.addSeries("Frequencies", values, numberOfBins, 0,
-        numberOfBins * this.chartData.getSAXWindowSize());
+        numberOfBins * this.session.chartData.getSAXWindowSize());
 
     String plotTitle = "Rules Length Histogram";
     String xaxis = "Rule length";
@@ -431,9 +446,9 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
         List<NumberTick> myTicks = new ArrayList<NumberTick>();
 
         for (int i = 0; i < numberOfBins; i++) {
-          myTicks.add(new NumberTick(TickType.MAJOR, i * chartData.getSAXWindowSize(), String
-              .valueOf(i * chartData.getSAXWindowSize()), TextAnchor.CENTER, TextAnchor.CENTER,
-              0.0d));
+          myTicks.add(new NumberTick(TickType.MAJOR, i * session.chartData.getSAXWindowSize(),
+              String.valueOf(i * session.chartData.getSAXWindowSize()), TextAnchor.CENTER,
+              TextAnchor.CENTER, 0.0d));
           // textAnchor, rotationAnchor, angle));
         }
 
@@ -441,7 +456,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
         // NumberTick numberTick = (NumberTick) tick;
         //
         // if (TickType.MAJOR.equals(numberTick.getTickType())
-        // && (numberTick.getValue() % chartData.getSAXWindowSize() != 0)) {
+        // && (numberTick.getValue() % this.session.chartData.getSAXWindowSize() != 0)) {
         // // myTicks.add(new NumberTick(TickType.MINOR, numberTick.getValue(), "", numberTick
         // // .getTextAnchor(), numberTick.getRotationAnchor(), numberTick.getAngle()));
         // continue;
@@ -454,7 +469,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
     this.chart.getXYPlot().setDomainAxis(myAxis);
 
-    ChartPanel chartPanel = new ChartPanel(this.chart);
+    chartPanel = new ChartPanel(this.chart);
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);
@@ -468,7 +483,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     //
     this.add(chartPanel);
 
-    validate();
+    revalidate();
     repaint();
   }
 
@@ -550,15 +565,16 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
    * @param tsData The time series data.
    */
   public void showTimeSeries(double[] tsData) {
+    this.tsData = tsData;
     paintTheChart(tsData);
-    ChartPanel chartPanel = new ChartPanel(this.chart);
-    chartPanel.setMinimumDrawWidth(0);
-    chartPanel.setMinimumDrawHeight(0);
-    chartPanel.setMaximumDrawWidth(1920);
-    chartPanel.setMaximumDrawHeight(1200);
+    chartPanel = new ChartPanel(this.chart);
+    // chartPanel.setMinimumDrawWidth(0);
+    // chartPanel.setMinimumDrawHeight(0);
+    // chartPanel.setMaximumDrawWidth(1920);
+    // chartPanel.setMaximumDrawHeight(1200);
     this.removeAll();
     this.add(chartPanel);
-    validate();
+    revalidate();
     repaint();
   }
 
@@ -597,7 +613,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     // put these into collection of dots
     //
     this.timeseriesPlot = new XYPlot(chartXYSeriesCollection, timeAxis, valueAxis, xyRenderer);
-    
+
     // enabling panning
     //
     this.timeseriesPlot.setDomainPannable(true);
@@ -612,6 +628,7 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
   }
 
   public void chartProgress(ChartProgressEvent chartprogressevent) {
+
     if (chartprogressevent.getType() != 2)
       return;
 
@@ -620,11 +637,12 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     double pos = xyplot.getDomainCrosshairValue();
 
     // this is needed because the call of highlightPatternInChart triggers a ChartProgessEvent
-    if (previousClickPosition == pos)
+    if (previousClickPosition == pos) {
       return;
+    }
 
-    // SAXString sax = new SAXString(chartData.getFreqData(), " ");
-    // String rule = sax.getRuleFromPosition(chartData, (int) pos);
+    // SAXString sax = new SAXString(this.session.chartData.getFreqData(), " ");
+    // String rule = sax.getRuleFromPosition(this.session.chartData, (int) pos);
     // if (rule != null) {
     // firePropertyChange(SequiturMessage.MAIN_CHART_CLICKED_MESSAGE, "", rule);
     // System.out.println("Clicked Property Change fired with rule: " + rule);
@@ -637,25 +655,28 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
   public void propertyChange(PropertyChangeEvent evt) {
     if (GrammarvizRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
       @SuppressWarnings("unchecked")
-      ArrayList<String> newlySelectedRaws = (ArrayList<String>) evt.getNewValue();
-      highlightPatternInChart(newlySelectedRaws);
+      ArrayList<String> newlySelectedRows = (ArrayList<String>) evt.getNewValue();
+      highlightPatternInChart(newlySelectedRows);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_RULES);
-      this.repaint();
+      revalidate();
+      repaint();
     }
     if (PackedRulesPanel.FIRING_PROPERTY_PACKED.equalsIgnoreCase(evt.getPropertyName())) {
       String newlySelectedRaw = (String) evt.getNewValue();
       highlightPatternInChartPacked(newlySelectedRaw);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_PACKED_RULES);
-      this.repaint();
+      revalidate();
+      repaint();
     }
     if (RulesPeriodicityPanel.FIRING_PROPERTY_PERIOD.equalsIgnoreCase(evt.getPropertyName())) {
       String newlySelectedRaw = (String) evt.getNewValue();
       highlightPeriodsBetweenPatterns(newlySelectedRaw);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_PERIODS);
-      this.repaint();
+      revalidate();
+      repaint();
     }
     if (GrammarVizAnomaliesPanel.FIRING_PROPERTY_ANOMALY.equalsIgnoreCase(evt.getPropertyName())) {
       @SuppressWarnings("unchecked")
@@ -663,7 +684,8 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
       highlightAnomaly(newlySelectedRaws);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_ANOMALY);
-      this.repaint();
+      revalidate();
+      repaint();
     }
 
   }
@@ -673,25 +695,141 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
     if (GrammarVizView.DISPLAY_DENSITY_DATA.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_DENSITY + "coverage count strategy: "
-          + this.session.getCountStrategy().toString() + " ");
-      this.repaint();
+          + this.session.countStrategy.toString() + " ");
+      revalidate();
+      repaint();
       displayRuleDensity();
     }
     else if (GrammarVizView.DISPLAY_LENGTH_HISTOGRAM.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_HISTOGRAMM);
-      this.repaint();
+      revalidate();
       displayRulesLengthHistogram();
     }
     else if (GrammarVizView.SAVE_CHART.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SAVING_CHART);
-      this.repaint();
+      revalidate();
+      repaint();
       saveCurrentChart();
+    }
+    else if (GrammarVizView.GUESS_PARAMETERS.equalsIgnoreCase(e.getActionCommand())) {
+
+      // setting the new label on the chart-surrounding panel
+      //
+      TitledBorder tb = (TitledBorder) this.getBorder();
+      tb.setTitle(LABEL_SELECT_INTERVAL);
+      revalidate();
+      repaint();
+
+      // disabling zoom on the panel
+      //
+      chartPanel.setRangeZoomable(false);
+      chartPanel.setDomainZoomable(false);
+
+      // attaching the custom mouse listener
+      //
+      final MouseMarker listener = new MouseMarker(chartPanel);
+      chartPanel.addMouseListener(listener);
+      chartPanel.addMouseMotionListener(listener);
+
+      // creating the sampler object
+      //
+      final GrammarvizParamsSampler paramsSampler = new GrammarvizParamsSampler(this);
+
+      // running the thread which will look over the selection
+      //
+      final Object selectionLock = new Object();
+      listener.setLockObject(selectionLock);
+
+      guessRefreshThread = new Thread(new Runnable() {
+        public void run() {
+          boolean selectionSucceeded = false;
+          while (!(selectionSucceeded)) {
+            synchronized (selectionLock) {
+              try {
+                selectionLock.wait(); // Send this thread to sleep until dirtyLock is unlocked
+              }
+              catch (InterruptedException e1) {
+              }
+            }
+            int result = JOptionPane.showConfirmDialog(chartPanel,
+                "Is interval selection " + listener.getIntervalStr() + " correct?",
+                "Interval selection", JOptionPane.INFORMATION_MESSAGE);
+            if (result == JOptionPane.OK_OPTION) {
+              selectionSucceeded = true;
+              paramsSampler.setSampleIntervalStart((int) Math.floor(listener.getSelectionStart()));
+              paramsSampler.setSampleIntervalEnd((int) Math.ceil(listener.getSelectionEnd()));
+              consoleLogger
+                  .debug("Selected range [" + (int) Math.floor(listener.getSelectionStart()) + ", "
+                      + (int) Math.ceil(listener.getSelectionEnd()) + "]");
+            }
+            else if (result == JOptionPane.NO_OPTION) {
+              consoleLogger.debug("Selection needs to be refined...");
+            }
+            else if (result == JOptionPane.CANCEL_OPTION) {
+              consoleLogger.debug("Selection process has been cancelled...");
+              paramsSampler.cancel();
+            }
+          }
+          if (selectionSucceeded) {
+            consoleLogger.debug("Running the sampler...");
+            try {
+
+              final ExecutorService executorService = Executors.newSingleThreadExecutor();
+              final Future<String> bestParams = executorService.submit(paramsSampler);
+
+              setOperationalButton.setText("Stop!");
+              setOperationalButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                  bestParams.cancel(true);
+                  executorService.shutdown();
+                }
+              });
+              setOperationalButton.revalidate();
+              setOperationalButton.repaint();
+
+              if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {
+                executorService.shutdownNow(); // Cancel currently executing tasks
+                if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+                  System.err.println("Pool did not terminate... FATAL ERROR");
+                }
+              }
+
+            }
+            catch (Exception e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
+          }
+        }
+      });
+      guessRefreshThread.start();
+    }
+    else if (GrammarvizChartPanel.SELECTION_CANCELLED.equalsIgnoreCase(e.getActionCommand())) {
+      this.resetChartPanel();
+    }
+    else if (GrammarvizChartPanel.SELECTION_FINISHED.equalsIgnoreCase(e.getActionCommand())) {
+      this.resetChartPanel();
+    }
+    else if (GrammarvizChartPanel.SAMPLING_SUCCEEDED.equalsIgnoreCase(e.getActionCommand())) {
+      TitledBorder tb = (TitledBorder) this.getBorder();
+      tb.setTitle(LABEL_DEFAULT);
+      resetChartPanel();
+      this.session.notifyParametersChangeListeners();
+      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
+      for (ActionListener l : this.listeners) {
+        l.actionPerformed(event);
+      }
     }
 
   }
 
+  /**
+   * Quick and dirty hack for saving the current chart -- because normally the chart parameters need
+   * to be defined and modifiable by the user.
+   */
   private void saveCurrentChart() {
     String fileName = new SimpleDateFormat("yyyyMMddhhmmssSS'.png'").format(new Date());
     try {
@@ -702,12 +840,13 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
       NumberAxis range = (NumberAxis) this.timeseriesPlot.getRangeAxis();
       Range rangeRange = range.getRange();
 
-      String annotationString = "W:" + this.chartData.getSAXWindowSize() + ", P:"
-          + this.chartData.getSAXPaaSize() + ", A:" + this.chartData.getSAXAlphabetSize();
+      String annotationString = "W:" + this.session.chartData.getSAXWindowSize() + ", P:"
+          + this.session.chartData.getSAXPaaSize() + ", A:"
+          + this.session.chartData.getSAXAlphabetSize();
 
-      XYTextAnnotation a = new XYTextAnnotation(annotationString, domainRange.getLowerBound()
-          + domainRange.getLength() / 100, rangeRange.getLowerBound() + rangeRange.getLength() / 5
-          * 3.5);
+      XYTextAnnotation a = new XYTextAnnotation(annotationString,
+          domainRange.getLowerBound() + domainRange.getLength() / 100,
+          rangeRange.getLowerBound() + rangeRange.getLength() / 5 * 3.5);
 
       a.setTextAnchor(TextAnchor.BOTTOM_LEFT);
 
@@ -725,11 +864,19 @@ public class GrammarvizChartPanel extends JPanel implements PropertyChangeListen
 
       // this.paintTheChart();
 
-      ChartUtilities.saveChartAsPNG(new File(fileName), this.chart, 1400, 425);
+      ChartUtilities.saveChartAsPNG(new File(fileName), this.chart, 900, 600);
     }
     catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public void setOperationalButton(JButton guessParametersButton) {
+    this.setOperationalButton = guessParametersButton;
+  }
+
+  public void addActionListener(ActionListener listener) {
+    this.listeners.add(listener);
   }
 
 }

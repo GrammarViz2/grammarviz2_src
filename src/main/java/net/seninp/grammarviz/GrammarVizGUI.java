@@ -1,5 +1,6 @@
 package net.seninp.grammarviz;
 
+import java.util.Locale;
 import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.model.GrammarVizModel;
 import net.seninp.grammarviz.view.GrammarVizView;
@@ -28,13 +29,21 @@ public class GrammarVizGUI {
    */
   public static void main(String[] args) {
 
-    /** On the stage. */
     System.out.println("Starting GrammarViz 2.0 ...");
 
-    // this is the Apple fix
+    /** Boilerplate */
+    // the locale setup
+    Locale defaultLocale = Locale.getDefault();
+    Locale newLocale = Locale.US;
+    System.out.println(
+        "Changing runtime locale setting from " + defaultLocale + " to " + newLocale + " ...");
+    Locale.setDefault(newLocale);
+
+    // this is the Apple UI fix
     System.setProperty("apple.laf.useScreenMenuBar", "true");
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "SAXSequitur");
 
+    /** On the stage. */
     // model...
     model = new GrammarVizModel();
 
@@ -47,7 +56,7 @@ public class GrammarVizGUI {
     // make sure these two met...
     model.addObserver(view);
     controller.addObserver(view);
-    
+
     // live!!!
     view.showGUI();
 

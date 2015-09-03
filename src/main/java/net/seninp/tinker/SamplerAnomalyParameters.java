@@ -2,9 +2,9 @@ package net.seninp.tinker;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.beust.jcommander.Parameter;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
-import com.beust.jcommander.Parameter;
 
 /**
  * Parameters accepted by the bitmap printer and their default values.

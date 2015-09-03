@@ -6,9 +6,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import net.seninp.gi.RuleInterval;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import net.seninp.gi.RuleInterval;
 
 public class SAXFileIOHelper {
 

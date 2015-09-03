@@ -201,8 +201,9 @@
                   <mainClass>net.seninp.grammarviz.GrammarVizGUI</mainClass>
                 </manifest>
               </archive>
-              <!-- <filters> <filter>src/assembly/filter.properties</filter> </filters> <descriptors> 
-                <descriptor>src/assembly/distribution.xml</descriptor> </descriptors> -->
+              <!-- <filters> <filter>src/assembly/filter.properties</filter> 
+                </filters> <descriptors> <descriptor>src/assembly/distribution.xml</descriptor> 
+                </descriptors> -->
             </configuration>
             <executions>
               <execution>
@@ -275,13 +276,13 @@
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-sax</artifactId>
 
-      <version>0.6.0</version>
+      <version>0.7.0</version>
     </dependency>
     <dependency>
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-gi</artifactId>
 
-      <version>0.4.0</version>
+      <version>0.6.0</version>
     </dependency>
   </dependencies>
 

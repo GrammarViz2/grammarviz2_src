@@ -15,6 +15,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import net.seninp.gi.GIAlgorithm;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
@@ -27,9 +31,6 @@ import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.datastructures.SAXRecords;
 import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 import net.seninp.util.StackTrace;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 /**
  * Implements the Sequitur Model component of MVC GUI pattern.
@@ -40,7 +41,6 @@ import ch.qos.logback.classic.Logger;
 public class GrammarVizModel extends Observable {
 
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
   private static final String SPACE = " ";
   private static final String CR = "\n";
 
@@ -50,25 +50,17 @@ public class GrammarVizModel extends Observable {
   /** If that data was read - it is stored here. */
   private double[] ts;
 
-  /** Data structure to keep chart data. */
+  /** Data structure that keeps the chart data. */
   private GrammarVizChartData chartData;
 
   // the logger business
   //
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
+
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizModel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
-  }
-
-  /**
-   * The file name setter.
-   * 
-   * @param filename The file name to set.
-   */
-  private synchronized void setDataFileName(String filename) {
-    this.dataFileName = filename;
   }
 
   /**
@@ -90,7 +82,7 @@ public class GrammarVizModel extends Observable {
     consoleLogger.info("setting the file " + filename + " as current data source");
 
     // action
-    this.setDataFileName(filename);
+    this.dataFileName = filename;
 
     // notify the View
     this.setChanged();
@@ -198,10 +190,10 @@ public class GrammarVizModel extends Observable {
    * @param grammarOutputFileName The file name to where save the grammar.
    * @throws IOException
    */
-  public synchronized void processData(int algorithm, boolean useSlidingWindow,
+  public synchronized void processData(GIAlgorithm algorithm, boolean useSlidingWindow,
       NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
       int alphabetSize, double normalizationThreshold, String grammarOutputFileName)
-      throws IOException {
+          throws IOException {
 
     // check if the data is loaded
     //
@@ -213,7 +205,7 @@ public class GrammarVizModel extends Observable {
       // the logging block
       //
       StringBuffer sb = new StringBuffer("setting up GI with params: ");
-      if (0 == algorithm) {
+      if (GIAlgorithm.SEQUITUR.equals(algorithm)) {
         sb.append("algorithm: Sequitur, ");
       }
       else {
@@ -233,7 +225,7 @@ public class GrammarVizModel extends Observable {
 
       try {
 
-        if (0 == algorithm) {
+        if (GIAlgorithm.REPAIR.equals(algorithm)) {
 
           SAXRecords saxFrequencyData = null;
           if (useSlidingWindow) {
@@ -249,8 +241,8 @@ public class GrammarVizModel extends Observable {
           consoleLogger.trace("String: " + saxFrequencyData.getSAXString(SPACE));
 
           consoleLogger.debug("running sequitur ...");
-          SAXRule sequiturGrammar = SequiturFactory.runSequitur(saxFrequencyData
-              .getSAXString(SPACE));
+          SAXRule sequiturGrammar = SequiturFactory
+              .runSequitur(saxFrequencyData.getSAXString(SPACE));
 
           consoleLogger.debug("collecting grammar rules data ...");
           GrammarRules rules = sequiturGrammar.toGrammarRulesData();
@@ -316,8 +308,8 @@ public class GrammarVizModel extends Observable {
     BufferedWriter bw = null;
     try {
       String currentPath = new File(".").getCanonicalPath();
-      bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(currentPath
-          + File.separator + "grammar_stats.txt"), "UTF-8"));
+      bw = new BufferedWriter(new OutputStreamWriter(
+          new FileOutputStream(currentPath + File.separator + "grammar_stats.txt"), "UTF-8"));
       StringBuffer sb = new StringBuffer();
       sb.append("# filename: ").append(this.dataFileName).append(CR);
       sb.append("# sliding window: ").append(data.getSAXWindowSize()).append(CR);
@@ -330,8 +322,8 @@ public class GrammarVizModel extends Observable {
       fileOpen = true;
     }
     catch (IOException e) {
-      System.err.print("Encountered an error while writing stats file: \n" + StackTrace.toString(e)
-          + "\n");
+      System.err.print(
+          "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
     }
 
     // ArrayList<int[]> ruleLengths = new ArrayList<int[]>();
@@ -340,9 +332,9 @@ public class GrammarVizModel extends Observable {
 
       StringBuffer sb = new StringBuffer();
       sb.append("/// ").append(ruleRecord.getRuleName()).append(CR);
-      sb.append(ruleRecord.getRuleName()).append(" -> \'")
-          .append(ruleRecord.getRuleString().trim()).append("\', expanded rule string: \'")
-          .append(ruleRecord.getExpandedRuleString()).append("\'").append(CR);
+      sb.append(ruleRecord.getRuleName()).append(" -> \'").append(ruleRecord.getRuleString().trim())
+          .append("\', expanded rule string: \'").append(ruleRecord.getExpandedRuleString())
+          .append("\'").append(CR);
 
       if (ruleRecord.getRuleIntervals().size() > 0) {
 
@@ -370,8 +362,8 @@ public class GrammarVizModel extends Observable {
           bw.write(sb.toString());
         }
         catch (IOException e) {
-          System.err.print("Encountered an error while writing stats file: \n"
-              + StackTrace.toString(e) + "\n");
+          System.err.print(
+              "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
         }
       }
     }
@@ -382,8 +374,8 @@ public class GrammarVizModel extends Observable {
         bw.close();
       }
       catch (IOException e) {
-        System.err.print("Encountered an error while writing stats file: \n"
-            + StackTrace.toString(e) + "\n");
+        System.err.print(
+            "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
       }
     }
 

@@ -790,8 +790,6 @@ public class GrammarvizChartPanel extends JPanel
               setOperationalButton.revalidate();
               setOperationalButton.repaint();
 
-              consoleLogger.debug("Finished with sampler...");
-
               if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {
                 executorService.shutdownNow(); // Cancel currently executing tasks
                 if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {

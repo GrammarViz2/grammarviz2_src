@@ -932,6 +932,9 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (GUESS_PARAMETERS.equalsIgnoreCase(command)) {
       log(Level.INFO, "starting the guessing params dialog");
+      disableAllExceptSelectButton();
+      this.dataLoadButton.setEnabled(true);
+      this.guessParametersButton.setEnabled(true);
       this.guessParametersButton.removeActionListener(this);
       this.dataChartPane.actionPerformed(new ActionEvent(this, 2, GUESS_PARAMETERS));
     }
@@ -947,6 +950,7 @@ public class GrammarVizView implements Observer, ActionListener {
     else if (RESET_GUESS_BUTTON_LISTENER.equalsIgnoreCase(command)) {
       this.guessParametersButton.setText("Guess");
       this.guessParametersButton.addActionListener(this);
+      this.discretizeButton.setEnabled(true);
     }
 
     else if (FIND_PERIODICITY.equalsIgnoreCase(command)) {

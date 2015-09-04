@@ -56,16 +56,11 @@ public class TS2SequiturGrammar {
       sb.append("  input file:                  ").append(TS2GrammarParameters.IN_FILE).append(CR);
       sb.append("  output file:                 ").append(TS2GrammarParameters.OUT_FILE).append(CR);
 
-      sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE)
-          .append(CR);
-      sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE)
-          .append(CR);
-      sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE)
-          .append(CR);
-      sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY)
-          .append(CR);
-      sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD)
-          .append(CR);
+      sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE).append(CR);
+      sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE).append(CR);
+      sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE).append(CR);
+      sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY).append(CR);
+      sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD).append(CR);
 
       sb.append(CR);
       System.out.println(sb.toString());

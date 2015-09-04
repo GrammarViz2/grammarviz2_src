@@ -225,7 +225,7 @@ public class GrammarVizModel extends Observable {
 
       try {
 
-        if (GIAlgorithm.REPAIR.equals(algorithm)) {
+        if (GIAlgorithm.SEQUITUR.equals(algorithm)) {
 
           SAXRecords saxFrequencyData = null;
           if (useSlidingWindow) {

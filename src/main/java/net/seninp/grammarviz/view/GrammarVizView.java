@@ -753,6 +753,7 @@ public class GrammarVizView implements Observer, ActionListener {
             dataLoadButton.setEnabled(true);
             guessParametersButton.setEnabled(true);
             discretizeButton.setEnabled(true);
+            discretizeButton.setEnabled(true);
           }
         };
         SwingUtilities.invokeLater(clearPanels);
@@ -789,7 +790,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
         enableAllButtons();
         // dataChartPane.getChart().setNotify(true);
-        frame.validate();
+        frame.revalidate();
         frame.repaint();
       }
     }

@@ -211,7 +211,6 @@ public class GrammarVizAnomaly {
     for (GrammarRuleRecord rule : rules) {
       //
       // TODO: do we care about long rules?
-      //
       // if (0 == rule.ruleNumber() || rule.getRuleYield() > 2) {
       if (0 == rule.ruleNumber()) {
         continue;
@@ -246,7 +245,7 @@ public class GrammarVizAnomaly {
     if (zeros.size() > 0) {
       consoleLogger.info("found " + zeros.size() + " intervals not covered by rules: "
           + intervalsToString(zeros));
-      intervals.addAll(getZeroIntervals(coverageArray));
+      intervals.addAll(zeros);
     }
     else {
       consoleLogger.info("Whole timeseries covered by rule intervals ...");

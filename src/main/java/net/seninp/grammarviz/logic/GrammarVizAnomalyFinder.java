@@ -3,6 +3,7 @@ package net.seninp.grammarviz.logic;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Observable;
 import net.seninp.gi.GrammarRuleRecord;
@@ -43,54 +44,56 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
     // save the timestamp
     Date start = new Date();
 
-    this.setChanged();
-    notifyObservers("computing coverage...");
-
-    int[] coverageCurve = new int[this.chartData.originalTimeSeries.length];
-    for (GrammarRuleRecord ruleEntry : this.chartData.getGrammarRules()) {
-      if (0 == ruleEntry.ruleNumber()) {
-        continue;
-      }
-      ArrayList<RuleInterval> intervals = getRulePositionsByRuleNum(ruleEntry.ruleNumber());
-      for (RuleInterval interval : intervals) {
-        for (int j = interval.getStartPos(); j < interval.getEndPos(); j++) {
-          coverageCurve[j]++;
-        }
-      }
-    }
-
-    // SAX Sequitur exact
-    //
-    // build an array of rules with their average coverage
+    // [1] build an array of rules along with their use frequency
     //
     HashMap<RuleDescriptor, ArrayList<RuleInterval>> rules = new HashMap<RuleDescriptor, ArrayList<RuleInterval>>();
+
     for (GrammarRuleRecord r : this.chartData.getGrammarRules()) {
       if (0 == r.ruleNumber()) {
         continue;
       }
       ArrayList<RuleInterval> intervals = getRulePositionsByRuleNum(r.ruleNumber());
-      rules.put(
-          new RuleDescriptor(r.ruleNumber(), r.getRuleName(), r.getRuleString(), r.getMeanLength(),
-              r.getRuleUseFrequency()), intervals);
+      rules.put(new RuleDescriptor(r.ruleNumber(), r.getRuleName(), r.getRuleString(),
+          r.getMeanLength(), r.getRuleUseFrequency()), intervals);
     }
 
-    // populate all intervals with their coverage
+    // [2] populate all intervals with their coverage
     //
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
     for (Entry<RuleDescriptor, ArrayList<RuleInterval>> e : rules.entrySet()) {
       for (RuleInterval ri : e.getValue()) {
-        ri.setCoverage(e.getKey().getRuleFrequency());
+        // ri.setCoverage(e.getKey().getRuleFrequency());
+        ri.setCoverage(e.getValue().size());
         ri.setId(e.getKey().getRuleIndex());
         intervals.add(ri);
       }
     }
 
-    // check if somewhere there is a ZERO coverage!
+    // [3] compute the coverage
     //
-    for (int i = 0; i < coverageCurve.length; i++) {
-      if (0 == coverageCurve[i]) {
+    this.setChanged();
+    notifyObservers("computing coverage...");
+
+    int[] coverageArray = new int[this.chartData.originalTimeSeries.length];
+
+    for (GrammarRuleRecord ruleEntry : this.chartData.getGrammarRules()) {
+      if (0 == ruleEntry.ruleNumber()) {
+        continue;
+      }
+      ArrayList<RuleInterval> ruleIntervals = getRulePositionsByRuleNum(ruleEntry.ruleNumber());
+      for (RuleInterval interval : ruleIntervals) {
+        for (int j = interval.getStartPos(); j < interval.getEndPos(); j++) {
+          coverageArray[j]++;
+        }
+      }
+    }
+
+    // [3] check if somewhere there is a ZERO coverage!
+    //
+    for (int i = 0; i < coverageArray.length; i++) {
+      if (0 == coverageArray[i]) {
         int j = i;
-        while ((j < coverageCurve.length - 1) && (0 == coverageCurve[j])) {
+        while ((j < coverageArray.length - 1) && (0 == coverageArray[j])) {
           j++;
         }
         if (Math.abs(i - j) > 1) {
@@ -100,7 +103,14 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       }
     }
 
-    log("running RRA on the set of rule intervals...");
+    List<RuleInterval> zeros = getZeroIntervals(coverageArray);
+    if (zeros.size() > 0) {
+      log("found " + zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
+      intervals.addAll(zeros);
+    }
+    else {
+      log("the whole timeseries covered by rule intervals ...");
+    }
 
     // run HOTSAX with this intervals set
     //
@@ -128,7 +138,8 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
         // if the discord is null we getting out of the search
         if (bestDiscord.getNNDistance() == 0.0D || bestDiscord.getPosition() == -1) {
           log("breaking the discords search loop, discords found: "
-              + this.chartData.discords.getSize() + " last seen discord: " + bestDiscord.toString());
+              + this.chartData.discords.getSize() + " last seen discord: "
+              + bestDiscord.toString());
           break;
         }
 
@@ -164,7 +175,33 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
   private void log(String message) {
     this.setChanged();
-    notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "SAXSequitur: " + message));
+    notifyObservers(
+        new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "SAXSequitur: " + message));
+  }
+
+  /**
+   * Run a quick scan along the timeseries coverage to find a zeroed intervals.
+   * 
+   * @param coverageArray the coverage to analyze.
+   * @return set of zeroed intervals (if found).
+   */
+  private List<RuleInterval> getZeroIntervals(int[] coverageArray) {
+    ArrayList<RuleInterval> res = new ArrayList<RuleInterval>();
+    int start = -1;
+    boolean inInterval = false;
+    int intervalsCounter = -1;
+    for (int i = 0; i < coverageArray.length; i++) {
+      if (0 == coverageArray[i] && !inInterval) {
+        start = i;
+        inInterval = true;
+      }
+      if (coverageArray[i] > 0 && inInterval) {
+        res.add(new RuleInterval(intervalsCounter, start, i, 0));
+        inInterval = false;
+        intervalsCounter--;
+      }
+    }
+    return res;
   }
 
   /**
@@ -173,7 +210,21 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
    * @param ruleIdx The rule index.
    * @return The array of all intervals corresponding to this rule.
    */
-  public ArrayList<RuleInterval> getRulePositionsByRuleNum(Integer ruleIdx) {
+  private ArrayList<RuleInterval> getRulePositionsByRuleNum(Integer ruleIdx) {
     return this.chartData.getGrammarRules().get(ruleIdx).getRuleIntervals();
+  }
+
+  /**
+   * Makes a zeroed interval to appear nicely in output.
+   * 
+   * @param zeros the list of zeros.
+   * @return the intervals list as a string.
+   */
+  private String intervalsToString(List<RuleInterval> zeros) {
+    StringBuilder sb = new StringBuilder();
+    for (RuleInterval i : zeros) {
+      sb.append(i.toString()).append(",");
+    }
+    return sb.toString();
   }
 }

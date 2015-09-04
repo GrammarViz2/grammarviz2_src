@@ -106,11 +106,11 @@ public class GrammarVizAnomaly {
 
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM) || 
           AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        sb.append("  GI Algorithm:         ").append(GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
+        sb.append(" GI Algorithm:         ").append(GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
       }
       
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        sb.append("  Grid boundaries:      ").append(RulePrunerParameters.GRID_BOUNDARIES).append(CR);
+        sb.append(" Grid boundaries:      ").append(RulePrunerParameters.GRID_BOUNDARIES).append(CR);
       }
       
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM) && 
@@ -318,57 +318,6 @@ public class GrammarVizAnomaly {
   }
 
   /**
-   * Finds discords in classic manner (i.e., using a trie).
-   * 
-   * @param ts the dataset.
-   * @param windowSize SAX sliding window size.
-   * @param alphabetSize SAX alphabet size.
-   * @param discordsToReport SAX sliding window size.
-   * @param normalizationThreshold SAX normalization threshold.
-   * @throws Exception if error occurs.
-   */
-  private static void findHotSax(double[] ts, int windowSize, int alphabetSize,
-      int discordsToReport, double normalizationThreshold) throws Exception {
-    consoleLogger.info("running HOT SAX Trie-based algorithm...");
-
-    Date start = new Date();
-    DiscordRecords discords = HOTSAXImplementation.series2Discords(ts, windowSize, alphabetSize,
-        discordsToReport, new LargeWindowAlgorithm(), normalizationThreshold);
-    Date end = new Date();
-
-    System.out.println(discords.toString());
-    System.out
-        .println("Discords found in " + SAXProcessor.timeToString(start.getTime(), end.getTime()));
-
-  }
-
-  /**
-   * Finds discords using a hash-backed magic array.
-   * 
-   * @param ts the dataset.
-   * @param windowSize SAX sliding window size.
-   * @param paaSize SAX PAA size.
-   * @param alphabetSize SAX alphabet size.
-   * @param discordsToReport SAX sliding window size.
-   * @param normalizationThreshold SAX normalization threshold.
-   * @throws Exception if error occurs.
-   */
-  private static void findHotSaxWithHash(double[] ts, int windowSize, int paaSize, int alphabetSize,
-      int discordsToReport, double normalizationThreshold) throws TrieException, Exception {
-    consoleLogger.info("running HOT SAX Hash-based algorithm...");
-
-    Date start = new Date();
-    DiscordRecords discords = HOTSAXImplementation.series2DiscordsWithHash(ts, windowSize, paaSize,
-        alphabetSize, discordsToReport, new LargeWindowAlgorithm(), normalizationThreshold);
-    Date end = new Date();
-
-    System.out.println(discords.toString());
-    System.out
-        .println("Discords found in " + SAXProcessor.timeToString(start.getTime(), end.getTime()));
-
-  }
-
-  /**
    * Procedure of finding brute-force discords.
    * 
    * @param ts timeseries to use
@@ -386,10 +335,59 @@ public class GrammarVizAnomaly {
         windowSize, discordsToReport, new LargeWindowAlgorithm());
     Date end = new Date();
 
-    System.out.println(discords.toString());
+    System.out.println(CR + discords.toString() + CR + discords.getSize() + " discords found in "
+        + SAXProcessor.timeToString(start.getTime(), end.getTime()) + CR);
+  }
 
-    System.out.println(discords.getSize() + " discords found in "
-        + SAXProcessor.timeToString(start.getTime(), end.getTime()));
+  /**
+   * Finds discords in classic manner (i.e., using a trie).
+   * 
+   * @param ts the dataset.
+   * @param windowSize SAX sliding window size.
+   * @param alphabetSize SAX alphabet size.
+   * @param discordsToReport SAX sliding window size.
+   * @param normalizationThreshold SAX normalization threshold.
+   * @throws Exception if error occurs.
+   */
+  private static void findHotSax(double[] ts, int windowSize, int alphabetSize,
+      int discordsToReport, double normalizationThreshold) throws Exception {
+
+    consoleLogger.info("running HOT SAX Trie-based algorithm...");
+
+    Date start = new Date();
+    DiscordRecords discords = HOTSAXImplementation.series2Discords(ts, windowSize, alphabetSize,
+        discordsToReport, new LargeWindowAlgorithm(), normalizationThreshold);
+    Date end = new Date();
+
+    System.out.println(CR + discords.toString() + CR + "Discords found in "
+        + SAXProcessor.timeToString(start.getTime(), end.getTime()) + CR);
+
+  }
+
+  /**
+   * Finds discords using a hash-backed magic array.
+   * 
+   * @param ts the dataset.
+   * @param windowSize SAX sliding window size.
+   * @param paaSize SAX PAA size.
+   * @param alphabetSize SAX alphabet size.
+   * @param discordsToReport SAX sliding window size.
+   * @param normalizationThreshold SAX normalization threshold.
+   * @throws Exception if error occurs.
+   */
+  private static void findHotSaxWithHash(double[] ts, int windowSize, int paaSize, int alphabetSize,
+      int discordsToReport, double normalizationThreshold) throws TrieException, Exception {
+
+    consoleLogger.info("running HOT SAX Hash-based algorithm...");
+
+    Date start = new Date();
+    DiscordRecords discords = HOTSAXImplementation.series2DiscordsWithHash(ts, windowSize, paaSize,
+        alphabetSize, discordsToReport, new LargeWindowAlgorithm(), normalizationThreshold);
+    Date end = new Date();
+
+    System.out.println(CR + discords.toString() + CR + "Discords found in "
+        + SAXProcessor.timeToString(start.getTime(), end.getTime()) + CR);
+
   }
 
   /**

@@ -276,13 +276,13 @@
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-sax</artifactId>
 
-      <version>0.7.1-SNAPSHOT</version>
+      <version>0.8.0</version>
     </dependency>
     <dependency>
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-gi</artifactId>
 
-      <version>0.6.1-SNAPSHOT</version>
+      <version>0.7.0</version>
     </dependency>
   </dependencies>
 

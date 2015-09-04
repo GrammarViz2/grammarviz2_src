@@ -120,36 +120,39 @@ public class GrammarVizAnomaly {
 
       sb.append(CR);
       System.out.println(sb.toString());
-    }
 
-    // read the file
-    //
-    consoleLogger.info("Reading data ...");
-    double[] series = tp.readTS(GrammarVizAnomalyParameters.IN_FILE, 0);
-    consoleLogger.info("read " + series.length + " points from " + GrammarVizAnomalyParameters.IN_FILE);
-    
-    // switch logic according to the algorithm selection
-    //
-    if (AnomalyAlgorithm.BRUTEFORCE.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-      findBruteForce(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
-          GrammarVizAnomalyParameters.DISCORDS_NUM);
-    }
-    else if (AnomalyAlgorithm.HOTSAXTRIE.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-      findHotSax(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
-          GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE, GrammarVizAnomalyParameters.DISCORDS_NUM,
-          GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
-    }
-    else if (AnomalyAlgorithm.HOTSAX.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-      findHotSaxWithHash(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
-          GrammarVizAnomalyParameters.SAX_PAA_SIZE, GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE,
-          GrammarVizAnomalyParameters.DISCORDS_NUM, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
-    }
-    else if (AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-      findRRA(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
-          GrammarVizAnomalyParameters.SAX_PAA_SIZE, GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE,
-          GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.DISCORDS_NUM,
-          GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION,
-          GrammarVizAnomalyParameters.OUT_FILE, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+      // read the file
+      //
+      consoleLogger.info("Reading data ...");
+      double[] series = tp.readTS(GrammarVizAnomalyParameters.IN_FILE, 0);
+      consoleLogger
+          .info("read " + series.length + " points from " + GrammarVizAnomalyParameters.IN_FILE);
+
+      // switch logic according to the algorithm selection
+      //
+      if (AnomalyAlgorithm.BRUTEFORCE.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+        findBruteForce(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
+            GrammarVizAnomalyParameters.DISCORDS_NUM);
+      }
+      else if (AnomalyAlgorithm.HOTSAXTRIE.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+        findHotSax(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
+            GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE, GrammarVizAnomalyParameters.DISCORDS_NUM,
+            GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+      }
+      else if (AnomalyAlgorithm.HOTSAX.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+        findHotSaxWithHash(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
+            GrammarVizAnomalyParameters.SAX_PAA_SIZE, GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE,
+            GrammarVizAnomalyParameters.DISCORDS_NUM,
+            GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+      }
+      else if (AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+        findRRA(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
+            GrammarVizAnomalyParameters.SAX_PAA_SIZE, GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE,
+            GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.DISCORDS_NUM,
+            GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION,
+            GrammarVizAnomalyParameters.OUT_FILE, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+      }
+
     }
   }
 

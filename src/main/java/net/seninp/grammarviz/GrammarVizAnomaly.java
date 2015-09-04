@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import org.jfree.util.Log;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
 import ch.qos.logback.classic.Level;
@@ -228,7 +227,8 @@ public class GrammarVizAnomaly {
 
     Collections.sort(res, new ReductionSorter());
 
-    System.out.println("\nApparently, the best parameters are " + res.get(0).toString());
+    System.out.println(CR + "Apparently, the best parameters are " + res.get(0).toString() + CR
+        + "Running RRA..." + CR);
 
     int windowSize = res.get(0).getWindow();
     int paaSize = res.get(0).getPAA();

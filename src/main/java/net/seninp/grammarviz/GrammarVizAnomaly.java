@@ -28,6 +28,7 @@ import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.datastructures.SAXRecord;
 import net.seninp.jmotif.sax.datastructures.SAXRecords;
 import net.seninp.jmotif.sax.discord.BruteForceDiscordImplementation;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
@@ -106,16 +107,16 @@ public class GrammarVizAnomaly {
 
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM) || 
           AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        sb.append(" GI Algorithm:         ").append(GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
+        sb.append(" GI Algorithm:                ").append(GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
       }
       
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        sb.append(" Grid boundaries:      ").append(RulePrunerParameters.GRID_BOUNDARIES).append(CR);
+        sb.append(" Grid boundaries:             ").append(RulePrunerParameters.GRID_BOUNDARIES).append(CR);
       }
       
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM) && 
           !(Double.isNaN(RulePrunerParameters.SUBSAMPLING_FRACTION))) {
-          sb.append("  Subsampling fraction: ").append(RulePrunerParameters.SUBSAMPLING_FRACTION).append(CR);
+          sb.append("  Subsampling fraction:     ").append(RulePrunerParameters.SUBSAMPLING_FRACTION).append(CR);
       }
 
       sb.append(CR);
@@ -187,6 +188,13 @@ public class GrammarVizAnomaly {
       ParallelSAXImplementation ps = new ParallelSAXImplementation();
       SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
           NumerosityReductionStrategy.EXACT, normalizationThreshold);
+      for (SAXRecord rec : parallelRes) {
+        for (Integer i : rec.getIndexes()) {
+          if (2299 == i + windowSize) {
+            System.out.println("BAM!");
+          }
+        }
+      }
       RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
       rePairGrammar.expandRules();
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);

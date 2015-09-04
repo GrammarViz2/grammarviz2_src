@@ -20,6 +20,7 @@ import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
 import net.seninp.gi.repair.RePairFactory;
 import net.seninp.gi.repair.RePairGrammar;
+import net.seninp.gi.rulepruner.RulePrunerFactory;
 import net.seninp.gi.rulepruner.RulePrunerParameters;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.anomaly.AnomalyAlgorithm;
@@ -196,11 +197,15 @@ public class GrammarVizAnomaly {
       rules = rePairGrammar.toGrammarRulesData();
     }
 
+    // prune grammar' rules
+    //
+    GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
+    
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
 
     // populate all intervals with their frequency
     //
-    for (GrammarRuleRecord rule : rules) {
+    for (GrammarRuleRecord rule : prunedRulesSet) {
       //
       // TODO: do we care about long rules?
       // if (0 == rule.ruleNumber() || rule.getRuleYield() > 2) {
@@ -217,7 +222,7 @@ public class GrammarVizAnomaly {
     // get the coverage array
     //
     int[] coverageArray = new int[ts.length];
-    for (GrammarRuleRecord rule : rules) {
+    for (GrammarRuleRecord rule : prunedRulesSet) {
       if (0 == rule.ruleNumber()) {
         continue;
       }

@@ -23,7 +23,6 @@ import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.gi.rulepruner.ReductionSorter;
 import net.seninp.gi.rulepruner.RulePruner;
 import net.seninp.gi.rulepruner.RulePrunerFactory;
-import net.seninp.gi.rulepruner.RulePrunerParameters;
 import net.seninp.gi.rulepruner.SampledPoint;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.anomaly.AnomalyAlgorithm;
@@ -119,12 +118,12 @@ public class GrammarVizAnomaly {
       }
       
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        sb.append(" Grid boundaries:             ").append(RulePrunerParameters.GRID_BOUNDARIES).append(CR);
+        sb.append(" Grid boundaries:             ").append(GrammarVizAnomalyParameters.GRID_BOUNDARIES).append(CR);
       }
       
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM) && 
-          !(Double.isNaN(RulePrunerParameters.SUBSAMPLING_FRACTION))) {
-          sb.append("  Subsampling fraction:     ").append(RulePrunerParameters.SUBSAMPLING_FRACTION).append(CR);
+          !(Double.isNaN(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION))) {
+          sb.append("  Subsampling fraction:     ").append(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION).append(CR);
       }
 
       sb.append(CR);
@@ -197,11 +196,11 @@ public class GrammarVizAnomaly {
     Date start = new Date();
 
     // parse the boundaries params
-    int[] bounds = toBoundaries(RulePrunerParameters.GRID_BOUNDARIES);
+    int[] bounds = toBoundaries(GrammarVizAnomalyParameters.GRID_BOUNDARIES);
 
     // create the output file
     // BufferedWriter bw = new BufferedWriter(
-    // new FileWriter(new File(RulePrunerParameters.OUT_FILE)));
+    // new FileWriter(new File(GrammarVizAnomalyParameters.OUT_FILE)));
     // bw.write(OUTPUT_HEADER);
 
     ArrayList<SampledPoint> res = new ArrayList<SampledPoint>();
@@ -219,7 +218,7 @@ public class GrammarVizAnomaly {
         }
         for (int ALPHABET_SIZE = bounds[6]; ALPHABET_SIZE < bounds[7]; ALPHABET_SIZE += bounds[8]) {
           SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
-              RulePrunerParameters.SAX_NR_STRATEGY, RulePrunerParameters.SAX_NORM_THRESHOLD);
+              GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
           res.add(p);
         }
       }

@@ -246,9 +246,8 @@ public class GrammarVizAnomaly {
         intervals);
     Date end = new Date();
 
-    System.out.println(discords.toString());
-    System.out
-        .println("Discords found in " + SAXProcessor.timeToString(start.getTime(), end.getTime()));
+    System.out.println(discords.toString() + CR + "Discords found in "
+        + SAXProcessor.timeToString(start.getTime(), end.getTime()) + CR);
 
     // THE DISCORD SEARCH IS DONE RIGHT HERE
     // BELOW IS THE CODE WHICH WRITES THE CURVE AND THE DISTANCE FILE ON FILESYSTEM

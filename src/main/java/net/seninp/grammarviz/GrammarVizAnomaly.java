@@ -390,7 +390,7 @@ public class GrammarVizAnomaly {
       NumerosityReductionStrategy saxNRStrategy, int discordsToReport, GIAlgorithm giImplementation,
       String outputPrefix, double normalizationThreshold) throws Exception {
 
-    consoleLogger.info("running RRA with pruning algorithm...");
+    consoleLogger.info("running RRA with pruning algorithm, building the grammar ...");
     Date start = new Date();
 
     GrammarRules rules;
@@ -408,11 +408,13 @@ public class GrammarVizAnomaly {
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
       rules = rePairGrammar.toGrammarRulesData();
     }
+    consoleLogger.info(rules.size() + " rules inferred, pruning ...");
 
     // prune grammar' rules
     //
     GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
-    
+    consoleLogger.info(prunedRulesSet.size() + " kept for anomaly discovery ...");
+
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
 
     // populate all intervals with their frequency

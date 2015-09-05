@@ -174,10 +174,274 @@ public class GrammarVizAnomaly {
             GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.DISCORDS_NUM,
             GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION,
             GrammarVizAnomalyParameters.OUT_FILE, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+      }else if (AnomalyAlgorithm.EXPERIMENT.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+        findRRAExperiment(series, GrammarVizAnomalyParameters.GRID_BOUNDARIES,
+            GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.DISCORDS_NUM,
+            GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION,
+            GrammarVizAnomalyParameters.OUT_FILE, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
       }
     }
   }
 
+  private static void findRRAExperiment(double[] ts, String boundaries,
+      NumerosityReductionStrategy saxNRStrategy, int discordsToReport, GIAlgorithm giImplementation,
+      String outputPrefix, double normalizationThreshold) throws Exception {
+
+    consoleLogger.info("running RRA with experiment sampling algorithm...");
+    Date start = new Date();
+
+    // parse the boundaries params
+    int[] bounds = toBoundaries(GrammarVizAnomalyParameters.GRID_BOUNDARIES);
+
+    ArrayList<SampledPoint> res = new ArrayList<SampledPoint>();
+
+    // we need to use this in the loop
+    RulePruner rp;
+    if (GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION.isNaN()) {
+      consoleLogger.info("sampling on full time series length");
+      rp = new RulePruner(ts);
+    }
+    else {
+      int sampleIntervalStart = 0;
+      int sampleIntervalEnd = (int) Math
+          .round(ts.length * GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION);
+      consoleLogger.info("sampling parameters on interval [" + sampleIntervalStart + ", "
+          + sampleIntervalEnd + "]");
+      rp = new RulePruner(Arrays.copyOfRange(ts, sampleIntervalStart, sampleIntervalEnd));
+    }
+
+    // iterate over the grid evaluating the grammar
+    //
+    for (int WINDOW_SIZE = bounds[0]; WINDOW_SIZE < bounds[1]; WINDOW_SIZE += bounds[2]) {
+      for (int PAA_SIZE = bounds[3]; PAA_SIZE < bounds[4]; PAA_SIZE += bounds[5]) {
+        // check for invalid cases
+        if (PAA_SIZE > WINDOW_SIZE) {
+          continue;
+        }
+        for (int ALPHABET_SIZE = bounds[6]; ALPHABET_SIZE < bounds[7]; ALPHABET_SIZE += bounds[8]) {
+          SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+              GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+          res.add(p);
+          ///
+          ///
+          ///
+          ///
+          GrammarRules rules;
+          if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
+            rules = SequiturFactory.series2SequiturRules(ts, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+                GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+          }
+          else {
+            ParallelSAXImplementation ps = new ParallelSAXImplementation();
+            SAXRecords parallelRes = ps.process(ts, 2, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+                GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+            RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
+            rePairGrammar.expandRules();
+            rePairGrammar.buildIntervals(parallelRes, ts, WINDOW_SIZE);
+            rules = rePairGrammar.toGrammarRulesData();
+          }
+
+          // prune grammar' rules
+          GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
+
+          ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
+
+          // populate all intervals with their frequency
+          for (GrammarRuleRecord rule : prunedRulesSet) {
+            if (0 == rule.ruleNumber()) {
+              continue;
+            }
+            for (RuleInterval ri : rule.getRuleIntervals()) {
+              ri.setCoverage(rule.getRuleIntervals().size());
+              ri.setId(rule.ruleNumber());
+              intervals.add(ri);
+            }
+          }
+          // get the coverage array
+          int[] coverageArray = new int[ts.length];
+          for (GrammarRuleRecord rule : prunedRulesSet) {
+            if (0 == rule.ruleNumber()) {
+              continue;
+            }
+            ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
+            for (RuleInterval saxPos : arrPos) {
+              int startPos = saxPos.getStartPos();
+              int endPos = saxPos.getEndPos();
+              for (int j = startPos; j < endPos; j++) {
+                coverageArray[j] = coverageArray[j] + 1;
+              }
+            }
+          }
+
+          // look for zero-covered intervals and add those to the list
+          List<RuleInterval> zeros = getZeroIntervals(coverageArray);
+          if (zeros.size() > 0) {
+            intervals.addAll(zeros);
+          }
+
+          // run HOTSAX with this intervals set
+          DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 1, intervals);
+
+          consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
+              +p.getApproxDist()+"," +p.getGrammarSize()+"," +p.getCompressedGrammarSize()+
+              "," +p.getCoverage()+"," +
+              + discords.get(0).getPosition() + ","
+              + String.valueOf(discords.get(0).getPosition() + discords.get(0).getLength()));
+          ///
+          ///
+        }
+      }
+    }
+
+    Collections.sort(res, new ReductionSorter());
+
+    System.out.println(CR + "Apparently, the best parameters are " + res.get(0).toString() + CR
+        + "Running RRA..." + CR);
+
+    int windowSize = res.get(0).getWindow();
+    int paaSize = res.get(0).getPAA();
+    int alphabetSize = res.get(0).getAlphabet();
+
+    GrammarRules rules;
+
+    if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
+      rules = SequiturFactory.series2SequiturRules(ts, windowSize, paaSize, alphabetSize,
+          saxNRStrategy, normalizationThreshold);
+    }
+    else {
+      ParallelSAXImplementation ps = new ParallelSAXImplementation();
+      SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
+          NumerosityReductionStrategy.EXACT, normalizationThreshold);
+      RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
+      rePairGrammar.expandRules();
+      rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
+      rules = rePairGrammar.toGrammarRulesData();
+    }
+
+    ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
+
+    // populate all intervals with their frequency
+    //
+    for (GrammarRuleRecord rule : rules) {
+      //
+      // TODO: do we care about long rules?
+      // if (0 == rule.ruleNumber() || rule.getRuleYield() > 2) {
+      if (0 == rule.ruleNumber()) {
+        continue;
+      }
+      for (RuleInterval ri : rule.getRuleIntervals()) {
+        ri.setCoverage(rule.getRuleIntervals().size());
+        ri.setId(rule.ruleNumber());
+        intervals.add(ri);
+      }
+    }
+
+    // get the coverage array
+    //
+    int[] coverageArray = new int[ts.length];
+    for (GrammarRuleRecord rule : rules) {
+      if (0 == rule.ruleNumber()) {
+        continue;
+      }
+      ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
+      for (RuleInterval saxPos : arrPos) {
+        int startPos = saxPos.getStartPos();
+        int endPos = saxPos.getEndPos();
+        for (int j = startPos; j < endPos; j++) {
+          coverageArray[j] = coverageArray[j] + 1;
+        }
+      }
+    }
+
+    // look for zero-covered intervals and add those to the list
+    //
+    List<RuleInterval> zeros = getZeroIntervals(coverageArray);
+    if (zeros.size() > 0) {
+      consoleLogger.info(
+          "found " + zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
+      intervals.addAll(zeros);
+    }
+    else {
+      consoleLogger.info("the whole timeseries is covered by rule intervals ...");
+    }
+
+    // run HOTSAX with this intervals set
+    //
+    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport,
+        intervals);
+    Date end = new Date();
+
+    System.out.println(discords.toString() + CR + "Discords found in "
+        + SAXProcessor.timeToString(start.getTime(), end.getTime()) + CR);
+
+    // THE DISCORD SEARCH IS DONE RIGHT HERE
+    // BELOW IS THE CODE WHICH WRITES THE CURVE AND THE DISTANCE FILE ON FILESYSTEM
+    //
+    if (!(outputPrefix.isEmpty())) {
+
+      // write the coverage array
+      //
+      String currentPath = new File(".").getCanonicalPath();
+      BufferedWriter bw = new BufferedWriter(
+          new FileWriter(new File(currentPath + File.separator + outputPrefix + "_coverage.txt")));
+      for (int i : coverageArray) {
+        bw.write(i + "\n");
+      }
+      bw.close();
+
+      Collections.sort(intervals, new Comparator<RuleInterval>() {
+        public int compare(RuleInterval c1, RuleInterval c2) {
+          if (c1.getStartPos() > c2.getStartPos()) {
+            return 1;
+          }
+          else if (c1.getStartPos() < c2.getStartPos()) {
+            return -1;
+          }
+          return 0;
+        }
+      });
+
+      // now lets find all the distances to non-self match
+      //
+      double[] distances = new double[ts.length];
+      double[] widths = new double[ts.length];
+
+      for (RuleInterval ri : intervals) {
+
+        int ruleStart = ri.getStartPos();
+        int ruleEnd = ruleStart + ri.getLength();
+        int window = ruleEnd - ruleStart;
+
+        double[] cw = tp.subseriesByCopy(ts, ruleStart, ruleStart + window);
+
+        double cwNNDist = Double.MAX_VALUE;
+
+        // this effectively finds the furthest hit
+        //
+        for (int j = 0; j < ts.length - window - 1; j++) {
+          if (Math.abs(ruleStart - j) > window) {
+            double[] currentSubsequence = tp.subseriesByCopy(ts, j, j + window);
+            double dist = ed.distance(cw, currentSubsequence);
+            if (dist < cwNNDist) {
+              cwNNDist = dist;
+            }
+          }
+        }
+
+        distances[ruleStart] = cwNNDist;
+        widths[ruleStart] = ri.getLength();
+      }
+
+      bw = new BufferedWriter(
+          new FileWriter(new File(currentPath + File.separator + outputPrefix + "_distances.txt")));
+      for (int i = 0; i < distances.length; i++) {
+        bw.write(i + "," + distances[i] + "," + widths[i] + "\n");
+      }
+      bw.close();
+    }
+  }
+
+  
   /**
    * Finds discords in classic manner (i.e., using a trie).
    * 
@@ -307,7 +571,7 @@ public class GrammarVizAnomaly {
       intervals.addAll(zeros);
     }
     else {
-      consoleLogger.info("Whole timeseries is covered by rule intervals ...");
+      consoleLogger.info("the whole timeseries is covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set
@@ -416,7 +680,7 @@ public class GrammarVizAnomaly {
     else {
       ParallelSAXImplementation ps = new ParallelSAXImplementation();
       SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
-          NumerosityReductionStrategy.EXACT, normalizationThreshold);
+          saxNRStrategy, normalizationThreshold);
       RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
       rePairGrammar.expandRules();
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
@@ -473,7 +737,7 @@ public class GrammarVizAnomaly {
       intervals.addAll(zeros);
     }
     else {
-      consoleLogger.info("Whole timeseries is covered by rule intervals ...");
+      consoleLogger.info("the whole timeseries is covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set
@@ -582,7 +846,7 @@ public class GrammarVizAnomaly {
     else {
       ParallelSAXImplementation ps = new ParallelSAXImplementation();
       SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
-          NumerosityReductionStrategy.EXACT, normalizationThreshold);
+          saxNRStrategy, normalizationThreshold);
       RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
       rePairGrammar.expandRules();
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
@@ -633,7 +897,7 @@ public class GrammarVizAnomaly {
       intervals.addAll(zeros);
     }
     else {
-      consoleLogger.info("Whole timeseries is covered by rule intervals ...");
+      consoleLogger.info("the whole timeseries is covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set

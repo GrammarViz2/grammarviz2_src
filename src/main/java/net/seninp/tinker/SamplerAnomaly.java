@@ -129,7 +129,7 @@ public class SamplerAnomaly {
           intervals.addAll(getZeroIntervals(coverageArray));
         }
         else {
-          consoleLogger.info("Whole timeseries covered by rule intervals ...");
+          consoleLogger.info("the whole timeseries covered by rule intervals ...");
         }
 
         // run HOTSAX with this intervals set

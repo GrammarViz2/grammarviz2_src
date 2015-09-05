@@ -113,7 +113,8 @@ public class GrammarVizAnomaly {
       }
 
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM) || 
-          AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+          AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM) ||
+          AnomalyAlgorithm.RRAPRUNED.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
         sb.append(" GI Algorithm:                ").append(GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
       }
       

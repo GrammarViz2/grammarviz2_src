@@ -294,7 +294,7 @@ public class GrammarVizAnomaly {
       intervals.addAll(zeros);
     }
     else {
-      consoleLogger.info("Whole timeseries covered by rule intervals ...");
+      consoleLogger.info("Whole timeseries is covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set
@@ -460,7 +460,7 @@ public class GrammarVizAnomaly {
       intervals.addAll(zeros);
     }
     else {
-      consoleLogger.info("Whole timeseries covered by rule intervals ...");
+      consoleLogger.info("Whole timeseries is covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set
@@ -620,7 +620,7 @@ public class GrammarVizAnomaly {
       intervals.addAll(zeros);
     }
     else {
-      consoleLogger.info("Whole timeseries covered by rule intervals ...");
+      consoleLogger.info("Whole timeseries is covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set

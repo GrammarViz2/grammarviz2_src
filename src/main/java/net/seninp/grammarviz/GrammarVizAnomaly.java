@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -124,7 +125,7 @@ public class GrammarVizAnomaly {
       
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM) && 
           !(Double.isNaN(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION))) {
-          sb.append("  Subsampling fraction:     ").append(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION).append(CR);
+          sb.append(" Subsampling fraction:       ").append(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION).append(CR);
       }
 
       sb.append(CR);
@@ -207,7 +208,19 @@ public class GrammarVizAnomaly {
     ArrayList<SampledPoint> res = new ArrayList<SampledPoint>();
 
     // we need to use this in the loop
-    RulePruner rp = new RulePruner(ts);
+    RulePruner rp;
+    if (GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION.isNaN()) {
+      consoleLogger.info("sampling on full time series length");
+      rp = new RulePruner(ts);
+    }
+    else {
+      int sampleIntervalStart = 0;
+      int sampleIntervalEnd = (int) Math
+          .round(ts.length * GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION);
+      consoleLogger.info("sampling parameters on interval [" + sampleIntervalStart + ", "
+          + sampleIntervalEnd + "]");
+      rp = new RulePruner(Arrays.copyOfRange(ts, sampleIntervalStart, sampleIntervalEnd));
+    }
 
     // iterate over the grid evaluating the grammar
     //

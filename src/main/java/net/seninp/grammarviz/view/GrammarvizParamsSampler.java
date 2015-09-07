@@ -20,8 +20,6 @@ public class GrammarvizParamsSampler implements Callable<String> {
   private int sampleIntervalStart;
   private int sampleIntervalEnd;
 
-  private static final int[] boundaries = { 10, 200, 10, 2, 10, 1, 2, 10, 1 };
-
   // the logger business
   //
   private static Logger consoleLogger;
@@ -59,6 +57,8 @@ public class GrammarvizParamsSampler implements Callable<String> {
     //
     //
     RulePruner rp = new RulePruner(ts);
+    int[] boundaries = Arrays.copyOf(this.parent.session.boundaries,
+        this.parent.session.boundaries.length);
 
     for (int WINDOW_SIZE = boundaries[0]; WINDOW_SIZE < boundaries[1]; WINDOW_SIZE += boundaries[2]) {
       for (int PAA_SIZE = boundaries[3]; PAA_SIZE < boundaries[4]; PAA_SIZE += boundaries[5]) {

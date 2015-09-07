@@ -23,14 +23,16 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
 
   private GrammarvizGuesserPane guesserPane;
 
+  protected volatile boolean wasCancelled;
+
   /** Creates the reusable dialog. */
-  public GrammarvizGuesserDialog(JFrame parentFrame, JPanel guesserPane, UserSession session) {
+  public GrammarvizGuesserDialog(JFrame topFrame, JPanel guesserPane, UserSession session) {
 
-    super(parentFrame, true);
+    super(topFrame, true);
 
-    if (parentFrame != null) {
-      Dimension parentSize = parentFrame.getSize();
-      Point p = parentFrame.getLocation();
+    if (topFrame != null) {
+      Dimension parentSize = topFrame.getSize();
+      Point p = topFrame.getLocation();
       setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
     }
 
@@ -65,10 +67,11 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
     if (OK_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {
 
       // set params
+      this.wasCancelled = false;
 
     }
     else if (CANCEL_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {
-      assert true;
+      this.wasCancelled = true;
     }
 
     this.dispose();

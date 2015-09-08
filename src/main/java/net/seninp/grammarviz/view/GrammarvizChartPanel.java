@@ -321,12 +321,13 @@ public class GrammarvizChartPanel extends JPanel
     // interval
     double covIncrement = 1. / (double) maxObservedCoverage;
 
-    for (int i = 0; i < rulesNum; i++) {
-      GrammarRuleRecord r = this.session.chartData.getRule(i);
+    for (GrammarRuleRecord r : this.session.chartData.getGrammarRules()) {
       if (0 == r.ruleNumber()) {
         continue;
       }
-      ArrayList<RuleInterval> arrPos = this.session.chartData.getRulePositionsByRuleNum(i);
+
+      ArrayList<RuleInterval> arrPos = r.getRuleIntervals();
+
       for (RuleInterval saxPos : arrPos) {
         IntervalMarker marker = new IntervalMarker(saxPos.getStartPos(), saxPos.getEndPos());
         marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);

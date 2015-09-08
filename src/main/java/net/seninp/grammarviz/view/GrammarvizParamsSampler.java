@@ -17,9 +17,6 @@ public class GrammarvizParamsSampler implements Callable<String> {
 
   private GrammarvizChartPanel parent;
 
-  private int sampleIntervalStart;
-  private int sampleIntervalEnd;
-
   // the logger business
   //
   private static Logger consoleLogger;
@@ -34,14 +31,6 @@ public class GrammarvizParamsSampler implements Callable<String> {
     this.parent = grammarvizChartPanel;
   }
 
-  public void setSampleIntervalStart(int selectionStart) {
-    this.sampleIntervalStart = selectionStart;
-  }
-
-  public void setSampleIntervalEnd(int selectionEnd) {
-    this.sampleIntervalEnd = selectionEnd;
-  }
-
   public void cancel() {
     this.parent.actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SELECTION_CANCELLED));
   }
@@ -53,7 +42,9 @@ public class GrammarvizParamsSampler implements Callable<String> {
 
     this.parent.actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SELECTION_FINISHED));
 
-    double[] ts = Arrays.copyOfRange(this.parent.tsData, sampleIntervalStart, sampleIntervalEnd);
+    double[] ts = Arrays.copyOfRange(this.parent.tsData, this.parent.session.samplingStart,
+        this.parent.session.samplingEnd);
+
     //
     //
     RulePruner rp = new RulePruner(ts);

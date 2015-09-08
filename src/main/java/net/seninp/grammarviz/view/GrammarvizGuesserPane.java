@@ -1,8 +1,11 @@
 package net.seninp.grammarviz.view;
 
+import java.text.NumberFormat;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.text.NumberFormatter;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.session.UserSession;
 
@@ -18,27 +21,27 @@ public class GrammarvizGuesserPane extends JPanel {
 
   // The labels
   //
-  private static final JLabel SAMPLING_INTERVAL_LABEL = new JLabel("Window bounds:");
+  private static final JLabel SAMPLING_INTERVAL_LABEL = new JLabel("Sampling interval bounds:");
   private static final JLabel WINDOW_BOUND_LABEL = new JLabel("Window bounds:");
   private static final JLabel PAA_BOUND_LABEL = new JLabel("PAA bounds:");
   private static final JLabel ALPHABET_BOUND_LABEL = new JLabel("Alphabet bounds:");
 
   // and their UI widgets
   //
-  private static final JTextField intervalStartField = new JTextField(10);
-  private static final JTextField intervalEndField = new JTextField(10);
+  private static final JTextField intervalStartField = new JFormattedTextField(getFormatter());
+  private static final JTextField intervalEndField = new JFormattedTextField(getFormatter());
 
-  private static final JTextField windowMinField = new JTextField(10);
-  private static final JTextField windowMaxField = new JTextField(10);
-  private static final JTextField windowIncrement = new JTextField(10);
+  private static final JTextField windowMinField = new JFormattedTextField(getFormatter());
+  private static final JTextField windowMaxField = new JFormattedTextField(getFormatter());
+  private static final JTextField windowIncrement = new JFormattedTextField(getFormatter());
 
-  private static final JTextField paaMinField = new JTextField(10);
-  private static final JTextField paaMaxField = new JTextField(10);
-  private static final JTextField paaIncrement = new JTextField(10);
+  private static final JTextField paaMinField = new JFormattedTextField(getFormatter());
+  private static final JTextField paaMaxField = new JFormattedTextField(getFormatter());
+  private static final JTextField paaIncrement = new JFormattedTextField(getFormatter());
 
-  private static final JTextField alphabetMinField = new JTextField(10);
-  private static final JTextField alphabetMaxField = new JTextField(10);
-  private static final JTextField alphabetIncrement = new JTextField(10);
+  private static final JTextField alphabetMinField = new JFormattedTextField(getFormatter());
+  private static final JTextField alphabetMaxField = new JFormattedTextField(getFormatter());
+  private static final JTextField alphabetIncrement = new JFormattedTextField(getFormatter());
 
   /**
    * Constructor.
@@ -47,10 +50,9 @@ public class GrammarvizGuesserPane extends JPanel {
    */
   public GrammarvizGuesserPane(UserSession userSession) {
 
-    super(new MigLayout("fill", "[][grow][grow][grow]", "[grow]"));
+    super(new MigLayout("fill", "[][fill,grow][fill,grow][fill,grow]", "[grow]"));
 
-    this.add(SAMPLING_INTERVAL_LABEL);
-    this.add(new JLabel());
+    this.add(SAMPLING_INTERVAL_LABEL, "span 2");
     this.add(intervalStartField);
     this.add(intervalEndField, "wrap");
 
@@ -90,6 +92,17 @@ public class GrammarvizGuesserPane extends JPanel {
     alphabetMaxField.setText(Integer.valueOf(userSession.boundaries[7]).toString());
     alphabetIncrement.setText(Integer.valueOf(userSession.boundaries[8]).toString());
 
+  }
+
+  private static NumberFormatter getFormatter() {
+    NumberFormat format = NumberFormat.getInstance();
+    NumberFormatter formatter = new NumberFormatter(format);
+    formatter.setValueClass(Integer.class);
+    formatter.setMinimum(0);
+    formatter.setMaximum(Integer.MAX_VALUE);
+    // If you want the value to be committed on each keystroke instead of focus lost
+    formatter.setCommitsOnValidEdit(true);
+    return formatter;
   }
 
 }

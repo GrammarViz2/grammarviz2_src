@@ -701,14 +701,14 @@ public class GrammarVizAnomaly {
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
       rules = rePairGrammar.toGrammarRulesData();
     }
-    consoleLogger.info(rules.size() + " rules inferred, in "
-        + SAXProcessor.timeToString(start.getTime(), new Date().getTime()) + " pruning ...");
+    consoleLogger.info(rules.size() + " rules inferred in "
+        + SAXProcessor.timeToString(start.getTime(), new Date().getTime()) + ", pruning ...");
 
     // prune grammar' rules
     //
     GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
     consoleLogger.info(
-        " finished pruning in " + SAXProcessor.timeToString(start.getTime(), new Date().getTime())
+        "finished pruning in " + SAXProcessor.timeToString(start.getTime(), new Date().getTime())
             + ", keeping " + prunedRulesSet.size() + " rules for anomaly discovery ...");
 
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();

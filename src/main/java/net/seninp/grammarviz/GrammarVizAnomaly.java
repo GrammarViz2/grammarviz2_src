@@ -91,41 +91,53 @@ public class GrammarVizAnomaly {
       sb.append("GrammarViz2 CLI anomaly discovery").append(CR);
       sb.append("parameters:").append(CR);
 
-      sb.append(" input file:                  ").append(GrammarVizAnomalyParameters.IN_FILE).append(CR);
-      sb.append(" output files prefix:         ").append(GrammarVizAnomalyParameters.OUT_FILE).append(CR);
-      
-      sb.append(" Algorithm implementation:    ").append(GrammarVizAnomalyParameters.ALGORITHM).append(CR);
-      sb.append(" Num. of discords to report:  ").append(GrammarVizAnomalyParameters.DISCORDS_NUM).append(CR); 
-      
-      if (!(AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM))){
-        sb.append(" SAX sliding window size:     ").append(GrammarVizAnomalyParameters.SAX_WINDOW_SIZE).append(CR);
+      sb.append(" input file:                  ").append(GrammarVizAnomalyParameters.IN_FILE)
+          .append(CR);
+      sb.append(" output files prefix:         ").append(GrammarVizAnomalyParameters.OUT_FILE)
+          .append(CR);
+
+      sb.append(" Algorithm implementation:    ").append(GrammarVizAnomalyParameters.ALGORITHM)
+          .append(CR);
+      sb.append(" Num. of discords to report:  ").append(GrammarVizAnomalyParameters.DISCORDS_NUM)
+          .append(CR);
+
+      if (!(AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM))) {
+        sb.append(" SAX sliding window size:     ")
+            .append(GrammarVizAnomalyParameters.SAX_WINDOW_SIZE).append(CR);
       }
-      
+
       if (!(AnomalyAlgorithm.BRUTEFORCE.equals(GrammarVizAnomalyParameters.ALGORITHM))) {
         if (!(AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM))) {
           if (AnomalyAlgorithm.HOTSAXTRIE.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
             GrammarVizAnomalyParameters.SAX_PAA_SIZE = GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE;
           }
-          sb.append(" SAX PAA size:                ").append(GrammarVizAnomalyParameters.SAX_PAA_SIZE).append(CR);
-          sb.append(" SAX alphabet size:           ").append(GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE).append(CR);
+          sb.append(" SAX PAA size:                ")
+              .append(GrammarVizAnomalyParameters.SAX_PAA_SIZE).append(CR);
+          sb.append(" SAX alphabet size:           ")
+              .append(GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE).append(CR);
         }
-        sb.append(" SAX numerosity reduction:    ").append(GrammarVizAnomalyParameters.SAX_NR_STRATEGY).append(CR);
-        sb.append(" SAX normalization threshold: ").append(GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD).append(CR);
+        sb.append(" SAX numerosity reduction:    ")
+            .append(GrammarVizAnomalyParameters.SAX_NR_STRATEGY).append(CR);
+        sb.append(" SAX normalization threshold: ")
+            .append(GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD).append(CR);
       }
 
-      if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM) || 
-          AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM) ||
-          AnomalyAlgorithm.RRAPRUNED.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        sb.append(" GI Algorithm:                ").append(GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
+      if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)
+          || AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM)
+          || AnomalyAlgorithm.RRAPRUNED.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+        sb.append(" GI Algorithm:                ")
+            .append(GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
       }
-      
+
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        sb.append(" Grid boundaries:             ").append(GrammarVizAnomalyParameters.GRID_BOUNDARIES).append(CR);
+        sb.append(" Grid boundaries:             ")
+            .append(GrammarVizAnomalyParameters.GRID_BOUNDARIES).append(CR);
       }
-      
-      if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM) && 
-          !(Double.isNaN(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION))) {
-          sb.append(" Subsampling fraction:       ").append(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION).append(CR);
+
+      if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)
+          && !(Double.isNaN(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION))) {
+        sb.append(" Subsampling fraction:       ")
+            .append(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION).append(CR);
       }
 
       sb.append(CR);
@@ -174,7 +186,8 @@ public class GrammarVizAnomaly {
             GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.DISCORDS_NUM,
             GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION,
             GrammarVizAnomalyParameters.OUT_FILE, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
-      }else if (AnomalyAlgorithm.EXPERIMENT.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+      }
+      else if (AnomalyAlgorithm.EXPERIMENT.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
         findRRAExperiment(series, GrammarVizAnomalyParameters.GRID_BOUNDARIES,
             GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.DISCORDS_NUM,
             GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION,
@@ -220,7 +233,8 @@ public class GrammarVizAnomaly {
         }
         for (int ALPHABET_SIZE = bounds[6]; ALPHABET_SIZE < bounds[7]; ALPHABET_SIZE += bounds[8]) {
           SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
-              GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+              GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
+              GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
           res.add(p);
           ///
           ///
@@ -229,12 +243,14 @@ public class GrammarVizAnomaly {
           GrammarRules rules;
           if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
             rules = SequiturFactory.series2SequiturRules(ts, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
-                GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+                GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
+                GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
           }
           else {
             ParallelSAXImplementation ps = new ParallelSAXImplementation();
             SAXRecords parallelRes = ps.process(ts, 2, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
-                GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+                GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
+                GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
             RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
             rePairGrammar.expandRules();
             rePairGrammar.buildIntervals(parallelRes, ts, WINDOW_SIZE);
@@ -283,9 +299,8 @@ public class GrammarVizAnomaly {
           DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 1, intervals);
 
           consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
-              +p.getApproxDist()+"," +p.getGrammarSize()+"," +p.getCompressedGrammarSize()+
-              "," +p.getCoverage()+"," +
-              + discords.get(0).getPosition() + ","
+              + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
+              + "," + p.getCoverage() + "," + +discords.get(0).getPosition() + ","
               + String.valueOf(discords.get(0).getPosition() + discords.get(0).getLength()));
           ///
           ///
@@ -441,7 +456,6 @@ public class GrammarVizAnomaly {
     }
   }
 
-  
   /**
    * Finds discords in classic manner (i.e., using a trie).
    * 
@@ -496,7 +510,8 @@ public class GrammarVizAnomaly {
         }
         for (int ALPHABET_SIZE = bounds[6]; ALPHABET_SIZE < bounds[7]; ALPHABET_SIZE += bounds[8]) {
           SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
-              GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+              GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
+              GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
           res.add(p);
         }
       }
@@ -679,19 +694,22 @@ public class GrammarVizAnomaly {
     }
     else {
       ParallelSAXImplementation ps = new ParallelSAXImplementation();
-      SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
-          saxNRStrategy, normalizationThreshold);
+      SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize, saxNRStrategy,
+          normalizationThreshold);
       RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
       rePairGrammar.expandRules();
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
       rules = rePairGrammar.toGrammarRulesData();
     }
-    consoleLogger.info(rules.size() + " rules inferred, pruning ...");
+    consoleLogger.info(rules.size() + " rules inferred, in "
+        + SAXProcessor.timeToString(start.getTime(), new Date().getTime()) + " pruning ...");
 
     // prune grammar' rules
     //
     GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
-    consoleLogger.info(prunedRulesSet.size() + " kept for anomaly discovery ...");
+    consoleLogger.info(
+        " finished pruning in " + SAXProcessor.timeToString(start.getTime(), new Date().getTime())
+            + ", keeping " + prunedRulesSet.size() + " rules for anomaly discovery ...");
 
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
 
@@ -845,8 +863,8 @@ public class GrammarVizAnomaly {
     }
     else {
       ParallelSAXImplementation ps = new ParallelSAXImplementation();
-      SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
-          saxNRStrategy, normalizationThreshold);
+      SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize, saxNRStrategy,
+          normalizationThreshold);
       RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
       rePairGrammar.expandRules();
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);

@@ -42,6 +42,8 @@ p0 <- ggplot(df, aes(time, value)) + geom_line(lwd=0.6,color="grey10") + theme_c
   theme(plot.title = element_text(size = rel(1.8)), axis.title.x = element_blank(),axis.title.y=element_blank(),
         axis.ticks.y=element_blank(),axis.text.y=element_blank(),axis.text.x=element_text(size = rel(1.8)))
 p0  
+#
+#
 p <- ggplot(df, aes(time, value)) + geom_line(lwd=0.6,color="grey10") + theme_classic() +
   ggtitle("Motifs and discords discovered in Video dataset") + 
   theme(plot.title = element_text(size = rel(1.8)), axis.title.x = element_blank(),axis.title.y=element_blank(),
@@ -53,6 +55,7 @@ green_line=df[1313:(1313+107),]
 p = p + geom_line(data=green_line,col="red", lwd=1.6)
 violet_line=df[1599:(1599+181),]
 p = p + geom_line(data=violet_line,col="red", lwd=1.6)
+p
 
 motifs <- 
   "65,242
@@ -77,7 +80,6 @@ dat = read.delim(textConnection(motifs),
 for(i in 1:length(dat$V1)){
   p = p + geom_line(data=df[dat[i,1]:dat[i,2],],col="blue", lwd=1.6)
 }
-p
 
 #
 density=read.csv(file="paperworks/runlogs/rra_out_coverage.txt",header=F,sep=",")

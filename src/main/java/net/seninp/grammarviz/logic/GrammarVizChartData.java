@@ -11,6 +11,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
+import net.seninp.gi.rulepruner.RulePrunerFactory;
 import net.seninp.gi.sequitur.SAXMotif;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
@@ -738,7 +739,7 @@ public class GrammarVizChartData extends Observable implements Observer {
           if (intervalsB.isEmpty()) {
             break;
           }
-          else if (isCompletlyCovered(intervalsB, intervalsA)) {
+          else if (RulePrunerFactory.isCompletlyCovered(intervalsB, intervalsA)) {
             System.out.println("Going to remove rule: " + grammarRules.get(rid).getRuleName());
             usedRules.remove(rid);
             removedRules.add(rid);
@@ -766,58 +767,6 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     this.grammarRules = prunedRules;
 
-  }
-
-  private boolean isCompletlyCovered(ArrayList<RuleInterval> cover,
-      ArrayList<RuleInterval> intervals) {
-
-    // first we build an array of intervals
-    //
-    int min = intervals.get(0).getStartPos();
-    int max = intervals.get(0).getEndPos();
-    for (RuleInterval i : intervals) {
-      if (i.getStartPos() < min) {
-        min = i.getStartPos();
-      }
-      if (i.getEndPos() > max) {
-        max = i.getEndPos();
-      }
-    }
-    boolean[] intervalsRange = new boolean[max - min];
-    for (RuleInterval i : intervals) {
-      for (int j = i.getStartPos(); j < i.getEndPos(); j++) {
-        intervalsRange[j - min] = true;
-      }
-    }
-
-    // so now here we have the range where true value correspond to the ranges belonging to
-    // "intervals", which we effectively checking for being covered by cover
-    //
-    // true means uncovered
-    //
-
-    for (RuleInterval i : cover) {
-
-      for (int j = i.getStartPos(); j < i.getEndPos(); j++) {
-
-        if (j < min || j >= max) {
-          continue;
-        }
-        else {
-          intervalsRange[j - min] = false;
-        }
-
-      }
-
-    }
-
-    for (boolean b : intervalsRange) {
-      if (true == b) {
-        return false;
-      }
-    }
-
-    return true;
   }
 
   private boolean[] updateRanges(boolean[] range, ArrayList<RuleInterval> ruleIntervals) {

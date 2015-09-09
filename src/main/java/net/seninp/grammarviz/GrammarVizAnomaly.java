@@ -260,8 +260,12 @@ public class GrammarVizAnomaly {
           // prune grammar' rules
           GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
 
-          ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
+          // pruned intervals
+          ArrayList<RuleInterval> prunedIntervals = new ArrayList<RuleInterval>();
 
+          // coverage intervals
+          int[] coverageArray = new int[ts.length];
+          
           // populate all intervals with their frequency
           for (GrammarRuleRecord rule : prunedRulesSet) {
             if (0 == rule.ruleNumber()) {
@@ -270,19 +274,10 @@ public class GrammarVizAnomaly {
             for (RuleInterval ri : rule.getRuleIntervals()) {
               ri.setCoverage(rule.getRuleIntervals().size());
               ri.setId(rule.ruleNumber());
-              intervals.add(ri);
-            }
-          }
-          // get the coverage array
-          int[] coverageArray = new int[ts.length];
-          for (GrammarRuleRecord rule : prunedRulesSet) {
-            if (0 == rule.ruleNumber()) {
-              continue;
-            }
-            ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
-            for (RuleInterval saxPos : arrPos) {
-              int startPos = saxPos.getStartPos();
-              int endPos = saxPos.getEndPos();
+              prunedIntervals.add(ri);
+              //
+              int startPos = ri.getStartPos();
+              int endPos = ri.getEndPos();
               for (int j = startPos; j < endPos; j++) {
                 coverageArray[j] = coverageArray[j] + 1;
               }
@@ -292,11 +287,11 @@ public class GrammarVizAnomaly {
           // look for zero-covered intervals and add those to the list
           List<RuleInterval> zeros = getZeroIntervals(coverageArray);
           if (zeros.size() > 0) {
-            intervals.addAll(zeros);
+            prunedIntervals.addAll(zeros);
           }
 
           // run HOTSAX with this intervals set
-          DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 1, intervals);
+          DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 1, prunedIntervals);
 
           if (discords.getSize() > 0) {
             // if the discord(s) found
@@ -321,7 +316,7 @@ public class GrammarVizAnomaly {
     Collections.sort(res, new ReductionSorter());
 
     System.out.println(CR + "Apparently, the best parameters are " + res.get(0).toString() + CR
-        + "Running RRA..." + CR);
+        + "Running RRAPruned ..." + CR);
 
     int windowSize = res.get(0).getWindow();
     int paaSize = res.get(0).getPAA();

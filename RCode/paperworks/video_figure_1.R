@@ -82,7 +82,7 @@ for(i in 1:length(dat$V1)){
 }
 
 #
-density=read.csv(file="paperworks/runlogs/rra_out_coverage.txt",header=F,sep=",")
+density=read.csv(file="paperworks/runlogs/out_coverage_rra.txt",header=F,sep=",")
 which(density==0)
 density_df=data.frame(time=c(1:length(density$V1)),value=density$V1)
 shade <- rbind(c(0,0), density_df, c(3502,0))
@@ -90,12 +90,12 @@ names(shade)<-c("x","y")
 p1 <- ggplot(density_df, aes(x=time,y=value)) +
   geom_line(col="cyan2") + theme_classic() + scale_y_continuous(limits = c(0, 36)) +
   geom_polygon(data = shade, aes(x, y), fill="cyan", alpha=0.5) +
-  ggtitle("Grammar rules density (132 rules)") + 
+  ggtitle("Grammar rules density (93 rules)") + 
   theme(plot.title = element_text(size = rel(1.8)), axis.title.x = element_blank(),axis.title.y=element_blank(),
         axis.text.y=element_text(size = rel(1.8)),axis.text.x=element_text(size = rel(1.8)))
 p1  
 #
-density2=read.csv(file="paperworks/runlogs/rrapruned_out_coverage.txt",header=F,sep=",")
+density2=read.csv(file="paperworks/runlogs/out_coverage_pruned.txt",header=F,sep=",")
 which(density2==0)
 density_df=data.frame(time=c(1:length(density2$V1)),value=density2$V1)
 shade <- rbind(c(0,0), density_df, c(3502,0))
@@ -103,7 +103,7 @@ names(shade)<-c("x","y")
 p2 <- ggplot(density_df, aes(x=time,y=value)) +
   geom_line(col="cyan2") + theme_classic() + scale_y_continuous(limits = c(0, 8), breaks=c(0,2,4,6)) +
   geom_polygon(data = shade, aes(x, y), fill="cyan", alpha=0.5) +
-  ggtitle("Pruned grammar rules density (12 rules)") + 
+  ggtitle("Pruned grammar rules density (9 rules)") + 
   theme(plot.title = element_text(size = rel(1.8)), axis.title.x = element_blank(),axis.title.y=element_blank(),
         axis.text.y=element_text(size = rel(1.8)),axis.text.x=element_text(size = rel(1.8)))
 p2  

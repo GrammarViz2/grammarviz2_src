@@ -108,7 +108,8 @@ public class GrammarVizAnomaly {
       }
 
       if (!(AnomalyAlgorithm.BRUTEFORCE.equals(GrammarVizAnomalyParameters.ALGORITHM))) {
-        if (!(AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM))) {
+        if (!(AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)
+            || AnomalyAlgorithm.EXPERIMENT.equals(GrammarVizAnomalyParameters.ALGORITHM))) {
           if (AnomalyAlgorithm.HOTSAXTRIE.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
             GrammarVizAnomalyParameters.SAX_PAA_SIZE = GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE;
           }
@@ -125,17 +126,20 @@ public class GrammarVizAnomaly {
 
       if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)
           || AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM)
-          || AnomalyAlgorithm.RRAPRUNED.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+          || AnomalyAlgorithm.RRAPRUNED.equals(GrammarVizAnomalyParameters.ALGORITHM)
+          || AnomalyAlgorithm.EXPERIMENT.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
         sb.append(" GI Algorithm:                ")
             .append(GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
       }
 
-      if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
+      if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)
+          || AnomalyAlgorithm.EXPERIMENT.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
         sb.append(" Grid boundaries:             ")
             .append(GrammarVizAnomalyParameters.GRID_BOUNDARIES).append(CR);
       }
 
-      if (AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)
+      if ((AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)
+          || AnomalyAlgorithm.EXPERIMENT.equals(GrammarVizAnomalyParameters.ALGORITHM))
           && !(Double.isNaN(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION))) {
         sb.append(" Subsampling fraction:       ")
             .append(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION).append(CR);
@@ -339,7 +343,7 @@ public class GrammarVizAnomaly {
     findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
 
-    double threshold = 0.99;
+    double threshold = 0.999;
     ArrayList<SampledPoint> resCovered = new ArrayList<SampledPoint>();
     for (SampledPoint p : res) {
       if (p.getCoverage() >= threshold) {

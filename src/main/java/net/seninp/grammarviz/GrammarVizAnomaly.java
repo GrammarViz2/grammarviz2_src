@@ -141,7 +141,7 @@ public class GrammarVizAnomaly {
       if ((AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)
           || AnomalyAlgorithm.EXPERIMENT.equals(GrammarVizAnomalyParameters.ALGORITHM))
           && !(Double.isNaN(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION))) {
-        sb.append(" Subsampling fraction:       ")
+        sb.append(" Subsampling fraction:        ")
             .append(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION).append(CR);
       }
 
@@ -301,10 +301,10 @@ public class GrammarVizAnomaly {
           //
           // if (discords.getSize() > 0) {
           // // if the discord(s) found
-          // consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
-          // + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
-          // + "," + p.getCoverage() + "," + discords.get(0).getPosition() + ","
-          // + String.valueOf(discords.get(0).getPosition() + discords.get(0).getLength()));
+          consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
+              + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
+              + "," + p.getGrammarRules() + "," + p.getPrunedRules() + "," + p.getCoverage() + ","
+              + p.getMaxFrequency());
           // }
           // else {
           // // no discords were discovered

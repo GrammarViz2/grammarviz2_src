@@ -245,55 +245,55 @@ public class GrammarVizAnomaly {
           ///
           ///
           ///
-          GrammarRules rules;
-          if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
-            rules = SequiturFactory.series2SequiturRules(ts, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
-                GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
-                GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
-          }
-          else {
-            ParallelSAXImplementation ps = new ParallelSAXImplementation();
-            SAXRecords parallelRes = ps.process(ts, 2, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
-                GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
-                GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
-            RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
-            rePairGrammar.expandRules();
-            rePairGrammar.buildIntervals(parallelRes, ts, WINDOW_SIZE);
-            rules = rePairGrammar.toGrammarRulesData();
-          }
-
-          // prune grammar' rules
-          GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
-
-          // pruned intervals
-          ArrayList<RuleInterval> prunedIntervals = new ArrayList<RuleInterval>();
-
-          // coverage intervals
-          int[] coverageArray = new int[ts.length];
-
-          // populate all intervals with their frequency
-          for (GrammarRuleRecord rule : prunedRulesSet) {
-            if (0 == rule.ruleNumber()) {
-              continue;
-            }
-            for (RuleInterval ri : rule.getRuleIntervals()) {
-              ri.setCoverage(rule.getRuleIntervals().size());
-              ri.setId(rule.ruleNumber());
-              prunedIntervals.add(ri);
-              //
-              int startPos = ri.getStartPos();
-              int endPos = ri.getEndPos();
-              for (int j = startPos; j < endPos; j++) {
-                coverageArray[j] = coverageArray[j] + 1;
-              }
-            }
-          }
-
-          // look for zero-covered intervals and add those to the list
-          List<RuleInterval> zeros = getZeroIntervals(coverageArray);
-          if (zeros.size() > 0) {
-            prunedIntervals.addAll(zeros);
-          }
+          // GrammarRules rules;
+          // if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
+          // rules = SequiturFactory.series2SequiturRules(ts, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+          // GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
+          // GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+          // }
+          // else {
+          // ParallelSAXImplementation ps = new ParallelSAXImplementation();
+          // SAXRecords parallelRes = ps.process(ts, 2, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+          // GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
+          // GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
+          // RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
+          // rePairGrammar.expandRules();
+          // rePairGrammar.buildIntervals(parallelRes, ts, WINDOW_SIZE);
+          // rules = rePairGrammar.toGrammarRulesData();
+          // }
+          //
+          // // prune grammar' rules
+          // GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
+          //
+          // // pruned intervals
+          // ArrayList<RuleInterval> prunedIntervals = new ArrayList<RuleInterval>();
+          //
+          // // coverage intervals
+          // int[] coverageArray = new int[ts.length];
+          //
+          // // populate all intervals with their frequency
+          // for (GrammarRuleRecord rule : prunedRulesSet) {
+          // if (0 == rule.ruleNumber()) {
+          // continue;
+          // }
+          // for (RuleInterval ri : rule.getRuleIntervals()) {
+          // ri.setCoverage(rule.getRuleIntervals().size());
+          // ri.setId(rule.ruleNumber());
+          // prunedIntervals.add(ri);
+          // //
+          // int startPos = ri.getStartPos();
+          // int endPos = ri.getEndPos();
+          // for (int j = startPos; j < endPos; j++) {
+          // coverageArray[j] = coverageArray[j] + 1;
+          // }
+          // }
+          // }
+          //
+          // // look for zero-covered intervals and add those to the list
+          // List<RuleInterval> zeros = getZeroIntervals(coverageArray);
+          // if (zeros.size() > 0) {
+          // prunedIntervals.addAll(zeros);
+          // }
 
           // // run HOTSAX with this intervals set
           // DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 1,

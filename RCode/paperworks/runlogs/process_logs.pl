@@ -5,7 +5,7 @@ use Getopt::Long;
 use File::Basename;
 use IO::File;
 
-my $folder = "001";
+my $folder = "sampler_logs";
 
 GetOptions(
 	"folder=s" => \$folder    # a folder with logs

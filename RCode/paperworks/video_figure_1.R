@@ -83,7 +83,7 @@ for(i in 1:length(dat$V1)){
 
 #
 density=read.csv(file="paperworks/runlogs/out_coverage_rra.txt",header=F,sep=",")
-which(density==0)
+x_zero=which(density==0)
 density_df=data.frame(time=c(1:length(density$V1)),value=density$V1)
 shade <- rbind(c(0,0), density_df, c(3502,0))
 names(shade)<-c("x","y")
@@ -92,11 +92,12 @@ p1 <- ggplot(density_df, aes(x=time,y=value)) +
   geom_polygon(data = shade, aes(x, y), fill="cyan", alpha=0.5) +
   ggtitle("Grammar rules density (93 rules)") + 
   theme(plot.title = element_text(size = rel(1.8)), axis.title.x = element_blank(),axis.title.y=element_blank(),
-        axis.text.y=element_text(size = rel(1.8)),axis.text.x=element_text(size = rel(1.8)))
-p1  
+        axis.text.y=element_text(size = rel(1.8)),axis.text.x=element_text(size = rel(1.8))) +
+geom_point(data=data.frame(x=x_zero,y=rep(0,length(x_zero))),aes(x=x,y=y),color="red")
+p1
 #
 density2=read.csv(file="paperworks/runlogs/out_coverage_pruned.txt",header=F,sep=",")
-which(density2==0)
+x_zero=which(density2==0)
 density_df=data.frame(time=c(1:length(density2$V1)),value=density2$V1)
 shade <- rbind(c(0,0), density_df, c(3502,0))
 names(shade)<-c("x","y")
@@ -105,7 +106,8 @@ p2 <- ggplot(density_df, aes(x=time,y=value)) +
   geom_polygon(data = shade, aes(x, y), fill="cyan", alpha=0.5) +
   ggtitle("Pruned grammar rules density (9 rules)") + 
   theme(plot.title = element_text(size = rel(1.8)), axis.title.x = element_blank(),axis.title.y=element_blank(),
-        axis.text.y=element_text(size = rel(1.8)),axis.text.x=element_text(size = rel(1.8)))
+        axis.text.y=element_text(size = rel(1.8)),axis.text.x=element_text(size = rel(1.8))) +
+  geom_point(data=data.frame(x=x_zero,y=rep(0,length(x_zero))),aes(x=x,y=y),color="red")
 p2  
 
 rbind_gtable_max <- function(...){

@@ -21,6 +21,7 @@ import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
 import net.seninp.gi.repair.RePairFactory;
 import net.seninp.gi.repair.RePairGrammar;
+import net.seninp.gi.rulepruner.ReducedGrammarSizeSorter;
 import net.seninp.gi.rulepruner.ReductionSorter;
 import net.seninp.gi.rulepruner.RulePruner;
 import net.seninp.gi.rulepruner.RulePrunerFactory;
@@ -201,7 +202,7 @@ public class GrammarVizAnomaly {
       String outputPrefix, double normalizationThreshold) throws Exception {
 
     consoleLogger.info("running RRA with experiment sampling algorithm...");
-    Date start = new Date();
+    // Date start = new Date();
 
     // parse the boundaries params
     int[] bounds = toBoundaries(GrammarVizAnomalyParameters.GRID_BOUNDARIES);
@@ -265,7 +266,7 @@ public class GrammarVizAnomaly {
 
           // coverage intervals
           int[] coverageArray = new int[ts.length];
-          
+
           // populate all intervals with their frequency
           for (GrammarRuleRecord rule : prunedRulesSet) {
             if (0 == rule.ruleNumber()) {
@@ -315,12 +316,56 @@ public class GrammarVizAnomaly {
 
     Collections.sort(res, new ReductionSorter());
 
-    System.out.println(CR + "Apparently, the best parameters are " + res.get(0).toString() + CR
+    System.out.println(CR + "The best reduction parameters are " + res.get(0).toString() + CR
         + "Running RRAPruned ..." + CR);
 
     int windowSize = res.get(0).getWindow();
     int paaSize = res.get(0).getPAA();
     int alphabetSize = res.get(0).getAlphabet();
+
+    findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
+        giImplementation, outputPrefix, normalizationThreshold);
+
+    Collections.sort(res, new ReducedGrammarSizeSorter());
+
+    System.out.println(CR + "The smallest compressed grammar size: " + res.get(0).toString() + CR
+        + "Running RRAPruned ..." + CR);
+
+    windowSize = res.get(0).getWindow();
+    paaSize = res.get(0).getPAA();
+    alphabetSize = res.get(0).getAlphabet();
+
+    findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
+        giImplementation, outputPrefix, normalizationThreshold);
+
+    double threshold = 0.99;
+    ArrayList<SampledPoint> resCovered = new ArrayList<SampledPoint>();
+    for (SampledPoint p : res) {
+      if (p.getCoverage() >= threshold) {
+        resCovered.add(p);
+      }
+    }
+
+    Collections.sort(resCovered, new ReductionSorter());
+
+    System.out.println(CR + "The best COVERED reduction parameters are "
+        + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
+
+    windowSize = resCovered.get(0).getWindow();
+    paaSize = resCovered.get(0).getPAA();
+    alphabetSize = resCovered.get(0).getAlphabet();
+
+    findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
+        giImplementation, outputPrefix, normalizationThreshold);
+
+    Collections.sort(resCovered, new ReducedGrammarSizeSorter());
+
+    System.out.println(CR + "The smallest COVERED compressed grammar size: "
+        + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
+
+    windowSize = resCovered.get(0).getWindow();
+    paaSize = resCovered.get(0).getPAA();
+    alphabetSize = resCovered.get(0).getAlphabet();
 
     findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
@@ -344,7 +389,7 @@ public class GrammarVizAnomaly {
       String outputPrefix, double normalizationThreshold) throws Exception {
 
     consoleLogger.info("running RRA with sampling algorithm...");
-    Date start = new Date();
+    // Date start = new Date();
 
     // parse the boundaries params
     int[] bounds = toBoundaries(GrammarVizAnomalyParameters.GRID_BOUNDARIES);

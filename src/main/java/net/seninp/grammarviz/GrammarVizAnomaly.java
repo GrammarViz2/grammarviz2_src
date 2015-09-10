@@ -291,23 +291,24 @@ public class GrammarVizAnomaly {
             prunedIntervals.addAll(zeros);
           }
 
-          // run HOTSAX with this intervals set
-          DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 1, prunedIntervals);
-
-          if (discords.getSize() > 0) {
-            // if the discord(s) found
-            consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
-                + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
-                + "," + p.getCoverage() + "," + discords.get(0).getPosition() + ","
-                + String.valueOf(discords.get(0).getPosition() + discords.get(0).getLength()));
-          }
-          else {
-            // no discords were discovered
-            // need to increase the granularity of discretization
-            consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
-                + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
-                + "," + p.getCoverage() + ",-1,-1");
-          }
+          // // run HOTSAX with this intervals set
+          // DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 1,
+          // prunedIntervals);
+          //
+          // if (discords.getSize() > 0) {
+          // // if the discord(s) found
+          // consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
+          // + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
+          // + "," + p.getCoverage() + "," + discords.get(0).getPosition() + ","
+          // + String.valueOf(discords.get(0).getPosition() + discords.get(0).getLength()));
+          // }
+          // else {
+          // // no discords were discovered
+          // // need to increase the granularity of discretization
+          // consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
+          // + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
+          // + "," + p.getCoverage() + ",-1,-1");
+          // }
           ///
           ///
         }
@@ -316,7 +317,7 @@ public class GrammarVizAnomaly {
 
     Collections.sort(res, new ReductionSorter());
 
-    System.out.println(CR + "The best reduction parameters are " + res.get(0).toString() + CR
+    System.out.println(CR + "The max reduction parameters are " + res.get(0).toString() + CR
         + "Running RRAPruned ..." + CR);
 
     int windowSize = res.get(0).getWindow();
@@ -348,7 +349,7 @@ public class GrammarVizAnomaly {
 
     Collections.sort(resCovered, new ReductionSorter());
 
-    System.out.println(CR + "The best COVERED reduction parameters are "
+    System.out.println(CR + "The max COVERED reduction parameters are "
         + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
 
     windowSize = resCovered.get(0).getWindow();

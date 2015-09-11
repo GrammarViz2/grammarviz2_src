@@ -11,6 +11,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
+import net.seninp.gi.rulepruner.RulePrunerFactory;
 import net.seninp.gi.sequitur.SAXMotif;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
@@ -270,8 +271,8 @@ public class GrammarVizChartData extends Observable implements Observer {
         int start = saxPos.getStartPos();
         int end = saxPos.getEndPos();
         for (int position = start; position <= end; position++) {
-          pointsNumber[position].setPointOccurenceNumber(pointsNumber[position]
-              .getPointOccurenceNumber() + 1);
+          pointsNumber[position]
+              .setPointOccurenceNumber(pointsNumber[position].getPointOccurenceNumber() + 1);
         }
       }
     }
@@ -427,10 +428,10 @@ public class GrammarVizChartData extends Observable implements Observer {
           int anotherMotifLen = anotherMotif.getPos().getEndPos()
               - anotherMotif.getPos().getStartPos() + 1;
 
-          double minEndPos = Math.min(tempMotif.getPos().getEndPos(), anotherMotif.getPos()
-              .getEndPos());
-          double maxStartPos = Math.max(tempMotif.getPos().getStartPos(), anotherMotif.getPos()
-              .getStartPos());
+          double minEndPos = Math.min(tempMotif.getPos().getEndPos(),
+              anotherMotif.getPos().getEndPos());
+          double maxStartPos = Math.max(tempMotif.getPos().getStartPos(),
+              anotherMotif.getPos().getStartPos());
           // the length in common.
           double commonLen = minEndPos - maxStartPos + 1;
 
@@ -738,7 +739,7 @@ public class GrammarVizChartData extends Observable implements Observer {
           if (intervalsB.isEmpty()) {
             break;
           }
-          else if (isCompletlyCovered(intervalsB, intervalsA)) {
+          else if (RulePrunerFactory.isCompletlyCovered(intervalsB, intervalsA)) {
             System.out.println("Going to remove rule: " + grammarRules.get(rid).getRuleName());
             usedRules.remove(rid);
             removedRules.add(rid);
@@ -754,8 +755,8 @@ public class GrammarVizChartData extends Observable implements Observer {
       range = updateRanges(range, bestRule.getRuleIntervals());
     }
 
-    System.out.println("Best cover "
-        + Arrays.toString(usedRules.toArray(new Integer[usedRules.size()])));
+    System.out
+        .println("Best cover " + Arrays.toString(usedRules.toArray(new Integer[usedRules.size()])));
 
     GrammarRules prunedRules = new GrammarRules();
     prunedRules.addRule(grammarRules.get(0));
@@ -766,48 +767,6 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     this.grammarRules = prunedRules;
 
-  }
-
-  private boolean isCompletlyCovered(ArrayList<RuleInterval> cover,
-      ArrayList<RuleInterval> intervals) {
-
-    int min = cover.get(0).getStartPos();
-    int max = cover.get(0).getEndPos();
-    for (RuleInterval i : cover) {
-      if (i.getStartPos() < min) {
-        min = i.getStartPos();
-      }
-      if (i.getEndPos() > max) {
-        max = i.getEndPos();
-      }
-    }
-
-    boolean[] coverrange = new boolean[max - min];
-
-    for (RuleInterval i : cover) {
-      for (int j = i.getStartPos(); j < i.getEndPos(); j++) {
-        coverrange[j - min] = true;
-      }
-    }
-
-    boolean covered = true;
-    for (RuleInterval i : intervals) {
-      for (int j = i.getStartPos(); j < i.getEndPos(); j++) {
-        if (j < min || j >= max) {
-          covered = false;
-          break;
-        }
-        if (coverrange[j - min]) {
-          continue;
-        }
-        else {
-          covered = false;
-          break;
-        }
-      }
-    }
-
-    return covered;
   }
 
   private boolean[] updateRanges(boolean[] range, ArrayList<RuleInterval> ruleIntervals) {

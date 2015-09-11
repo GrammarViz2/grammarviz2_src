@@ -23,8 +23,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -319,12 +320,13 @@ public class GrammarvizChartPanel extends JPanel
     // interval
     double covIncrement = 1. / (double) maxObservedCoverage;
 
-    for (int i = 0; i < rulesNum; i++) {
-      GrammarRuleRecord r = this.session.chartData.getRule(i);
+    for (GrammarRuleRecord r : this.session.chartData.getGrammarRules()) {
       if (0 == r.ruleNumber()) {
         continue;
       }
-      ArrayList<RuleInterval> arrPos = this.session.chartData.getRulePositionsByRuleNum(i);
+
+      ArrayList<RuleInterval> arrPos = r.getRuleIntervals();
+
       for (RuleInterval saxPos : arrPos) {
         IntervalMarker marker = new IntervalMarker(saxPos.getStartPos(), saxPos.getEndPos());
         marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
@@ -740,6 +742,7 @@ public class GrammarvizChartPanel extends JPanel
       // running the thread which will look over the selection
       //
       final Object selectionLock = new Object();
+      final JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
       listener.setLockObject(selectionLock);
 
       guessRefreshThread = new Thread(new Runnable() {
@@ -753,23 +756,22 @@ public class GrammarvizChartPanel extends JPanel
               catch (InterruptedException e1) {
               }
             }
-            int result = JOptionPane.showConfirmDialog(chartPanel,
-                "Is interval selection " + listener.getIntervalStr() + " correct?",
-                "Interval selection", JOptionPane.INFORMATION_MESSAGE);
-            if (result == JOptionPane.OK_OPTION) {
-              selectionSucceeded = true;
-              paramsSampler.setSampleIntervalStart((int) Math.floor(listener.getSelectionStart()));
-              paramsSampler.setSampleIntervalEnd((int) Math.ceil(listener.getSelectionEnd()));
-              consoleLogger
-                  .debug("Selected range [" + (int) Math.floor(listener.getSelectionStart()) + ", "
-                      + (int) Math.ceil(listener.getSelectionEnd()) + "]");
-            }
-            else if (result == JOptionPane.NO_OPTION) {
-              consoleLogger.debug("Selection needs to be refined...");
-            }
-            else if (result == JOptionPane.CANCEL_OPTION) {
+
+            session.samplingStart = (int) Math.floor(listener.getSelectionStart());
+            session.samplingEnd = (int) Math.ceil(listener.getSelectionEnd());
+
+            GrammarvizGuesserPane parametersPanel = new GrammarvizGuesserPane(session);
+            GrammarvizGuesserDialog parametersDialog = new GrammarvizGuesserDialog(topFrame,
+                parametersPanel, session);
+
+            parametersDialog.setVisible(true);
+
+            if (parametersDialog.wasCancelled) {
               consoleLogger.debug("Selection process has been cancelled...");
               paramsSampler.cancel();
+            }
+            else {
+              selectionSucceeded = true;
             }
           }
           if (selectionSucceeded) {

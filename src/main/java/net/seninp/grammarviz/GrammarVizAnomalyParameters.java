@@ -45,7 +45,7 @@ public class GrammarVizAnomalyParameters {
   public static int SAX_ALPHABET_SIZE = 4;
 
   @Parameter(names = "--strategy", description = "Numerosity reduction strategy")
-  public static NumerosityReductionStrategy SAX_NR_STRATEGY = NumerosityReductionStrategy.NONE;
+  public static NumerosityReductionStrategy SAX_NR_STRATEGY = NumerosityReductionStrategy.EXACT;
 
   @Parameter(names = "--threshold", description = "Normalization threshold")
   public static double SAX_NORM_THRESHOLD = 0.01;

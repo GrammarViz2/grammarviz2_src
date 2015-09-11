@@ -109,7 +109,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       intervals.addAll(zeros);
     }
     else {
-      log("the whole timeseries covered by rule intervals ...");
+      log("the whole timeseries is covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set

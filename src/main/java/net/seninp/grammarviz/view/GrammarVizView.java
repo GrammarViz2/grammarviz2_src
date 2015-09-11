@@ -1000,7 +1000,7 @@ public class GrammarVizView implements Observer, ActionListener {
       }
     }
     else if (PRUNE_RULES.equalsIgnoreCase(command)) {
-      log(Level.INFO, "rank rules action performed");
+      log(Level.INFO, "prune rules action performed");
       if (null == this.controller.getSession().chartData) {
         raiseValidationError("No chart data recieved yet.");
       }

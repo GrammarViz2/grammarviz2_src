@@ -28,7 +28,7 @@ foreach my $file (@files) {
 #
 	$dump_fh->print(
 		    "win_size,paa_size,a_size,approx,gr_size,"
-		  . "gr_size_compressed,coverage,discord_start,discord_end\n"
+		  . "gr_size_compressed,coverage,discord_start,discord_end,max_freq\n"
 	);
 
 	# Read in line at a time

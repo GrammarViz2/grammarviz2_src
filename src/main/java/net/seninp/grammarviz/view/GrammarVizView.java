@@ -770,7 +770,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
         // setting the chart first
         //
-        dataChartPane.setChartData(this.controller.getSession());
+        dataChartPane.setSession(this.controller.getSession());
 
         // and the rules pane second
         //

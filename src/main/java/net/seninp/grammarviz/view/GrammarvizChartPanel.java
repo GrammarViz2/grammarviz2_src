@@ -13,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,7 +143,7 @@ public class GrammarvizChartPanel extends JPanel
    * 
    * @param chartData the data to use.
    */
-  public void setChartData(UserSession session) {
+  public void setSession(UserSession session) {
     this.session = session;
     this.resetChartPanel();
   }
@@ -274,25 +275,28 @@ public class GrammarvizChartPanel extends JPanel
     chartPanel.setMaximumDrawHeight(1200);
     //
     this.removeAll();
-    //
     this.add(chartPanel);
 
-    // timeseriesPlot.clearDomainMarkers();
-    int rulesNum = this.session.chartData.getRulesNumber();
-
-    // find the rule density value
-    int maxObservedCoverage = 0;
+    // init vars
+    //
+    int maxObservedCoverage = Integer.MIN_VALUE;
+    int minObservedCoverage = Integer.MAX_VALUE;
     int[] coverageArray = new int[this.session.chartData.getOriginalTimeseries().length];
 
     for (GrammarRuleRecord r : this.session.chartData.getGrammarRules()) {
-      if (0 == r.ruleNumber()) {
+
+      if (0 == r.ruleNumber()) { // skip R0
         continue;
       }
-      ArrayList<RuleInterval> arrPos = this.session.chartData
+
+      ArrayList<RuleInterval> occurrences = this.session.chartData
           .getRulePositionsByRuleNum(r.ruleNumber());
-      for (RuleInterval saxPos : arrPos) {
-        int start = saxPos.getStartPos();
-        int end = saxPos.getEndPos();
+
+      for (RuleInterval i : occurrences) {
+
+        int start = i.getStartPos();
+        int end = i.getEndPos();
+
         for (int j = start; j < end; j++) {
           if (CoverageCountStrategy.COUNT.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + 1;
@@ -309,26 +313,32 @@ public class GrammarvizChartPanel extends JPanel
           else if (CoverageCountStrategy.PRODUCT.equals(this.session.countStrategy)) {
             coverageArray[j] = coverageArray[j] + r.getRuleLevel() * r.getOccurrences().size();
           }
+
           if (maxObservedCoverage < coverageArray[j]) {
             maxObservedCoverage = coverageArray[j];
           }
+
+          if (minObservedCoverage > coverageArray[j]) {
+            minObservedCoverage = coverageArray[j];
+          }
+
         }
       }
     }
 
     // since we know the maximal coverage value, we can compute the increment for a single coverage
     // interval
-    double covIncrement = 1. / (double) maxObservedCoverage;
+    double covIncrement = 1.0 / (double) maxObservedCoverage;
 
     for (GrammarRuleRecord r : this.session.chartData.getGrammarRules()) {
-      if (0 == r.ruleNumber()) {
+      if (0 == r.ruleNumber()) { // skip the R0
         continue;
       }
 
-      ArrayList<RuleInterval> arrPos = r.getRuleIntervals();
+      ArrayList<RuleInterval> occurrences = r.getRuleIntervals();
 
-      for (RuleInterval saxPos : arrPos) {
-        IntervalMarker marker = new IntervalMarker(saxPos.getStartPos(), saxPos.getEndPos());
+      for (RuleInterval i : occurrences) {
+        IntervalMarker marker = new IntervalMarker(i.getStartPos(), i.getEndPos());
         marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
         marker.setPaint(Color.BLUE);
 
@@ -348,13 +358,44 @@ public class GrammarvizChartPanel extends JPanel
         else if (CoverageCountStrategy.PRODUCT.equals(this.session.countStrategy)) {
           marker.setAlpha((float) covIncrement * (r.getRuleLevel() * r.getOccurrences().size()));
         }
+
         marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         marker.setLabelPaint(Color.green);
         marker.setLabelAnchor(RectangleAnchor.TOP_LEFT);
         marker.setLabelTextAnchor(TextAnchor.TOP_LEFT);
         timeseriesPlot.addDomainMarker(marker, Layer.BACKGROUND);
+
       }
     }
+
+    int sum = 0;
+    for (int d : coverageArray)
+      sum += d;
+    double meanCoverage = 1.0d * sum / coverageArray.length;
+
+    DecimalFormat df = new DecimalFormat("#.00");
+    String annotationString = "min C:" + minObservedCoverage + ", max C:" + maxObservedCoverage
+        + ", mean C:" + df.format(meanCoverage);
+
+    NumberAxis domain = (NumberAxis) this.timeseriesPlot.getDomainAxis();
+    Range domainRange = domain.getRange();
+
+    NumberAxis range = (NumberAxis) this.timeseriesPlot.getRangeAxis();
+    Range rangeRange = range.getRange();
+
+    XYTextAnnotation a = new XYTextAnnotation(annotationString,
+        domainRange.getLowerBound() + domainRange.getLength() / 100,
+        rangeRange.getLowerBound() + 0.5);
+
+    a.setTextAnchor(TextAnchor.BOTTOM_LEFT);
+
+    a.setPaint(Color.RED);
+    a.setOutlinePaint(Color.BLACK);
+    a.setOutlineVisible(true);
+
+    a.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14));
+
+    this.timeseriesPlot.addAnnotation(a);
 
     // not sure if I need this
     //
@@ -363,7 +404,6 @@ public class GrammarvizChartPanel extends JPanel
 
     // and finally save the coverage curve
     //
-
     this.saveRuleDensityCurve(coverageArray);
 
   }
@@ -723,6 +763,7 @@ public class GrammarvizChartPanel extends JPanel
       tb.setTitle(LABEL_SELECT_INTERVAL);
       revalidate();
       repaint();
+      timeseriesPlot.clearDomainMarkers();
 
       // disabling zoom on the panel
       //

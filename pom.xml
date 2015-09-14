@@ -282,7 +282,7 @@
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-gi</artifactId>
 
-      <version>0.8.0</version>
+      <version>0.8.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

@@ -35,7 +35,7 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
       Point p = topFrame.getLocation();
       setLocation(p.x + parentSize.width / 4, p.y + parentSize.height / 4);
     }
-    
+
     this.setTitle("Sampler interval and boundaries verification");
 
     this.session = session;

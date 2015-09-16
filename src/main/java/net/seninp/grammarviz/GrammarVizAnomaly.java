@@ -319,9 +319,12 @@ public class GrammarVizAnomaly {
       }
     }
 
-    Collections.sort(res, new ReductionSorter());
+    // Collections.sort(res, new ReductionSorter());
+    Collections.sort(res, new GrammarSizeSorter());
 
-    System.out.println(CR + "The max reduction parameters are " + res.get(0).toString() + CR
+    // System.out.println(CR + "The max reduction parameters are " + res.get(0).toString() + CR
+    // + "Running RRAPruned ..." + CR);
+    System.out.println(CR + "The min grammar size is " + res.get(0).toString() + CR
         + "Running RRAPruned ..." + CR);
 
     int windowSize = res.get(0).getWindow();
@@ -351,9 +354,12 @@ public class GrammarVizAnomaly {
       }
     }
 
-    Collections.sort(resCovered, new ReductionSorter());
+    // Collections.sort(resCovered, new ReductionSorter());
+    Collections.sort(resCovered, new GrammarSizeSorter());
 
-    System.out.println(CR + "The max COVERED reduction parameters are "
+    // System.out.println(CR + "The max COVERED reduction parameters are "
+    // + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
+    System.out.println(CR + "The max COVERED min GRAMMAR parameters are "
         + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
 
     windowSize = resCovered.get(0).getWindow();
@@ -365,7 +371,7 @@ public class GrammarVizAnomaly {
 
     Collections.sort(resCovered, new ReducedGrammarSizeSorter());
 
-    System.out.println(CR + "The smallest COVERED compressed grammar size: "
+    System.out.println(CR + "The smallest COVERED pruned grammar size: "
         + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
 
     windowSize = resCovered.get(0).getWindow();

@@ -22,13 +22,12 @@ foreach my $file (@files) {
 
 #
 # consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
-# +p.getApproxDist() +"," +p.getGrammarSize()+"," +p.getCompressedGrammarSize()+
-# "," +p.getCoverage() +"," + discords.get(0).getPosition() + ","
-# + String.valueOf(discords.get(0).getPosition() + discords.get(0).getLength()));
+# + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
+# + "," + p.getGrammarRules() + "," + p.getPrunedRules() + "," + p.getCoverage() + ","
+# + p.getMaxFrequency());
 #
-	$dump_fh->print(
-		    "win_size,paa_size,a_size,approx,gr_size,"
-		  . "gr_size_compressed,coverage,discord_start,discord_end,max_freq\n"
+	$dump_fh->print( "win_size,paa_size,a_size,approx,gr_size,"
+		  . "gr_size_compressed,rules,rules_compressed,coverage,max_freq\n"
 	);
 
 	# Read in line at a time

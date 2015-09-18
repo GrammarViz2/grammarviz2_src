@@ -102,7 +102,8 @@ public class GrammarVizAnomaly {
       sb.append(" Num. of discords to report:  ").append(GrammarVizAnomalyParameters.DISCORDS_NUM)
           .append(CR);
 
-      if (!(AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM))) {
+      if (!(AnomalyAlgorithm.RRASAMPLED.equals(GrammarVizAnomalyParameters.ALGORITHM)
+          || AnomalyAlgorithm.EXPERIMENT.equals(GrammarVizAnomalyParameters.ALGORITHM))) {
         sb.append(" SAX sliding window size:     ")
             .append(GrammarVizAnomalyParameters.SAX_WINDOW_SIZE).append(CR);
       }
@@ -162,14 +163,17 @@ public class GrammarVizAnomaly {
             GrammarVizAnomalyParameters.DISCORDS_NUM);
       }
       else if (AnomalyAlgorithm.HOTSAXTRIE.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        findHotSax(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
-            GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE, GrammarVizAnomalyParameters.DISCORDS_NUM,
+        findHotSax(series, GrammarVizAnomalyParameters.DISCORDS_NUM,
+            GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
+            GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE,
+            GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
             GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
       }
       else if (AnomalyAlgorithm.HOTSAX.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        findHotSaxWithHash(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
-            GrammarVizAnomalyParameters.SAX_PAA_SIZE, GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE,
-            GrammarVizAnomalyParameters.DISCORDS_NUM,
+        findHotSaxWithHash(series, GrammarVizAnomalyParameters.DISCORDS_NUM,
+            GrammarVizAnomalyParameters.SAX_WINDOW_SIZE, GrammarVizAnomalyParameters.SAX_PAA_SIZE,
+            GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE,
+            GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
             GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
       }
       else if (AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
@@ -322,9 +326,7 @@ public class GrammarVizAnomaly {
     // Collections.sort(res, new ReductionSorter());
     Collections.sort(res, new GrammarSizeSorter());
 
-    // System.out.println(CR + "The max reduction parameters are " + res.get(0).toString() + CR
-    // + "Running RRAPruned ..." + CR);
-    System.out.println(CR + "The min grammar size is " + res.get(0).toString() + CR
+    System.out.println(CR + "# GLOBALLY MIN GRAMMAR size is " + res.get(0).toString() + CR
         + "Running RRAPruned ..." + CR);
 
     int windowSize = res.get(0).getWindow();
@@ -336,7 +338,7 @@ public class GrammarVizAnomaly {
 
     Collections.sort(res, new ReducedGrammarSizeSorter());
 
-    System.out.println(CR + "The smallest compressed grammar size: " + res.get(0).toString() + CR
+    System.out.println(CR + "# GLOBALLY MIN PRUNED grammar size: " + res.get(0).toString() + CR
         + "Running RRAPruned ..." + CR);
 
     windowSize = res.get(0).getWindow();
@@ -346,7 +348,7 @@ public class GrammarVizAnomaly {
     findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
 
-    double threshold = 0.999;
+    double threshold = 0.99;
     ArrayList<SampledPoint> resCovered = new ArrayList<SampledPoint>();
     for (SampledPoint p : res) {
       if (p.getCoverage() >= threshold) {
@@ -357,9 +359,7 @@ public class GrammarVizAnomaly {
     // Collections.sort(resCovered, new ReductionSorter());
     Collections.sort(resCovered, new GrammarSizeSorter());
 
-    // System.out.println(CR + "The max COVERED reduction parameters are "
-    // + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
-    System.out.println(CR + "The max COVERED min GRAMMAR parameters are "
+    System.out.println(CR + "# COVERED ABOVE THRESHOLD MIN GRAMMAR parameters are "
         + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
 
     windowSize = resCovered.get(0).getWindow();
@@ -371,7 +371,7 @@ public class GrammarVizAnomaly {
 
     Collections.sort(resCovered, new ReducedGrammarSizeSorter());
 
-    System.out.println(CR + "The smallest COVERED pruned grammar size: "
+    System.out.println(CR + "# COVERED ABOVE THRESHOLD MIN PRUNED GRAMMAR : "
         + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
 
     windowSize = resCovered.get(0).getWindow();
@@ -886,20 +886,22 @@ public class GrammarVizAnomaly {
    * Finds discords in classic manner (i.e., using a trie).
    * 
    * @param ts the dataset.
+   * @param discordsToReport SAX sliding window size.
    * @param windowSize SAX sliding window size.
    * @param alphabetSize SAX alphabet size.
-   * @param discordsToReport SAX sliding window size.
+   * @param saxNRStrategy the NR strategy to use.
    * @param normalizationThreshold SAX normalization threshold.
    * @throws Exception if error occurs.
    */
-  private static void findHotSax(double[] ts, int windowSize, int alphabetSize,
-      int discordsToReport, double normalizationThreshold) throws Exception {
+  private static void findHotSax(double[] ts, int discordsToReport, int windowSize,
+      int alphabetSize, NumerosityReductionStrategy saxNRStrategy, double normalizationThreshold)
+          throws Exception {
 
     consoleLogger.info("running HOT SAX Trie-based algorithm...");
 
     Date start = new Date();
-    DiscordRecords discords = HOTSAXImplementation.series2Discords(ts, windowSize, alphabetSize,
-        discordsToReport, new LargeWindowAlgorithm(), normalizationThreshold);
+    DiscordRecords discords = HOTSAXImplementation.series2Discords(ts, discordsToReport, windowSize,
+        alphabetSize, new LargeWindowAlgorithm(), saxNRStrategy, normalizationThreshold);
     Date end = new Date();
 
     System.out.println(CR + discords.toString() + CR + "Discords found in "
@@ -911,21 +913,23 @@ public class GrammarVizAnomaly {
    * Finds discords using a hash-backed magic array.
    * 
    * @param ts the dataset.
+   * @param discordsToReport SAX sliding window size.
    * @param windowSize SAX sliding window size.
    * @param paaSize SAX PAA size.
-   * @param alphabetSize SAX alphabet size.
-   * @param discordsToReport SAX sliding window size.
+   * @param alphabetSize SAX alphabet size. * @param saxNRStrategy the NR strategy to use.
    * @param normalizationThreshold SAX normalization threshold.
    * @throws Exception if error occurs.
    */
-  private static void findHotSaxWithHash(double[] ts, int windowSize, int paaSize, int alphabetSize,
-      int discordsToReport, double normalizationThreshold) throws TrieException, Exception {
+  private static void findHotSaxWithHash(double[] ts, int discordsToReport, int windowSize,
+      int paaSize, int alphabetSize, NumerosityReductionStrategy saxNRStrategy,
+      double normalizationThreshold) throws TrieException, Exception {
 
     consoleLogger.info("running HOT SAX Hash-based algorithm...");
 
     Date start = new Date();
-    DiscordRecords discords = HOTSAXImplementation.series2DiscordsWithHash(ts, windowSize, paaSize,
-        alphabetSize, discordsToReport, new LargeWindowAlgorithm(), normalizationThreshold);
+    DiscordRecords discords = HOTSAXImplementation.series2DiscordsWithHash(ts, discordsToReport,
+        windowSize, paaSize, alphabetSize, new LargeWindowAlgorithm(), saxNRStrategy,
+        normalizationThreshold);
     Date end = new Date();
 
     System.out.println(CR + discords.toString() + CR + "Discords found in "

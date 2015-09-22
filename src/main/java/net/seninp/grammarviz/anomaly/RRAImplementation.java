@@ -28,6 +28,7 @@ public class RRAImplementation {
   //
   private static Logger consoleLogger;
   private static final Level LOGGING_LEVEL = Level.INFO;
+
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(RRAImplementation.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
@@ -50,21 +51,18 @@ public class RRAImplementation {
     // resulting discords collection
     DiscordRecords discords = new DiscordRecords();
 
-    // Visit registry. The idea of the visit registry data structure is that to mark as visited all
-    // the discord locations for all searches. I.e. if the discord ever found, its location is
-    // marked as visited and there will be no search over it again
-    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(series.length);
+    // visit registry
+    IntervalVisitRegistry globalRegistry = new IntervalVisitRegistry(series.length);
 
     // we conduct the search until the number of discords is less than desired
     //
     while (discords.getSize() < discordCollectionSize) {
 
-      consoleLogger.trace("currently known discords: " + discords.getSize() + " out of "
-          + discordCollectionSize);
+      consoleLogger.trace(
+          "currently known discords: " + discords.getSize() + " out of " + discordCollectionSize);
 
       Date start = new Date();
-      DiscordRecord bestDiscord = findBestDiscordForIntervals(series, intervals,
-          globalTrackVisitRegistry);
+      DiscordRecord bestDiscord = findBestDiscordForIntervals(series, intervals, globalRegistry);
       Date end = new Date();
 
       // if the discord is null we getting out of the search
@@ -84,12 +82,17 @@ public class RRAImplementation {
       //
       discords.add(bestDiscord);
 
-      // and maintain data structures
+      // mark the discord discovered
       //
-      // RightWindowAlgorithm marker = new LargeWindowAlgorithm();
-      LargeWindowAlgorithm marker = new LargeWindowAlgorithm();
-      marker.markVisited(globalTrackVisitRegistry, bestDiscord.getPosition(),
-          bestDiscord.getLength());
+      int markStart = bestDiscord.getPosition() - bestDiscord.getLength();
+      int markEnd = bestDiscord.getPosition() + bestDiscord.getLength();
+      if (0 < markStart) {
+        markStart = 0;
+      }
+      if (markEnd > series.length) {
+        markEnd = series.length;
+      }
+      globalRegistry.markVisited(markStart, markEnd);
     }
 
     // done deal
@@ -101,14 +104,15 @@ public class RRAImplementation {
    * 
    * @param series
    * @param globalIntervals
-   * @param globalTrackVisitRegistry
+   * @param globalRegistry
    * @return
    * @throws Exception
    */
   public static DiscordRecord findBestDiscordForIntervals(double[] series,
-      ArrayList<RuleInterval> globalIntervals, VisitRegistry globalTrackVisitRegistry)
-      throws Exception {
+      ArrayList<RuleInterval> globalIntervals, IntervalVisitRegistry globalRegistry)
+          throws Exception {
 
+    // this is outer loop heuristics
     ArrayList<RuleInterval> intervals = cloneIntervals(globalIntervals);
 
     Collections.sort(intervals, new Comparator<RuleInterval>() {
@@ -118,7 +122,6 @@ public class RRAImplementation {
         }
         else if (c1.getCoverage() < c2.getCoverage()) {
           return -1;
-
         }
         return 0;
       }
@@ -135,58 +138,44 @@ public class RRAImplementation {
     //
     int iterationCounter = 0;
     int distanceCalls = 0;
+
     // int limit = frequencies.size();
     while (!intervals.isEmpty()) {
 
-      // count iterations
       iterationCounter++;
-      consoleLogger.trace("iteration " + iterationCounter + ", intervals in collection "
-          + intervals.size());
+
+      consoleLogger
+          .trace("iteration " + iterationCounter + ", intervals in collection " + intervals.size());
 
       // the head of this array has the rarest word
-      RuleInterval currentEntry = intervals.get(0);
-      intervals.remove(0);
-      consoleLogger.trace("current entry rule " + currentEntry.getId()
+      RuleInterval currentEntry = intervals.remove(0);
+
+      String currentRule = String.valueOf(currentEntry.getId());
+      int currentPos = currentEntry.getStartPos();
+
+      consoleLogger.trace("current entry rule " + currentRule + " at " + currentPos
           + ", intervals in collection " + intervals.size());
 
       // make sure it is not previously found discord
-      if (globalTrackVisitRegistry.isVisited(currentEntry.getStartPos(), currentEntry.getEndPos())) {
+      if (globalRegistry.isVisited(currentEntry.getStartPos(), currentEntry.getEndPos())) {
         continue;
       }
 
       // so, lets the search begin...
-      //
       double nearestNeighborDist = Double.MAX_VALUE;
-      // random is switched on
       boolean doRandomSearch = true;
-
-      // get a copy of visited locations
-      // VisitRegistry localRegistry = new VisitRegistry(series.length - currentEntry.getLength() -
-      // 1);
-      // localRegistry.transferVisited(globalTrackVisitRegistry);
-      // VisitRegistry localRegistry = globalTrackVisitRegistry.copy();
-      VisitRegistry localRegistry = new VisitRegistry(series.length - currentEntry.getLength());
 
       // extract the subsequence & mark visited current substring
       double[] currentSubsequence = tp.subseriesByCopy(series, currentEntry.getStartPos(),
           currentEntry.getEndPos());
 
-      // TODO: do we really need to mark before rule too? guess so...
-      localRegistry.markVisited(currentEntry.getStartPos() - currentEntry.getLength(),
-          currentEntry.getEndPos());
-      // localRegistry.markVisited(currentEntry.getStartPos(), currentEntry.getEndPos());
-
       // WE ARE GOING TO ITERATE OVER THE CURRENT WORD OCCURENCES HERE
-      //
-
-      Map<Integer, Integer> currentOccurences = listRuleOccurrences(currentEntry.getId(), intervals);
+      Map<Integer, Integer> currentOccurences = listRuleOccurrences(currentEntry.getId(),
+          intervals);
       consoleLogger.trace(" there are " + currentOccurences.size() + " occurrences for the rule "
           + currentEntry.getId() + ", iterating...");
-      // what need to be checked here is which sequence is exactly producing largest distance value
-      //
 
       // this is INNER LOOP, where we check all rule's occurrences
-      //
       for (Entry<Integer, Integer> nextOccurrence : currentOccurences.entrySet()) {
 
         // skip the location we standing at, check if we overlap
@@ -234,8 +223,8 @@ public class RRAImplementation {
             + "occurrences, smallest nearest neighbor distance: " + nearestNeighborDist);
       }
       else {
-        consoleLogger
-            .trace("rule occurrence loop finished. Nothing changed after iterations over current rule positions ...");
+        consoleLogger.trace(
+            "rule occurrence loop finished. Nothing changed after iterations over current rule positions ...");
       }
 
       // check if we must continue with random neighbors
@@ -281,8 +270,8 @@ public class RRAImplementation {
 
           visitCounter = visitCounter + 1;
         } // while inner loop
-        consoleLogger.trace("random visits loop finished, total positions considered: "
-            + visitCounter);
+        consoleLogger
+            .trace("random visits loop finished, total positions considered: " + visitCounter);
 
       } // if break loop
 
@@ -324,7 +313,8 @@ public class RRAImplementation {
    * @param intervals The rule intervals.
    * @return map of start - end.
    */
-  private static Map<Integer, Integer> listRuleOccurrences(int id, ArrayList<RuleInterval> intervals) {
+  private static Map<Integer, Integer> listRuleOccurrences(int id,
+      ArrayList<RuleInterval> intervals) {
     HashMap<Integer, Integer> res = new HashMap<Integer, Integer>(100);
     for (RuleInterval i : intervals) {
       if (id == i.getId()) {
@@ -335,13 +325,13 @@ public class RRAImplementation {
   }
 
   /**
-   * Cloning an array. I know, I need to make the
+   * Cloning an array.
    * 
    * @param source the source array.
    * @return the clone.
    */
   private static ArrayList<RuleInterval> cloneIntervals(ArrayList<RuleInterval> source) {
-    ArrayList<RuleInterval> res = new ArrayList<RuleInterval>();
+    ArrayList<RuleInterval> res = new ArrayList<RuleInterval>(source.size());
     for (RuleInterval r : source) {
       res.add(new RuleInterval(r.getId(), r.getStartPos(), r.getEndPos(), r.getCoverage()));
     }

@@ -18,7 +18,7 @@ import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
-import net.seninp.jmotif.sax.datastructures.SAXRecords;
+import net.seninp.jmotif.sax.datastructure.SAXRecords;
 import net.seninp.util.StackTrace;
 
 public class TS2SequiturGrammar {

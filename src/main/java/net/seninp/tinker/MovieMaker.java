@@ -15,7 +15,7 @@ import net.seninp.gi.sequitur.SAXTerminal;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
-import net.seninp.jmotif.sax.datastructures.SAXRecords;
+import net.seninp.jmotif.sax.datastructure.SAXRecords;
 
 public class MovieMaker {
 

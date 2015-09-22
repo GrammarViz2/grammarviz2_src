@@ -3,7 +3,6 @@ package net.seninp.grammarviz.logic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 import org.jfree.data.xy.XYSeries;

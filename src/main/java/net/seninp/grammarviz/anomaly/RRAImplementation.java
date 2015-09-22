@@ -16,8 +16,6 @@ import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
-import net.seninp.jmotif.sax.registry.LargeWindowAlgorithm;
-import net.seninp.jmotif.sax.registry.VisitRegistry;
 
 public class RRAImplementation {
 

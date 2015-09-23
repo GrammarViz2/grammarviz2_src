@@ -46,6 +46,8 @@ public class RRAImplementation {
   public static DiscordRecords series2RRAAnomalies(double[] series, int discordCollectionSize,
       ArrayList<RuleInterval> intervals) throws Exception {
 
+    Date gStart = new Date();
+
     // resulting discords collection
     DiscordRecords discords = new DiscordRecords();
 
@@ -99,6 +101,9 @@ public class RRAImplementation {
         registry.add(i);
       }
     }
+
+    consoleLogger.info("discords search finished in : "
+        + SAXProcessor.timeToString(gStart.getTime(), new Date().getTime()));
 
     // done deal
     //

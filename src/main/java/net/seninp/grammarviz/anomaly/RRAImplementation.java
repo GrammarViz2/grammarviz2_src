@@ -25,7 +25,7 @@ public class RRAImplementation {
   // static block - we instantiate the logger
   //
   private static Logger consoleLogger;
-  private static final Level LOGGING_LEVEL = Level.INFO;
+  private static final Level LOGGING_LEVEL = Level.TRACE;
 
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(RRAImplementation.class);
@@ -160,7 +160,7 @@ public class RRAImplementation {
       }
 
       consoleLogger.trace("iteration " + i + ", out of " + intervals.size() + ", rule "
-          + currentRule + " at " + currentPos);
+          + currentRule + " at " + currentPos + ", length " + currentEntry.getLength());
 
       // other occurrences of the current rule
       // TODO : this can be taken out of here to optimize multiple discords discovery
@@ -283,9 +283,12 @@ public class RRAImplementation {
 
         } // while inner loop
 
-      } // end of random search loop
+      } // end of random search branch
 
       if (nearestNeighborDist > bestSoFarDistance) {
+        consoleLogger.trace(" updating discord candidate: rule " + currentEntry.getId() + " at "
+            + currentEntry.getStartPos() + " len " + currentEntry.getLength() + " NN dist: "
+            + bestSoFarDistance);
         bestSoFarDistance = nearestNeighborDist;
         bestSoFarPosition = currentEntry.getStartPos();
         bestSoFarLength = currentEntry.getLength();
@@ -293,9 +296,9 @@ public class RRAImplementation {
       }
 
       consoleLogger.trace(" . . iterated " + iterationCounter + " times, best distance:  "
-          + bestSoFarDistance + " for a rule " + bestSoFarRule + " at " + bestSoFarPosition);
+          + bestSoFarDistance + " for a rule " + bestSoFarRule + " at " + bestSoFarPosition
+          + " len " + bestSoFarLength);
 
-      iterationCounter++;
     } // outer loop
 
     DiscordRecord res = new DiscordRecord(bestSoFarPosition, bestSoFarDistance,

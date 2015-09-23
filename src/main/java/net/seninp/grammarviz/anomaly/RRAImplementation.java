@@ -1,12 +1,12 @@
 package net.seninp.grammarviz.anomaly;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.HashSet;
+import java.util.Random;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -49,8 +49,13 @@ public class RRAImplementation {
     // resulting discords collection
     DiscordRecords discords = new DiscordRecords();
 
+    if (intervals.isEmpty()) {
+      return discords;
+    }
+
     // visit registry
-    IntervalVisitRegistry globalRegistry = new IntervalVisitRegistry(series.length);
+    HashSet<Integer> registry = new HashSet<Integer>(
+        discordCollectionSize * intervals.get(0).getLength() * 2);
 
     // we conduct the search until the number of discords is less than desired
     //
@@ -60,7 +65,7 @@ public class RRAImplementation {
           "currently known discords: " + discords.getSize() + " out of " + discordCollectionSize);
 
       Date start = new Date();
-      DiscordRecord bestDiscord = findBestDiscordForIntervals(series, intervals, globalRegistry);
+      DiscordRecord bestDiscord = findBestDiscordForIntervals(series, intervals, registry);
       Date end = new Date();
 
       // if the discord is null we getting out of the search
@@ -90,7 +95,9 @@ public class RRAImplementation {
       if (markEnd > series.length) {
         markEnd = series.length;
       }
-      globalRegistry.markVisited(markStart, markEnd);
+      for (int i = markStart; i < markEnd; i++) {
+        registry.add(i);
+      }
     }
 
     // done deal
@@ -102,17 +109,18 @@ public class RRAImplementation {
    * 
    * @param series
    * @param globalIntervals
-   * @param globalRegistry
+   * @param registry
    * @return
    * @throws Exception
    */
   public static DiscordRecord findBestDiscordForIntervals(double[] series,
-      ArrayList<RuleInterval> globalIntervals, IntervalVisitRegistry globalRegistry)
-          throws Exception {
+      ArrayList<RuleInterval> globalIntervals, HashSet<Integer> registry) throws Exception {
+
+    // prepare the visits array, note that there can't be more points to visit that in a SAX index
+    int[] visitArray = new int[globalIntervals.size()];
 
     // this is outer loop heuristics
     ArrayList<RuleInterval> intervals = cloneIntervals(globalIntervals);
-
     Collections.sort(intervals, new Comparator<RuleInterval>() {
       public int compare(RuleInterval c1, RuleInterval c2) {
         if (c1.getCoverage() > c2.getCoverage()) {
@@ -127,9 +135,10 @@ public class RRAImplementation {
 
     // init variables
     int bestSoFarPosition = -1;
-    double bestSoFarDistance = 0.0D;
     int bestSoFarLength = -1;
     int bestSoFarRule = -1;
+
+    double bestSoFarDistance = 0.0D;
 
     // we will iterate over words from rarest to frequent ones - this is an OUTER LOOP of the best
     // discord search
@@ -137,141 +146,144 @@ public class RRAImplementation {
     int iterationCounter = 0;
     int distanceCalls = 0;
 
-    // int limit = frequencies.size();
-    while (!intervals.isEmpty()) {
+    for (int i = 0; i < intervals.size(); i++) {
 
       iterationCounter++;
 
-      consoleLogger
-          .trace("iteration " + iterationCounter + ", intervals in collection " + intervals.size());
-
-      // the head of this array has the rarest word
-      RuleInterval currentEntry = intervals.remove(0);
-
-      String currentRule = String.valueOf(currentEntry.getId());
+      RuleInterval currentEntry = intervals.get(i);
       int currentPos = currentEntry.getStartPos();
+      String currentRule = String.valueOf(currentEntry.getId());
 
-      consoleLogger.trace("current entry rule " + currentRule + " at " + currentPos
-          + ", intervals in collection " + intervals.size());
-
-      // make sure it is not previously found discord
-      if (globalRegistry.isVisited(currentEntry.getStartPos(), currentEntry.getEndPos())) {
+      // make sure it is not a previously found discord
+      if (registry.contains(currentEntry.getStartPos())) {
         continue;
       }
 
-      // so, lets the search begin...
-      double nearestNeighborDist = Double.MAX_VALUE;
-      boolean doRandomSearch = true;
+      consoleLogger.trace("iteration " + i + ", out of " + intervals.size() + ", rule "
+          + currentRule + " at " + currentPos);
+
+      // other occurrences of the current rule
+      // TODO : this can be taken out of here to optimize multiple discords discovery
+      ArrayList<Integer> currentOccurences = listRuleOccurrences(currentEntry.getId(), intervals);
+      consoleLogger.trace(" there are " + currentOccurences.size() + " occurrences for the rule "
+          + currentEntry.getId() + ", iterating...");
+
+      // organize visited so-far positions tracking
+      //
+      int markStart = currentPos - currentEntry.getLength();
+      if (markStart < 0) {
+        markStart = 0;
+      }
+      int markEnd = currentPos + currentEntry.getLength();
+      if (markEnd > series.length) {
+        markEnd = series.length;
+      }
+
+      // all the candidates we are not going to try
+      HashSet<Integer> alreadyVisited = new HashSet<Integer>(
+          currentOccurences.size() + (markEnd - markStart));
+      for (int j = markStart; j < markEnd; j++) {
+        alreadyVisited.add(j);
+      }
 
       // extract the subsequence & mark visited current substring
       double[] currentSubsequence = tp.subseriesByCopy(series, currentEntry.getStartPos(),
           currentEntry.getEndPos());
 
-      // WE ARE GOING TO ITERATE OVER THE CURRENT WORD OCCURENCES HERE
-      Map<Integer, Integer> currentOccurences = listRuleOccurrences(currentEntry.getId(),
-          intervals);
-      consoleLogger.trace(" there are " + currentOccurences.size() + " occurrences for the rule "
-          + currentEntry.getId() + ", iterating...");
+      // so, lets the search begin...
+      double nearestNeighborDist = Double.MAX_VALUE;
+      boolean doRandomSearch = true;
 
-      // this is INNER LOOP, where we check all rule's occurrences
-      for (Entry<Integer, Integer> nextOccurrence : currentOccurences.entrySet()) {
+      // this is the first INNER LOOP
+      for (Integer nextOccurrenceIdx : currentOccurences) {
+
+        RuleInterval nextOccurrence = intervals.get(nextOccurrenceIdx);
 
         // skip the location we standing at, check if we overlap
-        if (Math.abs(nextOccurrence.getKey() - currentEntry.getStartPos()) <= currentEntry
-            .getLength()) {
-          localRegistry.markVisited(nextOccurrence.getKey());
+        if (alreadyVisited.contains(nextOccurrence.getStartPos())) {
           continue;
         }
-
-        // mark current next visited
-        localRegistry.markVisited(nextOccurrence.getKey());
-
-        // get the piece of the timeseries
-        double[] occurrenceSubsequence = null;
-        if ((nextOccurrence.getKey() + currentEntry.getLength()) >= series.length) {
-          occurrenceSubsequence = tp.subseriesByCopy(series,
-              series.length - currentEntry.getLength(), series.length);
-        }
         else {
-          occurrenceSubsequence = tp.subseriesByCopy(series, nextOccurrence.getKey(),
-              nextOccurrence.getKey() + currentEntry.getLength());
+          alreadyVisited.add(nextOccurrence.getStartPos());
         }
 
-        // double dist = EuclideanDistance.getDTWDist(currentSubsequence,getSubSeries(series,
-        // nextOccurrence.getKey(),
-        // nextOccurrence.getValue()));
+        double[] occurrenceSubsequence = extractSubsequence(series, currentEntry, nextOccurrence);
+
         double dist = ed.normalizedDistance(currentSubsequence, occurrenceSubsequence);
         distanceCalls++;
 
         // keep track of best so far distance
         if (dist < nearestNeighborDist) {
           nearestNeighborDist = dist;
-          consoleLogger.trace(" ** current NN at interval " + nextOccurrence.getKey() + "-"
-              + nextOccurrence.getValue() + ", distance: " + nearestNeighborDist);
-          if (dist < bestSoFarDistance) {
-            consoleLogger.trace(" ** abandoning the occurrences iterations");
-            doRandomSearch = false;
-            break;
-          }
+          consoleLogger.trace(" ** current NN at interval " + nextOccurrence.getStartPos() + "-"
+              + nextOccurrence.getEndPos() + ", distance: " + nearestNeighborDist);
         }
-      }
-
-      if (Double.MAX_VALUE != nearestNeighborDist) {
-        consoleLogger.trace("rule occurrence loop finished. For current rule "
-            + "occurrences, smallest nearest neighbor distance: " + nearestNeighborDist);
-      }
-      else {
-        consoleLogger.trace(
-            "rule occurrence loop finished. Nothing changed after iterations over current rule positions ...");
+        if (dist < bestSoFarDistance) {
+          consoleLogger.trace(" ** abandoning the occurrences iterations");
+          doRandomSearch = false;
+          break;
+        }
       }
 
       // check if we must continue with random neighbors
       if (doRandomSearch) {
-        // it is heuristics here
+        consoleLogger.trace("starting random search");
+
+        // init the visit array
         //
-        int nextRandomVisitTarget = -1;
-
         int visitCounter = 0;
-        // while ((nextRandomVisitTarget = localRegistry.getNextRandomUnvisitedPosition()) != -1) {
-        while ((nextRandomVisitTarget = localRegistry.getNextRandomUnvisitedPosition()) != -1) {
-          // consoleLogger.debug(" random position pick step " + visitCounter + " visited: "
-          // + registry.getVisited().length + ", unvisited: " + registry.getUnvisited().length
-          // + "; nearest neighbor at: " + nearestNeighborDist);
-          //
-          // if(registry.getUnvisited().length<3){
-          // System.err.println("gotcha");
-          // }
+        int cIndex = 0;
+        for (int j = 0; j < intervals.size(); j++) {
+          RuleInterval interval = intervals.get(j);
+          if (!(alreadyVisited.contains(interval.getStartPos()))) {
+            visitArray[cIndex] = j;
+            cIndex++;
+          }
+        }
+        cIndex--;
 
-          // registry.markVisited(nextRandomVisitTarget);
-          // marker.markVisited(registry, nextRandomVisitTarget, windowSize);
-          localRegistry.markVisited(nextRandomVisitTarget);
+        // shuffle the visit array
+        //
+        Random rnd = new Random();
+        for (int j = cIndex; j > 0; j--) {
+          int index = rnd.nextInt(j + 1);
+          int a = visitArray[index];
+          visitArray[index] = visitArray[j];
+          visitArray[j] = a;
+        }
 
-          double[] randomTargetValues = tp.subseriesByCopy(series, nextRandomVisitTarget,
-              nextRandomVisitTarget + currentEntry.getLength());
-          double randomTargetDistance = ed.normalizedDistance(currentSubsequence,
-              randomTargetValues);
+        // while there are unvisited locations
+        while (cIndex >= 0) {
+
+          RuleInterval randomInterval = intervals.get(visitArray[cIndex]);
+          cIndex--;
+
+          double[] randomSubsequence = extractSubsequence(series, currentEntry, randomInterval);
+
+          double dist = ed.normalizedDistance(currentSubsequence, randomSubsequence);
           distanceCalls++;
 
-          // early abandoning of the search, the current word is not
-          // discord, we seen better
-          if (randomTargetDistance < bestSoFarDistance) {
-            nearestNeighborDist = randomTargetDistance;
+          // early abandoning of the search:
+          // the current word is not discord, we have seen better
+          if (dist < bestSoFarDistance) {
+            nearestNeighborDist = dist;
             consoleLogger.trace(" ** abandoning random visits loop, seen distance "
                 + nearestNeighborDist + " at iteration " + visitCounter);
             break;
           }
 
           // keep track
-          if (randomTargetDistance < nearestNeighborDist) {
-            nearestNeighborDist = randomTargetDistance;
+          if (dist < nearestNeighborDist) {
+            consoleLogger.trace(" ** current NN id rule " + randomInterval.getId() + " at "
+                + randomInterval.startPos + ", distance: " + dist);
+            nearestNeighborDist = dist;
           }
 
           visitCounter = visitCounter + 1;
-        } // while inner loop
-        consoleLogger
-            .trace("random visits loop finished, total positions considered: " + visitCounter);
 
-      } // if break loop
+        } // while inner loop
+
+      } // end of random search loop
 
       if (nearestNeighborDist > bestSoFarDistance) {
         bestSoFarDistance = nearestNeighborDist;
@@ -279,15 +291,7 @@ public class RRAImplementation {
         bestSoFarLength = currentEntry.getLength();
         bestSoFarRule = currentEntry.getId();
       }
-      // if (knownWordsAndTheirDistances.containsKey(currentWord)
-      // && knownWordsAndTheirDistances.get(currentWord).isAbandoned()) {
-      // knownWordsAndTheirDistances.put(String.valueOf(currentWord), new DistanceEntry(
-      // nearestNeighborDist, completeSearch));
-      // }
-      // else {
-      // knownWordsAndTheirDistances.put(String.valueOf(currentWord), new DistanceEntry(
-      // nearestNeighborDist, completeSearch));
-      // }
+
       consoleLogger.trace(" . . iterated " + iterationCounter + " times, best distance:  "
           + bestSoFarDistance + " for a rule " + bestSoFarRule + " at " + bestSoFarPosition);
 
@@ -297,11 +301,23 @@ public class RRAImplementation {
     DiscordRecord res = new DiscordRecord(bestSoFarPosition, bestSoFarDistance,
         "pos,calls,len,rule " + bestSoFarPosition + " " + distanceCalls + " " + bestSoFarLength
             + " " + bestSoFarRule);
+
     res.setLength(bestSoFarLength);
     res.setRuleId(bestSoFarRule);
     res.setInfo("distance calls: " + distanceCalls);
 
     return res;
+  }
+
+  private static double[] extractSubsequence(double[] series, RuleInterval currentEntry,
+      RuleInterval nextOccurrence) {
+    int markStart = nextOccurrence.getStartPos();
+    int markEnd = markStart + currentEntry.getLength();
+    if (markEnd > series.length) {
+      markEnd = series.length;
+      markStart = series.length - currentEntry.getLength();
+    }
+    return Arrays.copyOfRange(series, markStart, markEnd);
   }
 
   /**
@@ -311,12 +327,12 @@ public class RRAImplementation {
    * @param intervals The rule intervals.
    * @return map of start - end.
    */
-  private static Map<Integer, Integer> listRuleOccurrences(int id,
-      ArrayList<RuleInterval> intervals) {
-    HashMap<Integer, Integer> res = new HashMap<Integer, Integer>(100);
-    for (RuleInterval i : intervals) {
+  private static ArrayList<Integer> listRuleOccurrences(int id, ArrayList<RuleInterval> intervals) {
+    ArrayList<Integer> res = new ArrayList<Integer>(100);
+    for (int j = 0; j < intervals.size(); j++) {
+      RuleInterval i = intervals.get(j);
       if (id == i.getId()) {
-        res.put(i.getStartPos(), i.getEndPos());
+        res.add(j);
       }
     }
     return res;

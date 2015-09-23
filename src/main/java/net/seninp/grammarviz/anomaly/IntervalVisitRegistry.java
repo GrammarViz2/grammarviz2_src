@@ -1,7 +1,5 @@
 package net.seninp.grammarviz.anomaly;
 
-import net.seninp.jmotif.sax.registry.VisitRegistry;
-
 public class IntervalVisitRegistry {
 
   public IntervalVisitRegistry(int length) {

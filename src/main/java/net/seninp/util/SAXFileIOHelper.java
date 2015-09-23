@@ -81,7 +81,7 @@ public class SAXFileIOHelper {
           s.append("\n");
         }
         for (RuleInterval pos : subMotifs) {
-          relatedPositionS.append(pos.getStartPos() + ", " + pos.getEndPos() + "\n");
+          relatedPositionS.append(pos.getStart() + ", " + pos.getEnd() + "\n");
         }
       }
       // --- End of
@@ -97,7 +97,7 @@ public class SAXFileIOHelper {
           s.append("\n");
         }
         for (RuleInterval pos : subMotifs) {
-          relatedPositionS.append(pos.getStartPos() + ", " + pos.getEndPos() + "\n");
+          relatedPositionS.append(pos.getStart() + ", " + pos.getEnd() + "\n");
         }
       }
 

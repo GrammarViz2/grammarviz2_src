@@ -593,8 +593,8 @@ public class GrammarVizAnomaly {
       }
       ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
       for (RuleInterval saxPos : arrPos) {
-        int startPos = saxPos.getStartPos();
-        int endPos = saxPos.getEndPos();
+        int startPos = saxPos.getStart();
+        int endPos = saxPos.getEnd();
         for (int j = startPos; j < endPos; j++) {
           coverageArray[j] = coverageArray[j] + 1;
         }
@@ -639,10 +639,10 @@ public class GrammarVizAnomaly {
 
       Collections.sort(intervals, new Comparator<RuleInterval>() {
         public int compare(RuleInterval c1, RuleInterval c2) {
-          if (c1.getStartPos() > c2.getStartPos()) {
+          if (c1.getStart() > c2.getStart()) {
             return 1;
           }
-          else if (c1.getStartPos() < c2.getStartPos()) {
+          else if (c1.getStart() < c2.getStart()) {
             return -1;
           }
           return 0;
@@ -656,7 +656,7 @@ public class GrammarVizAnomaly {
 
       for (RuleInterval ri : intervals) {
 
-        int ruleStart = ri.getStartPos();
+        int ruleStart = ri.getStart();
         int ruleEnd = ruleStart + ri.getLength();
         int window = ruleEnd - ruleStart;
 
@@ -726,22 +726,23 @@ public class GrammarVizAnomaly {
       rules = rePairGrammar.toGrammarRulesData();
     }
 
-    ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
+    ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>(rules.size() * 2);
 
     // populate all intervals with their frequency
     //
     for (GrammarRuleRecord rule : rules) {
-      //
-      // TODO: do we care about long rules?
-      // if (0 == rule.ruleNumber() || rule.getRuleYield() > 2) {
+
       if (0 == rule.ruleNumber()) {
         continue;
       }
       for (RuleInterval ri : rule.getRuleIntervals()) {
-        ri.setCoverage(rule.getRuleIntervals().size());
-        ri.setId(rule.ruleNumber());
-        intervals.add(ri);
+        RuleInterval i = ri.clone();
+        i.setCoverage(rule.getRuleIntervals().size()); // not a coverage used here but a rule
+                                                       // frequency
+        i.setId(rule.ruleNumber());
+        intervals.add(i);
       }
+
     }
 
     // get the coverage array
@@ -753,8 +754,8 @@ public class GrammarVizAnomaly {
       }
       ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
       for (RuleInterval saxPos : arrPos) {
-        int startPos = saxPos.getStartPos();
-        int endPos = saxPos.getEndPos();
+        int startPos = saxPos.getStart();
+        int endPos = saxPos.getEnd();
         for (int j = startPos; j < endPos; j++) {
           coverageArray[j] = coverageArray[j] + 1;
         }
@@ -799,10 +800,10 @@ public class GrammarVizAnomaly {
 
       Collections.sort(intervals, new Comparator<RuleInterval>() {
         public int compare(RuleInterval c1, RuleInterval c2) {
-          if (c1.getStartPos() > c2.getStartPos()) {
+          if (c1.getStart() > c2.getStart()) {
             return 1;
           }
-          else if (c1.getStartPos() < c2.getStartPos()) {
+          else if (c1.getStart() < c2.getStart()) {
             return -1;
           }
           return 0;
@@ -816,7 +817,7 @@ public class GrammarVizAnomaly {
 
       for (RuleInterval ri : intervals) {
 
-        int ruleStart = ri.getStartPos();
+        int ruleStart = ri.getStart();
         int ruleEnd = ruleStart + ri.getLength();
         int window = ruleEnd - ruleStart;
 

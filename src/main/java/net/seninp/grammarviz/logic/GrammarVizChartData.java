@@ -225,8 +225,8 @@ public class GrammarVizChartData extends Observable implements Observer {
       XYSeries dataset = new XYSeries("Daten");
       int count = 0;
 
-      int start = pos.getStartPos();
-      int end = pos.getEndPos();
+      int start = pos.getStart();
+      int end = pos.getEnd();
 
       for (int i = start; (i <= end) && (i < values.length); i++) {
         dataset.add(count++, values[i]);
@@ -267,8 +267,8 @@ public class GrammarVizChartData extends Observable implements Observer {
     for (int i = 0; i < rulesNum; i++) {
       ArrayList<RuleInterval> arrPos = this.getRulePositionsByRuleNum(i);
       for (RuleInterval saxPos : arrPos) {
-        int start = saxPos.getStartPos();
-        int end = saxPos.getEndPos();
+        int start = saxPos.getStart();
+        int end = saxPos.getEnd();
         for (int position = start; position <= end; position++) {
           pointsNumber[position]
               .setPointOccurenceNumber(pointsNumber[position].getPointOccurenceNumber() + 1);
@@ -304,7 +304,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     for (SameLengthMotifs sameLenMotifs : this.getReducedMotifs()) {
       for (SAXMotif motif : sameLenMotifs.getSameLenMotifs()) {
         RuleInterval pos = motif.getPos();
-        for (int i = pos.getStartPos(); i <= pos.getEndPos(); i++) {
+        for (int i = pos.getStart(); i <= pos.getEnd(); i++) {
           pointsNumber[i].setPointOccurenceNumber(pointsNumber[i].getPointOccurenceNumber() + 1);
           // pointsNumber[i].setRule(textRule);
         }
@@ -374,7 +374,7 @@ public class GrammarVizChartData extends Observable implements Observer {
       }
 
       SameLengthMotifs tmpSameLengthMotifs = new SameLengthMotifs();
-      int tmpMotifLen = tmpMotif.getPos().getEndPos() - tmpMotif.getPos().getStartPos() + 1;
+      int tmpMotifLen = tmpMotif.getPos().getEnd() - tmpMotif.getPos().getStart() + 1;
       int minLen = tmpMotifLen;
       int maxLen = tmpMotifLen;
 
@@ -389,8 +389,8 @@ public class GrammarVizChartData extends Observable implements Observer {
         SAXMotif anotherMotif = allMotifs.get(i);
 
         // if the two motifs are similar or not.
-        int anotherMotifLen = anotherMotif.getPos().getEndPos()
-            - anotherMotif.getPos().getStartPos() + 1;
+        int anotherMotifLen = anotherMotif.getPos().getEnd()
+            - anotherMotif.getPos().getStart() + 1;
 
         // if they have the similar length.
         if (Math.abs(anotherMotifLen - tmpMotifLen) < (tmpMotifLen * lengthThreshold)) {
@@ -420,17 +420,17 @@ public class GrammarVizChartData extends Observable implements Observer {
     for (SameLengthMotifs sameLenMotifs : allClassifiedMotifs) {
       outer: for (int j = 0; j < sameLenMotifs.getSameLenMotifs().size(); j++) {
         SAXMotif tempMotif = sameLenMotifs.getSameLenMotifs().get(j);
-        int tempMotifLen = tempMotif.getPos().getEndPos() - tempMotif.getPos().getStartPos() + 1;
+        int tempMotifLen = tempMotif.getPos().getEnd() - tempMotif.getPos().getStart() + 1;
 
         for (int i = j + 1; i < sameLenMotifs.getSameLenMotifs().size(); i++) {
           SAXMotif anotherMotif = sameLenMotifs.getSameLenMotifs().get(i);
-          int anotherMotifLen = anotherMotif.getPos().getEndPos()
-              - anotherMotif.getPos().getStartPos() + 1;
+          int anotherMotifLen = anotherMotif.getPos().getEnd()
+              - anotherMotif.getPos().getStart() + 1;
 
-          double minEndPos = Math.min(tempMotif.getPos().getEndPos(),
-              anotherMotif.getPos().getEndPos());
-          double maxStartPos = Math.max(tempMotif.getPos().getStartPos(),
-              anotherMotif.getPos().getStartPos());
+          double minEndPos = Math.min(tempMotif.getPos().getEnd(),
+              anotherMotif.getPos().getEnd());
+          double maxStartPos = Math.max(tempMotif.getPos().getStart(),
+              anotherMotif.getPos().getStart());
           // the length in common.
           double commonLen = minEndPos - maxStartPos + 1;
 
@@ -527,13 +527,13 @@ public class GrammarVizChartData extends Observable implements Observer {
   protected boolean decideRemove(SAXMotif motif1, SAXMotif motif2) {
 
     // motif1 details
-    int motif1Start = motif1.getPos().getStartPos();
-    int motif1End = motif1.getPos().getEndPos();
+    int motif1Start = motif1.getPos().getStart();
+    int motif1End = motif1.getPos().getEnd();
     int length1 = motif1End - motif1Start;
 
     // motif2 details
-    int motif2Start = motif2.getPos().getStartPos();
-    int motif2End = motif1.getPos().getEndPos();
+    int motif2Start = motif2.getPos().getStart();
+    int motif2End = motif1.getPos().getEnd();
     int length2 = motif2End - motif2Start;
 
     int countsMotif1 = 0;

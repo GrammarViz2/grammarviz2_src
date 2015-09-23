@@ -25,7 +25,7 @@ public class RRAImplementation {
   // static block - we instantiate the logger
   //
   private static Logger consoleLogger;
-  private static final Level LOGGING_LEVEL = Level.TRACE;
+  private static final Level LOGGING_LEVEL = Level.INFO;
 
   static {
     consoleLogger = (Logger) LoggerFactory.getLogger(RRAImplementation.class);
@@ -151,11 +151,11 @@ public class RRAImplementation {
       iterationCounter++;
 
       RuleInterval currentEntry = intervals.get(i);
-      int currentPos = currentEntry.getStartPos();
+      int currentPos = currentEntry.getStart();
       String currentRule = String.valueOf(currentEntry.getId());
 
       // make sure it is not a previously found discord
-      if (registry.contains(currentEntry.getStartPos())) {
+      if (registry.contains(currentEntry.getStart())) {
         continue;
       }
 
@@ -187,8 +187,8 @@ public class RRAImplementation {
       }
 
       // extract the subsequence & mark visited current substring
-      double[] currentSubsequence = tp.subseriesByCopy(series, currentEntry.getStartPos(),
-          currentEntry.getEndPos());
+      double[] currentSubsequence = tp.subseriesByCopy(series, currentEntry.getStart(),
+          currentEntry.getEnd());
 
       // so, lets the search begin...
       double nearestNeighborDist = Double.MAX_VALUE;
@@ -200,11 +200,11 @@ public class RRAImplementation {
         RuleInterval nextOccurrence = intervals.get(nextOccurrenceIdx);
 
         // skip the location we standing at, check if we overlap
-        if (alreadyVisited.contains(nextOccurrence.getStartPos())) {
+        if (alreadyVisited.contains(nextOccurrence.getStart())) {
           continue;
         }
         else {
-          alreadyVisited.add(nextOccurrence.getStartPos());
+          alreadyVisited.add(nextOccurrence.getStart());
         }
 
         double[] occurrenceSubsequence = extractSubsequence(series, currentEntry, nextOccurrence);
@@ -215,8 +215,8 @@ public class RRAImplementation {
         // keep track of best so far distance
         if (dist < nearestNeighborDist) {
           nearestNeighborDist = dist;
-          consoleLogger.trace(" ** current NN at interval " + nextOccurrence.getStartPos() + "-"
-              + nextOccurrence.getEndPos() + ", distance: " + nearestNeighborDist);
+          consoleLogger.trace(" ** current NN at interval " + nextOccurrence.getStart() + "-"
+              + nextOccurrence.getEnd() + ", distance: " + nearestNeighborDist);
         }
         if (dist < bestSoFarDistance) {
           consoleLogger.trace(" ** abandoning the occurrences iterations");
@@ -235,7 +235,7 @@ public class RRAImplementation {
         int cIndex = 0;
         for (int j = 0; j < intervals.size(); j++) {
           RuleInterval interval = intervals.get(j);
-          if (!(alreadyVisited.contains(interval.getStartPos()))) {
+          if (!(alreadyVisited.contains(interval.getStart()))) {
             visitArray[cIndex] = j;
             cIndex++;
           }
@@ -287,10 +287,10 @@ public class RRAImplementation {
 
       if (nearestNeighborDist > bestSoFarDistance) {
         consoleLogger.trace(" updating discord candidate: rule " + currentEntry.getId() + " at "
-            + currentEntry.getStartPos() + " len " + currentEntry.getLength() + " NN dist: "
+            + currentEntry.getStart() + " len " + currentEntry.getLength() + " NN dist: "
             + bestSoFarDistance);
         bestSoFarDistance = nearestNeighborDist;
-        bestSoFarPosition = currentEntry.getStartPos();
+        bestSoFarPosition = currentEntry.getStart();
         bestSoFarLength = currentEntry.getLength();
         bestSoFarRule = currentEntry.getId();
       }
@@ -314,7 +314,7 @@ public class RRAImplementation {
 
   private static double[] extractSubsequence(double[] series, RuleInterval currentEntry,
       RuleInterval nextOccurrence) {
-    int markStart = nextOccurrence.getStartPos();
+    int markStart = nextOccurrence.getStart();
     int markEnd = markStart + currentEntry.getLength();
     if (markEnd > series.length) {
       markEnd = series.length;
@@ -350,7 +350,7 @@ public class RRAImplementation {
   private static ArrayList<RuleInterval> cloneIntervals(ArrayList<RuleInterval> source) {
     ArrayList<RuleInterval> res = new ArrayList<RuleInterval>(source.size());
     for (RuleInterval r : source) {
-      res.add(new RuleInterval(r.getId(), r.getStartPos(), r.getEndPos(), r.getCoverage()));
+      res.add(new RuleInterval(r.getId(), r.getStart(), r.getEnd(), r.getCoverage()));
     }
     return res;
   }

@@ -211,7 +211,7 @@ public class GrammarvizChartPanel extends JPanel
       ArrayList<RuleInterval> arrPos = this.session.chartData.getRulePositionsByRuleNum(ruleId);
       consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
       for (RuleInterval saxPos : arrPos) {
-        addMarker(timeseriesPlot, saxPos.getStartPos(), saxPos.getEndPos());
+        addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
       }
     }
   }
@@ -228,7 +228,7 @@ public class GrammarvizChartPanel extends JPanel
     consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
     timeseriesPlot.clearDomainMarkers();
     for (RuleInterval saxPos : arrPos) {
-      addMarker(timeseriesPlot, saxPos.getStartPos(), saxPos.getEndPos());
+      addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
     }
   }
 
@@ -246,7 +246,7 @@ public class GrammarvizChartPanel extends JPanel
     for (int i = 1; i < arrPos.size(); i++) {
       RuleInterval c = arrPos.get(i - 1);
       RuleInterval p = arrPos.get(i);
-      addPeriodMarker(timeseriesPlot, c.getEndPos(), p.getStartPos());
+      addPeriodMarker(timeseriesPlot, c.getEnd(), p.getStart());
     }
   }
 
@@ -294,8 +294,8 @@ public class GrammarvizChartPanel extends JPanel
 
       for (RuleInterval i : occurrences) {
 
-        int start = i.getStartPos();
-        int end = i.getEndPos();
+        int start = i.getStart();
+        int end = i.getEnd();
 
         for (int j = start; j < end; j++) {
           if (CoverageCountStrategy.COUNT.equals(this.session.countStrategy)) {
@@ -338,7 +338,7 @@ public class GrammarvizChartPanel extends JPanel
       ArrayList<RuleInterval> occurrences = r.getRuleIntervals();
 
       for (RuleInterval i : occurrences) {
-        IntervalMarker marker = new IntervalMarker(i.getStartPos(), i.getEndPos());
+        IntervalMarker marker = new IntervalMarker(i.getStart(), i.getEnd());
         marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
         marker.setPaint(Color.BLUE);
 

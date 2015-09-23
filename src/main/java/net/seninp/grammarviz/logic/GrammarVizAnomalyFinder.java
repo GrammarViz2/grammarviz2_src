@@ -81,7 +81,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       }
       ArrayList<RuleInterval> ruleIntervals = getRulePositionsByRuleNum(ruleEntry.ruleNumber());
       for (RuleInterval interval : ruleIntervals) {
-        for (int j = interval.getStartPos(); j < interval.getEndPos(); j++) {
+        for (int j = interval.getStart(); j < interval.getEnd(); j++) {
           coverageArray[j]++;
         }
       }

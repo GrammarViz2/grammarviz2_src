@@ -131,8 +131,8 @@ public class TS2SequiturGrammar {
         int[] starts = new int[intervals.size()];
         int[] lengths = new int[intervals.size()];
         for (int i = 0; i < intervals.size(); i++) {
-          starts[i] = intervals.get(i).getStartPos();
-          lengths[i] = intervals.get(i).getEndPos() - intervals.get(i).getStartPos();
+          starts[i] = intervals.get(i).getStart();
+          lengths[i] = intervals.get(i).getEnd() - intervals.get(i).getStart();
         }
 
         sb.append("subsequences starts: ").append(Arrays.toString(starts)).append(CR);

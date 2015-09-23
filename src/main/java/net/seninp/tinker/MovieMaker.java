@@ -133,8 +133,8 @@ public class MovieMaker {
           }
           ArrayList<RuleInterval> arrPos = r.getRuleIntervals();
           for (RuleInterval saxPos : arrPos) {
-            int startPos = saxPos.getStartPos();
-            int endPos = saxPos.getEndPos();
+            int startPos = saxPos.getStart();
+            int endPos = saxPos.getEnd();
             for (int j = startPos; j < endPos; j++) {
               coverageArray[j] = coverageArray[j] + 1;
             }

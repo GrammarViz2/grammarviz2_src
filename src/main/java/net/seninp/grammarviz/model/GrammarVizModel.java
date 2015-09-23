@@ -342,7 +342,7 @@ public class GrammarVizModel extends Observable {
         int[] lengths = new int[ruleRecord.getRuleIntervals().size()];
         int i = 0;
         for (RuleInterval sp : ruleRecord.getRuleIntervals()) {
-          starts[i] = sp.getStartPos();
+          starts[i] = sp.getStart();
           lengths[i] = (sp.endPos - sp.startPos);
           i++;
         }

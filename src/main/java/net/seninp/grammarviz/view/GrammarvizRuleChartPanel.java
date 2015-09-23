@@ -150,7 +150,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
         ArrayList<RuleInterval> arrPos = this.session.chartData
             .getRulePositionsByRuleNum(Integer.valueOf(str));
         for (RuleInterval saxPos : arrPos) {
-          intervals.add(extractInterval(saxPos.getStartPos(), saxPos.getEndPos()));
+          intervals.add(extractInterval(saxPos.getStart(), saxPos.getEnd()));
         }
       }
       chartIntervals(intervals);
@@ -171,7 +171,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
           .getSubsequencesPositionsByClassNum(Integer.valueOf(classIndex));
       ArrayList<double[]> intervals = new ArrayList<double[]>();
       for (RuleInterval saxPos : arrPos) {
-        intervals.add(extractInterval(saxPos.getStartPos(), saxPos.getEndPos()));
+        intervals.add(extractInterval(saxPos.getStart(), saxPos.getEnd()));
       }
       chartIntervals(intervals);
     }

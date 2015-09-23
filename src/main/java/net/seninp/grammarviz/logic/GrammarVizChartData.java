@@ -3,7 +3,6 @@ package net.seninp.grammarviz.logic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 import org.jfree.data.xy.XYSeries;
@@ -226,8 +225,8 @@ public class GrammarVizChartData extends Observable implements Observer {
       XYSeries dataset = new XYSeries("Daten");
       int count = 0;
 
-      int start = pos.getStartPos();
-      int end = pos.getEndPos();
+      int start = pos.getStart();
+      int end = pos.getEnd();
 
       for (int i = start; (i <= end) && (i < values.length); i++) {
         dataset.add(count++, values[i]);
@@ -268,8 +267,8 @@ public class GrammarVizChartData extends Observable implements Observer {
     for (int i = 0; i < rulesNum; i++) {
       ArrayList<RuleInterval> arrPos = this.getRulePositionsByRuleNum(i);
       for (RuleInterval saxPos : arrPos) {
-        int start = saxPos.getStartPos();
-        int end = saxPos.getEndPos();
+        int start = saxPos.getStart();
+        int end = saxPos.getEnd();
         for (int position = start; position <= end; position++) {
           pointsNumber[position]
               .setPointOccurenceNumber(pointsNumber[position].getPointOccurenceNumber() + 1);
@@ -305,7 +304,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     for (SameLengthMotifs sameLenMotifs : this.getReducedMotifs()) {
       for (SAXMotif motif : sameLenMotifs.getSameLenMotifs()) {
         RuleInterval pos = motif.getPos();
-        for (int i = pos.getStartPos(); i <= pos.getEndPos(); i++) {
+        for (int i = pos.getStart(); i <= pos.getEnd(); i++) {
           pointsNumber[i].setPointOccurenceNumber(pointsNumber[i].getPointOccurenceNumber() + 1);
           // pointsNumber[i].setRule(textRule);
         }
@@ -375,7 +374,7 @@ public class GrammarVizChartData extends Observable implements Observer {
       }
 
       SameLengthMotifs tmpSameLengthMotifs = new SameLengthMotifs();
-      int tmpMotifLen = tmpMotif.getPos().getEndPos() - tmpMotif.getPos().getStartPos() + 1;
+      int tmpMotifLen = tmpMotif.getPos().getEnd() - tmpMotif.getPos().getStart() + 1;
       int minLen = tmpMotifLen;
       int maxLen = tmpMotifLen;
 
@@ -390,8 +389,8 @@ public class GrammarVizChartData extends Observable implements Observer {
         SAXMotif anotherMotif = allMotifs.get(i);
 
         // if the two motifs are similar or not.
-        int anotherMotifLen = anotherMotif.getPos().getEndPos()
-            - anotherMotif.getPos().getStartPos() + 1;
+        int anotherMotifLen = anotherMotif.getPos().getEnd()
+            - anotherMotif.getPos().getStart() + 1;
 
         // if they have the similar length.
         if (Math.abs(anotherMotifLen - tmpMotifLen) < (tmpMotifLen * lengthThreshold)) {
@@ -421,17 +420,17 @@ public class GrammarVizChartData extends Observable implements Observer {
     for (SameLengthMotifs sameLenMotifs : allClassifiedMotifs) {
       outer: for (int j = 0; j < sameLenMotifs.getSameLenMotifs().size(); j++) {
         SAXMotif tempMotif = sameLenMotifs.getSameLenMotifs().get(j);
-        int tempMotifLen = tempMotif.getPos().getEndPos() - tempMotif.getPos().getStartPos() + 1;
+        int tempMotifLen = tempMotif.getPos().getEnd() - tempMotif.getPos().getStart() + 1;
 
         for (int i = j + 1; i < sameLenMotifs.getSameLenMotifs().size(); i++) {
           SAXMotif anotherMotif = sameLenMotifs.getSameLenMotifs().get(i);
-          int anotherMotifLen = anotherMotif.getPos().getEndPos()
-              - anotherMotif.getPos().getStartPos() + 1;
+          int anotherMotifLen = anotherMotif.getPos().getEnd()
+              - anotherMotif.getPos().getStart() + 1;
 
-          double minEndPos = Math.min(tempMotif.getPos().getEndPos(),
-              anotherMotif.getPos().getEndPos());
-          double maxStartPos = Math.max(tempMotif.getPos().getStartPos(),
-              anotherMotif.getPos().getStartPos());
+          double minEndPos = Math.min(tempMotif.getPos().getEnd(),
+              anotherMotif.getPos().getEnd());
+          double maxStartPos = Math.max(tempMotif.getPos().getStart(),
+              anotherMotif.getPos().getStart());
           // the length in common.
           double commonLen = minEndPos - maxStartPos + 1;
 
@@ -528,13 +527,13 @@ public class GrammarVizChartData extends Observable implements Observer {
   protected boolean decideRemove(SAXMotif motif1, SAXMotif motif2) {
 
     // motif1 details
-    int motif1Start = motif1.getPos().getStartPos();
-    int motif1End = motif1.getPos().getEndPos();
+    int motif1Start = motif1.getPos().getStart();
+    int motif1End = motif1.getPos().getEnd();
     int length1 = motif1End - motif1Start;
 
     // motif2 details
-    int motif2Start = motif2.getPos().getStartPos();
-    int motif2End = motif1.getPos().getEndPos();
+    int motif2Start = motif2.getPos().getStart();
+    int motif2End = motif1.getPos().getEnd();
     int length2 = motif2End - motif2Start;
 
     int countsMotif1 = 0;
@@ -670,176 +669,10 @@ public class GrammarVizChartData extends Observable implements Observer {
   //
   //
   //
-
   public void performRanking() {
-
-    // this is where we keep range coverage
-    boolean[] range = new boolean[this.originalTimeSeries.length];
-    // these are rules used in current cover
-    HashSet<Integer> usedRules = new HashSet<Integer>();
-    usedRules.add(0);
-    HashSet<Integer> removedRules = new HashSet<Integer>();
-    // do until all ranges are covered
-    while (hasEmptyRanges(range)) {
-
-      // iterate over rules set finding new optimal cover
-      //
-      GrammarRuleRecord bestRule = null;
-      double bestDelta = Integer.MIN_VALUE;
-      for (GrammarRuleRecord rule : grammarRules) {
-        int id = rule.getRuleNumber();
-        if (usedRules.contains(id)) {
-          continue;
-        }
-        else {
-          double delta = getCoverDelta(range, rule);
-          if (delta > bestDelta) {
-            bestDelta = delta;
-            bestRule = rule;
-          }
-        }
-      }
-
-      if (null == bestRule) {
-        break;
-      }
-
-      if (0.0 == bestDelta) {
-        break;
-      }
-
-      System.out.println("Adding the best rule: " + bestRule.getRuleNumber());
-      usedRules.add(bestRule.getRuleNumber());
-      System.out.println("Pruning set by overlaps...");
-
-      // check for overlap artifacts
-      //
-      boolean continueSearch = true;
-      while (continueSearch) {
-
-        continueSearch = false;
-
-        for (int rid : usedRules) {
-
-          if (0 == rid) {
-            continue;
-          }
-
-          ArrayList<RuleInterval> intervalsA = grammarRules.get(rid).getRuleIntervals();
-
-          ArrayList<RuleInterval> intervalsB = new ArrayList<RuleInterval>();
-
-          for (int ridB : usedRules) {
-            if (0 == ridB || rid == ridB) {
-              continue;
-            }
-            intervalsB.addAll(grammarRules.get(ridB).getRuleIntervals());
-          }
-
-          if (intervalsB.isEmpty()) {
-            break;
-          }
-          else if (RulePrunerFactory.isCompletlyCovered(intervalsB, intervalsA)) {
-            System.out.println("Going to remove rule: " + grammarRules.get(rid).getRuleName());
-            usedRules.remove(rid);
-            removedRules.add(rid);
-            continueSearch = true;
-            break;
-          }
-
-        }
-      }
-
-      // add the new candidate and keep the track of cover
-      //
-      range = updateRanges(range, bestRule.getRuleIntervals());
-    }
-
-    System.out
-        .println("Best cover " + Arrays.toString(usedRules.toArray(new Integer[usedRules.size()])));
-
-    GrammarRules prunedRules = new GrammarRules();
-    prunedRules.addRule(grammarRules.get(0));
-
-    for (Integer rId : usedRules) {
-      prunedRules.addRule(grammarRules.get(rId));
-    }
-
-    this.grammarRules = prunedRules;
-
-  }
-
-  private boolean[] updateRanges(boolean[] range, ArrayList<RuleInterval> ruleIntervals) {
-    boolean[] res = Arrays.copyOf(range, range.length);
-    for (RuleInterval i : ruleIntervals) {
-      int start = i.getStartPos();
-      int end = i.getEndPos();
-      for (int j = start; j <= end; j++) {
-        res[j] = true;
-      }
-    }
-    return res;
-  }
-
-  private double getCoverDelta(boolean[] range, GrammarRuleRecord rule) {
-
-    // counts which uncovered points shall be covered
-    int cover = 0;
-
-    // counts overlaps with previously covered ranges
-    int overlap = 0;
-
-    for (RuleInterval i : rule.getRuleIntervals()) {
-      int start = i.getStartPos();
-      int end = i.getEndPos();
-      for (int j = start; j <= end; j++) {
-        if (range[j]) {
-          overlap++;
-        }
-        else {
-          cover++;
-        }
-      }
-    }
-    // if covers nothing, return 0
-    if (0 == cover) {
-      return 0.0;
-    }
-    // if zero overlap, return full cover
-    if (0 == overlap) {
-      return (double) cover
-          / (double) (rule.getExpandedRuleString().length() + rule.getRuleIntervals().size());
-    }
-    // else divide newly covered points mount by the sum of the rule string length and occurrence
-    // (i.e. encoding size)
-    return ((double) cover / (double) (cover + overlap))
-        / (double) (rule.getExpandedRuleString().length() + rule.getRuleIntervals().size());
-  }
-
-  private boolean hasEmptyRanges(boolean[] range) {
-    StringBuffer sb = new StringBuffer();
-    boolean inUncovered = false;
-    int start = 0;
-    for (int i = 0; i < range.length; i++) {
-      if (false == range[i] && false == inUncovered) {
-        start = i;
-        inUncovered = true;
-      }
-      if (true == range[i] && true == inUncovered) {
-        sb.append("[" + start + ", " + i + "], ");
-        inUncovered = false;
-      }
-    }
-    if (inUncovered) {
-      sb.append("[" + start + ", " + range.length + "], ");
-    }
-    System.out.println(sb);
-    for (boolean p : range) {
-      if (false == p) {
-        return true;
-      }
-    }
-    return false;
+    GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(this.originalTimeSeries,
+        this.grammarRules);
+    this.grammarRules = prunedRulesSet;
   }
 
 }

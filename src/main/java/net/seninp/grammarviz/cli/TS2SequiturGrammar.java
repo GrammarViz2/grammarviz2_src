@@ -18,7 +18,7 @@ import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
-import net.seninp.jmotif.sax.datastructures.SAXRecords;
+import net.seninp.jmotif.sax.datastructure.SAXRecords;
 import net.seninp.util.StackTrace;
 
 public class TS2SequiturGrammar {
@@ -131,8 +131,8 @@ public class TS2SequiturGrammar {
         int[] starts = new int[intervals.size()];
         int[] lengths = new int[intervals.size()];
         for (int i = 0; i < intervals.size(); i++) {
-          starts[i] = intervals.get(i).getStartPos();
-          lengths[i] = intervals.get(i).getEndPos() - intervals.get(i).getStartPos();
+          starts[i] = intervals.get(i).getStart();
+          lengths[i] = intervals.get(i).getEnd() - intervals.get(i).getStart();
         }
 
         sb.append("subsequences starts: ").append(Arrays.toString(starts)).append(CR);

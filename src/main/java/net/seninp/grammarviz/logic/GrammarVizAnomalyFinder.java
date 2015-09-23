@@ -3,6 +3,7 @@ package net.seninp.grammarviz.logic;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Observable;
@@ -13,8 +14,6 @@ import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
-import net.seninp.jmotif.sax.registry.LargeWindowAlgorithm;
-import net.seninp.jmotif.sax.registry.VisitRegistry;
 import net.seninp.util.StackTrace;
 
 /**
@@ -82,7 +81,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       }
       ArrayList<RuleInterval> ruleIntervals = getRulePositionsByRuleNum(ruleEntry.ruleNumber());
       for (RuleInterval interval : ruleIntervals) {
-        for (int j = interval.getStartPos(); j < interval.getEndPos(); j++) {
+        for (int j = interval.getStart(); j < interval.getEnd(); j++) {
           coverageArray[j]++;
         }
       }
@@ -118,11 +117,8 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
     // resulting discords collection
     this.chartData.discords = new DiscordRecords();
 
-    // Visit registry. The idea of the visit registry data structure is that to mark as visited all
-    // the discord locations for all searches. I.e. if the discord ever found, its location is
-    // marked as visited and there will be no search over it again
-    VisitRegistry globalTrackVisitRegistry = new VisitRegistry(
-        this.chartData.originalTimeSeries.length);
+    // visit registry
+    HashSet<Integer> registry = new HashSet<Integer>(40 * intervals.get(0).getLength());
 
     // we conduct the search until the number of discords is less than desired
     //
@@ -131,8 +127,8 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       start = new Date();
       DiscordRecord bestDiscord;
       try {
-        bestDiscord = RRAImplementation.findBestDiscordForIntervals(
-            this.chartData.originalTimeSeries, intervals, globalTrackVisitRegistry);
+        bestDiscord = RRAImplementation
+            .findBestDiscordForIntervals(this.chartData.originalTimeSeries, intervals, registry);
         Date end = new Date();
 
         // if the discord is null we getting out of the search
@@ -152,12 +148,20 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
         //
         this.chartData.discords.add(bestDiscord);
 
-        // and maintain data structures
+        // mark the discord discovered
         //
-        // RightWindowAlgorithm marker = new LargeWindowAlgorithm();
-        LargeWindowAlgorithm marker = new LargeWindowAlgorithm();
-        marker.markVisited(globalTrackVisitRegistry, bestDiscord.getPosition(),
-            bestDiscord.getLength());
+        int markStart = bestDiscord.getPosition() - bestDiscord.getLength();
+        int markEnd = bestDiscord.getPosition() + bestDiscord.getLength();
+        if (0 < markStart) {
+          markStart = 0;
+        }
+        if (markEnd > this.chartData.originalTimeSeries.length) {
+          markEnd = this.chartData.originalTimeSeries.length;
+        }
+        for (int i = markStart; i < markEnd; i++) {
+          registry.add(i);
+        }
+
       }
       catch (Exception e) {
         log(StackTrace.toString(e));

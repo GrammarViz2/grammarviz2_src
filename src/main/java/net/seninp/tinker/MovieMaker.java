@@ -15,7 +15,7 @@ import net.seninp.gi.sequitur.SAXTerminal;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
-import net.seninp.jmotif.sax.datastructures.SAXRecords;
+import net.seninp.jmotif.sax.datastructure.SAXRecords;
 
 public class MovieMaker {
 
@@ -133,8 +133,8 @@ public class MovieMaker {
           }
           ArrayList<RuleInterval> arrPos = r.getRuleIntervals();
           for (RuleInterval saxPos : arrPos) {
-            int startPos = saxPos.getStartPos();
-            int endPos = saxPos.getEndPos();
+            int startPos = saxPos.getStart();
+            int endPos = saxPos.getEnd();
             for (int j = startPos; j < endPos; j++) {
               coverageArray[j] = coverageArray[j] + 1;
             }

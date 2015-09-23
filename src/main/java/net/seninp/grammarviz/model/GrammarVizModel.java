@@ -28,7 +28,7 @@ import net.seninp.gi.sequitur.SAXRule;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
-import net.seninp.jmotif.sax.datastructures.SAXRecords;
+import net.seninp.jmotif.sax.datastructure.SAXRecords;
 import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 import net.seninp.util.StackTrace;
 
@@ -342,7 +342,7 @@ public class GrammarVizModel extends Observable {
         int[] lengths = new int[ruleRecord.getRuleIntervals().size()];
         int i = 0;
         for (RuleInterval sp : ruleRecord.getRuleIntervals()) {
-          starts[i] = sp.getStartPos();
+          starts[i] = sp.getStart();
           lengths[i] = (sp.endPos - sp.startPos);
           i++;
         }

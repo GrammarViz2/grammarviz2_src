@@ -1,7 +1,7 @@
 package net.seninp.grammarviz.anomaly;
 
 public enum AnomalyAlgorithm {
-  BRUTEFORCE(0), HOTSAX(1), HOTSAXTRIE(2), RRA(3), RRAPRUNED(4), RRASAMPLED(5), EXPERIMENT(6);
+  BRUTEFORCE(0), HOTSAX(1), RRA(2), RRAPRUNED(3), RRASAMPLED(4), EXPERIMENT(5);
 
   private final int index;
 
@@ -20,14 +20,12 @@ public enum AnomalyAlgorithm {
     case 1:
       return AnomalyAlgorithm.HOTSAX;
     case 2:
-      return AnomalyAlgorithm.HOTSAXTRIE;
-    case 3:
       return AnomalyAlgorithm.RRA;
-    case 4:
+    case 3:
       return AnomalyAlgorithm.RRAPRUNED;
-    case 5:
+    case 4:
       return AnomalyAlgorithm.RRASAMPLED;
-    case 6:
+    case 5:
       return AnomalyAlgorithm.EXPERIMENT;
     default:
       throw new RuntimeException("Unknown index:" + value);
@@ -38,11 +36,8 @@ public enum AnomalyAlgorithm {
     if (value.equalsIgnoreCase("bruteforce")) {
       return AnomalyAlgorithm.BRUTEFORCE;
     }
-    else if (value.equalsIgnoreCase("hotsax")) {
-      return AnomalyAlgorithm.HOTSAX;
-    }
     else if (value.equalsIgnoreCase("hotsaxtrie")) {
-      return AnomalyAlgorithm.HOTSAXTRIE;
+      return AnomalyAlgorithm.HOTSAX;
     }
     else if (value.equalsIgnoreCase("rra")) {
       return AnomalyAlgorithm.RRA;
@@ -69,14 +64,12 @@ public enum AnomalyAlgorithm {
     case 1:
       return "HOTSAX";
     case 2:
-      return "HOTSAXTRIE";
-    case 3:
       return "RRA";
-    case 4:
+    case 3:
       return "RRAPRUNED";
-    case 5:
+    case 4:
       return "RRASAMPLED";
-    case 6:
+    case 5:
       return "EXPERIMENT";
     default:
       throw new RuntimeException("Unknown index");

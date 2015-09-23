@@ -715,6 +715,9 @@ public class GrammarVizAnomaly {
     if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
       rules = SequiturFactory.series2SequiturRules(ts, windowSize, paaSize, alphabetSize,
           saxNRStrategy, normalizationThreshold);
+      Date end = new Date();
+      consoleLogger.info(rules.size() + " Sequitur rules inferred in "
+          + SAXProcessor.timeToString(start.getTime(), end.getTime()));
     }
     else {
       ParallelSAXImplementation ps = new ParallelSAXImplementation();
@@ -724,6 +727,9 @@ public class GrammarVizAnomaly {
       rePairGrammar.expandRules();
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
       rules = rePairGrammar.toGrammarRulesData();
+      Date end = new Date();
+      consoleLogger.info(rules.size() + " RePair rules inferred in "
+          + SAXProcessor.timeToString(start.getTime(), end.getTime()));
     }
 
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>(rules.size() * 2);

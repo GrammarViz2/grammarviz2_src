@@ -46,6 +46,8 @@ public class RRAImplementation {
   public static DiscordRecords series2RRAAnomalies(double[] series, int discordCollectionSize,
       ArrayList<RuleInterval> intervals) throws Exception {
 
+    Date gStart = new Date();
+
     // resulting discords collection
     DiscordRecords discords = new DiscordRecords();
 
@@ -89,7 +91,7 @@ public class RRAImplementation {
       //
       int markStart = bestDiscord.getPosition() - bestDiscord.getLength();
       int markEnd = bestDiscord.getPosition() + bestDiscord.getLength();
-      if (0 < markStart) {
+      if (markStart < 0) {
         markStart = 0;
       }
       if (markEnd > series.length) {
@@ -99,6 +101,9 @@ public class RRAImplementation {
         registry.add(i);
       }
     }
+
+    consoleLogger.info(discords.getSize() + " discords found in "
+        + SAXProcessor.timeToString(gStart.getTime(), new Date().getTime()));
 
     // done deal
     //
@@ -145,6 +150,9 @@ public class RRAImplementation {
     //
     int iterationCounter = 0;
     int distanceCalls = 0;
+
+    consoleLogger
+        .trace("going to iterate over " + intervals.size() + " intervals looking for the discord");
 
     for (int i = 0; i < intervals.size(); i++) {
 

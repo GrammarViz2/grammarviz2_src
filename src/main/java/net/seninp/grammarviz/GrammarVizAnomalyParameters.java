@@ -25,12 +25,12 @@ public class GrammarVizAnomalyParameters {
 
   // dataset
   //
-  @Parameter(names = { "--data_in", "-d" }, description = "The input file name")
+  @Parameter(names = { "--data", "-i" }, description = "The input file name")
   public static String IN_FILE;
 
   // output
   //
-  @Parameter(names = { "--data_out", "-o" }, description = "The output file prefix")
+  @Parameter(names = { "--output", "-o" }, description = "The output file prefix")
   public static String OUT_FILE = "";
 
   // discretization parameters

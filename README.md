@@ -85,7 +85,7 @@ To run the GrammarViz 2.0 GUI use `net.seninp.grammarviz.GrammarVizGUI` class, o
 
 3.0 CLI interface
 ------------
-It is possible to save the inferred grammar, motifs, and discords using the CLI interface as discussed in [these tutorials](http://grammarviz2.github.io/grammarviz2_site/experiences/).
+By using CLI as discussed in [these tutorials](http://grammarviz2.github.io/grammarviz2_site/experiences/), it is possible to save the inferred grammar, motifs, and discords.
 
 ## Made with Aloha!
 ![Made with Aloha!](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/src/resources/assets/aloha.jpg)

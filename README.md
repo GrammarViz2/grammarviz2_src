@@ -40,7 +40,7 @@ GrammarViz2 also implements the "**Rule Density Curve**" and "**Rare Rule Anomal
 
 [3] Larsson, N. J., Moffat, A., *Offline Dictionary-Based Compression*, IEEE 88 (11): 1722–1732, doi:[10.1109/5.892708](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=892708), 2000.
 
-### Citing this work:
+### [Citing this work](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/citation.bib):
 
 [4] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**GrammarViz 2.0: a tool for grammar-based pattern discovery in time series**](http://www2.hawaii.edu/~senin/assets/papers/grammarviz2.pdf), ECML/PKDD Conference, 2014.
 

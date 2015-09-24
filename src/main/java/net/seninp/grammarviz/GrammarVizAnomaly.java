@@ -88,7 +88,7 @@ public class GrammarVizAnomaly {
       // get params printed
       //
       StringBuffer sb = new StringBuffer(1024);
-      sb.append("GrammarViz2 CLI anomaly discovery").append(CR);
+      sb.append(CR).append("GrammarViz2 CLI anomaly discovery").append(CR);
       sb.append("parameters:").append(CR);
 
       sb.append(" input file:                  ").append(GrammarVizAnomalyParameters.IN_FILE)
@@ -142,7 +142,6 @@ public class GrammarVizAnomaly {
             .append(GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION).append(CR);
       }
 
-      sb.append(CR);
       System.out.println(sb.toString());
 
       // read the file
@@ -786,7 +785,7 @@ public class GrammarVizAnomaly {
         intervals);
     Date end = new Date();
 
-    System.out.println(discords.toString() + CR + "Discords found in "
+    System.out.println(discords.toString() + CR + discords.getSize() + " discords found in "
         + SAXProcessor.timeToString(start.getTime(), end.getTime()) + CR);
 
     // THE DISCORD SEARCH IS DONE RIGHT HERE
@@ -900,7 +899,7 @@ public class GrammarVizAnomaly {
         paaSize, alphabetSize, saxNRStrategy, normalizationThreshold);
     Date end = new Date();
 
-    System.out.println(CR + discords.toString() + CR + "Discords found in "
+    System.out.println(CR + discords.toString() + CR + discords.getSize() + " discords found in "
         + SAXProcessor.timeToString(start.getTime(), end.getTime()) + CR);
 
   }

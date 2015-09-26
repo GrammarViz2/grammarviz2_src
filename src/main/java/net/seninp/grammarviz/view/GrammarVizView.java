@@ -158,7 +158,7 @@ public class GrammarVizView implements Observer, ActionListener {
   // sequitur rules table and other tables panel
   //
   private JTabbedPane tabbedRulesPane;
-  private GrammarvizRulesPanel sequiturRulesPane;
+  private GrammarRulesPanel sequiturRulesPane;
   private PackedRulesPanel packedRulesPane;
   private RulesPeriodicityPanel rulesPeriodicityPane;
   private GrammarVizAnomaliesPanel anomaliesPane;
@@ -555,7 +555,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // now add the raw Sequitur rules panel
     //
-    sequiturRulesPane = new GrammarvizRulesPanel();
+    sequiturRulesPane = new GrammarRulesPanel();
     MigLayout sequiturPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
     sequiturRulesPane.setLayout(sequiturPaneLayout);
 

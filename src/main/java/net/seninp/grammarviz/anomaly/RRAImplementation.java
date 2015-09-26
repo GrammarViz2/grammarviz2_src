@@ -17,6 +17,12 @@ import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 
+/**
+ * Implements RRA algorithm.
+ * 
+ * @author psenin
+ *
+ */
 public class RRAImplementation {
 
   private static TSProcessor tp = new TSProcessor();
@@ -33,8 +39,8 @@ public class RRAImplementation {
   }
 
   /**
-   * This method iterates over the provided list of intervals instead of all the possible SAX words
-   * extracted with numerosity reduction.
+   * Implements RRA -- an anomaly discovery algorithm based on discretization and grammar inference.
+   * RRA stands for rare rule anomaly.
    * 
    * @param series The series to find discord at.
    * @param discordCollectionSize How many discords to find.
@@ -320,6 +326,14 @@ public class RRAImplementation {
     return res;
   }
 
+  /**
+   * Extracts a time series subsequence corresponding to the grammar rule adjusting for its length.
+   * 
+   * @param series
+   * @param currentEntry
+   * @param nextOccurrence
+   * @return
+   */
   private static double[] extractSubsequence(double[] series, RuleInterval currentEntry,
       RuleInterval nextOccurrence) {
     int markStart = nextOccurrence.getStart();

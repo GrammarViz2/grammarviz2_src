@@ -695,7 +695,7 @@ public class GrammarvizChartPanel extends JPanel
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
-    if (GrammarvizRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
+    if (GrammarRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
       @SuppressWarnings("unchecked")
       ArrayList<String> newlySelectedRows = (ArrayList<String>) evt.getNewValue();
       highlightPatternInChart(newlySelectedRows);

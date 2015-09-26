@@ -1,5 +1,11 @@
 package net.seninp.grammarviz.anomaly;
 
+/**
+ * The anomaly discovery algorithm selector.
+ * 
+ * @author psenin
+ *
+ */
 public enum AnomalyAlgorithm {
   BRUTEFORCE(0), HOTSAX(1), RRA(2), RRAPRUNED(3), RRASAMPLED(4), EXPERIMENT(5);
 

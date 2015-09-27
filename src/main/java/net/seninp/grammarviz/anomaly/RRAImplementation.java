@@ -221,7 +221,7 @@ public class RRAImplementation {
           alreadyVisited.add(nextOccurrence.getStart());
         }
 
-        double[] occurrenceSubsequence = extractSubsequence(series, currentEntry, nextOccurrence);
+        double[] occurrenceSubsequence = extractSubsequence(series, nextOccurrence);
 
         double dist = ed.normalizedDistance(currentSubsequence, occurrenceSubsequence);
         distanceCalls++;
@@ -272,9 +272,9 @@ public class RRAImplementation {
           RuleInterval randomInterval = intervals.get(visitArray[cIndex]);
           cIndex--;
 
-          double[] randomSubsequence = extractSubsequence(series, currentEntry, randomInterval);
+          double[] randomSubsequence = extractSubsequence(series, randomInterval);
 
-          double dist = ed.normalizedDistance(currentSubsequence, randomSubsequence);
+          double dist = normalizedDistance(currentSubsequence, randomSubsequence);
           distanceCalls++;
 
           // early abandoning of the search:
@@ -326,23 +326,30 @@ public class RRAImplementation {
     return res;
   }
 
+  private static double normalizedDistance(double[] currentSubsequence, double[] randomSubsequence)
+      throws Exception {
+    if (currentSubsequence.length == randomSubsequence.length) {
+      return ed.normalizedDistance(currentSubsequence, randomSubsequence);
+    }
+    else if (currentSubsequence.length > randomSubsequence.length) {
+      return ed.normalizedDistance(tp.paa(currentSubsequence, randomSubsequence.length),
+          randomSubsequence);
+    }
+    else {
+      return ed.normalizedDistance(currentSubsequence,
+          tp.paa(randomSubsequence, currentSubsequence.length));
+    }
+  }
+
   /**
    * Extracts a time series subsequence corresponding to the grammar rule adjusting for its length.
    * 
    * @param series
-   * @param currentEntry
-   * @param nextOccurrence
+   * @param randomInterval
    * @return
    */
-  private static double[] extractSubsequence(double[] series, RuleInterval currentEntry,
-      RuleInterval nextOccurrence) {
-    int markStart = nextOccurrence.getStart();
-    int markEnd = markStart + currentEntry.getLength();
-    if (markEnd > series.length) {
-      markEnd = series.length;
-      markStart = series.length - currentEntry.getLength();
-    }
-    return Arrays.copyOfRange(series, markStart, markEnd);
+  private static double[] extractSubsequence(double[] series, RuleInterval randomInterval) {
+    return Arrays.copyOfRange(series, randomInterval.getStart(), randomInterval.getEnd());
   }
 
   /**

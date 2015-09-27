@@ -223,7 +223,7 @@ public class RRAImplementation {
 
         double[] occurrenceSubsequence = extractSubsequence(series, nextOccurrence);
 
-        double dist = ed.normalizedDistance(currentSubsequence, occurrenceSubsequence);
+        double dist = normalizedDistance(currentSubsequence, occurrenceSubsequence);
         distanceCalls++;
 
         // keep track of best so far distance

@@ -29,13 +29,13 @@ import net.seninp.grammarviz.view.table.GrammarvizRulesTableModel;
 
 /**
  * 
- * handling the chart panel and sequitur rules table
+ * Implements the rules panel.
  * 
  * @author Manfred Lerner, seninp
  * 
  */
 
-public class GrammarvizRulesPanel extends JPanel
+public class GrammarRulesPanel extends JPanel
     implements ListSelectionListener, PropertyChangeListener {
 
   /** Fancy serial. */
@@ -61,7 +61,7 @@ public class GrammarvizRulesPanel extends JPanel
   private static Level LOGGING_LEVEL = Level.DEBUG;
 
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizRulesPanel.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarRulesPanel.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -79,7 +79,7 @@ public class GrammarvizRulesPanel extends JPanel
   /**
    * Constructor.
    */
-  public GrammarvizRulesPanel() {
+  public GrammarRulesPanel() {
     super();
     this.sequiturTableModel = new GrammarvizRulesTableModel();
     this.sequiturTable = new JXTable() {

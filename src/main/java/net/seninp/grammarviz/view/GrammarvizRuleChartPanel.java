@@ -227,7 +227,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
 
-    if (GrammarvizRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
+    if (GrammarRulesPanel.FIRING_PROPERTY.equalsIgnoreCase(evt.getPropertyName())) {
       @SuppressWarnings("unchecked")
       ArrayList<String> newlySelectedRaw = (ArrayList<String>) evt.getNewValue();
       chartIntervalsForRule(newlySelectedRaw);

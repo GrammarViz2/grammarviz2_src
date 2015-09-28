@@ -25,7 +25,7 @@ import net.seninp.jmotif.sax.discord.DiscordRecords;
  */
 public class RRAImplementation {
 
-  private static TSProcessor tp = new TSProcessor();
+  // private static TSProcessor tp = new TSProcessor();
   private static EuclideanDistance ed = new EuclideanDistance();
 
   // static block - we instantiate the logger
@@ -201,8 +201,8 @@ public class RRAImplementation {
       }
 
       // extract the subsequence & mark visited current substring
-      double[] currentSubsequence = tp.subseriesByCopy(series, currentEntry.getStart(),
-          currentEntry.getEnd());
+      // double[] currentSubsequence = tp.subseriesByCopy(series, currentEntry.getStart(),
+      // currentEntry.getEnd());
 
       // so, lets the search begin...
       double nearestNeighborDist = Double.MAX_VALUE;
@@ -221,9 +221,9 @@ public class RRAImplementation {
           alreadyVisited.add(nextOccurrence.getStart());
         }
 
-        double[] occurrenceSubsequence = extractSubsequence(series, nextOccurrence);
+        // double[] occurrenceSubsequence = extractSubsequence(series, nextOccurrence);
 
-        double dist = normalizedDistance(currentSubsequence, occurrenceSubsequence);
+        double dist = normalizedDistance(series, currentEntry, nextOccurrence);
         distanceCalls++;
 
         // keep track of best so far distance
@@ -272,9 +272,9 @@ public class RRAImplementation {
           RuleInterval randomInterval = intervals.get(visitArray[cIndex]);
           cIndex--;
 
-          double[] randomSubsequence = extractSubsequence(series, randomInterval);
+          // double[] randomSubsequence = extractSubsequence(series, randomInterval);
 
-          double dist = normalizedDistance(currentSubsequence, randomSubsequence);
+          double dist = normalizedDistance(series, currentEntry, randomInterval);
           distanceCalls++;
 
           // early abandoning of the search:
@@ -326,31 +326,50 @@ public class RRAImplementation {
     return res;
   }
 
-  private static double normalizedDistance(double[] currentSubsequence, double[] randomSubsequence)
-      throws Exception {
-    if (currentSubsequence.length == randomSubsequence.length) {
-      return ed.normalizedDistance(currentSubsequence, randomSubsequence);
+  /**
+   * Computes the normalized distance. The whole idea is that rules map to subsequences of different
+   * length.
+   * 
+   * @param series
+   * @param reference
+   * @param candidate
+   * @return
+   * @throws Exception
+   */
+  private static double normalizedDistance(double[] series, RuleInterval reference,
+      RuleInterval candidate) throws Exception {
+    if (reference.getLength() == candidate.getLength()) {
+      return ed.normalizedDistance(
+          Arrays.copyOfRange(series, reference.getStart(), reference.getEnd()),
+          Arrays.copyOfRange(series, candidate.getStart(), candidate.getEnd()));
     }
-    else if (currentSubsequence.length > randomSubsequence.length) {
-      return ed.normalizedDistance(tp.paa(currentSubsequence, randomSubsequence.length),
-          randomSubsequence);
+    else if (reference.getLength() > candidate.getLength()) {
+      int end = candidate.getStart() + reference.getLength();
+      if (end > series.length) {
+        end = series.length;
+      }
+      return ed.normalizedDistance(
+          Arrays.copyOfRange(series, reference.getStart(), reference.getEnd()),
+          Arrays.copyOfRange(series, candidate.getStart(), end));
     }
     else {
-      return ed.normalizedDistance(currentSubsequence,
-          tp.paa(randomSubsequence, currentSubsequence.length));
+      return ed.normalizedDistance(
+          Arrays.copyOfRange(series, reference.getStart(), reference.getEnd()), Arrays.copyOfRange(
+              series, candidate.getStart(), candidate.getStart() + reference.getLength()));
     }
   }
 
-  /**
-   * Extracts a time series subsequence corresponding to the grammar rule adjusting for its length.
-   * 
-   * @param series
-   * @param randomInterval
-   * @return
-   */
-  private static double[] extractSubsequence(double[] series, RuleInterval randomInterval) {
-    return Arrays.copyOfRange(series, randomInterval.getStart(), randomInterval.getEnd());
-  }
+  // /**
+  // * Extracts a time series subsequence corresponding to the grammar rule adjusting for its
+  // length.
+  // *
+  // * @param series
+  // * @param randomInterval
+  // * @return
+  // */
+  // private static double[] extractSubsequence(double[] series, RuleInterval randomInterval) {
+  // return Arrays.copyOfRange(series, randomInterval.getStart(), randomInterval.getEnd());
+  // }
 
   /**
    * Finds all the Sequitur rules with a given Id and populates their start and end into the array.

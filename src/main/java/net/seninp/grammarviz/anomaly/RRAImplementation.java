@@ -13,7 +13,6 @@ import ch.qos.logback.classic.Logger;
 import net.seninp.gi.RuleInterval;
 import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.SAXProcessor;
-import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 
@@ -345,12 +344,14 @@ public class RRAImplementation {
     }
     else if (reference.getLength() > candidate.getLength()) {
       int end = candidate.getStart() + reference.getLength();
+      int increment = reference.getLength();
       if (end > series.length) {
         end = series.length;
+        increment = series.length - candidate.getStart();
       }
       return ed.normalizedDistance(
-          Arrays.copyOfRange(series, reference.getStart(), reference.getEnd()),
-          Arrays.copyOfRange(series, candidate.getStart(), end));
+          Arrays.copyOfRange(series, reference.getStart(), reference.getStart() + increment),
+          Arrays.copyOfRange(series, candidate.getStart(), candidate.getStart() + increment));
     }
     else {
       return ed.normalizedDistance(

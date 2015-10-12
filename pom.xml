@@ -70,6 +70,34 @@
         </configuration>
       </plugin>
 
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.5.201505241946</version>
+        <configuration>
+          <excludes>
+            <exclude>**/tinker/**</exclude>
+            <exclude>**/util/**</exclude>
+            <exclude>**/view/**</exclude>
+            <exclude>**/cli/**</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 
@@ -86,17 +114,11 @@
               <argLine>${argLine} -Xms512m -Xmx1024m</argLine>
             </configuration>
           </plugin>
+
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.7.4.201502262128</version>
-            <configuration>
-              <excludes>
-                <exclude>**/tinker/**</exclude>
-                <exclude>**/util/**</exclude>
-                <exclude>**/view/**</exclude>
-              </excludes>
-            </configuration>
+            <version>0.7.5.201505241946</version>
             <executions>
               <execution>
                 <goals>

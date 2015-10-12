@@ -2,13 +2,10 @@ language:
   java
 
 jdk:
-  - oraclejdk7
-
-sudo: 
-  false
+  oraclejdk7
 
 before_install:
-  - pip install --user codecov
+  pip install --user codecov
 
 after_success:
-  - codecov
+  codecov

@@ -924,7 +924,7 @@ public class GrammarVizAnomaly {
    * @param coverageArray the coverage to analyze.
    * @return set of zeroed intervals (if found).
    */
-  private static List<RuleInterval> getZeroIntervals(int[] coverageArray) {
+  public static List<RuleInterval> getZeroIntervals(int[] coverageArray) {
     ArrayList<RuleInterval> res = new ArrayList<RuleInterval>();
     int start = -1;
     boolean inInterval = false;

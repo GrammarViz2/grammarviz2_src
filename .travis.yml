@@ -3,6 +3,9 @@ language:
 
 jdk:
   oraclejdk7
+  
+sudo:
+  false
 
 before_install:
   pip install --user codecov

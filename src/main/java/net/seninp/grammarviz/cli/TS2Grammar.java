@@ -139,8 +139,13 @@ public class TS2Grammar {
     sb.append("# alphabet size: ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE).append(CR);
     bw.write(sb.toString());
 
+    GrammarStats grammarStats = new GrammarStats();
+
     // each rule stats
     for (GrammarRuleRecord ruleRecord : rules) {
+
+      // make sure this processed by the stats object
+      grammarStats.process(ruleRecord);
 
       sb = new StringBuffer();
       sb.append("/// ").append(ruleRecord.getRuleName()).append(CR);
@@ -183,6 +188,7 @@ public class TS2Grammar {
     //
     if (fileOpen) {
       try {
+        bw.write(grammarStats.toString());
         bw.close();
       }
       catch (IOException e) {

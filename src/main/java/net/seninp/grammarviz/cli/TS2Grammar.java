@@ -197,6 +197,19 @@ public class TS2Grammar {
         }
       }
     }
+    int minCoverage = Integer.MAX_VALUE;
+    int maxCoverage = Integer.MIN_VALUE;
+    int coverageSum = 0;
+    for (int i : coverageArray) {
+      coverageSum += i;
+      if (i < minCoverage) {
+        minCoverage = i;
+      }
+      if (i > maxCoverage) {
+        maxCoverage = i;
+      }
+    }
+    double aveCoverage = (double) coverageSum / (double) series.length;
 
     // look for zero-covered intervals and add those to the list
     //
@@ -211,6 +224,7 @@ public class TS2Grammar {
     if (fileOpen) {
       try {
         bw.write(grammarStats.toString());
+        bw.write("#coverage\t" + minCoverage + "\t" + maxCoverage + "\t" + aveCoverage + "\n");
         bw.write("#non-covered intervals " + zeros.size() + " " + zerosSize + " points\n");
         bw.close();
       }

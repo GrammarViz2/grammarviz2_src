@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
 import ch.qos.logback.classic.Level;
@@ -18,6 +19,7 @@ import net.seninp.gi.repair.RePairFactory;
 import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.gi.sequitur.SAXRule;
 import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
@@ -51,7 +53,7 @@ public class TS2Grammar {
       jct.usage();
       System.exit(10);
     }
-    
+
     // get params printed
     //
     StringBuffer sb = new StringBuffer(1024);
@@ -61,11 +63,16 @@ public class TS2Grammar {
     sb.append("  input file:                  ").append(TS2GrammarParameters.IN_FILE).append(CR);
     sb.append("  output file:                 ").append(TS2GrammarParameters.OUT_FILE).append(CR);
 
-    sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE).append(CR);
-    sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE).append(CR);
-    sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE).append(CR);
-    sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY).append(CR);
-    sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD).append(CR);
+    sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE)
+        .append(CR);
+    sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE)
+        .append(CR);
+    sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE)
+        .append(CR);
+    sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY)
+        .append(CR);
+    sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD)
+        .append(CR);
 
     sb.append("  GI implementation:           ")
         .append(TS2GrammarParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
@@ -174,11 +181,37 @@ public class TS2Grammar {
       }
     }
 
+    // get the coverage array
+    //
+    int[] coverageArray = new int[series.length];
+    for (GrammarRuleRecord rule : rules) {
+      if (0 == rule.ruleNumber()) {
+        continue;
+      }
+      ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
+      for (RuleInterval saxPos : arrPos) {
+        int startPos = saxPos.getStart();
+        int endPos = saxPos.getEnd();
+        for (int j = startPos; j < endPos; j++) {
+          coverageArray[j] = coverageArray[j] + 1;
+        }
+      }
+    }
+
+    // look for zero-covered intervals and add those to the list
+    //
+    List<RuleInterval> zeros = GrammarVizAnomaly.getZeroIntervals(coverageArray);
+    int zerosSize = 0;
+    for (RuleInterval i : zeros) {
+      zerosSize += i.getLength();
+    }
+
     // close the file
     //
     if (fileOpen) {
       try {
         bw.write(grammarStats.toString());
+        bw.write("#non-covered intervals " + zeros.size() + " " + zerosSize + " points\n");
         bw.close();
       }
       catch (IOException e) {

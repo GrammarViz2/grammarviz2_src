@@ -3,6 +3,7 @@ package net.seninp.grammarviz.cli;
 import java.util.ArrayList;
 import java.util.List;
 import com.beust.jcommander.Parameter;
+import net.seninp.gi.GIAlgorithm;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 
 /**
@@ -18,9 +19,6 @@ public class TS2GrammarParameters {
   @Parameter
   public List<String> parameters = new ArrayList<String>();
 
-  @Parameter(names = { "--help", "-h" }, help = true)
-  public boolean help;
-
   // dataset
   //
   @Parameter(names = { "--data_in", "-d" }, description = "The input file name")
@@ -30,6 +28,11 @@ public class TS2GrammarParameters {
   //
   @Parameter(names = { "--data_out", "-o" }, description = "The output file name")
   public static String OUT_FILE;
+
+  // GI parameter
+  //
+  @Parameter(names = { "--gi", "-g" }, description = "GI algorithm to use")
+  public static GIAlgorithm GI_ALGORITHM_IMPLEMENTATION = GIAlgorithm.SEQUITUR;
 
   // discretization parameters
   //

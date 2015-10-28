@@ -10,9 +10,12 @@ import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import net.seninp.gi.GIAlgorithm;
 import net.seninp.gi.GrammarRuleRecord;
 import net.seninp.gi.GrammarRules;
 import net.seninp.gi.RuleInterval;
+import net.seninp.gi.repair.RePairFactory;
+import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.gi.sequitur.SAXRule;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.jmotif.sax.SAXProcessor;
@@ -21,7 +24,7 @@ import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
 import net.seninp.util.StackTrace;
 
-public class TS2SequiturGrammar {
+public class TS2Grammar {
 
   private static final String CR = "\n";
 
@@ -33,8 +36,9 @@ public class TS2SequiturGrammar {
   //
   private static Logger consoleLogger;
   private static Level LOGGING_LEVEL = Level.DEBUG;
+
   static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(TS2SequiturGrammar.class);
+    consoleLogger = (Logger) LoggerFactory.getLogger(TS2Grammar.class);
     consoleLogger.setLevel(LOGGING_LEVEL);
   }
 
@@ -56,11 +60,19 @@ public class TS2SequiturGrammar {
       sb.append("  input file:                  ").append(TS2GrammarParameters.IN_FILE).append(CR);
       sb.append("  output file:                 ").append(TS2GrammarParameters.OUT_FILE).append(CR);
 
-      sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE).append(CR);
-      sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE).append(CR);
-      sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE).append(CR);
-      sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY).append(CR);
-      sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD).append(CR);
+      sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE)
+          .append(CR);
+      sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE)
+          .append(CR);
+      sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE)
+          .append(CR);
+      sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY)
+          .append(CR);
+      sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD)
+          .append(CR);
+
+      sb.append("  GI implementation:           ")
+          .append(TS2GrammarParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
 
       sb.append(CR);
       System.out.println(sb.toString());
@@ -78,24 +90,32 @@ public class TS2SequiturGrammar {
     SAXRecords saxData = sp.ts2saxViaWindow(series, TS2GrammarParameters.SAX_WINDOW_SIZE,
         TS2GrammarParameters.SAX_PAA_SIZE, na.getCuts(TS2GrammarParameters.SAX_ALPHABET_SIZE),
         TS2GrammarParameters.SAX_NR_STRATEGY, TS2GrammarParameters.SAX_NORM_THRESHOLD);
-    // SAXRecords saxData = SequiturFactory.discretize(series, TS2GrammarParameters.SAX_NR_STRATEGY,
-    // TS2GrammarParameters.SAX_WINDOW_SIZE, TS2GrammarParameters.SAX_PAA_SIZE,
-    // TS2GrammarParameters.SAX_ALPHABET_SIZE, TS2GrammarParameters.SAX_NORM_THRESHOLD);
-    String str = saxData.getSAXString(" ");
+
+    String discretizedTS = saxData.getSAXString(" ");
 
     // infer the grammar
     //
-    consoleLogger.info("Inferring Sequitur grammar ...");
-    SAXRule grammar = SequiturFactory.runSequitur(str);
+    GrammarRules rules = null;
+    if (GIAlgorithm.SEQUITUR == TS2GrammarParameters.GI_ALGORITHM_IMPLEMENTATION) {
+      consoleLogger.info("Inferring Sequitur grammar ...");
+      SAXRule grammar = SequiturFactory.runSequitur(discretizedTS);
+      rules = grammar.toGrammarRulesData();
+      SequiturFactory.updateRuleIntervals(rules, saxData, true, series,
+          TS2GrammarParameters.SAX_WINDOW_SIZE, TS2GrammarParameters.SAX_PAA_SIZE);
+    }
+    else if (GIAlgorithm.REPAIR == TS2GrammarParameters.GI_ALGORITHM_IMPLEMENTATION) {
+      consoleLogger.info("Inferring RePair grammar ...");
+      RePairGrammar grammar = RePairFactory.buildGrammar(discretizedTS);
+      grammar.expandRules();
+      grammar.buildIntervals(saxData, series, TS2GrammarParameters.SAX_WINDOW_SIZE);
+      rules = grammar.toGrammarRulesData();
+    }
 
     // collect stats
     //
     consoleLogger.info("Collecting stats ...");
-    GrammarRules rules = grammar.toGrammarRulesData();
-    SequiturFactory.updateRuleIntervals(rules, saxData, true, series,
-        TS2GrammarParameters.SAX_WINDOW_SIZE, TS2GrammarParameters.SAX_PAA_SIZE);
 
-    // collect stats
+    // produce the output
     //
     consoleLogger.info("Producing the output ...");
     String fname = TS2GrammarParameters.OUT_FILE;
@@ -104,26 +124,29 @@ public class TS2SequiturGrammar {
     BufferedWriter bw = null;
     try {
       bw = new BufferedWriter(new FileWriter(new File(fname)));
-      StringBuffer sb = new StringBuffer();
-      sb.append("# filename: ").append(fname).append(CR);
-      sb.append("# sliding window: ").append(TS2GrammarParameters.SAX_WINDOW_SIZE).append(CR);
-      sb.append("# paa size: ").append(TS2GrammarParameters.SAX_PAA_SIZE).append(CR);
-      sb.append("# alphabet size: ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE).append(CR);
-      bw.write(sb.toString());
       fileOpen = true;
     }
     catch (IOException e) {
-      System.err.print("Encountered an error while writing stats file: \n" + StackTrace.toString(e)
-          + "\n");
+      System.err.print(
+          "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
     }
 
+    // general stats
+    StringBuffer sb = new StringBuffer();
+    sb.append("# filename: ").append(fname).append(CR);
+    sb.append("# sliding window: ").append(TS2GrammarParameters.SAX_WINDOW_SIZE).append(CR);
+    sb.append("# paa size: ").append(TS2GrammarParameters.SAX_PAA_SIZE).append(CR);
+    sb.append("# alphabet size: ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE).append(CR);
+    bw.write(sb.toString());
+
+    // each rule stats
     for (GrammarRuleRecord ruleRecord : rules) {
 
-      StringBuffer sb = new StringBuffer();
+      sb = new StringBuffer();
       sb.append("/// ").append(ruleRecord.getRuleName()).append(CR);
-      sb.append(ruleRecord.getRuleName()).append(" -> \'")
-          .append(ruleRecord.getRuleString().trim()).append("\', expanded rule string: \'")
-          .append(ruleRecord.getExpandedRuleString()).append("\'").append(CR);
+      sb.append(ruleRecord.getRuleName()).append(" -> \'").append(ruleRecord.getRuleString().trim())
+          .append("\', expanded rule string: \'").append(ruleRecord.getExpandedRuleString())
+          .append("\'").append(CR);
 
       if (!ruleRecord.getOccurrences().isEmpty()) {
 
@@ -135,8 +158,8 @@ public class TS2SequiturGrammar {
           lengths[i] = intervals.get(i).getEnd() - intervals.get(i).getStart();
         }
 
-        sb.append("subsequences starts: ").append(Arrays.toString(starts)).append(CR);
-        sb.append("subsequences lengths: ").append(Arrays.toString(lengths)).append(CR);
+        sb.append("subsequence starts: ").append(Arrays.toString(starts)).append(CR);
+        sb.append("subsequence lengths: ").append(Arrays.toString(lengths)).append(CR);
       }
 
       sb.append("rule occurrence frequency ").append(ruleRecord.getOccurrences().size()).append(CR);
@@ -150,20 +173,21 @@ public class TS2SequiturGrammar {
           bw.write(sb.toString());
         }
         catch (IOException e) {
-          System.err.print("Encountered an error while writing stats file: \n"
-              + StackTrace.toString(e) + "\n");
+          System.err.print(
+              "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
         }
       }
     }
 
-    // try to write stats into the file
+    // close the file
+    //
     if (fileOpen) {
       try {
         bw.close();
       }
       catch (IOException e) {
-        System.err.print("Encountered an error while writing stats file: \n"
-            + StackTrace.toString(e) + "\n");
+        System.err.print(
+            "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
       }
     }
 

@@ -10,25 +10,45 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import net.seninp.gi.RuleInterval;
 
+/**
+ * Implements few things for IO.
+ * 
+ * @author psenin
+ *
+ */
 public class SAXFileIOHelper {
 
+  /**
+   * Delete a file.
+   * 
+   * @param path the path to the file.
+   * @param fileName the filename.
+   */
   public static void deleteFile(String path, String fileName) {
 
-    String fullPath = path + fileName;
+    String fullPath = path + File.separator + fileName;
 
     try {
       File file = new File(fullPath);
       if (file.exists()) {
-
         file.delete();
       }
 
     }
     catch (Exception e) {
-      e.printStackTrace();
+      System.out.println(StackTrace.toString(e));
     }
   }
 
+  /**
+   * Saves a time series.
+   * 
+   * @param path the file path.
+   * @param fileName the file name.
+   * @param positionFileName to be specified.
+   * @param data to be specified.
+   * @param subMotifs to be specified.
+   */
   public static void writeFileXYSeries(String path, String fileName, String positionFileName,
       XYSeriesCollection data, ArrayList<RuleInterval> subMotifs) {
     StringBuffer s = new StringBuffer();
@@ -117,11 +137,19 @@ public class SAXFileIOHelper {
 
   }
 
+  /**
+   * Saves the String's content into the file.
+   * 
+   * @param path the path to the file.
+   * @param fileName the filename.
+   * @param content the content.
+   */
   public static void writeFile(String path, String fileName, String content) {
+
     String s = new String();
     String s1 = new String();
 
-    String fullPath = path + fileName;
+    String fullPath = path + File.separator + fileName;
     String dirPath = path;
 
     try {

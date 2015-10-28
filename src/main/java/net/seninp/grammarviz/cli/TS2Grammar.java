@@ -49,34 +49,29 @@ public class TS2Grammar {
 
     if (0 == args.length) {
       jct.usage();
+      System.exit(10);
     }
-    else {
-      // get params printed
-      //
-      StringBuffer sb = new StringBuffer(1024);
-      sb.append("GrammarViz2 CLI converter v.1").append(CR);
-      sb.append("parameters:").append(CR);
+    
+    // get params printed
+    //
+    StringBuffer sb = new StringBuffer(1024);
+    sb.append("GrammarViz2 CLI converter v.1").append(CR);
+    sb.append("parameters:").append(CR);
 
-      sb.append("  input file:                  ").append(TS2GrammarParameters.IN_FILE).append(CR);
-      sb.append("  output file:                 ").append(TS2GrammarParameters.OUT_FILE).append(CR);
+    sb.append("  input file:                  ").append(TS2GrammarParameters.IN_FILE).append(CR);
+    sb.append("  output file:                 ").append(TS2GrammarParameters.OUT_FILE).append(CR);
 
-      sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE)
-          .append(CR);
-      sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE)
-          .append(CR);
-      sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE)
-          .append(CR);
-      sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY)
-          .append(CR);
-      sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD)
-          .append(CR);
+    sb.append("  SAX sliding window size:     ").append(TS2GrammarParameters.SAX_WINDOW_SIZE).append(CR);
+    sb.append("  SAX PAA size:                ").append(TS2GrammarParameters.SAX_PAA_SIZE).append(CR);
+    sb.append("  SAX alphabet size:           ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE).append(CR);
+    sb.append("  SAX numerosity reduction:    ").append(TS2GrammarParameters.SAX_NR_STRATEGY).append(CR);
+    sb.append("  SAX normalization threshold: ").append(TS2GrammarParameters.SAX_NORM_THRESHOLD).append(CR);
 
-      sb.append("  GI implementation:           ")
-          .append(TS2GrammarParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
+    sb.append("  GI implementation:           ")
+        .append(TS2GrammarParameters.GI_ALGORITHM_IMPLEMENTATION).append(CR);
 
-      sb.append(CR);
-      System.out.println(sb.toString());
-    }
+    sb.append(CR);
+    System.out.println(sb.toString());
 
     // read the file
     //
@@ -125,20 +120,15 @@ public class TS2Grammar {
     try {
       bw = new BufferedWriter(new FileWriter(new File(fname)));
       fileOpen = true;
+      bw.write("#" + sb.toString().replaceAll("\n", "\n#"));
     }
     catch (IOException e) {
       System.err.print(
           "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
     }
 
-    // general stats
-    StringBuffer sb = new StringBuffer();
-    sb.append("# filename: ").append(fname).append(CR);
-    sb.append("# sliding window: ").append(TS2GrammarParameters.SAX_WINDOW_SIZE).append(CR);
-    sb.append("# paa size: ").append(TS2GrammarParameters.SAX_PAA_SIZE).append(CR);
-    sb.append("# alphabet size: ").append(TS2GrammarParameters.SAX_ALPHABET_SIZE).append(CR);
-    bw.write(sb.toString());
-
+    // collect stats object
+    //
     GrammarStats grammarStats = new GrammarStats();
 
     // each rule stats

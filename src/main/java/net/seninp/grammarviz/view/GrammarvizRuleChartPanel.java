@@ -14,7 +14,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import net.seninp.gi.RuleInterval;
+import net.seninp.gi.logic.RuleInterval;
 import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.session.UserSession;
 import net.seninp.jmotif.sax.TSProcessor;

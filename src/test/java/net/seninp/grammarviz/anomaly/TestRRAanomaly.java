@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import net.seninp.gi.GrammarRuleRecord;
-import net.seninp.gi.GrammarRules;
-import net.seninp.gi.RuleInterval;
+import net.seninp.gi.logic.GrammarRuleRecord;
+import net.seninp.gi.logic.GrammarRules;
+import net.seninp.gi.logic.RuleInterval;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
@@ -77,7 +77,7 @@ public class TestRRAanomaly {
       for (GrammarRuleRecord rule : rules) {
         if (0 != rule.ruleNumber()) {
           for (RuleInterval ri : rule.getRuleIntervals()) {
-            RuleInterval i = ri.clone();
+            RuleInterval i = (RuleInterval) ri.clone();
             i.setCoverage(rule.getRuleIntervals().size());
             i.setId(rule.ruleNumber());
             intervals.add(i);

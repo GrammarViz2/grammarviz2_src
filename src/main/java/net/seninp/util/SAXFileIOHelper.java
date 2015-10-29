@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import net.seninp.gi.RuleInterval;
+import net.seninp.gi.logic.RuleInterval;
 
 /**
  * Implements few things for IO.

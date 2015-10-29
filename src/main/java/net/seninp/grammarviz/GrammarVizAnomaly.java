@@ -16,9 +16,9 @@ import com.beust.jcommander.JCommander;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import net.seninp.gi.GIAlgorithm;
-import net.seninp.gi.GrammarRuleRecord;
-import net.seninp.gi.GrammarRules;
-import net.seninp.gi.RuleInterval;
+import net.seninp.gi.logic.GrammarRuleRecord;
+import net.seninp.gi.logic.GrammarRules;
+import net.seninp.gi.logic.RuleInterval;
 import net.seninp.gi.repair.RePairFactory;
 import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.gi.rulepruner.ReducedGrammarSizeSorter;
@@ -741,7 +741,7 @@ public class GrammarVizAnomaly {
         continue;
       }
       for (RuleInterval ri : rule.getRuleIntervals()) {
-        RuleInterval i = ri.clone();
+        RuleInterval i = (RuleInterval) ri.clone();
         i.setCoverage(rule.getRuleIntervals().size()); // not a coverage used here but a rule
                                                        // frequency
         i.setId(rule.ruleNumber());

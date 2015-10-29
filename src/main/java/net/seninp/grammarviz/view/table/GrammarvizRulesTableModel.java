@@ -1,7 +1,7 @@
 package net.seninp.grammarviz.view.table;
 
-import net.seninp.gi.GrammarRuleRecord;
-import net.seninp.gi.GrammarRules;
+import net.seninp.gi.logic.GrammarRuleRecord;
+import net.seninp.gi.logic.GrammarRules;
 
 /**
  * Table Data Model for the sequitur JTable

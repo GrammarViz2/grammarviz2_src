@@ -133,13 +133,7 @@ public class RRAImplementation {
     ArrayList<RuleInterval> intervals = cloneIntervals(globalIntervals);
     Collections.sort(intervals, new Comparator<RuleInterval>() {
       public int compare(RuleInterval c1, RuleInterval c2) {
-        if (c1.getCoverage() > c2.getCoverage()) {
-          return 1;
-        }
-        else if (c1.getCoverage() < c2.getCoverage()) {
-          return -1;
-        }
-        return 0;
+        return Double.compare(c1.getCoverage(), c2.getCoverage());
       }
     });
 
@@ -343,11 +337,10 @@ public class RRAImplementation {
           Arrays.copyOfRange(series, candidate.getStart(), candidate.getEnd()));
     }
     else if (reference.getLength() > candidate.getLength()) {
-      int end = candidate.getStart() + reference.getLength();
+      // int end = candidate.getStart() + reference.getLength();
       int increment = reference.getLength();
-      if (end > series.length) {
-        end = series.length;
-        increment = series.length - candidate.getStart();
+      if (candidate.getStart() + reference.getLength() + 1 > series.length) {
+        increment = series.length - candidate.getStart() + 1;
       }
       return ed.normalizedDistance(
           Arrays.copyOfRange(series, reference.getStart(), reference.getStart() + increment),

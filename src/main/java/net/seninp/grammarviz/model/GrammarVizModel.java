@@ -259,7 +259,7 @@ public class GrammarVizModel extends Observable {
 
           ParallelSAXImplementation ps = new ParallelSAXImplementation();
           SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
-              NumerosityReductionStrategy.EXACT, normalizationThreshold);
+              numerosityReductionStrategy, normalizationThreshold);
 
           RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
 
@@ -369,14 +369,14 @@ public class GrammarVizModel extends Observable {
     }
 
     // try to write stats into the file
-    if (fileOpen) {
-      try {
+    try {
+      if (fileOpen) {
         bw.close();
       }
-      catch (IOException e) {
-        System.err.print(
-            "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
-      }
+    }
+    catch (IOException e) {
+      System.err.print(
+          "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
     }
 
   }

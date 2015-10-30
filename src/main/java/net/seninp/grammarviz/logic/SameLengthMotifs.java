@@ -1,7 +1,6 @@
 package net.seninp.grammarviz.logic;
 
 import java.util.ArrayList;
-import net.seninp.gi.sequitur.SAXMotif;
 
 /**
  * A data structure which is a collection of motifs.

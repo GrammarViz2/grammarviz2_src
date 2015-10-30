@@ -11,7 +11,6 @@ import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.gi.rulepruner.RulePrunerFactory;
-import net.seninp.gi.sequitur.SAXMotif;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
@@ -72,7 +71,7 @@ public class GrammarVizChartData extends Observable implements Observer {
       NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
       int alphabetSize) {
 
-    this.fname = dataFileName.substring(0);
+    this.fname = dataFileName;
 
     this.slidingWindowOn = useSlidingWindow;
     this.numerosityReductionStrategy = numerosityReductionStrategy;
@@ -389,8 +388,7 @@ public class GrammarVizChartData extends Observable implements Observer {
         SAXMotif anotherMotif = allMotifs.get(i);
 
         // if the two motifs are similar or not.
-        int anotherMotifLen = anotherMotif.getPos().getEnd()
-            - anotherMotif.getPos().getStart() + 1;
+        int anotherMotifLen = anotherMotif.getPos().getEnd() - anotherMotif.getPos().getStart() + 1;
 
         // if they have the similar length.
         if (Math.abs(anotherMotifLen - tmpMotifLen) < (tmpMotifLen * lengthThreshold)) {
@@ -424,11 +422,10 @@ public class GrammarVizChartData extends Observable implements Observer {
 
         for (int i = j + 1; i < sameLenMotifs.getSameLenMotifs().size(); i++) {
           SAXMotif anotherMotif = sameLenMotifs.getSameLenMotifs().get(i);
-          int anotherMotifLen = anotherMotif.getPos().getEnd()
-              - anotherMotif.getPos().getStart() + 1;
+          int anotherMotifLen = anotherMotif.getPos().getEnd() - anotherMotif.getPos().getStart()
+              + 1;
 
-          double minEndPos = Math.min(tempMotif.getPos().getEnd(),
-              anotherMotif.getPos().getEnd());
+          double minEndPos = Math.min(tempMotif.getPos().getEnd(), anotherMotif.getPos().getEnd());
           double maxStartPos = Math.max(tempMotif.getPos().getStart(),
               anotherMotif.getPos().getStart());
           // the length in common.
@@ -545,7 +542,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     for (int i = 0; i < pointsNumberRemoveStrategy.length; i++) {
       count += pointsNumberRemoveStrategy[i].getPointOccurenceNumber();
     }
-    averageWeight = count / pointsNumberRemoveStrategy.length;
+    averageWeight = (double) count / (double) pointsNumberRemoveStrategy.length;
 
     // compute counts for motif 1
     for (int i = motif1Start; i <= motif1End; i++) {

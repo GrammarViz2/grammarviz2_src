@@ -28,6 +28,8 @@ import net.seninp.gi.sequitur.SAXRule;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.sax.SAXProcessor;
+import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
 import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 import net.seninp.util.StackTrace;
@@ -223,19 +225,22 @@ public class GrammarVizModel extends Observable {
       this.chartData = new GrammarVizChartData(this.dataFileName, this.ts, useSlidingWindow,
           numerosityReductionStrategy, windowSize, paaSize, alphabetSize);
 
+      NormalAlphabet na = new NormalAlphabet();
+
       try {
 
         if (GIAlgorithm.SEQUITUR.equals(algorithm)) {
 
-          SAXRecords saxFrequencyData = null;
+          SAXProcessor sp = new SAXProcessor();
+
+          SAXRecords saxFrequencyData = new SAXRecords();
           if (useSlidingWindow) {
-            consoleLogger.debug("discretizing string ...");
-            saxFrequencyData = SequiturFactory.discretize(this.ts, windowSize, paaSize,
-                alphabetSize, normalizationThreshold, numerosityReductionStrategy);
+            saxFrequencyData = sp.ts2saxViaWindow(ts, windowSize, paaSize, na.getCuts(alphabetSize),
+                numerosityReductionStrategy, normalizationThreshold);
           }
           else {
-            saxFrequencyData = SequiturFactory.discretizeNoSlidingWindow(this.ts, paaSize,
-                alphabetSize, normalizationThreshold);
+            saxFrequencyData = sp.ts2saxByChunking(ts, paaSize, na.getCuts(alphabetSize),
+                normalizationThreshold);
           }
 
           consoleLogger.trace("String: " + saxFrequencyData.getSAXString(SPACE));

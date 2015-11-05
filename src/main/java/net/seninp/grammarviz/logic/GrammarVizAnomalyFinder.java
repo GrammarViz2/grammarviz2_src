@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Observable;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.RuleInterval;
+import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.SAXProcessor;
@@ -102,7 +103,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       }
     }
 
-    List<RuleInterval> zeros = getZeroIntervals(coverageArray);
+    List<RuleInterval> zeros = GrammarVizAnomaly.getZeroIntervals(coverageArray);
     if (zeros.size() > 0) {
       log("found " + zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
       intervals.addAll(zeros);
@@ -181,31 +182,6 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
     this.setChanged();
     notifyObservers(
         new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "SAXSequitur: " + message));
-  }
-
-  /**
-   * Run a quick scan along the timeseries coverage to find a zeroed intervals.
-   * 
-   * @param coverageArray the coverage to analyze.
-   * @return set of zeroed intervals (if found).
-   */
-  private List<RuleInterval> getZeroIntervals(int[] coverageArray) {
-    ArrayList<RuleInterval> res = new ArrayList<RuleInterval>();
-    int start = -1;
-    boolean inInterval = false;
-    int intervalsCounter = -1;
-    for (int i = 0; i < coverageArray.length; i++) {
-      if (0 == coverageArray[i] && !inInterval) {
-        start = i;
-        inInterval = true;
-      }
-      if (coverageArray[i] > 0 && inInterval) {
-        res.add(new RuleInterval(intervalsCounter, start, i, 0));
-        inInterval = false;
-        intervalsCounter--;
-      }
-    }
-    return res;
   }
 
   /**

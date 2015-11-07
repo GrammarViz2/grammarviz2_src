@@ -22,6 +22,11 @@ public class GrammarVizController extends Observable implements ActionListener {
 
   private UserSession session;
 
+  /**
+   * Constructor.
+   * 
+   * @param model the program's model.
+   */
   public GrammarVizController(GrammarVizModel model) {
     super();
     this.model = model;

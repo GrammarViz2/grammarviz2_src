@@ -133,7 +133,8 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
         Date end = new Date();
 
         // if the discord is null we getting out of the search
-        if (bestDiscord.getNNDistance() == 0.0D || bestDiscord.getPosition() == -1) {
+        if (Integer.MIN_VALUE == bestDiscord.getNNDistance()
+            || Integer.MIN_VALUE == bestDiscord.getPosition()) {
           log("breaking the discords search loop, discords found: "
               + this.chartData.discords.getSize() + " last seen discord: "
               + bestDiscord.toString());
@@ -153,7 +154,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
         //
         int markStart = bestDiscord.getPosition() - bestDiscord.getLength();
         int markEnd = bestDiscord.getPosition() + bestDiscord.getLength();
-        if (0 < markStart) {
+        if (markStart < 0) {
           markStart = 0;
         }
         if (markEnd > this.chartData.originalTimeSeries.length) {

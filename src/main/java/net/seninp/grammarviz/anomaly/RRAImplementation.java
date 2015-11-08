@@ -138,11 +138,11 @@ public class RRAImplementation {
     });
 
     // init variables
-    int bestSoFarPosition = -1;
-    int bestSoFarLength = -1;
-    int bestSoFarRule = -1;
+    int bestSoFarPosition = Integer.MIN_VALUE;
+    int bestSoFarLength = Integer.MIN_VALUE;
+    int bestSoFarRule = Integer.MIN_VALUE;
 
-    double bestSoFarDistance = 0.0D;
+    double bestSoFarDistance = Integer.MIN_VALUE;
 
     // we will iterate over words from rarest to frequent ones - this is an OUTER LOOP of the best
     // discord search

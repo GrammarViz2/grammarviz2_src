@@ -331,11 +331,13 @@ public class RRAImplementation {
    */
   private static double normalizedDistance(double[] series, RuleInterval reference,
       RuleInterval candidate) throws Exception {
+
     if (reference.getLength() == candidate.getLength()) {
       return ed.normalizedDistance(
           Arrays.copyOfRange(series, reference.getStart(), reference.getEnd()),
           Arrays.copyOfRange(series, candidate.getStart(), candidate.getEnd()));
     }
+
     else if (reference.getLength() > candidate.getLength()) {
       // int end = candidate.getStart() + reference.getLength();
       int increment = reference.getLength();
@@ -346,6 +348,7 @@ public class RRAImplementation {
           Arrays.copyOfRange(series, reference.getStart(), reference.getStart() + increment),
           Arrays.copyOfRange(series, candidate.getStart(), candidate.getStart() + increment));
     }
+
     else {
       return ed.normalizedDistance(
           Arrays.copyOfRange(series, reference.getStart(), reference.getEnd()), Arrays.copyOfRange(

@@ -221,14 +221,20 @@ public class GrammarvizChartPanel extends JPanel
    * 
    * @param The rule index.
    */
-  private void highlightPatternInChartPacked(String classIndex) {
-    consoleLogger.debug("Selected class: " + classIndex);
-    ArrayList<RuleInterval> arrPos = this.session.chartData
-        .getSubsequencesPositionsByClassNum(Integer.valueOf(classIndex));
-    consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+  private void highlightPatternInChartPacked(ArrayList<String> rules) {
+    consoleLogger.debug("Selected class: " + rules.toString());
     timeseriesPlot.clearDomainMarkers();
-    for (RuleInterval saxPos : arrPos) {
-      addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
+    for (String rule : rules) {
+    	int ruleId = Integer.valueOf(rule);
+//        if (0 == ruleId) {
+//          continue;
+//        }    
+	    ArrayList<RuleInterval> arrPos = this.session.chartData
+	            .getSubsequencesPositionsByClassNum(Integer.valueOf(ruleId));
+	    consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+	    for (RuleInterval saxPos : arrPos) {
+	      addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
+	    }
     }
   }
 
@@ -705,8 +711,10 @@ public class GrammarvizChartPanel extends JPanel
       repaint();
     }
     if (PackedRulesPanel.FIRING_PROPERTY_PACKED.equalsIgnoreCase(evt.getPropertyName())) {
-      String newlySelectedRaw = (String) evt.getNewValue();
-      highlightPatternInChartPacked(newlySelectedRaw);
+      @SuppressWarnings("unchecked")
+      ArrayList<String> newlySelectedRows = (ArrayList<String>) evt.getNewValue();
+      //String newlySelectedRaw = (String) evt.getNewValue();
+      highlightPatternInChartPacked(newlySelectedRows);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_PACKED_RULES);
       revalidate();

@@ -266,9 +266,9 @@ public class GrammarVizView implements Observer, ActionListener {
     // put listeners in place for the Clustered/Packed rule panel
     //
     packedRulesPane.addPropertyChangeListener(dataChartPane);
-    // packedRulesPane.addPropertyChangeListener(ruleChartPane);
-    // dataChartPane.addPropertyChangeListener(SequiturMessage.MAIN_CHART_CLICKED_MESSAGE,
-    // packedRulesPane);
+    packedRulesPane.addPropertyChangeListener(ruleChartPane);
+    dataChartPane.addPropertyChangeListener(GrammarVizMessage.MAIN_CHART_CLICKED_MESSAGE,
+        packedRulesPane);
 
     // put listeners in place for the Periodicity rule panel
     //

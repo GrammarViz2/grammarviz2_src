@@ -220,19 +220,21 @@ public class GrammarVizChartData extends Observable implements Observer {
       positions.add(new RuleInterval(subSequence.getPos().startPos, subSequence.getPos().endPos));
     }
 
+    int index = 0;
     for (RuleInterval pos : positions) {
-      XYSeries dataset = new XYSeries("Daten");
-      int count = 0;
+      XYSeries dataset = new XYSeries("Daten"+String.valueOf(index));
 
       int start = pos.getStart();
-      int end = pos.getEnd();
+      int end = pos.getEnd() - 1;
 
+      int count = 0;
       for (int i = start; (i <= end) && (i < values.length); i++) {
         dataset.add(count++, values[i]);
       }
       data.addSeries(dataset);
+      index++;
     }
-    SAXFileIOHelper.writeFileXYSeries(path, fileName, positionFileName, data, positions);
+    // SAXFileIOHelper.writeFileXYSeries(path, fileName, positionFileName, data, positions);
 
     return positions;
   }
@@ -267,7 +269,7 @@ public class GrammarVizChartData extends Observable implements Observer {
       ArrayList<RuleInterval> arrPos = this.getRulePositionsByRuleNum(i);
       for (RuleInterval saxPos : arrPos) {
         int start = saxPos.getStart();
-        int end = saxPos.getEnd();
+        int end = saxPos.getEnd() - 1;
         for (int position = start; position <= end; position++) {
           pointsNumber[position]
               .setPointOccurenceNumber(pointsNumber[position].getPointOccurenceNumber() + 1);
@@ -276,10 +278,10 @@ public class GrammarVizChartData extends Observable implements Observer {
     }
 
     // make an output
-    String path = "Result" + System.getProperties().getProperty("file.separator");
-    String fileName = "PointsNumber.txt";
-    SAXFileIOHelper.deleteFile(path, fileName);
-    SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
+    // String path = "Result" + System.getProperties().getProperty("file.separator");
+    // String fileName = "PointsNumber.txt";
+    // SAXFileIOHelper.deleteFile(path, fileName);
+    // SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
 
     this.pointsNumberRemoveStrategy = pointsNumber;
   }
@@ -303,7 +305,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     for (SameLengthMotifs sameLenMotifs : this.getReducedMotifs()) {
       for (SAXMotif motif : sameLenMotifs.getSameLenMotifs()) {
         RuleInterval pos = motif.getPos();
-        for (int i = pos.getStart(); i <= pos.getEnd(); i++) {
+        for (int i = pos.getStart(); i <= pos.getEnd() - 1; i++) {
           pointsNumber[i].setPointOccurenceNumber(pointsNumber[i].getPointOccurenceNumber() + 1);
           // pointsNumber[i].setRule(textRule);
         }
@@ -311,10 +313,10 @@ public class GrammarVizChartData extends Observable implements Observer {
     }
 
     // make an output
-    String path = "Result" + System.getProperties().getProperty("file.separator");
-    String fileName = "PointsNumberAfterRemoving.txt";
-    SAXFileIOHelper.deleteFile(path, fileName);
-    SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
+    // String path = "Result" + System.getProperties().getProperty("file.separator");
+    // String fileName = "PointsNumberAfterRemoving.txt";
+    // SAXFileIOHelper.deleteFile(path, fileName);
+    // SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
 
   }
 
@@ -337,10 +339,11 @@ public class GrammarVizChartData extends Observable implements Observer {
     classifyMotifs(intraThreshold);
     ArrayList<SAXMotif> motifsBeDeleted = removeOverlappingInSimiliar(interThreshould);
 
-    String path = "Result" + System.getProperties().getProperty("file.separator");
-    String fileName = "Deleted Motifs.txt";
-    SAXFileIOHelper.deleteFile(path, fileName);
-    SAXFileIOHelper.writeFile(path, fileName, motifsBeDeleted.toString());
+	// String path = "Result" +
+	// System.getProperties().getProperty("file.separator");
+	// String fileName = "Deleted Motifs.txt";
+	// SAXFileIOHelper.deleteFile(path, fileName);
+	// SAXFileIOHelper.writeFile(path, fileName, motifsBeDeleted.toString());
 
   }
 
@@ -415,6 +418,7 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     ArrayList<SAXMotif> motifsBeDeleted = new ArrayList<SAXMotif>();
 
+    countPointNumber();
     for (SameLengthMotifs sameLenMotifs : allClassifiedMotifs) {
       outer: for (int j = 0; j < sameLenMotifs.getSameLenMotifs().size(); j++) {
         SAXMotif tempMotif = sameLenMotifs.getSameLenMotifs().get(j);
@@ -474,6 +478,7 @@ public class GrammarVizChartData extends Observable implements Observer {
       sameLenMotifs.setMinMotifLen(minLength);
       sameLenMotifs.setMaxMotifLen(maxLength);
     }
+    countPointNumberAfterRemoving();
     return motifsBeDeleted;
   }
 
@@ -525,12 +530,12 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     // motif1 details
     int motif1Start = motif1.getPos().getStart();
-    int motif1End = motif1.getPos().getEnd();
+    int motif1End = motif1.getPos().getEnd() - 1;
     int length1 = motif1End - motif1Start;
 
     // motif2 details
     int motif2Start = motif2.getPos().getStart();
-    int motif2End = motif1.getPos().getEnd();
+    int motif2End = motif1.getPos().getEnd() - 1;
     int length2 = motif2End - motif2Start;
 
     int countsMotif1 = 0;
@@ -598,7 +603,7 @@ public class GrammarVizChartData extends Observable implements Observer {
 
   public ArrayList<SameLengthMotifs> getReducedMotifs() {
     // TODO Auto-generated method stub
-    return null;
+    return allClassifiedMotifs;
   }
 
   /**

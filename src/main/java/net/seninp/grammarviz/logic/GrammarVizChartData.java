@@ -5,8 +5,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Random;
+
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import com.apporiented.algorithm.clustering.*;
+
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
@@ -220,19 +225,21 @@ public class GrammarVizChartData extends Observable implements Observer {
       positions.add(new RuleInterval(subSequence.getPos().startPos, subSequence.getPos().endPos));
     }
 
+    int index = 0;
     for (RuleInterval pos : positions) {
-      XYSeries dataset = new XYSeries("Daten");
-      int count = 0;
+      XYSeries dataset = new XYSeries("Daten"+String.valueOf(index));
 
       int start = pos.getStart();
-      int end = pos.getEnd();
+      int end = pos.getEnd() - 1;
 
+      int count = 0;
       for (int i = start; (i <= end) && (i < values.length); i++) {
         dataset.add(count++, values[i]);
       }
       data.addSeries(dataset);
+      index++;
     }
-    SAXFileIOHelper.writeFileXYSeries(path, fileName, positionFileName, data, positions);
+    // SAXFileIOHelper.writeFileXYSeries(path, fileName, positionFileName, data, positions);
 
     return positions;
   }
@@ -267,7 +274,7 @@ public class GrammarVizChartData extends Observable implements Observer {
       ArrayList<RuleInterval> arrPos = this.getRulePositionsByRuleNum(i);
       for (RuleInterval saxPos : arrPos) {
         int start = saxPos.getStart();
-        int end = saxPos.getEnd();
+        int end = saxPos.getEnd() - 1;
         for (int position = start; position <= end; position++) {
           pointsNumber[position]
               .setPointOccurenceNumber(pointsNumber[position].getPointOccurenceNumber() + 1);
@@ -276,10 +283,10 @@ public class GrammarVizChartData extends Observable implements Observer {
     }
 
     // make an output
-    String path = "Result" + System.getProperties().getProperty("file.separator");
-    String fileName = "PointsNumber.txt";
-    SAXFileIOHelper.deleteFile(path, fileName);
-    SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
+    // String path = "Result" + System.getProperties().getProperty("file.separator");
+    // String fileName = "PointsNumber.txt";
+    // SAXFileIOHelper.deleteFile(path, fileName);
+    // SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
 
     this.pointsNumberRemoveStrategy = pointsNumber;
   }
@@ -303,7 +310,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     for (SameLengthMotifs sameLenMotifs : this.getReducedMotifs()) {
       for (SAXMotif motif : sameLenMotifs.getSameLenMotifs()) {
         RuleInterval pos = motif.getPos();
-        for (int i = pos.getStart(); i <= pos.getEnd(); i++) {
+        for (int i = pos.getStart(); i <= pos.getEnd() - 1; i++) {
           pointsNumber[i].setPointOccurenceNumber(pointsNumber[i].getPointOccurenceNumber() + 1);
           // pointsNumber[i].setRule(textRule);
         }
@@ -311,10 +318,10 @@ public class GrammarVizChartData extends Observable implements Observer {
     }
 
     // make an output
-    String path = "Result" + System.getProperties().getProperty("file.separator");
-    String fileName = "PointsNumberAfterRemoving.txt";
-    SAXFileIOHelper.deleteFile(path, fileName);
-    SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
+    // String path = "Result" + System.getProperties().getProperty("file.separator");
+    // String fileName = "PointsNumberAfterRemoving.txt";
+    // SAXFileIOHelper.deleteFile(path, fileName);
+    // SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
 
   }
 
@@ -337,10 +344,11 @@ public class GrammarVizChartData extends Observable implements Observer {
     classifyMotifs(intraThreshold);
     ArrayList<SAXMotif> motifsBeDeleted = removeOverlappingInSimiliar(interThreshould);
 
-    String path = "Result" + System.getProperties().getProperty("file.separator");
-    String fileName = "Deleted Motifs.txt";
-    SAXFileIOHelper.deleteFile(path, fileName);
-    SAXFileIOHelper.writeFile(path, fileName, motifsBeDeleted.toString());
+	// String path = "Result" +
+	// System.getProperties().getProperty("file.separator");
+	// String fileName = "Deleted Motifs.txt";
+	// SAXFileIOHelper.deleteFile(path, fileName);
+	// SAXFileIOHelper.writeFile(path, fileName, motifsBeDeleted.toString());
 
   }
 
@@ -415,6 +423,7 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     ArrayList<SAXMotif> motifsBeDeleted = new ArrayList<SAXMotif>();
 
+    countPointNumber();
     for (SameLengthMotifs sameLenMotifs : allClassifiedMotifs) {
       outer: for (int j = 0; j < sameLenMotifs.getSameLenMotifs().size(); j++) {
         SAXMotif tempMotif = sameLenMotifs.getSameLenMotifs().get(j);
@@ -474,9 +483,218 @@ public class GrammarVizChartData extends Observable implements Observer {
       sameLenMotifs.setMinMotifLen(minLength);
       sameLenMotifs.setMaxMotifLen(maxLength);
     }
+    countPointNumberAfterRemoving();
+    
+    refinePatternsByClustering();
     return motifsBeDeleted;
   }
+  
 
+	protected double eculideanDistNormEAbandon(double[] ts1, double[] ts2,
+			double bsfDist) {
+		double dist = 0;
+		double tsLen = ts1.length;
+
+		double bsf = Math.pow(tsLen * bsfDist, 2);
+
+		for (int i = 0; i < ts1.length; i++) {
+			double diff = ts1[i] - ts2[i];
+			dist += Math.pow(diff, 2);
+
+			if (dist > bsf)
+				return Double.NaN;
+
+		}
+		return Math.sqrt(dist) / tsLen;
+	}
+
+	protected double eculideanDistNorm(double[] ts1, double[] ts2) {
+		double dist = 0;
+		double tsLen = ts1.length;
+
+		for (int i = 0; i < ts1.length; i++) {
+			double diff = ts1[i] - ts2[i];
+			dist += Math.pow(diff, 2);
+		}
+
+		return Math.sqrt(dist) / tsLen;
+	}
+
+	/**
+	 * Calculating the distance between time series and pattern.
+	 * 
+	 * @param ts
+	 *            , a series of points for time series.
+	 * @param pValue
+	 *            , a series of points for pattern.
+	 * @return
+	 */
+	protected double calcDistTSAndPattern(double[] ts, double[] pValue) {
+		double INF = 10000000000000000000f;
+		double bestDist = INF;
+		int patternLen = pValue.length;
+
+		int lastStartP = ts.length - pValue.length + 1;
+		if (lastStartP < 1)
+			return bestDist;
+
+		Random rand = new Random();
+		int startP = rand.nextInt((lastStartP - 1 - 0) + 1);
+
+		double[] slidingWindow = new double[patternLen];
+
+		System.arraycopy(ts, startP, slidingWindow, 0, patternLen);
+		bestDist = eculideanDistNorm(pValue, slidingWindow);
+
+		for (int i = 0; i < lastStartP; i++) {
+			System.arraycopy(ts, i, slidingWindow, 0, patternLen);
+			
+			double tempDist = eculideanDistNormEAbandon(pValue,
+					slidingWindow, bestDist);
+
+			if (tempDist < bestDist) {
+				bestDist = tempDist;
+			}
+		}
+
+		return bestDist;
+	}
+  
+	protected void refinePatternsByClustering() {
+		double[] origTS = originalTimeSeries;
+		ArrayList<SameLengthMotifs> newAllClassifiedMotifs = new ArrayList<SameLengthMotifs>();
+		for (SameLengthMotifs sameLenMotifs : allClassifiedMotifs) {
+			ArrayList<RuleInterval> arrPos = new ArrayList<RuleInterval>();
+			ArrayList<SAXMotif> subsequences = sameLenMotifs.getSameLenMotifs();
+			for (SAXMotif ss : subsequences) {
+				arrPos.add(ss.getPos());
+			}
+
+			int patternNum = arrPos.size();
+			double dt[][] = new double[patternNum][patternNum];
+			// Build distance matrix.
+			for (int i = 0; i < patternNum; i++) {
+				RuleInterval saxPos = arrPos.get(i);
+
+				int start1 = saxPos.getStart();
+				int end1 = saxPos.getEnd();
+				double[] ts1 = Arrays.copyOfRange(origTS, start1, end1);
+
+				for (int j = 0; j < arrPos.size(); j++) {
+					RuleInterval saxPos2 = arrPos.get(j);
+					if (dt[i][j] > 0) {
+						continue;
+					}
+					double d = 0;
+					dt[i][j] = d;
+					if (i == j) {
+						continue;
+					}
+					int start2 = saxPos2.getStart();
+					int end2 = saxPos2.getEnd();
+					double[] ts2 = Arrays.copyOfRange(origTS, start2, end2);
+
+					if (ts1.length > ts2.length)
+						d = calcDistTSAndPattern(ts1, ts2);
+					else
+						d = calcDistTSAndPattern(ts2, ts1);
+
+					// DTW dtw = new DTW(ts1, ts2);
+					// d = dtw.warpingDistance;
+
+					dt[i][j] = d;
+				}
+			}
+
+			String[] patternsName = new String[patternNum];
+			for (int i = 0; i < patternNum; i++) {
+				patternsName[i] = String.valueOf(i);
+			}
+
+			ClusteringAlgorithm alg = new DefaultClusteringAlgorithm();
+			Cluster cluster = alg.performClustering(dt, patternsName,
+					new AverageLinkageStrategy());
+
+			// int minPatternPerCls = (int) (0.3 * patternNum);
+			// minPatternPerCls = minPatternPerCls > 0 ? minPatternPerCls : 1;
+			int minPatternPerCls = 1;
+
+			if (cluster.getDistance() == null){
+				// System.out.print(false);
+				continue;
+			}
+
+			// TODO: refine hard coded threshold
+			double cutDist = cluster.getDistance() * 0.67;
+			ArrayList<String[]> clusterTSIdx = findCluster(cluster, cutDist,
+					minPatternPerCls);
+			while (clusterTSIdx.size() <= 0) {
+				cutDist += cutDist / 2;
+				clusterTSIdx = findCluster(cluster, cutDist, minPatternPerCls);
+			}
+			
+			newAllClassifiedMotifs.addAll(SeparateMotifsByClustering(clusterTSIdx, sameLenMotifs));
+		}
+		allClassifiedMotifs = newAllClassifiedMotifs;
+	}
+	
+	private ArrayList<SameLengthMotifs> SeparateMotifsByClustering(ArrayList<String[]> clusterTSIdx, SameLengthMotifs sameLenMotifs){
+		ArrayList<SameLengthMotifs> newResult = new ArrayList<SameLengthMotifs>();
+		if (clusterTSIdx.size() > 1) {
+			ArrayList<SAXMotif> subsequences = sameLenMotifs.getSameLenMotifs();
+			for (String[] idxesInCluster : clusterTSIdx) {
+				SameLengthMotifs newIthSLM = new SameLengthMotifs();
+				ArrayList<SAXMotif> sameLenSS = new ArrayList<SAXMotif>();
+				int minL = sameLenMotifs.getMinMotifLen();
+				int maxL = sameLenMotifs.getMaxMotifLen();
+
+				for (String i : idxesInCluster) {
+					SAXMotif ssI = subsequences.get(Integer.parseInt(i));
+					int len = ssI.getPos().getEnd() - ssI.getPos().getStart();
+					if (len < minL) {
+						minL = len;
+					} else if (len > maxL) {
+						maxL = len;
+					}
+					sameLenSS.add(ssI);
+				}
+
+				newIthSLM.setSameLenMotifs(sameLenSS);
+				newIthSLM.setMaxMotifLen(maxL);
+				newIthSLM.setMinMotifLen(minL);
+				newResult.add(newIthSLM);
+			}
+		}else{
+			newResult.add(sameLenMotifs);
+		}
+
+		return newResult;
+	}
+
+	private ArrayList<String[]> findCluster(Cluster cluster, double cutDist,
+			int minPatternPerCls) {
+
+		ArrayList<String[]> clusterTSIdx = new ArrayList<String[]>();
+
+		if (cluster.getDistance() != null) {
+			if (cluster.getDistance() > cutDist) {
+				if (cluster.getChildren().size() > 0) {
+					clusterTSIdx.addAll(findCluster(cluster.getChildren()
+							.get(0), cutDist, minPatternPerCls));
+					clusterTSIdx.addAll(findCluster(cluster.getChildren()
+							.get(1), cutDist, minPatternPerCls));
+				}
+			} else {
+				String[] idxes = cluster.getName().split("&");
+				if (idxes.length > minPatternPerCls) {
+					clusterTSIdx.add(idxes);
+				}
+			}
+		}
+
+		return clusterTSIdx;
+	}
+	
   /**
    * Stores all the sub-sequences that generated by Sequitur rules into an array list sorted by
    * sub-sequence length in ascending order.
@@ -525,12 +743,12 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     // motif1 details
     int motif1Start = motif1.getPos().getStart();
-    int motif1End = motif1.getPos().getEnd();
+    int motif1End = motif1.getPos().getEnd() - 1;
     int length1 = motif1End - motif1Start;
 
     // motif2 details
     int motif2Start = motif2.getPos().getStart();
-    int motif2End = motif1.getPos().getEnd();
+    int motif2End = motif1.getPos().getEnd() - 1;
     int length2 = motif2End - motif2Start;
 
     int countsMotif1 = 0;
@@ -598,7 +816,7 @@ public class GrammarVizChartData extends Observable implements Observer {
 
   public ArrayList<SameLengthMotifs> getReducedMotifs() {
     // TODO Auto-generated method stub
-    return null;
+    return allClassifiedMotifs;
   }
 
   /**

@@ -2,6 +2,9 @@ package net.seninp.grammarviz.view;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -11,12 +14,15 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.LoggerFactory;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
+import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
 import net.seninp.grammarviz.view.table.PrunedRulesTableColumns;
 import net.seninp.grammarviz.view.table.PrunedRulesTableModel;
 
@@ -44,6 +50,8 @@ public class PackedRulesPanel extends JPanel implements ListSelectionListener,
   private JScrollPane packedRulesPane;
 
   private String selectedRule;
+  
+  private ArrayList<String> selectedRules;
 
   private boolean acceptListEvents;
 
@@ -161,14 +169,28 @@ public class PackedRulesPanel extends JPanel implements ListSelectionListener,
   public void valueChanged(ListSelectionEvent arg) {
 
     if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
-      int col = packedTable.getSelectedColumn();
-      int row = packedTable.getSelectedRow();
-      consoleLogger.debug("Selected ROW: " + row + " - COL: " + col);
-      String rule = String.valueOf(packedTable.getValueAt(row,
-          PrunedRulesTableColumns.CLASS_NUMBER.ordinal()));
-      this.firePropertyChange(FIRING_PROPERTY_PACKED, this.selectedRule, rule);
-      this.selectedRule = rule;
+      int[] rows = packedTable.getSelectedRows();
+      consoleLogger.debug("Selected ROWS: " + Arrays.toString(rows));
+      ArrayList<String> rules = new ArrayList<String>(rows.length);
+      for (int i = 0; i < rows.length; i++) {
+        int ridx = rows[i];
+        String rule = String.valueOf(
+        		packedTable.getValueAt(ridx, GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
+        rules.add(rule);
+      }
+      this.firePropertyChange(FIRING_PROPERTY_PACKED, this.selectedRules, rules);
+      this.selectedRules = rules;
     }
+    
+//    if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
+//      int col = packedTable.getSelectedColumn();
+//      int row = packedTable.getSelectedRow();
+//      consoleLogger.debug("Selected ROW: " + row + " - COL: " + col);
+//      String rule = String.valueOf(packedTable.getValueAt(row,
+//          PrunedRulesTableColumns.CLASS_NUMBER.ordinal()));
+//      this.firePropertyChange(FIRING_PROPERTY_PACKED, this.selectedRule, rule);
+//      this.selectedRule = rule;
+//    }
   }
 
   /**

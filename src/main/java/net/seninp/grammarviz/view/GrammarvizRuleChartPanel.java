@@ -165,19 +165,21 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
    * 
    * @param index index of the class in the sub-sequences class table.
    */
-  protected void chartIntervalsForClass(String classIndex) {
+  protected void chartIntervalsForClass(ArrayList<String> newlySelectedRaw) {
     try {
-      ArrayList<RuleInterval> arrPos = this.session.chartData
-          .getSubsequencesPositionsByClassNum(Integer.valueOf(classIndex));
       ArrayList<double[]> intervals = new ArrayList<double[]>();
-      for (RuleInterval saxPos : arrPos) {
-        intervals.add(extractInterval(saxPos.getStart(), saxPos.getEnd()));
+      for (String str : newlySelectedRaw) {
+          ArrayList<RuleInterval> arrPos = this.session.chartData
+              .getSubsequencesPositionsByClassNum(Integer.valueOf(str));
+          for (RuleInterval saxPos : arrPos) {
+            intervals.add(extractInterval(saxPos.getStart(), saxPos.getEnd()));
+          }
+        }
+        chartIntervals(intervals);
       }
-      chartIntervals(intervals);
-    }
-    catch (Exception e) {
-      System.err.println(StackTrace.toString(e));
-    }
+      catch (Exception e) {
+        System.err.println(StackTrace.toString(e));
+      }
   }
 
   /**
@@ -233,7 +235,10 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
       chartIntervalsForRule(newlySelectedRaw);
     }
     else if (PackedRulesPanel.FIRING_PROPERTY_PACKED.equalsIgnoreCase(evt.getPropertyName())) {
-      String newlySelectedRaw = (String) evt.getNewValue();
+      @SuppressWarnings("unchecked")
+      ArrayList<String> newlySelectedRaw = (ArrayList<String>) evt.getNewValue();
+      // chartIntervalsForRule(newlySelectedRaw);
+      // String newlySelectedRaw = (String) evt.getNewValue();
       chartIntervalsForClass(newlySelectedRaw);
 
     }

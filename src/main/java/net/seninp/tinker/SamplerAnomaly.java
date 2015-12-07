@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
@@ -15,12 +16,17 @@ import ch.qos.logback.classic.Logger;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
+import net.seninp.gi.repair.RePairFactory;
+import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
+import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.datastructure.SAXRecords;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
+import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 import net.seninp.util.StackTrace;
 
 public class SamplerAnomaly {
@@ -84,10 +90,19 @@ public class SamplerAnomaly {
 
         // infer the grammar
         //
-        GrammarRules rules = SequiturFactory.series2SequiturRules(ts,
-            SamplerAnomalyParameters.SAX_WINDOW_SIZE, SamplerAnomalyParameters.SAX_PAA_SIZE,
-            SamplerAnomalyParameters.SAX_ALPHABET_SIZE, SamplerAnomalyParameters.SAX_NR_STRATEGY,
-            SamplerAnomalyParameters.SAX_NORM_THRESHOLD);
+        ParallelSAXImplementation ps = new ParallelSAXImplementation();
+        SAXRecords parallelRes = ps.process(ts, 2, SamplerAnomalyParameters.SAX_WINDOW_SIZE,
+            SamplerAnomalyParameters.SAX_PAA_SIZE, SamplerAnomalyParameters.SAX_ALPHABET_SIZE,
+            SamplerAnomalyParameters.SAX_NR_STRATEGY, SamplerAnomalyParameters.SAX_NORM_THRESHOLD);
+        RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
+        rePairGrammar.expandRules();
+        rePairGrammar.buildIntervals(parallelRes, ts, SamplerAnomalyParameters.SAX_WINDOW_SIZE);
+        GrammarRules rules = rePairGrammar.toGrammarRulesData();
+
+        // GrammarRules rules = SequiturFactory.series2SequiturRules(ts,
+        // SamplerAnomalyParameters.SAX_WINDOW_SIZE, SamplerAnomalyParameters.SAX_PAA_SIZE,
+        // SamplerAnomalyParameters.SAX_ALPHABET_SIZE, SamplerAnomalyParameters.SAX_NR_STRATEGY,
+        // SamplerAnomalyParameters.SAX_NORM_THRESHOLD);
 
         // populate all intervals with their frequency
         //
@@ -147,8 +162,8 @@ public class SamplerAnomaly {
           }
         }
 
-        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
-            SamplerAnomalyParameters.OUT_FILE)));
+        BufferedWriter bw = new BufferedWriter(
+            new FileWriter(new File(SamplerAnomalyParameters.OUT_FILE)));
         for (int i : isAnomaly) {
           bw.write(i + "\n");
         }

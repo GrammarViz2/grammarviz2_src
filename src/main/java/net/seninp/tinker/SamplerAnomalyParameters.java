@@ -44,7 +44,7 @@ public class SamplerAnomalyParameters {
   public static int SAX_ALPHABET_SIZE = 3;
 
   @Parameter(names = "--strategy", description = "SAX numerosity reduction strategy")
-  public static NumerosityReductionStrategy SAX_NR_STRATEGY = NumerosityReductionStrategy.EXACT;
+  public static NumerosityReductionStrategy SAX_NR_STRATEGY = NumerosityReductionStrategy.NONE;
 
   @Parameter(names = "--threshold", description = "SAX normalization threshold")
   public static double SAX_NORM_THRESHOLD = 0.01;

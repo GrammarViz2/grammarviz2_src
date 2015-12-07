@@ -76,7 +76,8 @@ public class RRAImplementation {
       Date end = new Date();
 
       // if the discord is null we getting out of the search
-      if (bestDiscord.getNNDistance() == 0.0D || bestDiscord.getPosition() == -1) {
+      if (bestDiscord.getNNDistance() == Integer.MIN_VALUE
+          || bestDiscord.getPosition() == Integer.MIN_VALUE) {
         consoleLogger.trace("breaking the outer search loop, discords found: " + discords.getSize()
             + " last seen discord: " + bestDiscord.toString());
         break;

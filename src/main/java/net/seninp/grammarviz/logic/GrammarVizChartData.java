@@ -10,7 +10,10 @@ import java.util.Random;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import com.apporiented.algorithm.clustering.*;
+import com.apporiented.algorithm.clustering.AverageLinkageStrategy;
+import com.apporiented.algorithm.clustering.Cluster;
+import com.apporiented.algorithm.clustering.ClusteringAlgorithm;
+import com.apporiented.algorithm.clustering.DefaultClusteringAlgorithm;
 
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
@@ -19,7 +22,6 @@ import net.seninp.gi.rulepruner.RulePrunerFactory;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
-import net.seninp.util.SAXFileIOHelper;
 
 /**
  * The main data structure used in SAXSequitur. It contains all the information needed for charting
@@ -227,7 +229,7 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     int index = 0;
     for (RuleInterval pos : positions) {
-      XYSeries dataset = new XYSeries("Daten"+String.valueOf(index));
+      XYSeries dataset = new XYSeries("Daten" + String.valueOf(index));
 
       int start = pos.getStart();
       int end = pos.getEnd() - 1;
@@ -344,11 +346,11 @@ public class GrammarVizChartData extends Observable implements Observer {
     classifyMotifs(intraThreshold);
     ArrayList<SAXMotif> motifsBeDeleted = removeOverlappingInSimiliar(interThreshould);
 
-	// String path = "Result" +
-	// System.getProperties().getProperty("file.separator");
-	// String fileName = "Deleted Motifs.txt";
-	// SAXFileIOHelper.deleteFile(path, fileName);
-	// SAXFileIOHelper.writeFile(path, fileName, motifsBeDeleted.toString());
+    // String path = "Result" +
+    // System.getProperties().getProperty("file.separator");
+    // String fileName = "Deleted Motifs.txt";
+    // SAXFileIOHelper.deleteFile(path, fileName);
+    // SAXFileIOHelper.writeFile(path, fileName, motifsBeDeleted.toString());
 
   }
 
@@ -484,217 +486,238 @@ public class GrammarVizChartData extends Observable implements Observer {
       sameLenMotifs.setMaxMotifLen(maxLength);
     }
     countPointNumberAfterRemoving();
-    
+
     refinePatternsByClustering();
     return motifsBeDeleted;
   }
+
+  protected double eculideanDistNormEAbandon(double[] ts1, double[] ts2, double bsfDist) {
+    double dist = 0;
+    double tsLen = ts1.length;
+
+    double bsf = Math.pow(tsLen * bsfDist, 2);
+
+    for (int i = 0; i < ts1.length; i++) {
+      double diff = ts1[i] - ts2[i];
+      dist += Math.pow(diff, 2);
+
+      if (dist > bsf)
+        return Double.NaN;
+
+    }
+    return Math.sqrt(dist) / tsLen;
+  }
+
+  protected double eculideanDistNorm(double[] ts1, double[] ts2) {
+    double dist = 0;
+    double tsLen = ts1.length;
+
+    for (int i = 0; i < ts1.length; i++) {
+      double diff = ts1[i] - ts2[i];
+      dist += Math.pow(diff, 2);
+    }
+
+    return Math.sqrt(dist) / tsLen;
+  }
+
+  /**
+   * Calculating the distance between time series and pattern.
+   * 
+   * @param ts , a series of points for time series.
+   * @param pValue , a series of points for pattern.
+   * @return
+   */
+  protected double calcDistTSAndPattern(double[] ts, double[] pValue) {
+    double INF = 10000000000000000000f;
+    double bestDist = INF;
+    int patternLen = pValue.length;
+
+    int lastStartP = ts.length - pValue.length + 1;
+    if (lastStartP < 1)
+      return bestDist;
+
+    Random rand = new Random();
+    int startP = rand.nextInt((lastStartP - 1 - 0) + 1);
+
+    double[] slidingWindow = new double[patternLen];
+
+    System.arraycopy(ts, startP, slidingWindow, 0, patternLen);
+    bestDist = eculideanDistNorm(pValue, slidingWindow);
+
+    for (int i = 0; i < lastStartP; i++) {
+      System.arraycopy(ts, i, slidingWindow, 0, patternLen);
+
+      double tempDist = eculideanDistNormEAbandon(pValue, slidingWindow, bestDist);
+
+      if (tempDist < bestDist) {
+        bestDist = tempDist;
+      }
+    }
+
+    return bestDist;
+  }
+
+  protected void refinePatternsByClustering() {
+    double[] origTS = originalTimeSeries;
+    ArrayList<SameLengthMotifs> newAllClassifiedMotifs = new ArrayList<SameLengthMotifs>();
+    for (SameLengthMotifs sameLenMotifs : allClassifiedMotifs) {
+      ArrayList<RuleInterval> arrPos = new ArrayList<RuleInterval>();
+      ArrayList<SAXMotif> subsequences = sameLenMotifs.getSameLenMotifs();
+      for (SAXMotif ss : subsequences) {
+        arrPos.add(ss.getPos());
+      }
+
+      int patternNum = arrPos.size();
+      if(patternNum < 2){
+    	continue;
+      }
+      double dt[][] = new double[patternNum][patternNum];
+      // Build distance matrix.
+      for (int i = 0; i < patternNum; i++) {
+        RuleInterval saxPos = arrPos.get(i);
+
+        int start1 = saxPos.getStart();
+        int end1 = saxPos.getEnd();
+        double[] ts1 = Arrays.copyOfRange(origTS, start1, end1);
+
+        for (int j = 0; j < arrPos.size(); j++) {
+          RuleInterval saxPos2 = arrPos.get(j);
+          if (dt[i][j] > 0) {
+            continue;
+          }
+          double d = 0;
+          dt[i][j] = d;
+          if (i == j) {
+            continue;
+          }
+          int start2 = saxPos2.getStart();
+          int end2 = saxPos2.getEnd();
+          double[] ts2 = Arrays.copyOfRange(origTS, start2, end2);
+
+          if (ts1.length > ts2.length)
+            d = calcDistTSAndPattern(ts1, ts2);
+          else
+            d = calcDistTSAndPattern(ts2, ts1);
+
+          // DTW dtw = new DTW(ts1, ts2);
+          // d = dtw.warpingDistance;
+
+          dt[i][j] = d;
+        }
+      }
+
+      String[] patternsName = new String[patternNum];
+      for (int i = 0; i < patternNum; i++) {
+        patternsName[i] = String.valueOf(i);
+      }
+
+      ClusteringAlgorithm alg = new DefaultClusteringAlgorithm();
+      Cluster cluster = alg.performClustering(dt, patternsName, new AverageLinkageStrategy());
+
+      // int minPatternPerCls = (int) (0.3 * patternNum);
+      // minPatternPerCls = minPatternPerCls > 0 ? minPatternPerCls : 1;
+      int minPatternPerCls = 1;
+
+      if (cluster.getDistance() == null) {
+        // System.out.print(false);
+        continue;
+      }
+
+      // TODO: refine hard coded threshold
+      // double cutDist = cluster.getDistance() * 0.67;
+      double cutDist = cluster.getDistanceValue() * 0.67;
+
+      ArrayList<String[]> clusterTSIdx = findCluster(cluster, cutDist, minPatternPerCls);
+      while (clusterTSIdx.size() <= 0) {
+        cutDist += cutDist / 2;
+        clusterTSIdx = findCluster(cluster, cutDist, minPatternPerCls);
+      }
+
+      newAllClassifiedMotifs.addAll(SeparateMotifsByClustering(clusterTSIdx, sameLenMotifs));
+    }
+    allClassifiedMotifs = newAllClassifiedMotifs;
+  }
+
+  private ArrayList<SameLengthMotifs> SeparateMotifsByClustering(ArrayList<String[]> clusterTSIdx,
+      SameLengthMotifs sameLenMotifs) {
+    ArrayList<SameLengthMotifs> newResult = new ArrayList<SameLengthMotifs>();
+    if (clusterTSIdx.size() > 1) {
+      ArrayList<SAXMotif> subsequences = sameLenMotifs.getSameLenMotifs();
+      for (String[] idxesInCluster : clusterTSIdx) {
+        SameLengthMotifs newIthSLM = new SameLengthMotifs();
+        ArrayList<SAXMotif> sameLenSS = new ArrayList<SAXMotif>();
+        int minL = sameLenMotifs.getMinMotifLen();
+        int maxL = sameLenMotifs.getMaxMotifLen();
+
+        for (String i : idxesInCluster) {
+          SAXMotif ssI = subsequences.get(Integer.parseInt(i));
+          int len = ssI.getPos().getEnd() - ssI.getPos().getStart();
+          if (len < minL) {
+            minL = len;
+          }
+          else if (len > maxL) {
+            maxL = len;
+          }
+          sameLenSS.add(ssI);
+        }
+
+        newIthSLM.setSameLenMotifs(sameLenSS);
+        newIthSLM.setMaxMotifLen(maxL);
+        newIthSLM.setMinMotifLen(minL);
+        newResult.add(newIthSLM);
+      }
+    }
+    else {
+      newResult.add(sameLenMotifs);
+    }
+
+    return newResult;
+  }
+
+  private ArrayList<String[]> findCluster(Cluster cluster, double cutDist, int minPatternPerCls) {
+
+    ArrayList<String[]> clusterTSIdx = new ArrayList<String[]>();
+
+    if (cluster.getDistance() != null) {
+      // if (cluster.getDistance() > cutDist) {
+      if (cluster.getDistanceValue() > cutDist) {
+        if (cluster.getChildren().size() > 0) {
+          clusterTSIdx.addAll(findCluster(cluster.getChildren().get(0), cutDist, minPatternPerCls));
+          clusterTSIdx.addAll(findCluster(cluster.getChildren().get(1), cutDist, minPatternPerCls));
+        }
+      }
+      else {
+        // String[] idxes = cluster.getName().split("&");
+    	ArrayList<String> itemsInCluster = getNameInCluster(cluster);
+    	String[] idxes = itemsInCluster.toArray(new String[itemsInCluster.size()]);
+        if (idxes.length > minPatternPerCls) {
+          clusterTSIdx.add(idxes);
+        }
+      }
+    }
+
+    return clusterTSIdx;
+  }
+
+  private ArrayList<String> getNameInCluster(Cluster cluster){
+	  ArrayList<String> itemsInCluster = new ArrayList<String>();
+	  
+	  String nodeName;
+	  if( cluster.isLeaf()){
+		nodeName= cluster.getName();
+		  itemsInCluster.add(nodeName);
+	  }else{
+		// String[] clusterName = cluster.getName().split("#");
+		// nodeName = clusterName[1];
+	  }
+	  
+	  for(Cluster child:cluster.getChildren()){
+		  ArrayList<String> childrenNames = getNameInCluster(child);
+		  itemsInCluster.addAll(childrenNames);
+	  }
+	  return itemsInCluster;
+  }
   
-
-	protected double eculideanDistNormEAbandon(double[] ts1, double[] ts2,
-			double bsfDist) {
-		double dist = 0;
-		double tsLen = ts1.length;
-
-		double bsf = Math.pow(tsLen * bsfDist, 2);
-
-		for (int i = 0; i < ts1.length; i++) {
-			double diff = ts1[i] - ts2[i];
-			dist += Math.pow(diff, 2);
-
-			if (dist > bsf)
-				return Double.NaN;
-
-		}
-		return Math.sqrt(dist) / tsLen;
-	}
-
-	protected double eculideanDistNorm(double[] ts1, double[] ts2) {
-		double dist = 0;
-		double tsLen = ts1.length;
-
-		for (int i = 0; i < ts1.length; i++) {
-			double diff = ts1[i] - ts2[i];
-			dist += Math.pow(diff, 2);
-		}
-
-		return Math.sqrt(dist) / tsLen;
-	}
-
-	/**
-	 * Calculating the distance between time series and pattern.
-	 * 
-	 * @param ts
-	 *            , a series of points for time series.
-	 * @param pValue
-	 *            , a series of points for pattern.
-	 * @return
-	 */
-	protected double calcDistTSAndPattern(double[] ts, double[] pValue) {
-		double INF = 10000000000000000000f;
-		double bestDist = INF;
-		int patternLen = pValue.length;
-
-		int lastStartP = ts.length - pValue.length + 1;
-		if (lastStartP < 1)
-			return bestDist;
-
-		Random rand = new Random();
-		int startP = rand.nextInt((lastStartP - 1 - 0) + 1);
-
-		double[] slidingWindow = new double[patternLen];
-
-		System.arraycopy(ts, startP, slidingWindow, 0, patternLen);
-		bestDist = eculideanDistNorm(pValue, slidingWindow);
-
-		for (int i = 0; i < lastStartP; i++) {
-			System.arraycopy(ts, i, slidingWindow, 0, patternLen);
-			
-			double tempDist = eculideanDistNormEAbandon(pValue,
-					slidingWindow, bestDist);
-
-			if (tempDist < bestDist) {
-				bestDist = tempDist;
-			}
-		}
-
-		return bestDist;
-	}
-  
-	protected void refinePatternsByClustering() {
-		double[] origTS = originalTimeSeries;
-		ArrayList<SameLengthMotifs> newAllClassifiedMotifs = new ArrayList<SameLengthMotifs>();
-		for (SameLengthMotifs sameLenMotifs : allClassifiedMotifs) {
-			ArrayList<RuleInterval> arrPos = new ArrayList<RuleInterval>();
-			ArrayList<SAXMotif> subsequences = sameLenMotifs.getSameLenMotifs();
-			for (SAXMotif ss : subsequences) {
-				arrPos.add(ss.getPos());
-			}
-
-			int patternNum = arrPos.size();
-			double dt[][] = new double[patternNum][patternNum];
-			// Build distance matrix.
-			for (int i = 0; i < patternNum; i++) {
-				RuleInterval saxPos = arrPos.get(i);
-
-				int start1 = saxPos.getStart();
-				int end1 = saxPos.getEnd();
-				double[] ts1 = Arrays.copyOfRange(origTS, start1, end1);
-
-				for (int j = 0; j < arrPos.size(); j++) {
-					RuleInterval saxPos2 = arrPos.get(j);
-					if (dt[i][j] > 0) {
-						continue;
-					}
-					double d = 0;
-					dt[i][j] = d;
-					if (i == j) {
-						continue;
-					}
-					int start2 = saxPos2.getStart();
-					int end2 = saxPos2.getEnd();
-					double[] ts2 = Arrays.copyOfRange(origTS, start2, end2);
-
-					if (ts1.length > ts2.length)
-						d = calcDistTSAndPattern(ts1, ts2);
-					else
-						d = calcDistTSAndPattern(ts2, ts1);
-
-					// DTW dtw = new DTW(ts1, ts2);
-					// d = dtw.warpingDistance;
-
-					dt[i][j] = d;
-				}
-			}
-
-			String[] patternsName = new String[patternNum];
-			for (int i = 0; i < patternNum; i++) {
-				patternsName[i] = String.valueOf(i);
-			}
-
-			ClusteringAlgorithm alg = new DefaultClusteringAlgorithm();
-			Cluster cluster = alg.performClustering(dt, patternsName,
-					new AverageLinkageStrategy());
-
-			// int minPatternPerCls = (int) (0.3 * patternNum);
-			// minPatternPerCls = minPatternPerCls > 0 ? minPatternPerCls : 1;
-			int minPatternPerCls = 1;
-
-			if (cluster.getDistance() == null){
-				// System.out.print(false);
-				continue;
-			}
-
-			// TODO: refine hard coded threshold
-			double cutDist = cluster.getDistance() * 0.67;
-			ArrayList<String[]> clusterTSIdx = findCluster(cluster, cutDist,
-					minPatternPerCls);
-			while (clusterTSIdx.size() <= 0) {
-				cutDist += cutDist / 2;
-				clusterTSIdx = findCluster(cluster, cutDist, minPatternPerCls);
-			}
-			
-			newAllClassifiedMotifs.addAll(SeparateMotifsByClustering(clusterTSIdx, sameLenMotifs));
-		}
-		allClassifiedMotifs = newAllClassifiedMotifs;
-	}
-	
-	private ArrayList<SameLengthMotifs> SeparateMotifsByClustering(ArrayList<String[]> clusterTSIdx, SameLengthMotifs sameLenMotifs){
-		ArrayList<SameLengthMotifs> newResult = new ArrayList<SameLengthMotifs>();
-		if (clusterTSIdx.size() > 1) {
-			ArrayList<SAXMotif> subsequences = sameLenMotifs.getSameLenMotifs();
-			for (String[] idxesInCluster : clusterTSIdx) {
-				SameLengthMotifs newIthSLM = new SameLengthMotifs();
-				ArrayList<SAXMotif> sameLenSS = new ArrayList<SAXMotif>();
-				int minL = sameLenMotifs.getMinMotifLen();
-				int maxL = sameLenMotifs.getMaxMotifLen();
-
-				for (String i : idxesInCluster) {
-					SAXMotif ssI = subsequences.get(Integer.parseInt(i));
-					int len = ssI.getPos().getEnd() - ssI.getPos().getStart();
-					if (len < minL) {
-						minL = len;
-					} else if (len > maxL) {
-						maxL = len;
-					}
-					sameLenSS.add(ssI);
-				}
-
-				newIthSLM.setSameLenMotifs(sameLenSS);
-				newIthSLM.setMaxMotifLen(maxL);
-				newIthSLM.setMinMotifLen(minL);
-				newResult.add(newIthSLM);
-			}
-		}else{
-			newResult.add(sameLenMotifs);
-		}
-
-		return newResult;
-	}
-
-	private ArrayList<String[]> findCluster(Cluster cluster, double cutDist,
-			int minPatternPerCls) {
-
-		ArrayList<String[]> clusterTSIdx = new ArrayList<String[]>();
-
-		if (cluster.getDistance() != null) {
-			if (cluster.getDistance() > cutDist) {
-				if (cluster.getChildren().size() > 0) {
-					clusterTSIdx.addAll(findCluster(cluster.getChildren()
-							.get(0), cutDist, minPatternPerCls));
-					clusterTSIdx.addAll(findCluster(cluster.getChildren()
-							.get(1), cutDist, minPatternPerCls));
-				}
-			} else {
-				String[] idxes = cluster.getName().split("&");
-				if (idxes.length > minPatternPerCls) {
-					clusterTSIdx.add(idxes);
-				}
-			}
-		}
-
-		return clusterTSIdx;
-	}
-	
   /**
    * Stores all the sub-sequences that generated by Sequitur rules into an array list sorted by
    * sub-sequence length in ascending order.

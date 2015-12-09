@@ -533,7 +533,7 @@ public class GrammarVizAnomaly {
    * @param normalizationThreshold SAX normalization threshold.
    * @throws Exception if error occurs.
    */
-  private static void findRRAPruned(double[] ts, int windowSize, int alphabetSize, int paaSize,
+  private static void findRRAPruned(double[] ts, int windowSize, int paaSize, int alphabetSize,
       NumerosityReductionStrategy saxNRStrategy, int discordsToReport, GIAlgorithm giImplementation,
       String outputPrefix, double normalizationThreshold) throws Exception {
 
@@ -702,7 +702,7 @@ public class GrammarVizAnomaly {
    * @param normalizationThreshold SAX normalization threshold.
    * @throws Exception if error occurs.
    */
-  private static void findRRA(double[] ts, int windowSize, int alphabetSize, int paaSize,
+  private static void findRRA(double[] ts, int windowSize, int paaSize, int alphabetSize,
       NumerosityReductionStrategy saxNRStrategy, int discordsToReport, GIAlgorithm giImplementation,
       String outputPrefix, double normalizationThreshold) throws Exception {
 

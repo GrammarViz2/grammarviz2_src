@@ -13,6 +13,7 @@ head(ll)
 ll$cmd <- aaply(ll$base, 1, function(x) {
   dat <- read.table(x, as.is = T, sep = ",", header = T)
   dat$rule_reduction <- dat$prunedRules/dat$grammarRules
+  dat <- filter(dat, coverage >= 0.98)
   dd <- arrange(dat, rule_reduction)[1,]
   #
   cmd <- paste(

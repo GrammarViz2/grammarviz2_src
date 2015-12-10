@@ -56,7 +56,8 @@ public class UserSession {
   //
   public volatile Integer samplingStart;
   public volatile Integer samplingEnd;
-  public static int[] boundaries = { 10, 200, 10, 2, 10, 1, 2, 10, 1 };
+  public volatile Double minimalCoverThreshold = 0.98;
+  public volatile int[] boundaries = { 10, 200, 10, 2, 10, 1, 2, 10, 1 };
 
   // auxiliary variables
   //

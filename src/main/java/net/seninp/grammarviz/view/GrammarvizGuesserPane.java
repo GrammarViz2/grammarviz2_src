@@ -1,5 +1,6 @@
 package net.seninp.grammarviz.view;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -22,26 +23,38 @@ public class GrammarvizGuesserPane extends JPanel {
   // The labels
   //
   private static final JLabel SAMPLING_INTERVAL_LABEL = new JLabel("Sampling interval range:");
+  private static final JLabel MINIMAL_COVER_LABEL = new JLabel("Minimal cover threshold:");
   private static final JLabel WINDOW_BOUND_LABEL = new JLabel("Window range and step:");
   private static final JLabel PAA_BOUND_LABEL = new JLabel("PAA range and step:");
   private static final JLabel ALPHABET_BOUND_LABEL = new JLabel("Alphabet range and step:");
 
   // and their UI widgets
   //
-  private static final JTextField intervalStartField = new JFormattedTextField(getFormatter());
-  private static final JTextField intervalEndField = new JFormattedTextField(getFormatter());
+  private static final JTextField intervalStartField = new JFormattedTextField(
+      integerNumberFormatter());
+  private static final JTextField intervalEndField = new JFormattedTextField(
+      integerNumberFormatter());
 
-  private static final JTextField windowMinField = new JFormattedTextField(getFormatter());
-  private static final JTextField windowMaxField = new JFormattedTextField(getFormatter());
-  private static final JTextField windowIncrement = new JFormattedTextField(getFormatter());
+  private static final JTextField minimalCoverField = new JFormattedTextField(
+      new DecimalFormat("0.00"));
 
-  private static final JTextField paaMinField = new JFormattedTextField(getFormatter());
-  private static final JTextField paaMaxField = new JFormattedTextField(getFormatter());
-  private static final JTextField paaIncrement = new JFormattedTextField(getFormatter());
+  private static final JTextField windowMinField = new JFormattedTextField(
+      integerNumberFormatter());
+  private static final JTextField windowMaxField = new JFormattedTextField(
+      integerNumberFormatter());
+  private static final JTextField windowIncrement = new JFormattedTextField(
+      integerNumberFormatter());
 
-  private static final JTextField alphabetMinField = new JFormattedTextField(getFormatter());
-  private static final JTextField alphabetMaxField = new JFormattedTextField(getFormatter());
-  private static final JTextField alphabetIncrement = new JFormattedTextField(getFormatter());
+  private static final JTextField paaMinField = new JFormattedTextField(integerNumberFormatter());
+  private static final JTextField paaMaxField = new JFormattedTextField(integerNumberFormatter());
+  private static final JTextField paaIncrement = new JFormattedTextField(integerNumberFormatter());
+
+  private static final JTextField alphabetMinField = new JFormattedTextField(
+      integerNumberFormatter());
+  private static final JTextField alphabetMaxField = new JFormattedTextField(
+      integerNumberFormatter());
+  private static final JTextField alphabetIncrement = new JFormattedTextField(
+      integerNumberFormatter());
 
   /**
    * Constructor.
@@ -55,6 +68,9 @@ public class GrammarvizGuesserPane extends JPanel {
     this.add(SAMPLING_INTERVAL_LABEL, "span 2");
     this.add(intervalStartField);
     this.add(intervalEndField, "wrap");
+
+    this.add(MINIMAL_COVER_LABEL, "span 2");
+    this.add(minimalCoverField, "wrap");
 
     this.add(WINDOW_BOUND_LABEL);
     this.add(windowMinField);
@@ -80,6 +96,8 @@ public class GrammarvizGuesserPane extends JPanel {
     intervalStartField.setText(Integer.valueOf(userSession.samplingStart).toString());
     intervalEndField.setText(Integer.valueOf(userSession.samplingEnd).toString());
 
+    minimalCoverField.setText(Double.valueOf(userSession.minimalCoverThreshold).toString());
+
     windowMinField.setText(Integer.valueOf(userSession.boundaries[0]).toString());
     windowMaxField.setText(Integer.valueOf(userSession.boundaries[1]).toString());
     windowIncrement.setText(Integer.valueOf(userSession.boundaries[2]).toString());
@@ -94,7 +112,12 @@ public class GrammarvizGuesserPane extends JPanel {
 
   }
 
-  private static NumberFormatter getFormatter() {
+  /**
+   * Provides a convenient integer formatter.
+   * 
+   * @return a formatter instance.
+   */
+  private static NumberFormatter integerNumberFormatter() {
     NumberFormat format = NumberFormat.getInstance();
     NumberFormatter formatter = new NumberFormatter(format);
     formatter.setValueClass(Integer.class);

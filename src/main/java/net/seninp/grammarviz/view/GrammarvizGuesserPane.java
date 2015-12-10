@@ -21,10 +21,10 @@ public class GrammarvizGuesserPane extends JPanel {
 
   // The labels
   //
-  private static final JLabel SAMPLING_INTERVAL_LABEL = new JLabel("Sampling interval bounds:");
-  private static final JLabel WINDOW_BOUND_LABEL = new JLabel("Window bounds:");
-  private static final JLabel PAA_BOUND_LABEL = new JLabel("PAA bounds:");
-  private static final JLabel ALPHABET_BOUND_LABEL = new JLabel("Alphabet bounds:");
+  private static final JLabel SAMPLING_INTERVAL_LABEL = new JLabel("Sampling interval range:");
+  private static final JLabel WINDOW_BOUND_LABEL = new JLabel("Window range and step:");
+  private static final JLabel PAA_BOUND_LABEL = new JLabel("PAA range and step:");
+  private static final JLabel ALPHABET_BOUND_LABEL = new JLabel("Alphabet range and step:");
 
   // and their UI widgets
   //

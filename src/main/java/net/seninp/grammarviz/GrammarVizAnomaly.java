@@ -229,7 +229,7 @@ public class GrammarVizAnomaly {
           continue;
         }
         for (int ALPHABET_SIZE = bounds[6]; ALPHABET_SIZE < bounds[7]; ALPHABET_SIZE += bounds[8]) {
-          SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+          SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, GIAlgorithm.REPAIR,
               GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
               GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
           res.add(p);
@@ -424,7 +424,7 @@ public class GrammarVizAnomaly {
           continue;
         }
         for (int ALPHABET_SIZE = bounds[6]; ALPHABET_SIZE < bounds[7]; ALPHABET_SIZE += bounds[8]) {
-          SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+          SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, GIAlgorithm.REPAIR,
               GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
               GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
           res.add(p);
@@ -890,7 +890,7 @@ public class GrammarVizAnomaly {
    */
   private static void findHotSax(double[] ts, int discordsToReport, int windowSize, int paaSize,
       int alphabetSize, NumerosityReductionStrategy saxNRStrategy, double normalizationThreshold)
-          throws Exception {
+      throws Exception {
 
     consoleLogger.info("running HOT SAX hashtable-based algorithm...");
 

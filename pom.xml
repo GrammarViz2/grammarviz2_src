@@ -314,7 +314,7 @@
     <dependency>
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-gi</artifactId>
-      <version>0.8.6</version>
+      <version>0.8.7-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

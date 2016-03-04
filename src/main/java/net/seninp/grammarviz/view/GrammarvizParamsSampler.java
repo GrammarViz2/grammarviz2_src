@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import net.seninp.gi.GIAlgorithm;
 import net.seninp.gi.rulepruner.ReductionSorter;
 import net.seninp.gi.rulepruner.RulePruner;
 import net.seninp.gi.rulepruner.RulePrunerParameters;
@@ -64,7 +65,7 @@ public class GrammarvizParamsSampler implements Callable<String> {
           SampledPoint p = null;
 
           try {
-            p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
+            p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, GIAlgorithm.REPAIR,
                 RulePrunerParameters.SAX_NR_STRATEGY, RulePrunerParameters.SAX_NORM_THRESHOLD);
           }
           catch (InterruptedException e) {

@@ -15,9 +15,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
@@ -55,15 +54,9 @@ public class GrammarVizModel extends Observable {
   /** Data structure that keeps the chart data. */
   private GrammarVizChartData chartData;
 
-  // the logger business
+  // static block - we instantiate the logger
   //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.DEBUG;
-
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizModel.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizModel.class);
 
   /**
    * The file name getter.
@@ -81,7 +74,7 @@ public class GrammarVizModel extends Observable {
    */
   public synchronized void setDataSource(String filename) {
 
-    consoleLogger.info("setting the file " + filename + " as current data source");
+    LOGGER.info("setting the file " + filename + " as current data source");
 
     // action
     this.dataFileName = filename;
@@ -168,7 +161,7 @@ public class GrammarVizModel extends Observable {
     }
     data = new ArrayList<Double>();
 
-    consoleLogger.debug("loaded " + this.ts.length + " points....");
+    LOGGER.debug("loaded " + this.ts.length + " points....");
 
     // notify that the process finished
     this.log("loaded " + this.ts.length + " points from " + this.dataFileName);
@@ -218,10 +211,10 @@ public class GrammarVizModel extends Observable {
       sb.append(", SAX window ").append(windowSize);
       sb.append(", PAA ").append(paaSize);
       sb.append(", Alphabet ").append(alphabetSize);
-      consoleLogger.info(sb.toString());
+      LOGGER.info(sb.toString());
       this.log(sb.toString());
 
-      consoleLogger.debug("creating ChartDataStructure");
+      LOGGER.debug("creating ChartDataStructure");
       this.chartData = new GrammarVizChartData(this.dataFileName, this.ts, useSlidingWindow,
           numerosityReductionStrategy, windowSize, paaSize, alphabetSize);
 
@@ -243,20 +236,20 @@ public class GrammarVizModel extends Observable {
                 normalizationThreshold);
           }
 
-          consoleLogger.trace("String: " + saxFrequencyData.getSAXString(SPACE));
+          LOGGER.trace("String: " + saxFrequencyData.getSAXString(SPACE));
 
-          consoleLogger.debug("running sequitur ...");
+          LOGGER.debug("running sequitur ...");
           SAXRule sequiturGrammar = SequiturFactory
               .runSequitur(saxFrequencyData.getSAXString(SPACE));
 
-          consoleLogger.debug("collecting grammar rules data ...");
+          LOGGER.debug("collecting grammar rules data ...");
           GrammarRules rules = sequiturGrammar.toGrammarRulesData();
 
-          consoleLogger.debug("mapping rule intervals on timeseries ...");
+          LOGGER.debug("mapping rule intervals on timeseries ...");
           SequiturFactory.updateRuleIntervals(rules, saxFrequencyData, useSlidingWindow, this.ts,
               windowSize, paaSize);
 
-          consoleLogger.debug("done ...");
+          LOGGER.debug("done ...");
           this.chartData.setGrammarRules(rules);
 
         }
@@ -284,7 +277,7 @@ public class GrammarVizModel extends Observable {
       }
 
       this.log("processed data, broadcasting charts");
-      consoleLogger.info("process finished");
+      LOGGER.info("process finished");
 
       setChanged();
       notifyObservers(new GrammarVizMessage(GrammarVizMessage.CHART_MESSAGE, this.chartData));

@@ -54,9 +54,8 @@ import org.jfree.ui.LengthAdjustmentType;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.TextAnchor;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
@@ -121,15 +120,9 @@ public class GrammarvizChartPanel extends JPanel
 
   private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
-  // the logger business
+  // static block - we instantiate the logger
   //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.DEBUG;
-
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizChartPanel.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(GrammarRulesPanel.class);
 
   /**
    * Constructor.
@@ -201,7 +194,7 @@ public class GrammarvizChartPanel extends JPanel
    * @param The rule index.
    */
   private void highlightPatternInChart(ArrayList<String> rules) {
-    consoleLogger.debug("Selected rules: " + rules.toString());
+    LOGGER.debug("Selected rules: " + rules.toString());
     timeseriesPlot.clearDomainMarkers();
     for (String rule : rules) {
       int ruleId = Integer.valueOf(rule);
@@ -209,7 +202,7 @@ public class GrammarvizChartPanel extends JPanel
         continue;
       }
       ArrayList<RuleInterval> arrPos = this.session.chartData.getRulePositionsByRuleNum(ruleId);
-      consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+      LOGGER.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
       for (RuleInterval saxPos : arrPos) {
         addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
       }
@@ -222,7 +215,7 @@ public class GrammarvizChartPanel extends JPanel
    * @param The rule index.
    */
   private void highlightPatternInChartPacked(ArrayList<String> rules) {
-    consoleLogger.debug("Selected class: " + rules.toString());
+    LOGGER.debug("Selected class: " + rules.toString());
     timeseriesPlot.clearDomainMarkers();
     for (String rule : rules) {
     	int ruleId = Integer.valueOf(rule);
@@ -231,7 +224,7 @@ public class GrammarvizChartPanel extends JPanel
 //        }    
 	    ArrayList<RuleInterval> arrPos = this.session.chartData
 	            .getSubsequencesPositionsByClassNum(Integer.valueOf(ruleId));
-	    consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+	    LOGGER.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
 	    for (RuleInterval saxPos : arrPos) {
 	      addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
 	    }
@@ -244,10 +237,10 @@ public class GrammarvizChartPanel extends JPanel
    * @param rule The rule whose subsequences will be period boundaries.
    */
   private void highlightPeriodsBetweenPatterns(String rule) {
-    consoleLogger.debug("Selected rule: " + rule);
+    LOGGER.debug("Selected rule: " + rule);
     ArrayList<RuleInterval> arrPos = this.session.chartData
         .getRulePositionsByRuleNum(Integer.valueOf(rule));
-    consoleLogger.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+    LOGGER.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
     timeseriesPlot.clearDomainMarkers();
     for (int i = 1; i < arrPos.size(); i++) {
       RuleInterval c = arrPos.get(i - 1);
@@ -257,11 +250,11 @@ public class GrammarvizChartPanel extends JPanel
   }
 
   private void highlightAnomaly(ArrayList<String> anomalies) {
-    consoleLogger.debug("Selected anomalies: " + anomalies.toString());
+    LOGGER.debug("Selected anomalies: " + anomalies.toString());
     timeseriesPlot.clearDomainMarkers();
     for (String anomaly : anomalies) {
       DiscordRecord dr = this.session.chartData.getAnomalies().get(Integer.valueOf(anomaly));
-      consoleLogger.debug(dr.toString());
+      LOGGER.debug(dr.toString());
       addAnomalyMarker(timeseriesPlot, dr.getPosition(), dr.getPosition() + dr.getLength());
     }
   }
@@ -816,7 +809,7 @@ public class GrammarvizChartPanel extends JPanel
             parametersDialog.setVisible(true);
 
             if (parametersDialog.wasCancelled) {
-              consoleLogger.debug("Selection process has been cancelled...");
+              LOGGER.debug("Selection process has been cancelled...");
               paramsSampler.cancel();
             }
             else {
@@ -824,7 +817,7 @@ public class GrammarvizChartPanel extends JPanel
             }
           }
           if (selectionSucceeded) {
-            consoleLogger.debug("Running the sampler...");
+            LOGGER.debug("Running the sampler...");
             try {
 
               final ExecutorService executorService = Executors.newSingleThreadExecutor();

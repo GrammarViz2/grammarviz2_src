@@ -230,9 +230,8 @@
                   <mainClass>net.seninp.grammarviz.GrammarVizGUI</mainClass>
                 </manifest>
               </archive>
-              <!-- <filters> <filter>src/assembly/filter.properties</filter> 
-                </filters> <descriptors> <descriptor>src/assembly/distribution.xml</descriptor> 
-                </descriptors> -->
+              <!-- <filters> <filter>src/assembly/filter.properties</filter> </filters> <descriptors> 
+                <descriptor>src/assembly/distribution.xml</descriptor> </descriptors> -->
             </configuration>
             <executions>
               <execution>
@@ -261,14 +260,9 @@
       <version>1.7.12</version>
     </dependency>
     <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <version>1.1.3</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.12</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -309,12 +303,12 @@
     <dependency>
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-sax</artifactId>
-      <version>1.0.6</version>
+      <version>1.0.7</version>
     </dependency>
     <dependency>
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-gi</artifactId>
-      <version>0.8.7-SNAPSHOT</version>
+      <version>0.9.0</version>
     </dependency>
   </dependencies>
 

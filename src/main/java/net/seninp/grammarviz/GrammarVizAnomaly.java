@@ -11,10 +11,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
@@ -53,11 +52,6 @@ public class GrammarVizAnomaly {
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
   private static final String CR = "\n";
 
-  // logging stuff
-  //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.INFO;
-
   // workers
   //
   private static TSProcessor tp = new TSProcessor();
@@ -65,10 +59,7 @@ public class GrammarVizAnomaly {
 
   // static block - we instantiate the logger
   //
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizAnomaly.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizAnomaly.class);
 
   /**
    * The main executable.
@@ -146,10 +137,9 @@ public class GrammarVizAnomaly {
 
       // read the file
       //
-      consoleLogger.info("Reading data ...");
+      LOGGER.info("Reading data ...");
       double[] series = tp.readTS(GrammarVizAnomalyParameters.IN_FILE, 0);
-      consoleLogger
-          .info("read " + series.length + " points from " + GrammarVizAnomalyParameters.IN_FILE);
+      LOGGER.info("read " + series.length + " points from " + GrammarVizAnomalyParameters.IN_FILE);
 
       // switch logic according to the algorithm selection
       //
@@ -197,7 +187,7 @@ public class GrammarVizAnomaly {
       NumerosityReductionStrategy saxNRStrategy, int discordsToReport, GIAlgorithm giImplementation,
       String outputPrefix, double normalizationThreshold) throws Exception {
 
-    consoleLogger.info("running RRA with experiment sampling algorithm...");
+    LOGGER.info("running RRA with experiment sampling algorithm...");
     // Date start = new Date();
 
     // parse the boundaries params
@@ -208,14 +198,14 @@ public class GrammarVizAnomaly {
     // we need to use this in the loop
     RulePruner rp;
     if (GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION.isNaN()) {
-      consoleLogger.info("sampling on full time series length");
+      LOGGER.info("sampling on full time series length");
       rp = new RulePruner(ts);
     }
     else {
       int sampleIntervalStart = 0;
       int sampleIntervalEnd = (int) Math
           .round(ts.length * GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION);
-      consoleLogger.info("sampling parameters on interval [" + sampleIntervalStart + ", "
+      LOGGER.info("sampling parameters on interval [" + sampleIntervalStart + ", "
           + sampleIntervalEnd + "]");
       rp = new RulePruner(Arrays.copyOfRange(ts, sampleIntervalStart, sampleIntervalEnd));
     }
@@ -293,7 +283,7 @@ public class GrammarVizAnomaly {
           //
           // if (discords.getSize() > 0) {
           // // if the discord(s) found
-          consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
+          LOGGER.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
               + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
               + "," + p.getGrammarRules() + "," + p.getPrunedRules() + "," + p.getCoverage() + ","
               + p.getMaxFrequency());
@@ -301,7 +291,7 @@ public class GrammarVizAnomaly {
           // else {
           // // no discords were discovered
           // // need to increase the granularity of discretization
-          // consoleLogger.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
+          // LOGGER.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
           // + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
           // + "," + p.getCoverage() + ",-1,-1");
           // }
@@ -387,7 +377,7 @@ public class GrammarVizAnomaly {
       NumerosityReductionStrategy saxNRStrategy, int discordsToReport, GIAlgorithm giImplementation,
       String outputPrefix, double normalizationThreshold) throws Exception {
 
-    consoleLogger.info("running RRA with sampling algorithm...");
+    LOGGER.info("running RRA with sampling algorithm...");
     // Date start = new Date();
 
     // parse the boundaries params
@@ -403,14 +393,14 @@ public class GrammarVizAnomaly {
     // we need to use this in the loop
     RulePruner rp;
     if (GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION.isNaN()) {
-      consoleLogger.info("sampling on full time series length");
+      LOGGER.info("sampling on full time series length");
       rp = new RulePruner(ts);
     }
     else {
       int sampleIntervalStart = 0;
       int sampleIntervalEnd = (int) Math
           .round(ts.length * GrammarVizAnomalyParameters.SUBSAMPLING_FRACTION);
-      consoleLogger.info("sampling parameters on interval [" + sampleIntervalStart + ", "
+      LOGGER.info("sampling parameters on interval [" + sampleIntervalStart + ", "
           + sampleIntervalEnd + "]");
       rp = new RulePruner(Arrays.copyOfRange(ts, sampleIntervalStart, sampleIntervalEnd));
     }
@@ -479,10 +469,9 @@ public class GrammarVizAnomaly {
    * { coverageArray[j] = coverageArray[j] + 1; } } }
    * 
    * // look for zero-covered intervals and add those to the list // List<RuleInterval> zeros =
-   * getZeroIntervals(coverageArray); if (zeros.size() > 0) { consoleLogger.info( "found " +
-   * zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
-   * intervals.addAll(zeros); } else { consoleLogger.info(
-   * "the whole timeseries is covered by rule intervals ..."); }
+   * getZeroIntervals(coverageArray); if (zeros.size() > 0) { LOGGER.info( "found " + zeros.size() +
+   * " intervals not covered by rules: " + intervalsToString(zeros)); intervals.addAll(zeros); }
+   * else { LOGGER.info( "the whole timeseries is covered by rule intervals ..."); }
    * 
    * // run HOTSAX with this intervals set // DiscordRecords discords =
    * RRAImplementation.series2RRAAnomalies(ts, discordsToReport, intervals); Date end = new Date();
@@ -537,7 +526,7 @@ public class GrammarVizAnomaly {
       NumerosityReductionStrategy saxNRStrategy, int discordsToReport, GIAlgorithm giImplementation,
       String outputPrefix, double normalizationThreshold) throws Exception {
 
-    consoleLogger.info("running RRA with pruning algorithm, building the grammar ...");
+    LOGGER.info("running RRA with pruning algorithm, building the grammar ...");
     Date start = new Date();
 
     GrammarRules rules;
@@ -555,13 +544,13 @@ public class GrammarVizAnomaly {
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
       rules = rePairGrammar.toGrammarRulesData();
     }
-    consoleLogger.info(rules.size() + " rules inferred in "
+    LOGGER.info(rules.size() + " rules inferred in "
         + SAXProcessor.timeToString(start.getTime(), new Date().getTime()) + ", pruning ...");
 
     // prune grammar' rules
     //
     GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
-    consoleLogger.info(
+    LOGGER.info(
         "finished pruning in " + SAXProcessor.timeToString(start.getTime(), new Date().getTime())
             + ", keeping " + prunedRulesSet.size() + " rules for anomaly discovery ...");
 
@@ -604,12 +593,12 @@ public class GrammarVizAnomaly {
     //
     List<RuleInterval> zeros = getZeroIntervals(coverageArray);
     if (zeros.size() > 0) {
-      consoleLogger.info(
+      LOGGER.info(
           "found " + zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
       intervals.addAll(zeros);
     }
     else {
-      consoleLogger.info("the whole timeseries is covered by rule intervals ...");
+      LOGGER.info("the whole timeseries is covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set
@@ -706,7 +695,7 @@ public class GrammarVizAnomaly {
       NumerosityReductionStrategy saxNRStrategy, int discordsToReport, GIAlgorithm giImplementation,
       String outputPrefix, double normalizationThreshold) throws Exception {
 
-    consoleLogger.info("running RRA algorithm...");
+    LOGGER.info("running RRA algorithm...");
     Date start = new Date();
 
     GrammarRules rules;
@@ -715,7 +704,7 @@ public class GrammarVizAnomaly {
       rules = SequiturFactory.series2SequiturRules(ts, windowSize, paaSize, alphabetSize,
           saxNRStrategy, normalizationThreshold);
       Date end = new Date();
-      consoleLogger.info(rules.size() + " Sequitur rules inferred in "
+      LOGGER.info(rules.size() + " Sequitur rules inferred in "
           + SAXProcessor.timeToString(start.getTime(), end.getTime()));
     }
     else {
@@ -727,7 +716,7 @@ public class GrammarVizAnomaly {
       rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
       rules = rePairGrammar.toGrammarRulesData();
       Date end = new Date();
-      consoleLogger.info(rules.size() + " RePair rules inferred in "
+      LOGGER.info(rules.size() + " RePair rules inferred in "
           + SAXProcessor.timeToString(start.getTime(), end.getTime()));
     }
 
@@ -771,12 +760,12 @@ public class GrammarVizAnomaly {
     //
     List<RuleInterval> zeros = getZeroIntervals(coverageArray);
     if (zeros.size() > 0) {
-      consoleLogger.info(
+      LOGGER.info(
           "found " + zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
       intervals.addAll(zeros);
     }
     else {
-      consoleLogger.info("the whole timeseries is covered by rule intervals ...");
+      LOGGER.info("the whole timeseries is covered by rule intervals ...");
     }
 
     // run HOTSAX with this intervals set
@@ -866,7 +855,7 @@ public class GrammarVizAnomaly {
   private static void findBruteForce(double[] ts, int windowSize, int discordsToReport)
       throws Exception {
 
-    consoleLogger.info("running brute force algorithm...");
+    LOGGER.info("running brute force algorithm...");
 
     Date start = new Date();
     DiscordRecords discords = BruteForceDiscordImplementation.series2BruteForceDiscords(ts,
@@ -892,7 +881,7 @@ public class GrammarVizAnomaly {
       int alphabetSize, NumerosityReductionStrategy saxNRStrategy, double normalizationThreshold)
       throws Exception {
 
-    consoleLogger.info("running HOT SAX hashtable-based algorithm...");
+    LOGGER.info("running HOT SAX hashtable-based algorithm...");
 
     Date start = new Date();
     DiscordRecords discords = HOTSAXImplementation.series2Discords(ts, discordsToReport, windowSize,

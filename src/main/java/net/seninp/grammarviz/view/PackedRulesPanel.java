@@ -15,9 +15,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
 import net.seninp.grammarviz.view.table.PrunedRulesTableModel;
@@ -29,8 +28,8 @@ import net.seninp.grammarviz.view.table.PrunedRulesTableModel;
  * 
  */
 
-public class PackedRulesPanel extends JPanel implements ListSelectionListener,
-    PropertyChangeListener {
+public class PackedRulesPanel extends JPanel
+    implements ListSelectionListener, PropertyChangeListener {
 
   /** Fancy serial. */
   private static final long serialVersionUID = -2710973854572981568L;
@@ -46,19 +45,14 @@ public class PackedRulesPanel extends JPanel implements ListSelectionListener,
   private JScrollPane packedRulesPane;
 
   private String selectedRule;
-  
+
   private ArrayList<String> selectedRules;
 
   private boolean acceptListEvents;
 
-  // the logger business
+  // static block - we instantiate the logger
   //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.DEBUG;
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizChartPanel.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(PackedRulesPanel.class);
 
   // private Comparator<String> expandedRuleComparator = new Comparator<String>() {
   // public int compare(String s1, String s2) {
@@ -166,27 +160,27 @@ public class PackedRulesPanel extends JPanel implements ListSelectionListener,
 
     if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
       int[] rows = packedTable.getSelectedRows();
-      consoleLogger.debug("Selected ROWS: " + Arrays.toString(rows));
+      LOGGER.debug("Selected ROWS: " + Arrays.toString(rows));
       ArrayList<String> rules = new ArrayList<String>(rows.length);
       for (int i = 0; i < rows.length; i++) {
         int ridx = rows[i];
         String rule = String.valueOf(
-        		packedTable.getValueAt(ridx, GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
+            packedTable.getValueAt(ridx, GrammarvizRulesTableColumns.RULE_NUMBER.ordinal()));
         rules.add(rule);
       }
       this.firePropertyChange(FIRING_PROPERTY_PACKED, this.selectedRules, rules);
       this.selectedRules = rules;
     }
-    
-//    if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
-//      int col = packedTable.getSelectedColumn();
-//      int row = packedTable.getSelectedRow();
-//      consoleLogger.debug("Selected ROW: " + row + " - COL: " + col);
-//      String rule = String.valueOf(packedTable.getValueAt(row,
-//          PrunedRulesTableColumns.CLASS_NUMBER.ordinal()));
-//      this.firePropertyChange(FIRING_PROPERTY_PACKED, this.selectedRule, rule);
-//      this.selectedRule = rule;
-//    }
+
+    // if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
+    // int col = packedTable.getSelectedColumn();
+    // int row = packedTable.getSelectedRow();
+    // consoleLogger.debug("Selected ROW: " + row + " - COL: " + col);
+    // String rule = String.valueOf(packedTable.getValueAt(row,
+    // PrunedRulesTableColumns.CLASS_NUMBER.ordinal()));
+    // this.firePropertyChange(FIRING_PROPERTY_PACKED, this.selectedRule, rule);
+    // this.selectedRule = rule;
+    // }
   }
 
   /**

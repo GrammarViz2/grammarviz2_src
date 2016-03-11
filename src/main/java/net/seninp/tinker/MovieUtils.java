@@ -12,24 +12,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.util.StackTrace;
 
 public class MovieUtils {
 
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-  private static final Level LOGGING_LEVEL = Level.INFO;
-  private static Logger consoleLogger;
-
   // static block - we instantiate the logger
   //
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(MovieMaker.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieMaker.class);
 
   /**
    * This reads the data
@@ -39,7 +32,7 @@ public class MovieUtils {
    */
   public static double[] loadData(String fname) {
 
-    consoleLogger.info("reading from " + fname);
+    LOGGER.info("reading from " + fname);
 
     long lineCounter = 0;
     double ts[] = new double[1];
@@ -77,8 +70,7 @@ public class MovieUtils {
       }
     }
 
-    consoleLogger.info("loaded " + data.size() + " points from " + lineCounter + " lines in "
-        + fname);
+    LOGGER.info("loaded " + data.size() + " points from " + lineCounter + " lines in " + fname);
     return ts;
 
   }

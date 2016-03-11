@@ -8,26 +8,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 public class SamplingSorter {
 
   private static final String prefix = "/media/Stock/tmp/ydata-labeled-time-series-anomalies-v1_0/A4Benchmark/";
   private static final String fileExtension = ".out";
 
-  private static final Logger consoleLogger;
-  private static final Level LOGGING_LEVEL = Level.OFF;
-
   // static block - we instantiate the logger
   //
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(SamplingSorter.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(SamplerAnomaly.class);
 
   // the main runnable
   //
@@ -49,11 +42,11 @@ public class SamplingSorter {
 
         // get the file reader set up
         //
-        consoleLogger.info("processing " + file.getName());
+        LOGGER.info("processing " + file.getName());
         CsvListReader reader = new CsvListReader(new FileReader(file),
             CsvPreference.STANDARD_PREFERENCE);
         final String[] header = reader.getHeader(true);
-        consoleLogger.info(" file header: " + Arrays.toString(header));
+        LOGGER.info(" file header: " + Arrays.toString(header));
 
         // setup data keepers
         //
@@ -82,7 +75,7 @@ public class SamplingSorter {
         });
 
         SamplerRecord bestParams = cleanValues.get(0);
-        consoleLogger.info(bestParams.toString());
+        LOGGER.info(bestParams.toString());
 
         StringBuffer sb = new StringBuffer();
         sb.append("java -cp \"grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar\"");

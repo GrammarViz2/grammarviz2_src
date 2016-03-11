@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Callable;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.gi.rulepruner.ReductionSorter;
 import net.seninp.gi.rulepruner.RulePruner;
@@ -18,15 +15,9 @@ public class GrammarvizParamsSampler implements Callable<String> {
 
   private GrammarvizChartPanel parent;
 
-  // the logger business
+  // static block - we instantiate the logger
   //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.DEBUG;
-
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizParamsSampler.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  // private static final Logger LOGGER = LoggerFactory.getLogger(GrammarvizParamsSampler.class);
 
   public GrammarvizParamsSampler(GrammarvizChartPanel grammarvizChartPanel) {
     this.parent = grammarvizChartPanel;

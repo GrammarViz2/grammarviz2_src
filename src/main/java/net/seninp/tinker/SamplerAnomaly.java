@@ -7,21 +7,16 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.gi.repair.RePairFactory;
 import net.seninp.gi.repair.RePairGrammar;
-import net.seninp.gi.sequitur.SequiturFactory;
-import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
-import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
@@ -36,21 +31,9 @@ public class SamplerAnomaly {
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
   private static final String CR = "\n";
 
-  // logging stuff
-  //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.INFO;
-
-  // the global timeseries variable
-  //
-  private static double[] ts;
-
   // static block - we instantiate the logger
   //
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizAnomaly.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(SamplerAnomaly.class);
 
   public static void main(String[] args) {
 
@@ -86,7 +69,7 @@ public class SamplerAnomaly {
         // read the data
         //
         String dataFName = SamplerAnomalyParameters.IN_FILE;
-        ts = TSProcessor.readFileColumn(dataFName, 0, 0);
+        double[] ts = TSProcessor.readFileColumn(dataFName, 0, 0);
 
         // infer the grammar
         //
@@ -139,12 +122,12 @@ public class SamplerAnomaly {
         //
         List<RuleInterval> zeros = getZeroIntervals(coverageArray);
         if (zeros.size() > 0) {
-          consoleLogger.info("found " + zeros.size() + " intervals not covered by rules: "
+          LOGGER.info("found " + zeros.size() + " intervals not covered by rules: "
               + intervalsToString(zeros));
           intervals.addAll(getZeroIntervals(coverageArray));
         }
         else {
-          consoleLogger.info("the whole timeseries covered by rule intervals ...");
+          LOGGER.info("the whole timeseries covered by rule intervals ...");
         }
 
         // run HOTSAX with this intervals set

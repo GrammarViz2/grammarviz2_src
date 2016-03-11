@@ -13,9 +13,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.grammarviz.session.UserSession;
 import net.seninp.grammarviz.view.table.AnomalyTableModel;
 import net.seninp.grammarviz.view.table.CellDoubleRenderer;
@@ -40,15 +39,9 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
 
   private boolean acceptListEvents;
 
-  // the logger business
+  // static block - we instantiate the logger
   //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.DEBUG;
-
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizAnomaliesPanel.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(GrammarRulesPanel.class);
 
   /**
    * Constructor.
@@ -131,7 +124,7 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
   public void valueChanged(ListSelectionEvent arg) {
     if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
       int[] rows = anomalyTable.getSelectedRows();
-      consoleLogger.debug("Selected ROWS: " + Arrays.toString(rows));
+      LOGGER.debug("Selected ROWS: " + Arrays.toString(rows));
       ArrayList<String> rules = new ArrayList<String>(rows.length);
       for (int i = 0; i < rows.length; i++) {
         int ridx = rows[i];

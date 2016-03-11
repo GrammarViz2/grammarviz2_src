@@ -11,9 +11,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.grammarviz.session.UserSession;
 import net.seninp.grammarviz.view.table.CellDoubleRenderer;
 import net.seninp.grammarviz.view.table.PeriodicityTableModel;
@@ -45,15 +44,9 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
 
   private boolean acceptListEvents;
 
-  // the logger business
+  // static block - we instantiate the logger
   //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.DEBUG;
-
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(RulesPeriodicityPanel.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(RulesPeriodicityPanel.class);
 
   /**
    * Constructor.
@@ -141,7 +134,7 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
       int row = periodicityTable.getSelectedRow();
       String rule = String.valueOf(
           periodicityTable.getValueAt(row, PrunedRulesTableColumns.CLASS_NUMBER.ordinal()));
-      consoleLogger.debug("Selected ROW: " + row + " - COL: " + col + "; rule: " + rule);
+      LOGGER.debug("Selected ROW: " + row + " - COL: " + col + "; rule: " + rule);
       this.firePropertyChange(FIRING_PROPERTY_PERIOD, this.selectedRule, rule);
       this.selectedRule = rule;
     }

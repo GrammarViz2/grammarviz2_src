@@ -7,9 +7,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.SAXProcessor;
@@ -29,13 +28,7 @@ public class RRAImplementation {
 
   // static block - we instantiate the logger
   //
-  private static Logger consoleLogger;
-  private static final Level LOGGING_LEVEL = Level.INFO;
-
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(RRAImplementation.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(RRAImplementation.class);
 
   /**
    * Implements RRA -- an anomaly discovery algorithm based on discretization and grammar inference.
@@ -68,7 +61,7 @@ public class RRAImplementation {
     //
     while (discords.getSize() < discordCollectionSize) {
 
-      consoleLogger.trace(
+      LOGGER.trace(
           "currently known discords: " + discords.getSize() + " out of " + discordCollectionSize);
 
       Date start = new Date();
@@ -78,7 +71,7 @@ public class RRAImplementation {
       // if the discord is null we getting out of the search
       if (bestDiscord.getNNDistance() == Integer.MIN_VALUE
           || bestDiscord.getPosition() == Integer.MIN_VALUE) {
-        consoleLogger.trace("breaking the outer search loop, discords found: " + discords.getSize()
+        LOGGER.trace("breaking the outer search loop, discords found: " + discords.getSize()
             + " last seen discord: " + bestDiscord.toString());
         break;
       }
@@ -87,7 +80,7 @@ public class RRAImplementation {
           + bestDiscord.getLength() + ", NN distance " + bestDiscord.getNNDistance()
           + ", elapsed time: " + SAXProcessor.timeToString(start.getTime(), end.getTime()) + ", "
           + bestDiscord.getInfo());
-      consoleLogger.debug(bestDiscord.getInfo());
+      LOGGER.debug(bestDiscord.getInfo());
 
       // collect the result
       //
@@ -108,7 +101,7 @@ public class RRAImplementation {
       }
     }
 
-    consoleLogger.info(discords.getSize() + " discords found in "
+    LOGGER.info(discords.getSize() + " discords found in "
         + SAXProcessor.timeToString(gStart.getTime(), new Date().getTime()));
 
     // done deal
@@ -151,7 +144,7 @@ public class RRAImplementation {
     int iterationCounter = 0;
     int distanceCalls = 0;
 
-    consoleLogger
+    LOGGER
         .trace("going to iterate over " + intervals.size() + " intervals looking for the discord");
 
     for (int i = 0; i < intervals.size(); i++) {
@@ -167,13 +160,13 @@ public class RRAImplementation {
         continue;
       }
 
-      consoleLogger.trace("iteration " + i + ", out of " + intervals.size() + ", rule "
-          + currentRule + " at " + currentPos + ", length " + currentEntry.getLength());
+      LOGGER.trace("iteration " + i + ", out of " + intervals.size() + ", rule " + currentRule
+          + " at " + currentPos + ", length " + currentEntry.getLength());
 
       // other occurrences of the current rule
       // TODO : this can be taken out of here to optimize multiple discords discovery
       ArrayList<Integer> currentOccurences = listRuleOccurrences(currentEntry.getId(), intervals);
-      consoleLogger.trace(" there are " + currentOccurences.size() + " occurrences for the rule "
+      LOGGER.trace(" there are " + currentOccurences.size() + " occurrences for the rule "
           + currentEntry.getId() + ", iterating...");
 
       // organize visited so-far positions tracking
@@ -223,11 +216,11 @@ public class RRAImplementation {
         // keep track of best so far distance
         if (dist < nearestNeighborDist) {
           nearestNeighborDist = dist;
-          consoleLogger.trace(" ** current NN at interval " + nextOccurrence.getStart() + "-"
+          LOGGER.trace(" ** current NN at interval " + nextOccurrence.getStart() + "-"
               + nextOccurrence.getEnd() + ", distance: " + nearestNeighborDist);
         }
         if (dist < bestSoFarDistance) {
-          consoleLogger.trace(" ** abandoning the occurrences iterations");
+          LOGGER.trace(" ** abandoning the occurrences iterations");
           doRandomSearch = false;
           break;
         }
@@ -235,7 +228,7 @@ public class RRAImplementation {
 
       // check if we must continue with random neighbors
       if (doRandomSearch) {
-        consoleLogger.trace("starting random search");
+        LOGGER.trace("starting random search");
 
         // init the visit array
         //
@@ -275,14 +268,14 @@ public class RRAImplementation {
           // the current word is not discord, we have seen better
           if (dist < bestSoFarDistance) {
             nearestNeighborDist = dist;
-            consoleLogger.trace(" ** abandoning random visits loop, seen distance "
-                + nearestNeighborDist + " at iteration " + visitCounter);
+            LOGGER.trace(" ** abandoning random visits loop, seen distance " + nearestNeighborDist
+                + " at iteration " + visitCounter);
             break;
           }
 
           // keep track
           if (dist < nearestNeighborDist) {
-            consoleLogger.trace(" ** current NN id rule " + randomInterval.getId() + " at "
+            LOGGER.trace(" ** current NN id rule " + randomInterval.getId() + " at "
                 + randomInterval.startPos + ", distance: " + dist);
             nearestNeighborDist = dist;
           }
@@ -294,7 +287,7 @@ public class RRAImplementation {
       } // end of random search branch
 
       if (nearestNeighborDist > bestSoFarDistance) {
-        consoleLogger.trace(" updating discord candidate: rule " + currentEntry.getId() + " at "
+        LOGGER.trace(" updating discord candidate: rule " + currentEntry.getId() + " at "
             + currentEntry.getStart() + " len " + currentEntry.getLength() + " NN dist: "
             + bestSoFarDistance);
         bestSoFarDistance = nearestNeighborDist;
@@ -303,7 +296,7 @@ public class RRAImplementation {
         bestSoFarRule = currentEntry.getId();
       }
 
-      consoleLogger.trace(" . . iterated " + iterationCounter + " times, best distance:  "
+      LOGGER.trace(" . . iterated " + iterationCounter + " times, best distance:  "
           + bestSoFarDistance + " for a rule " + bestSoFarRule + " at " + bestSoFarPosition
           + " len " + bestSoFarLength);
 

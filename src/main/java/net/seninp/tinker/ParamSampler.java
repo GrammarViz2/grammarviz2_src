@@ -8,26 +8,19 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 public class ParamSampler {
 
   private static final String prefix = "/media/Stock/tmp/ydata-labeled-time-series-anomalies-v1_0/A4Benchmark/";
   private static final String fileExtension = ".csv";
 
-  private static final Logger consoleLogger;
-  private static final Level LOGGING_LEVEL = Level.INFO;
-
   // static block - we instantiate the logger
   //
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(ParamSampler.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(ParamSampler.class);
 
   // the main runnable
   //
@@ -49,11 +42,11 @@ public class ParamSampler {
 
         // get the file reader set up
         //
-        consoleLogger.info("processing " + file.getName());
+        LOGGER.info("processing " + file.getName());
         CsvListReader reader = new CsvListReader(new FileReader(file),
             CsvPreference.STANDARD_PREFERENCE);
         final String[] header = reader.getHeader(true);
-        consoleLogger.info(" file header: " + Arrays.toString(header));
+        LOGGER.info(" file header: " + Arrays.toString(header));
 
         // findout needed fields indexes
         //
@@ -91,8 +84,8 @@ public class ParamSampler {
         // write the data file
         //
         String samplerInputFilename = file.getName().concat(".column");
-        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(prefix
-            + samplerInputFilename)));
+        BufferedWriter bw = new BufferedWriter(
+            new FileWriter(new File(prefix + samplerInputFilename)));
         for (Double v : values) {
           bw.write(v + "\n");
         }

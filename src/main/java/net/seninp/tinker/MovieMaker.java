@@ -4,9 +4,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
@@ -22,8 +21,6 @@ public class MovieMaker {
   // locale, charset, logger, etc
   //
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-  private static final Level LOGGING_LEVEL = Level.INFO;
-  private static Logger consoleLogger;
 
   // data file
   //
@@ -46,10 +43,7 @@ public class MovieMaker {
 
   // static block - we instantiate the logger
   //
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(MovieMaker.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieMaker.class);
 
   // the main runnable
   //
@@ -76,7 +70,7 @@ public class MovieMaker {
     for (int i = 0; i < ts.length - (WINDOW_SIZE - 1); i++) {
 
       if (i % (1000) == 0) {
-        consoleLogger.info("processing position " + i + " out of " + ts.length);
+        LOGGER.info("processing position " + i + " out of " + ts.length);
       }
 
       // fix the current subsection

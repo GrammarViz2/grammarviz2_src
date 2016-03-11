@@ -8,9 +8,8 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.session.UserSession;
 
@@ -25,15 +24,9 @@ class GrammarvizOptionsDialog extends JDialog implements ActionListener {
   private UserSession session;
   private GrammarvizOptionsPane optionPane;
 
-  // logging stuff
+  // static block - we instantiate the logger
   //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.INFO;
-
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarvizOptionsDialog.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(GrammarvizOptionsDialog.class);
 
   /** Creates the reusable dialog. */
   public GrammarvizOptionsDialog(JFrame parentFrame, JPanel optionPanel, UserSession session) {
@@ -101,7 +94,7 @@ class GrammarvizOptionsDialog extends JDialog implements ActionListener {
       this.session.chartsSaveFolder = this.optionPane.getChartsFolderName();
       logStr.append(", charts output: ").append(this.optionPane.getChartsFolderName());
 
-      consoleLogger.info(logStr.toString());
+      LOGGER.info(logStr.toString());
 
     }
     else if (CANCEL_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {

@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -32,9 +33,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
@@ -55,15 +55,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
   // static block - we instantiate the logger
   //
-  // logging stuff
-  //
-  private static Logger consoleLogger;
-  private static Level LOGGING_LEVEL = Level.INFO;
-
-  static {
-    consoleLogger = (Logger) LoggerFactory.getLogger(GrammarVizView.class);
-    consoleLogger.setLevel(LOGGING_LEVEL);
-  }
+  private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizView.class);
 
   // relevant string constants and formatters go here
   //
@@ -595,9 +587,9 @@ public class GrammarVizView implements Observer, ActionListener {
         BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED),
             "Grammar rules (search in list by clicking into list and pressing CTRL-F)",
             TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
-            // MigLayout tabbedPaneLayout = new MigLayout(",insets 0 0 0 2", "[fill,grow]",
-            // "[fill,grow]");
-            // tabbedRulesPane.setLayout(tabbedPaneLayout);
+    // MigLayout tabbedPaneLayout = new MigLayout(",insets 0 0 0 2", "[fill,grow]",
+    // "[fill,grow]");
+    // tabbedRulesPane.setLayout(tabbedPaneLayout);
 
     // the rule chart panel
     //
@@ -703,7 +695,7 @@ public class GrammarVizView implements Observer, ActionListener {
       logTextArea.append(dateStr + "view: " + message + CR);
     }
     logTextArea.setCaretPosition(logTextArea.getDocument().getLength());
-    consoleLogger.info(dateStr + message);
+    LOGGER.info(dateStr + message);
   }
 
   @Override

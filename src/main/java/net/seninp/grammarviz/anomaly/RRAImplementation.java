@@ -152,14 +152,15 @@ public class RRAImplementation {
       iterationCounter++;
 
       RuleInterval currentEntry = intervals.get(i);
-      int currentPos = currentEntry.getStart();
-      String currentRule = String.valueOf(currentEntry.getId());
-
+      
       // make sure it is not a previously found discord
       if (registry.contains(currentEntry.getStart())) {
         continue;
       }
 
+      int currentPos = currentEntry.getStart();
+      String currentRule = String.valueOf(currentEntry.getId());
+      
       LOGGER.trace("iteration " + i + ", out of " + intervals.size() + ", rule " + currentRule
           + " at " + currentPos + ", length " + currentEntry.getLength());
 

@@ -44,7 +44,7 @@ public class PackedRulesPanel extends JPanel
 
   private JScrollPane packedRulesPane;
 
-  private String selectedRule;
+  // private String selectedRule;
 
   private ArrayList<String> selectedRules;
 

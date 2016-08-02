@@ -19,7 +19,7 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
   private static final String OK_BUTTON_TEXT = "OK";
   private static final String CANCEL_BUTTON_TEXT = "Cancel";
 
-  private UserSession session;
+  //private UserSession session;
 
   private GrammarvizGuesserPane guesserPane;
 
@@ -38,7 +38,7 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
 
     this.setTitle("Sampler interval and parameter ranges verification");
 
-    this.session = session;
+    // this.session = session;
 
     this.guesserPane = (GrammarvizGuesserPane) guesserPane;
 

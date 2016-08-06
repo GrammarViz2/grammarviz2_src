@@ -29,6 +29,7 @@ public class SamplerAnomaly {
   // locale, charset, etc
   //
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+  
   private static final String CR = "\n";
 
   // static block - we instantiate the logger

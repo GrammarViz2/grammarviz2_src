@@ -19,8 +19,8 @@ public class PaperWindowSampler {
 
   private static final String IN_DATA = "data/aa_synth/sine_0_a2.txt";
 
-  private static final int SAMPLE_START = 350;
-  private static final int SAMPLE_END = 750;
+  private static final int SAMPLE_START = 745;
+  private static final int SAMPLE_END = 1070;
   private static final int SAMPLE_STEP = 5;
 
   private static final TSProcessor tp = new TSProcessor();
@@ -48,14 +48,14 @@ public class PaperWindowSampler {
 
       for (int ws = 10; ws <= upperLimit; ws = ws + 1) {
 
-        for (int ps = 2; ps < 10; ps = ps + 1) {
+        for (int ps = 2; ps < 12; ps = ps + 1) {
 
           // check for invalid cases
           if (ps > ws) {
             continue;
           }
 
-          for (int as = 2; as < 10; as = as + 1) {
+          for (int as = 2; as < 12; as = as + 1) {
 
             SampledPoint p = null;
 

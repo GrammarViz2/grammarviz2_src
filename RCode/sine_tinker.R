@@ -53,6 +53,13 @@ y1 <- c( y[1:(min(points3))], points3_new, y[(max(points3)):length(y)])
 p4 <- ggplot(data.frame(x = 1:length(y1), y = y1), aes(x, y)) + geom_line() + ggtitle("Sine wave + anomaly")
 p4
 write.table(y1, "../data/aa_synth/sine_0_a2.txt", col.names = F, row.names = F)
+#
+# sampling interval
+#
+dd = data.frame(x = 1:length(y1), y = y1)
+p5 <- ggplot(dd[745:1070,], aes(x, y)) + geom_line() + ggtitle("Sine wave + anomaly")
+p5
+
 
 p3 <- ggplot(data.frame(x = t, y = y), aes(x, y)) + geom_line() + ggtitle("Sine wave + anomaly")
 p3

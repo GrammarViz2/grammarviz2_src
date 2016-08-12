@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.gi.GIAlgorithm;
@@ -17,7 +16,7 @@ import net.seninp.jmotif.sax.TSProcessor;
 
 public class PaperWindowSampler {
 
-  private static final String IN_DATA = "data/aa_synth/sine_0_a2.txt";
+  private static final String IN_DATA = "RCode/TKDD/sine_and_5anomalies.txt";
 
   private static final int SAMPLE_START = 745;
   private static final int SAMPLE_END = 1070;
@@ -29,7 +28,7 @@ public class PaperWindowSampler {
 
   public static void main(String[] args) throws Exception {
 
-    BufferedWriter bw = new BufferedWriter(new FileWriter(new File("res.txt")));
+    BufferedWriter bw = new BufferedWriter(new FileWriter(new File("RCode/TKDD/sine_and_5anomalies_out.txt")));
 
     // HashMap<String, SampledPoint> res_global = new HashMap<String, SampledPoint>();
 
@@ -74,6 +73,7 @@ public class PaperWindowSampler {
 
       String str = SAMPLE_START + "," + (SAMPLE_START + upperLimit) + ","
           + best_point.toLogString();
+      
       System.out.println("*** " + str);
       bw.write(str + "\n");
     }

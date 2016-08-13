@@ -163,11 +163,17 @@ p8 <- p8 + geom_line(aes(df_red5$x, df_red5$y), color = "brown3", size = 1)
 p8
 #
 grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, layout_matrix = cbind(c(1, 3, 5, 7), c(2, 4, 6, 8)))
+#
+Cairo(width = 1050, height = 600, 
+      file="synth_00.pdf", 
+      type="pdf", pointsize=12, 
+      bg = "transparent", canvas = "white", units = "px", dpi = 82)
+print(grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, layout_matrix = cbind(c(1, 3, 5, 7), c(2, 4, 6, 8))))
+dev.off()
 
 
 
-
-stats <- fread("../RCode/TKDD/sine_5anomalies_rwalk_03noise_sampler_out.txt")
+stats <- fread("../RCode/TKDD/sine_5anomalies_rwalk_04noise_sampler_out.txt")
 names(stats) <- c("int_start", "int_end", "window", "paa", "alphabet", "approxDist", "grammarSize",
                   "grammarRules", "compressedGrammarSize", "prunedRules", "isCovered", "coverage")
 #

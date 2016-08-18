@@ -51,7 +51,7 @@ import net.seninp.util.StackTrace;
  */
 public class GrammarVizView implements Observer, ActionListener {
 
-  private static final String APPLICATION_MOTTO = "GrammarViz 2.0: visualizing time series grammars";
+  private static final String APPLICATION_MOTTO = "GrammarViz 3.0: visualizing time series grammars";
 
   // static block - we instantiate the logger
   //
@@ -597,8 +597,11 @@ public class GrammarVizView implements Observer, ActionListener {
     ruleChartPane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Rule subsequences, normalized",
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
+    
     MigLayout ruleChartPaneLayout = new MigLayout(",insets 0 2 0 0", "[fill,grow]", "[fill,grow]");
+    
     ruleChartPane.setLayout(ruleChartPaneLayout);
+    
     ruleChartPane.setController(this.controller);
 
   }

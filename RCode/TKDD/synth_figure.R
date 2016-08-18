@@ -14,7 +14,8 @@ require(lattice)
 sine <- fread("../RCode/TKDD/sine_wave.txt")
 sine <- data.frame(x = 1:(length(sine$V1)), y = sine$V1)
 #
-p1 <- ggplot(sine, aes(x, y)) + geom_line(lwd = 0.3) + theme_bw() +
+p1 <- ggplot(sine, aes(x, y)) + geom_line(lwd = 0.3, color = "blue") + theme_bw() +
+  scale_y_continuous(breaks = seq(-1, 1, by = 1)) +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -26,7 +27,8 @@ p1
 sine_anomaly <- fread("../RCode/TKDD/sine_and_5anomalies.txt")
 sine_anomaly <- data.frame(x = 1:(length(sine_anomaly$V1)), y = sine_anomaly$V1)
 #
-p2 <- ggplot(sine_anomaly, aes(x, y)) + geom_line( lwd = 0.3) + theme_bw() +
+p2 <- ggplot(sine_anomaly, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw()  +
+  scale_y_continuous(breaks = seq(-1, 1, by = 1)) +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -47,7 +49,8 @@ p2
 random_walk <- fread("../RCode/TKDD/random_walk.txt")
 random_walk <- data.frame(x = 1:(length(random_walk$V1)), y = random_walk$V1)
 #
-p3 <- ggplot(random_walk, aes(x, y)) + geom_line( lwd = 0.3) + theme_bw() +
+p3 <- ggplot(random_walk, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw() +
+  scale_y_continuous(breaks = seq(0, 2, by = 1)) +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -59,7 +62,7 @@ p3
 trending_anomaly <- fread("../RCode/TKDD/sine_5anomalies_rwalk.txt")
 trending_anomaly <- data.frame(x = 1:(length(trending_anomaly$V1)), y = trending_anomaly$V1)
 #
-p4 <- ggplot(trending_anomaly, aes(x, y)) + geom_line( lwd = 0.3) + theme_bw() +
+p4 <- ggplot(trending_anomaly, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw() +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -81,7 +84,7 @@ p4
 trending_anomaly1 <- fread("../RCode/TKDD/sine_5anomalies_rwalk_01noise.txt")
 trending_anomaly1 <- data.frame(x = 1:(length(trending_anomaly1$V1)), y = trending_anomaly1$V1)
 #
-p5 <- ggplot(trending_anomaly1, aes(x, y)) + geom_line( lwd = 0.3) + theme_bw() +
+p5 <- ggplot(trending_anomaly1, aes(x, y)) + geom_line( lwd = 0.3, color="blue")+ theme_bw() +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -102,7 +105,7 @@ p5
 trending_anomaly2 <- fread("../RCode/TKDD/sine_5anomalies_rwalk_02noise.txt")
 trending_anomaly2 <- data.frame(x = 1:(length(trending_anomaly2$V1)), y = trending_anomaly2$V1)
 #
-p6 <- ggplot(trending_anomaly2, aes(x, y)) + geom_line( lwd = 0.3) + theme_bw() +
+p6 <- ggplot(trending_anomaly2, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw() +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -124,7 +127,7 @@ p6
 trending_anomaly3 <- fread("../RCode/TKDD/sine_5anomalies_rwalk_03noise.txt")
 trending_anomaly3 <- data.frame(x = 1:(length(trending_anomaly3$V1)), y = trending_anomaly3$V1)
 #
-p7 <- ggplot(trending_anomaly3, aes(x, y)) + geom_line( lwd = 0.3) + theme_bw() +
+p7 <- ggplot(trending_anomaly3, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw() +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -146,7 +149,7 @@ p7
 trending_anomaly4 <- fread("../RCode/TKDD/sine_5anomalies_rwalk_04noise.txt")
 trending_anomaly4 <- data.frame(x = 1:(length(trending_anomaly4$V1)), y = trending_anomaly4$V1)
 #
-p8 <- ggplot(trending_anomaly4, aes(x, y)) + geom_line( lwd = 0.3) + theme_bw() +
+p8 <- ggplot(trending_anomaly4, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw() +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +

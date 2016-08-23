@@ -26,9 +26,9 @@ import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 
 public class PaperDiscordFinder {
 
-  private static final String IN_DATA = "RCode/TKDD/sine_5anomalies_rwalk_05noise.txt";
+  private static final String IN_DATA = "RCode/TKDD/sine_and_5anomalies.txt";
 
-  private static final String IN_PARAMS = "RCode/TKDD/sine_5anomalies_rwalk_05noise_sampler_out.txt";
+  private static final String IN_PARAMS = "RCode/TKDD/sine_and_5anomalies_out.txt";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PaperDiscordFinder.class);
 
@@ -42,7 +42,7 @@ public class PaperDiscordFinder {
     LOGGER.info("read " + ts.length + " points from " + IN_DATA);
 
     BufferedWriter bw = new BufferedWriter(
-        new FileWriter(new File("RCode/TKDD/sine_5anomalies_rwalk_05noise_discord_res.txt")));
+        new FileWriter(new File("RCode/TKDD/sine_and_5anomalies_discord_res_10.txt")));
 
     BufferedReader br = new BufferedReader(new FileReader(new File(IN_PARAMS)));
 
@@ -120,7 +120,7 @@ public class PaperDiscordFinder {
 
       // run HOTSAX with this intervals set
       //
-      DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 5, intervals);
+      DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 10, intervals);
       //
       // ************************
       //
@@ -149,6 +149,9 @@ public class PaperDiscordFinder {
 
         int pos = discord.getPosition();
         int len = discord.getLength();
+        
+        
+        System.out.println(len);
 
         Interval di = new Interval(pos, pos + len);
 

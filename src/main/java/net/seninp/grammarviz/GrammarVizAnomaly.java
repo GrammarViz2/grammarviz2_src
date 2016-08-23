@@ -145,7 +145,8 @@ public class GrammarVizAnomaly {
       //
       if (AnomalyAlgorithm.BRUTEFORCE.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
         findBruteForce(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
-            GrammarVizAnomalyParameters.DISCORDS_NUM);
+            GrammarVizAnomalyParameters.DISCORDS_NUM,
+            GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
       }
       else if (AnomalyAlgorithm.HOTSAX.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
         findHotSax(series, GrammarVizAnomalyParameters.DISCORDS_NUM,
@@ -850,16 +851,17 @@ public class GrammarVizAnomaly {
    * @param ts timeseries to use
    * @param windowSize the sliding window size.
    * @param discordsToReport num of discords to report.
+   * @param nThreshold the z-Normlization threshold value.
    * @throws Exception if error occurs.
    */
-  private static void findBruteForce(double[] ts, int windowSize, int discordsToReport)
-      throws Exception {
+  private static void findBruteForce(double[] ts, int windowSize, int discordsToReport,
+      double nThreshold) throws Exception {
 
     LOGGER.info("running brute force algorithm...");
 
     Date start = new Date();
     DiscordRecords discords = BruteForceDiscordImplementation.series2BruteForceDiscords(ts,
-        windowSize, discordsToReport, new LargeWindowAlgorithm());
+        windowSize, discordsToReport, new LargeWindowAlgorithm(), nThreshold);
     Date end = new Date();
 
     System.out.println(CR + discords.toString() + CR + discords.getSize() + " discords found in "

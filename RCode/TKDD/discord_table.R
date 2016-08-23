@@ -3,8 +3,8 @@ library(plyr)
 #
 dat_sine <- fread("TKDD/sine_and_5anomalies_discord_res.txt")
 dat_sine <- fread("TKDD/sine_5anomalies_rwalk_discord_res.txt")
-dat_sine <- fread("TKDD/sine_5anomalies_rwalk_01noise_discord_res.txt")
-dat_sine <- fread("TKDD/sine_5anomalies_rwalk_02noise_discord_res.txt")
+dat_sine <- fread("TKDD/sine_5anomalies_rwalk_01noise_discord_res_10.txt")
+dat_sine <- fread("TKDD/sine_5anomalies_rwalk_02noise_discord_res_10.txt")
 dat_sine <- fread("TKDD/sine_5anomalies_rwalk_03noise_discord_res.txt")
 dat_sine <- fread("TKDD/sine_5anomalies_rwalk_04noise_discord_res.txt")
 
@@ -14,15 +14,19 @@ dat_sine$rank <- 0
 for (i in 1:(length(dat_sine$rank))) {
   rank <- 0
   row <- unlist(dat_sine[i, ])
-  str(row)
   for (j in 4:9) {
     if ( row[j] > 0 ) {
       rank <- rank + 1
     }
   }
   row <- dat_sine[i, ]$rank <- rank
-  print(x$d1)
 }
+arrange(dat_sine, rank)
+
+
+mean(dat_sine$rank)
+sd(dat_sine$rank)
+
 
 table(dat_sine$d1 > 0)
 table(dat_sine$d2 > 0)

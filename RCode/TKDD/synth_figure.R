@@ -63,6 +63,7 @@ trending_anomaly <- fread("../RCode/TKDD/sine_5anomalies_rwalk.txt")
 trending_anomaly <- data.frame(x = 1:(length(trending_anomaly$V1)), y = trending_anomaly$V1)
 #
 p4 <- ggplot(trending_anomaly, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw() +
+  scale_y_continuous(breaks = seq(-1, 3, by = 1)) +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -85,6 +86,7 @@ trending_anomaly1 <- fread("../RCode/TKDD/sine_5anomalies_rwalk_01noise.txt")
 trending_anomaly1 <- data.frame(x = 1:(length(trending_anomaly1$V1)), y = trending_anomaly1$V1)
 #
 p5 <- ggplot(trending_anomaly1, aes(x, y)) + geom_line( lwd = 0.3, color="blue")+ theme_bw() +
+  scale_y_continuous(breaks = seq(-1, 3, by = 1)) +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -106,6 +108,7 @@ trending_anomaly2 <- fread("../RCode/TKDD/sine_5anomalies_rwalk_02noise.txt")
 trending_anomaly2 <- data.frame(x = 1:(length(trending_anomaly2$V1)), y = trending_anomaly2$V1)
 #
 p6 <- ggplot(trending_anomaly2, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw() +
+  scale_y_continuous(breaks = seq(-1, 3, by = 1)) +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -128,6 +131,7 @@ trending_anomaly3 <- fread("../RCode/TKDD/sine_5anomalies_rwalk_03noise.txt")
 trending_anomaly3 <- data.frame(x = 1:(length(trending_anomaly3$V1)), y = trending_anomaly3$V1)
 #
 p7 <- ggplot(trending_anomaly3, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw() +
+  scale_y_continuous(breaks = seq(-1, 3, by = 1)) +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +
@@ -150,6 +154,7 @@ trending_anomaly4 <- fread("../RCode/TKDD/sine_5anomalies_rwalk_04noise.txt")
 trending_anomaly4 <- data.frame(x = 1:(length(trending_anomaly4$V1)), y = trending_anomaly4$V1)
 #
 p8 <- ggplot(trending_anomaly4, aes(x, y)) + geom_line( lwd = 0.3, color="blue") + theme_bw() +
+  scale_y_continuous(breaks = seq(-1, 3, by = 1)) +
   theme(axis.title.x = element_blank(),axis.title.y = element_blank(),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),axis.line.y = element_blank()) +

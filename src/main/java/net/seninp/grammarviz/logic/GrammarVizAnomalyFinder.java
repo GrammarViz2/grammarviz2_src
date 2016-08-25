@@ -128,8 +128,8 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       start = new Date();
       DiscordRecord bestDiscord;
       try {
-        bestDiscord = RRAImplementation
-            .findBestDiscordForIntervals(this.chartData.originalTimeSeries, intervals, registry);
+        bestDiscord = RRAImplementation.findBestDiscordForIntervals(
+            this.chartData.originalTimeSeries, intervals, registry, 0.5);
         Date end = new Date();
 
         // if the discord is null we getting out of the search

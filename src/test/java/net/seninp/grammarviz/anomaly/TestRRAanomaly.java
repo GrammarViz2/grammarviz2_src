@@ -30,7 +30,7 @@ public class TestRRAanomaly {
   private static final int PAA_SIZE = 4;
   private static final int ALPHABET_SIZE = 4;
 
-  private static final double NORM_THRESHOLD = 0.01;
+  private static final double NORM_THRESHOLD = 0.5;
 
   private static final int DISCORDS_TO_TEST = 1;
 
@@ -107,7 +107,8 @@ public class TestRRAanomaly {
         intervals.addAll(zeros);
       }
 
-      discordsRRA = RRAImplementation.series2RRAAnomalies(series, DISCORDS_TO_TEST, intervals);
+      discordsRRA = RRAImplementation.series2RRAAnomalies(series, DISCORDS_TO_TEST, intervals,
+          NORM_THRESHOLD);
 
       for (DiscordRecord d : discordsRRA) {
         System.out.println("RRA discords " + d.toString());

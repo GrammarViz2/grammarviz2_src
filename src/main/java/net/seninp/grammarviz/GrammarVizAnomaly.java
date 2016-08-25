@@ -604,8 +604,8 @@ public class GrammarVizAnomaly {
 
     // run HOTSAX with this intervals set
     //
-    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport,
-        intervals);
+    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport, intervals,
+        normalizationThreshold);
     Date end = new Date();
 
     System.out.println(discords.toString() + CR + "Discords found in "
@@ -771,8 +771,8 @@ public class GrammarVizAnomaly {
 
     // run HOTSAX with this intervals set
     //
-    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport,
-        intervals);
+    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport, intervals,
+        normalizationThreshold);
     Date end = new Date();
 
     System.out.println(discords.toString() + CR + discords.getSize() + " discords found in "

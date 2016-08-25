@@ -30,6 +30,8 @@ public class PaperDiscordFinder {
 
   private static final String IN_PARAMS = "RCode/TKDD/sine_and_5anomalies_out.txt";
 
+  private static final double normalizationThreshold = 0.05;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(PaperDiscordFinder.class);
 
   private static final String COMMA = ",";
@@ -120,7 +122,8 @@ public class PaperDiscordFinder {
 
       // run HOTSAX with this intervals set
       //
-      DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 10, intervals);
+      DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 10, intervals,
+          normalizationThreshold);
       //
       // ************************
       //
@@ -149,8 +152,7 @@ public class PaperDiscordFinder {
 
         int pos = discord.getPosition();
         int len = discord.getLength();
-        
-        
+
         System.out.println(len);
 
         Interval di = new Interval(pos, pos + len);

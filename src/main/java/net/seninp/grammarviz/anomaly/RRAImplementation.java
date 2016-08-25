@@ -38,11 +38,12 @@ public class RRAImplementation {
    * @param discordCollectionSize How many discords to find.
    * @param intervals The intervals. In our implementation these come from the set of Sequitur
    * grammar rules.
+   * @param zNormThreshold - the normalization threshold (dstance).
    * @return Discords.
    * @throws TSException If error occurs.
    */
   public static DiscordRecords series2RRAAnomalies(double[] series, int discordCollectionSize,
-      ArrayList<RuleInterval> intervals) throws Exception {
+      ArrayList<RuleInterval> intervals, double zNormThreshold) throws Exception {
 
     Date gStart = new Date();
 
@@ -65,7 +66,8 @@ public class RRAImplementation {
           "currently known discords: " + discords.getSize() + " out of " + discordCollectionSize);
 
       Date start = new Date();
-      DiscordRecord bestDiscord = findBestDiscordForIntervals(series, intervals, registry);
+      DiscordRecord bestDiscord = findBestDiscordForIntervals(series, intervals, registry,
+          zNormThreshold);
       Date end = new Date();
 
       // if the discord is null we getting out of the search
@@ -114,11 +116,13 @@ public class RRAImplementation {
    * @param series
    * @param globalIntervals
    * @param registry
+   * @param zNormThreshold
    * @return
    * @throws Exception
    */
   public static DiscordRecord findBestDiscordForIntervals(double[] series,
-      ArrayList<RuleInterval> globalIntervals, HashSet<Integer> registry) throws Exception {
+      ArrayList<RuleInterval> globalIntervals, HashSet<Integer> registry, double zNormThreshold)
+      throws Exception {
 
     // prepare the visits array, note that there can't be more points to visit that in a SAX index
     int[] visitArray = new int[globalIntervals.size()];
@@ -152,7 +156,7 @@ public class RRAImplementation {
       iterationCounter++;
 
       RuleInterval currentEntry = intervals.get(i);
-      
+
       // make sure it is not a previously found discord
       if (registry.contains(currentEntry.getStart())) {
         continue;
@@ -160,7 +164,7 @@ public class RRAImplementation {
 
       int currentPos = currentEntry.getStart();
       String currentRule = String.valueOf(currentEntry.getId());
-      
+
       LOGGER.trace("iteration " + i + ", out of " + intervals.size() + ", rule " + currentRule
           + " at " + currentPos + ", length " + currentEntry.getLength());
 
@@ -211,7 +215,7 @@ public class RRAImplementation {
 
         // double[] occurrenceSubsequence = extractSubsequence(series, nextOccurrence);
 
-        double dist = normalizedDistance(series, currentEntry, nextOccurrence);
+        double dist = normalizedDistance(series, currentEntry, nextOccurrence, zNormThreshold);
         distanceCalls++;
 
         // keep track of best so far distance
@@ -262,7 +266,7 @@ public class RRAImplementation {
 
           // double[] randomSubsequence = extractSubsequence(series, randomInterval);
 
-          double dist = normalizedDistance(series, currentEntry, randomInterval);
+          double dist = normalizedDistance(series, currentEntry, randomInterval, zNormThreshold);
           distanceCalls++;
 
           // early abandoning of the search:
@@ -321,11 +325,12 @@ public class RRAImplementation {
    * @param series
    * @param reference
    * @param candidate
+   * @param zNormThreshold
    * @return
    * @throws Exception
    */
   private static double normalizedDistance(double[] series, RuleInterval reference,
-      RuleInterval candidate) throws Exception {
+      RuleInterval candidate, double zNormThreshold) throws Exception {
 
     if (reference.getLength() == candidate.getLength()) {
       return ed.normalizedDistance(

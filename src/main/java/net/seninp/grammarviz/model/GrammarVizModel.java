@@ -203,16 +203,6 @@ public class GrammarVizModel extends Observable {
    */
   private SAXRecords mergeRecords(SAXRecords records[]) {
 
-    // for(int i = 0; i < records.length; i++) {
-    //   ArrayList<Integer> indices = records[i].getAllIndices();
-    //   for(Integer j : indices)
-    //   {
-    //     System.out.println("<" + j + ", " + Arrays.toString(records[i].getByIndex(j).getPayload()) + ">,");
-    //   }
-    //   System.out.println("");
-    // }
-
-
     ArrayList<Integer> mergedIndices = records[0].getAllIndices();
     ArrayList<char[]> mergedWords = new ArrayList<char[]>();
     for(Integer i : mergedIndices)
@@ -267,12 +257,6 @@ public class GrammarVizModel extends Observable {
       }
     }
 
-
-    // for(int i = 0; i < mergedIndices.size(); i++) 
-    // {
-    //   System.out.println("<" + mergedIndices.get(i) + ", " + Arrays.toString(mergedWords.get(i)) + ">,");
-    // }
-
     SAXRecords mergedRecord = new SAXRecords();
     HashMap<Integer, char[]> hm = new HashMap<Integer,char[]>();
     for(int i = 0; i < mergedIndices.size(); i++) {
@@ -304,7 +288,7 @@ public class GrammarVizModel extends Observable {
 
     // check if the data is loaded
     //
-    if (null == this.ts[0] || this.ts[0].length == 0) {
+    if (null == this.ts || null == this.ts[0] || this.ts[0].length == 0) {
       this.log("unable to \"Process data\" - no data were loaded ...");
     }
     else {
@@ -328,6 +312,9 @@ public class GrammarVizModel extends Observable {
       this.log(sb.toString());
 
       LOGGER.debug("creating ChartDataStructure");
+
+      // only giving chart data the first time series
+      // should probably give it all of the time series
       this.chartData = new GrammarVizChartData(this.dataFileName, this.ts[0], useSlidingWindow,
           numerosityReductionStrategy, windowSize, paaSize, alphabetSize);
 
@@ -369,6 +356,7 @@ public class GrammarVizModel extends Observable {
           GrammarRules rules = sequiturGrammar.toGrammarRulesData();
 
           LOGGER.debug("mapping rule intervals on timeseries ...");
+          // only use first time series, updateRuleInterval only cares about length (why does it take an array?)
           SequiturFactory.updateRuleIntervals(rules, saxFrequencyData, useSlidingWindow, this.ts[0],
               windowSize, paaSize);
 

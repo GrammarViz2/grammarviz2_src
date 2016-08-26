@@ -443,6 +443,9 @@ public class GrammarVizView implements Observer, ActionListener {
     // MigLayout saxPaneLayout = new MigLayout("insets 3 2 2 2",
     //     "[][]10[][]10[][fill,grow]10[][fill,grow]10[][fill,grow]10[][]", "[]");
 
+
+    // using box layout to automatically expand remaining fields
+    // when global normalization checkbox disappears
     BoxLayout saxPaneLayout = new BoxLayout(saxParametersPane, BoxLayout.X_AXIS);
     saxParametersPane.setLayout(saxPaneLayout);
 

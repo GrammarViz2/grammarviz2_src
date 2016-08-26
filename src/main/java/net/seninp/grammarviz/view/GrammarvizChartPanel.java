@@ -164,7 +164,7 @@ public class GrammarvizChartPanel extends JPanel
     // else {
     //   // paintTheChart(this.session.chartData.getOriginalTimeseries());
     // }
-    if (null != this.tsData[0]) {
+    if (null != this.tsData) {
       paintTheChart(this.tsData);
     }
 

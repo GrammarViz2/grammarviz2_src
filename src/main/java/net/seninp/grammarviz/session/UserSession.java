@@ -27,6 +27,7 @@ public class UserSession {
   private static final int DEFAULT_SAX_ALPHABET = 4;
 
   private static final boolean USE_SLIDING_WINDOW = true;
+  private static final boolean USE_GLOBAL_NORMALIZATION = false;
 
   private static final Double DEFAULT_NORMALIZATION_THRESHOLD_VALUE = 0.05;
 
@@ -42,6 +43,7 @@ public class UserSession {
   public volatile int saxAlphabet;
 
   public volatile boolean useSlidingWindow;
+  public volatile boolean useGlobalNormalization;
 
   public volatile NumerosityReductionStrategy numerosityReductionStrategy;
 
@@ -78,6 +80,7 @@ public class UserSession {
     this.saxAlphabet = DEFAULT_SAX_ALPHABET;
 
     this.useSlidingWindow = USE_SLIDING_WINDOW;
+    this.useGlobalNormalization = USE_GLOBAL_NORMALIZATION;
 
     this.numerosityReductionStrategy = DEFAULT_NUMEROSITY_REDUCTION_STRATEGY;
 

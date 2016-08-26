@@ -15,6 +15,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
+import java.util.TreeMap;
+import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.gi.GIAlgorithm;
@@ -30,6 +32,7 @@ import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
+import net.seninp.jmotif.sax.datastructure.SAXRecord;
 import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 import net.seninp.util.StackTrace;
 
@@ -49,7 +52,7 @@ public class GrammarVizModel extends Observable {
   private String dataFileName;
 
   /** If that data was read - it is stored here. */
-  private double[] ts;
+  private double[][] ts;
 
   /** Data structure that keeps the chart data. */
   private GrammarVizChartData chartData;
@@ -111,7 +114,7 @@ public class GrammarVizModel extends Observable {
     // read the input
     //
     // init the data araay
-    ArrayList<Double> data = new ArrayList<Double>();
+    ArrayList<ArrayList<Double> > data = new ArrayList<ArrayList<Double> >();
 
     // lets go
     try {
@@ -128,14 +131,31 @@ public class GrammarVizModel extends Observable {
       // read by the line in the loop from reader
       String line = null;
       long lineCounter = 0;
+
       while ((line = reader.readLine()) != null) {
+
         String[] lineSplit = line.trim().split("\\s+");
+
+        if(0 == lineCounter)
+        {
+          data = new ArrayList<ArrayList<Double> >();
+          for (int i = 0; i < lineSplit.length; i++) {
+            data.add(new ArrayList<Double>());
+          }
+        }
+
+        if (lineSplit.length < data.size()) {
+          this.log("line " + (lineCounter+1) + " of file " + this.dataFileName + " contains too few data points.");
+        }
+
         // we read only first column
-        // for (int i = 0; i < lineSplit.length; i++) {
-        double value = new BigDecimal(lineSplit[0]).doubleValue();
-        data.add(value);
-        // }
+        for (int i = 0; i < lineSplit.length; i++) {
+          double value = new BigDecimal(lineSplit[i]).doubleValue();
+          data.get(i).add(value);
+        }
+
         lineCounter++;
+
         // break the load if needed
         if ((loadLimit > 0) && (lineCounter > loadLimit)) {
           break;
@@ -154,22 +174,97 @@ public class GrammarVizModel extends Observable {
 
     // convert to simple doubles array and clean the variable
     if (!(data.isEmpty())) {
-      this.ts = new double[data.size()];
+      this.ts = new double[data.size()][data.get(0).size()];
+      // this.ts[0] = new double[data.get(0).size()];
+
       for (int i = 0; i < data.size(); i++) {
-        this.ts[i] = data.get(i);
+        for (int j = 0; j < data.get(0).size(); j++) {
+          this.ts[i][j] = data.get(i).get(j);
+        }
       }
     }
-    data = new ArrayList<Double>();
+    data = new ArrayList<ArrayList<Double> >();
 
-    LOGGER.debug("loaded " + this.ts.length + " points....");
+    LOGGER.debug("loaded " + this.ts[0].length + " points....");
 
     // notify that the process finished
-    this.log("loaded " + this.ts.length + " points from " + this.dataFileName);
+    this.log("loaded " + this.ts[0].length + " points from " + this.dataFileName);
 
     // and send the timeseries
     setChanged();
     notifyObservers(new GrammarVizMessage(GrammarVizMessage.TIME_SERIES_MESSAGE, this.ts));
 
+  }
+
+  /**
+   * converts multiple SAXRecords in to a single one
+   * 
+   * @param the records to merge.
+   */
+  private SAXRecords mergeRecords(SAXRecords records[]) {
+
+    ArrayList<Integer> mergedIndices = records[0].getAllIndices();
+    ArrayList<char[]> mergedWords = new ArrayList<char[]>();
+    for(Integer i : mergedIndices)
+      mergedWords.add(records[0].getByIndex(i).getPayload());
+
+    for(int i = 1; i < records.length; i++) {
+      ArrayList<Integer> indices1 = mergedIndices;
+      ArrayList<char[]> words1 = mergedWords;
+
+      ArrayList<Integer> indices2 = records[i].getAllIndices();
+      ArrayList<char[]> words2 = new ArrayList<char[]>();
+      for(Integer j : indices2)
+        words2.add(records[i].getByIndex(j).getPayload());
+
+
+      mergedIndices = new ArrayList<Integer>();
+      mergedWords = new ArrayList<char[]>();
+
+
+      mergedIndices.add(0);
+      
+      // concatenate words
+      char[] word1 = words1.get(0);
+      char[] word2 = words2.get(0);
+      char[] mergedWord = new char[word1.length + word2.length];
+      System.arraycopy(word1, 0, mergedWord, 0, word1.length);
+      System.arraycopy(word2, 0, mergedWord, word1.length, word2.length);
+      mergedWords.add(mergedWord);
+
+      int index1 = 0;
+      int index2 = 0;
+      while(index1+1<indices1.size() || index2+1<indices2.size()) {
+        boolean inc1 = false, inc2 = false;
+        if(index2+1>=indices2.size() || (index1+1<indices1.size() && index2+1<indices2.size() && indices1.get(index1+1) <= indices2.get(index2+1))) {
+          inc1 = true;
+        }
+        if(index1+1>=indices1.size() || (index1+1<indices1.size() && index2+1<indices2.size() && indices2.get(index2+1) <= indices1.get(index1+1))) {
+          inc2 = true;
+        }
+        if(inc1) {index1++;}
+        if(inc2) {index2++;}
+
+        mergedIndices.add(Math.max(indices1.get(index1),indices2.get(index2)));
+
+        // concatenate words
+        word1 = words1.get(index1);
+        word2 = words2.get(index2);
+        mergedWord = new char[word1.length + word2.length];
+        System.arraycopy(word1, 0, mergedWord, 0, word1.length);
+        System.arraycopy(word2, 0, mergedWord, word1.length, word2.length);
+        mergedWords.add(mergedWord);
+      }
+    }
+
+    SAXRecords mergedRecord = new SAXRecords();
+    HashMap<Integer, char[]> hm = new HashMap<Integer,char[]>();
+    for(int i = 0; i < mergedIndices.size(); i++) {
+      hm.put(mergedIndices.get(i), mergedWords.get(i));
+    }
+    mergedRecord.addAll(hm);
+
+    return mergedRecord;
   }
 
   /**
@@ -186,13 +281,14 @@ public class GrammarVizModel extends Observable {
    * @throws IOException
    */
   public synchronized void processData(GIAlgorithm algorithm, boolean useSlidingWindow,
-      NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
-      int alphabetSize, double normalizationThreshold, String grammarOutputFileName)
+      boolean useGlobalNormalization, NumerosityReductionStrategy numerosityReductionStrategy,
+      int windowSize, int paaSize, int alphabetSize, double normalizationThreshold,
+      String grammarOutputFileName)
           throws IOException {
 
     // check if the data is loaded
     //
-    if (null == this.ts || this.ts.length == 0) {
+    if (null == this.ts || null == this.ts[0] || this.ts[0].length == 0) {
       this.log("unable to \"Process data\" - no data were loaded ...");
     }
     else {
@@ -207,6 +303,7 @@ public class GrammarVizModel extends Observable {
         sb.append("algorithm: RePair, ");
       }
       sb.append("sliding window ").append(useSlidingWindow);
+      sb.append(", global normalization ").append(useGlobalNormalization);
       sb.append(", numerosity reduction ").append(numerosityReductionStrategy.toString());
       sb.append(", SAX window ").append(windowSize);
       sb.append(", PAA ").append(paaSize);
@@ -215,7 +312,10 @@ public class GrammarVizModel extends Observable {
       this.log(sb.toString());
 
       LOGGER.debug("creating ChartDataStructure");
-      this.chartData = new GrammarVizChartData(this.dataFileName, this.ts, useSlidingWindow,
+
+      // only giving chart data the first time series
+      // should probably give it all of the time series
+      this.chartData = new GrammarVizChartData(this.dataFileName, this.ts[0], useSlidingWindow,
           numerosityReductionStrategy, windowSize, paaSize, alphabetSize);
 
       NormalAlphabet na = new NormalAlphabet();
@@ -226,15 +326,25 @@ public class GrammarVizModel extends Observable {
 
           SAXProcessor sp = new SAXProcessor();
 
-          SAXRecords saxFrequencyData = new SAXRecords();
-          if (useSlidingWindow) {
-            saxFrequencyData = sp.ts2saxViaWindow(ts, windowSize, paaSize, na.getCuts(alphabetSize),
-                numerosityReductionStrategy, normalizationThreshold);
+
+          SAXRecords saxFrequencyDataArray[] = new SAXRecords[this.ts.length];
+          for(int i = 0; i < this.ts.length; i++) {
+            if (useSlidingWindow) {
+              if(useGlobalNormalization) {
+                saxFrequencyDataArray[i] = sp.ts2saxViaWindowGlobalNormalization(ts[i], windowSize, paaSize, na.getCuts(alphabetSize),
+                    numerosityReductionStrategy, normalizationThreshold);
+              } else {
+                saxFrequencyDataArray[i] = sp.ts2saxViaWindow(ts[i], windowSize, paaSize, na.getCuts(alphabetSize),
+                    numerosityReductionStrategy, normalizationThreshold);
+              }
+            } else {
+              saxFrequencyDataArray[i] = sp.ts2saxByChunking(ts[i], paaSize, na.getCuts(alphabetSize),
+                  normalizationThreshold);
+            }
           }
-          else {
-            saxFrequencyData = sp.ts2saxByChunking(ts, paaSize, na.getCuts(alphabetSize),
-                normalizationThreshold);
-          }
+
+          SAXRecords saxFrequencyData = mergeRecords(saxFrequencyDataArray);
+          // saxFrequencyData = saxFrequencyDataArray[0];
 
           LOGGER.trace("String: " + saxFrequencyData.getSAXString(SPACE));
 
@@ -246,23 +356,23 @@ public class GrammarVizModel extends Observable {
           GrammarRules rules = sequiturGrammar.toGrammarRulesData();
 
           LOGGER.debug("mapping rule intervals on timeseries ...");
-          SequiturFactory.updateRuleIntervals(rules, saxFrequencyData, useSlidingWindow, this.ts,
+          // only use first time series, updateRuleInterval only cares about length (why does it take an array?)
+          SequiturFactory.updateRuleIntervals(rules, saxFrequencyData, useSlidingWindow, this.ts[0],
               windowSize, paaSize);
 
           LOGGER.debug("done ...");
           this.chartData.setGrammarRules(rules);
-
         }
         else {
 
           ParallelSAXImplementation ps = new ParallelSAXImplementation();
-          SAXRecords parallelRes = ps.process(ts, 2, windowSize, paaSize, alphabetSize,
+          SAXRecords parallelRes = ps.process(ts[0], 2, windowSize, paaSize, alphabetSize,
               numerosityReductionStrategy, normalizationThreshold);
 
           RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
 
           rePairGrammar.expandRules();
-          rePairGrammar.buildIntervals(parallelRes, ts, windowSize);
+          rePairGrammar.buildIntervals(parallelRes, ts[0], windowSize);
 
           GrammarRules rules = rePairGrammar.toGrammarRulesData();
 

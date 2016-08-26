@@ -54,7 +54,7 @@ public class TestRRAanomaly {
     try {
 
       discordsBruteForce = BruteForceDiscordImplementation.series2BruteForceDiscords(series,
-          WIN_SIZE, DISCORDS_TO_TEST, new LargeWindowAlgorithm());
+          WIN_SIZE, DISCORDS_TO_TEST, new LargeWindowAlgorithm(), NORM_THRESHOLD);
       for (DiscordRecord d : discordsBruteForce) {
         System.out.println("brute force discord " + d.toString());
       }

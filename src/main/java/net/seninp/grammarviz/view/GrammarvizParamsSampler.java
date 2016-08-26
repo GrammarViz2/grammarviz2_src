@@ -36,7 +36,7 @@ public class GrammarvizParamsSampler implements Callable<String> {
 
     this.parent.actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SELECTION_FINISHED));
 
-    double[] ts = Arrays.copyOfRange(this.parent.tsData, this.parent.session.samplingStart,
+    double[] ts = Arrays.copyOfRange(this.parent.tsData[0], this.parent.session.samplingStart,
         this.parent.session.samplingEnd);
 
     RulePruner rp = new RulePruner(ts);

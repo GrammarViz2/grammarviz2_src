@@ -42,6 +42,7 @@ import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.grammarviz.session.UserSession;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
+import javax.swing.*;
 
 /**
  * View component of Sequitur MVC GUI.
@@ -96,6 +97,9 @@ public class GrammarVizView implements Observer, ActionListener {
   /** Chunking/Sliding switch action key. */
   protected static final String USE_SLIDING_WINDOW_ACTION_KEY = "sliding_window_key";
 
+  /** Global/Local normalization switch action key. */
+  protected static final String USE_GLOBAL_NORMALIZATION_ACTION = "global_normalization_key";
+
   /** The action command for Options dialog. */
   private static final String OPTIONS_MENU_ITEM = "menu_item_options";
 
@@ -123,6 +127,8 @@ public class GrammarVizView implements Observer, ActionListener {
   //
   private JPanel saxParametersPane;
   private JCheckBox useSlidingWindowCheckBox;
+  private JLabel globalNormalizatonLabel;
+  private JCheckBox useGlobalNormalizationCheckBox;
   private JLabel windowSizeLabel;
   private JTextField SAXwindowSizeField;
   private JLabel paaSizeLabel;
@@ -434,28 +440,45 @@ public class GrammarVizView implements Observer, ActionListener {
         TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
 
     // insets: T, L, B, R.
-    MigLayout saxPaneLayout = new MigLayout("insets 3 2 2 2",
-        "[][]10[][fill,grow]10[][fill,grow]10[][fill,grow]10[][]", "[]");
+    // MigLayout saxPaneLayout = new MigLayout("insets 3 2 2 2",
+    //     "[][]10[][]10[][fill,grow]10[][fill,grow]10[][fill,grow]10[][]", "[]");
+
+
+    // using box layout to automatically expand remaining fields
+    // when global normalization checkbox disappears
+    BoxLayout saxPaneLayout = new BoxLayout(saxParametersPane, BoxLayout.X_AXIS);
     saxParametersPane.setLayout(saxPaneLayout);
 
     // the sliding window parameter
-    JLabel slideWindowLabel = new JLabel("Slide the window");
-    useSlidingWindowCheckBox = new JCheckBox();
+    // JLabel slideWindowLabel = new JLabel("Slide the window");
+    useSlidingWindowCheckBox = new JCheckBox("Slide the window");
     useSlidingWindowCheckBox.setSelected(this.controller.getSession().useSlidingWindow);
     useSlidingWindowCheckBox.setActionCommand(USE_SLIDING_WINDOW_ACTION_KEY);
     useSlidingWindowCheckBox.addActionListener(this);
 
+    // globalNormalizatonLabel = new JLabel("Global normalizaton");
+    useGlobalNormalizationCheckBox = new JCheckBox("Global normalizaton  ");
+    useGlobalNormalizationCheckBox.setSelected(this.controller.getSession().useGlobalNormalization);
+    useGlobalNormalizationCheckBox.setActionCommand(USE_GLOBAL_NORMALIZATION_ACTION);
+    useGlobalNormalizationCheckBox.addActionListener(this);
+
     windowSizeLabel = new JLabel("Window size:");
-    SAXwindowSizeField = new JTextField(String.valueOf(this.controller.getSession().saxWindow));
+    SAXwindowSizeField = new JTextField(String.valueOf(this.controller.getSession().saxWindow),2);
+    SAXwindowSizeField.setMinimumSize(SAXwindowSizeField.getPreferredSize());
 
-    paaSizeLabel = new JLabel("PAA size:");
+    paaSizeLabel = new JLabel("  PAA size:");
     SAXpaaSizeField = new JTextField(String.valueOf(this.controller.getSession().saxPAA));
+    SAXpaaSizeField.setMinimumSize(SAXpaaSizeField.getPreferredSize());
 
-    JLabel alphabetSizeLabel = new JLabel("Alphabet size:");
+    JLabel alphabetSizeLabel = new JLabel("  Alphabet size:");
     SAXalphabetSizeField = new JTextField(String.valueOf(this.controller.getSession().saxAlphabet));
+    SAXalphabetSizeField.setMinimumSize(SAXalphabetSizeField.getPreferredSize());
 
-    saxParametersPane.add(slideWindowLabel);
+    // saxParametersPane.add(slideWindowLabel);
     saxParametersPane.add(useSlidingWindowCheckBox);
+
+    // saxParametersPane.add(globalNormalizatonLabel);
+    saxParametersPane.add(useGlobalNormalizationCheckBox);
 
     saxParametersPane.add(windowSizeLabel);
     saxParametersPane.add(SAXwindowSizeField);
@@ -731,7 +754,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
         // setting the chart first
         //
-        dataChartPane.showTimeSeries((double[]) message.getPayload());
+        dataChartPane.showTimeSeries((double[][]) message.getPayload());
 
         Runnable clearPanels = new Runnable() {
           @Override
@@ -1031,13 +1054,17 @@ public class GrammarVizView implements Observer, ActionListener {
       log(Level.INFO, "sliding window toggled");
       if (this.useSlidingWindowCheckBox.isSelected()) {
         this.controller.getSession().useSlidingWindow = true;
+        this.paaSizeLabel.setText("  PAA size:");
         this.windowSizeLabel.setText("Window size:");
         this.windowSizeLabel.setEnabled(true);
         this.windowSizeLabel.setVisible(true);
         this.SAXwindowSizeField.setText(String.valueOf(this.controller.getSession().saxWindow));
         this.SAXwindowSizeField.setEnabled(true);
         this.SAXwindowSizeField.setVisible(true);
-        this.paaSizeLabel.setText("PAA size:");
+        this.useGlobalNormalizationCheckBox.setEnabled(true);
+        this.useGlobalNormalizationCheckBox.setVisible(true);
+        // this.globalNormalizatonLabel.setEnabled(true);
+        // this.globalNormalizatonLabel.setVisible(true);
       }
       else {
         this.controller.getSession().useSlidingWindow = false;
@@ -1046,7 +1073,21 @@ public class GrammarVizView implements Observer, ActionListener {
         this.windowSizeLabel.setVisible(false);
         this.SAXwindowSizeField.setEnabled(false);
         this.SAXwindowSizeField.setVisible(false);
-        this.paaSizeLabel.setText("Segments number:");
+        this.useGlobalNormalizationCheckBox.setEnabled(false);
+        this.useGlobalNormalizationCheckBox.setVisible(false);
+        // this.globalNormalizatonLabel.setEnabled(false);
+        // this.globalNormalizatonLabel.setVisible(false);
+        this.paaSizeLabel.setText("  Segments number:");
+      }
+    }
+
+    else if (USE_GLOBAL_NORMALIZATION_ACTION.equalsIgnoreCase(command)) {
+      log(Level.INFO, "global normalization toggled");
+      if (this.useGlobalNormalizationCheckBox.isSelected()) {
+        this.controller.getSession().useGlobalNormalization = true;
+      }
+      else {
+        this.controller.getSession().useGlobalNormalization = false;
       }
     }
 

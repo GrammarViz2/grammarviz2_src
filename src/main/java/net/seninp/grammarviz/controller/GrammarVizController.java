@@ -101,7 +101,7 @@ public class GrammarVizController extends Observable implements ActionListener {
         log(logSB.toString());
 
         try {
-          model.processData(session.giAlgorithm, session.useSlidingWindow,
+          model.processData(session.giAlgorithm, session.useSlidingWindow, session.useGlobalNormalization,
               session.numerosityReductionStrategy, session.saxWindow, session.saxPAA,
               session.saxAlphabet, session.normalizationThreshold, session.grammarOutputFileName);
         }

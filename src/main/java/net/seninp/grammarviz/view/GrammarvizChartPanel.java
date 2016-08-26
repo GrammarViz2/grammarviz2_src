@@ -94,7 +94,7 @@ public class GrammarvizChartPanel extends JPanel
   public static final String SELECTION_FINISHED = "interval_selection_finished";
 
   /** Current chart data instance. */
-  protected double[] tsData;
+  protected double[][] tsData;
 
   /** The chart container. */
   private JFreeChart chart;
@@ -158,12 +158,16 @@ public class GrammarvizChartPanel extends JPanel
 
     // this is the new "insert" - elastic boundaries chart panel
     //
-    if (null == this.session.chartData && null != this.tsData) {
+    // if (null == this.session.chartData && null != this.tsData[0]) {
+    //   paintTheChart(this.tsData);
+    // }
+    // else {
+    //   // paintTheChart(this.session.chartData.getOriginalTimeseries());
+    // }
+    if (null != this.tsData) {
       paintTheChart(this.tsData);
     }
-    else {
-      paintTheChart(this.session.chartData.getOriginalTimeseries());
-    }
+
 
     chartPanel = new ChartPanel(this.chart);
 
@@ -218,16 +222,16 @@ public class GrammarvizChartPanel extends JPanel
     LOGGER.debug("Selected class: " + rules.toString());
     timeseriesPlot.clearDomainMarkers();
     for (String rule : rules) {
-    	int ruleId = Integer.valueOf(rule);
+      int ruleId = Integer.valueOf(rule);
 //        if (0 == ruleId) {
 //          continue;
 //        }    
-	    ArrayList<RuleInterval> arrPos = this.session.chartData
-	            .getSubsequencesPositionsByClassNum(Integer.valueOf(ruleId));
-	    LOGGER.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
-	    for (RuleInterval saxPos : arrPos) {
-	      addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
-	    }
+      ArrayList<RuleInterval> arrPos = this.session.chartData
+              .getSubsequencesPositionsByClassNum(Integer.valueOf(ruleId));
+      LOGGER.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+      for (RuleInterval saxPos : arrPos) {
+        addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
+      }
     }
   }
 
@@ -266,7 +270,8 @@ public class GrammarvizChartPanel extends JPanel
 
     // this is the new "insert" - elastic boundaries chart panel
     //
-    paintTheChart(this.session.chartData.getOriginalTimeseries());
+    // paintTheChart(this.session.chartData.getOriginalTimeseries());
+    paintTheChart(tsData);
     chartPanel = new ChartPanel(this.chart);
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
@@ -605,9 +610,9 @@ public class GrammarvizChartPanel extends JPanel
    * 
    * @param tsData The time series data.
    */
-  public void showTimeSeries(double[] tsData) {
+  public void showTimeSeries(double[][] tsData) {
     this.tsData = tsData;
-    paintTheChart(tsData);
+    paintTheChart(this.tsData);
     chartPanel = new ChartPanel(this.chart);
     // chartPanel.setMinimumDrawWidth(0);
     // chartPanel.setMinimumDrawHeight(0);
@@ -626,20 +631,29 @@ public class GrammarvizChartPanel extends JPanel
    * 
    * @return a JFreeChart object of the chart
    */
-  private void paintTheChart(double[] tsData) {
+  private void paintTheChart(double[][] tsData) {
 
     // making the data
     //
-    XYSeries dataset = new XYSeries("Series");
-    for (int i = 0; i < tsData.length; i++) {
-      dataset.add(i, (float) tsData[i]);
+    chartXYSeriesCollection = new XYSeriesCollection();
+    for(int i = 0; i < tsData.length; i++) {
+      XYSeries dataset = new XYSeries("Series"+(i+1));
+      for (int j = 0; j < tsData[i].length; j++) {
+        dataset.add(j, (float) tsData[i][j]);
+      }
+      chartXYSeriesCollection.addSeries(dataset);
     }
-    chartXYSeriesCollection = new XYSeriesCollection(dataset);
 
     // set the renderer
     //
     XYLineAndShapeRenderer xyRenderer = new XYLineAndShapeRenderer(true, false);
     xyRenderer.setSeriesPaint(0, new Color(0, 0, 0));
+    xyRenderer.setSeriesPaint(1, Color.RED);
+    xyRenderer.setSeriesPaint(2, Color.GREEN);
+    xyRenderer.setSeriesPaint(3, Color.BLUE);
+    xyRenderer.setSeriesPaint(4, Color.CYAN);
+    xyRenderer.setSeriesPaint(5, Color.MAGENTA);
+    xyRenderer.setSeriesPaint(6, Color.YELLOW);
     xyRenderer.setBaseStroke(new BasicStroke(3));
 
     // X - the time axis

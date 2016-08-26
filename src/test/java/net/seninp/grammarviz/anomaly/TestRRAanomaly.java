@@ -27,8 +27,8 @@ public class TestRRAanomaly {
   private static final String TEST_DATA_FNAME = "src/resources/test-data/ecg0606_1.csv";
 
   private static final int WIN_SIZE = 100;
-  private static final int PAA_SIZE = 4;
-  private static final int ALPHABET_SIZE = 4;
+  private static final int PAA_SIZE = 3;
+  private static final int ALPHABET_SIZE = 3;
 
   private static final double NORM_THRESHOLD = 0.5;
 
@@ -65,7 +65,7 @@ public class TestRRAanomaly {
         System.out.println("hotsax hash discord " + d.toString());
       }
 
-      //
+      // RRA
       //
       //
 

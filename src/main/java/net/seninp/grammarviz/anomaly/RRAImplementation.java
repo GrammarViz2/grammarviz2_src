@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.SAXProcessor;
+import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 
@@ -23,7 +24,7 @@ import net.seninp.jmotif.sax.discord.DiscordRecords;
  */
 public class RRAImplementation {
 
-  // private static TSProcessor tp = new TSProcessor();
+  private static TSProcessor tp = new TSProcessor();
   private static EuclideanDistance ed = new EuclideanDistance();
 
   // static block - we instantiate the logger
@@ -332,28 +333,25 @@ public class RRAImplementation {
   private static double normalizedDistance(double[] series, RuleInterval reference,
       RuleInterval candidate, double zNormThreshold) throws Exception {
 
-    if (reference.getLength() == candidate.getLength()) {
-      return ed.normalizedDistance(
-          Arrays.copyOfRange(series, reference.getStart(), reference.getEnd()),
-          Arrays.copyOfRange(series, candidate.getStart(), candidate.getEnd()));
-    }
+    double[] ref = Arrays.copyOfRange(series, reference.getStart(), reference.getEnd());
+    double[] cand = Arrays.copyOfRange(series, candidate.getStart(), candidate.getEnd());
 
-    else if (reference.getLength() > candidate.getLength()) {
-      // int end = candidate.getStart() + reference.getLength();
-      int increment = reference.getLength();
-      if (candidate.getStart() + reference.getLength() + 1 > series.length) {
-        increment = series.length - candidate.getStart() + 1;
-      }
-      return ed.normalizedDistance(
-          Arrays.copyOfRange(series, reference.getStart(), reference.getStart() + increment),
-          Arrays.copyOfRange(series, candidate.getStart(), candidate.getStart() + increment));
-    }
+    // if sequences are of the same length -- we just compute the distance
+    //
 
+    // if the reference is the longest, we shrink it down with PAA
+    //
+    if (ref.length > cand.length) {
+      ref = tp.paa(ref, cand.length);
+    }
+    // if the candidate is longest, we shrink it with PAA too
+    //
     else {
-      return ed.normalizedDistance(
-          Arrays.copyOfRange(series, reference.getStart(), reference.getEnd()), Arrays.copyOfRange(
-              series, candidate.getStart(), candidate.getStart() + reference.getLength()));
+      cand = tp.paa(cand, ref.length);
     }
+
+    return ed.distance(tp.znorm(ref, zNormThreshold), tp.znorm(cand, zNormThreshold)) / ref.length;
+
   }
 
   // /**

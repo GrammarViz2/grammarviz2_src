@@ -335,15 +335,13 @@ public class RRAImplementation {
 
     double[] ref = Arrays.copyOfRange(series, reference.getStart(), reference.getEnd());
     double[] cand = Arrays.copyOfRange(series, candidate.getStart(), candidate.getEnd());
-double divisor = ref.length;
-    // if sequences are of the same length -- we just compute the distance
-    //
+    double divisor = Integer.valueOf(ref.length).doubleValue();
 
     // if the reference is the longest, we shrink it down with PAA
     //
     if (ref.length > cand.length) {
       ref = tp.paa(ref, cand.length);
-      divisor = cand.length;
+      divisor = Integer.valueOf(cand.length).doubleValue(); // update the normalization value
     }
     // if the candidate is longest, we shrink it with PAA too
     //

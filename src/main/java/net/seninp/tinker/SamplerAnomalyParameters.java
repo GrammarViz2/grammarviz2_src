@@ -47,7 +47,7 @@ public class SamplerAnomalyParameters {
   public static NumerosityReductionStrategy SAX_NR_STRATEGY = NumerosityReductionStrategy.NONE;
 
   @Parameter(names = "--threshold", description = "SAX normalization threshold")
-  public static double SAX_NORM_THRESHOLD = 0.01;
+  public static double SAX_NORM_THRESHOLD = 0.5;
 
   // GI parameter
   //

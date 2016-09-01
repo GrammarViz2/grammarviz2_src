@@ -167,10 +167,10 @@ public class GrammarvizChartPanel extends JPanel
 
     chartPanel = new ChartPanel(this.chart);
 
-    // chartPanel.setMinimumDrawWidth(0);
-    // chartPanel.setMinimumDrawHeight(0);
-    // chartPanel.setMaximumDrawWidth(1920);
-    // chartPanel.setMaximumDrawHeight(1200);
+    chartPanel.setMinimumDrawWidth(0);
+    chartPanel.setMinimumDrawHeight(0);
+    chartPanel.setMaximumDrawWidth(1920);
+    chartPanel.setMaximumDrawHeight(1920);
 
     chartPanel.setMouseWheelEnabled(true);
 
@@ -218,16 +218,16 @@ public class GrammarvizChartPanel extends JPanel
     LOGGER.debug("Selected class: " + rules.toString());
     timeseriesPlot.clearDomainMarkers();
     for (String rule : rules) {
-    	int ruleId = Integer.valueOf(rule);
-//        if (0 == ruleId) {
-//          continue;
-//        }    
-	    ArrayList<RuleInterval> arrPos = this.session.chartData
-	            .getSubsequencesPositionsByClassNum(Integer.valueOf(ruleId));
-	    LOGGER.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
-	    for (RuleInterval saxPos : arrPos) {
-	      addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
-	    }
+      int ruleId = Integer.valueOf(rule);
+      // if (0 == ruleId) {
+      // continue;
+      // }
+      ArrayList<RuleInterval> arrPos = this.session.chartData
+          .getSubsequencesPositionsByClassNum(Integer.valueOf(ruleId));
+      LOGGER.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+      for (RuleInterval saxPos : arrPos) {
+        addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
+      }
     }
   }
 
@@ -706,7 +706,7 @@ public class GrammarvizChartPanel extends JPanel
     if (PackedRulesPanel.FIRING_PROPERTY_PACKED.equalsIgnoreCase(evt.getPropertyName())) {
       @SuppressWarnings("unchecked")
       ArrayList<String> newlySelectedRows = (ArrayList<String>) evt.getNewValue();
-      //String newlySelectedRaw = (String) evt.getNewValue();
+      // String newlySelectedRaw = (String) evt.getNewValue();
       highlightPatternInChartPacked(newlySelectedRows);
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_PACKED_RULES);
@@ -762,8 +762,8 @@ public class GrammarvizChartPanel extends JPanel
       //
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SELECT_INTERVAL);
-      revalidate();
-      repaint();
+      chartPanel.revalidate();
+      chartPanel.repaint();
       timeseriesPlot.clearDomainMarkers();
 
       // disabling zoom on the panel

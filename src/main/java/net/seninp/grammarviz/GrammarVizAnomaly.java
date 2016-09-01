@@ -145,7 +145,8 @@ public class GrammarVizAnomaly {
       //
       if (AnomalyAlgorithm.BRUTEFORCE.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
         findBruteForce(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
-            GrammarVizAnomalyParameters.DISCORDS_NUM);
+            GrammarVizAnomalyParameters.DISCORDS_NUM,
+            GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
       }
       else if (AnomalyAlgorithm.HOTSAX.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
         findHotSax(series, GrammarVizAnomalyParameters.DISCORDS_NUM,
@@ -603,8 +604,8 @@ public class GrammarVizAnomaly {
 
     // run HOTSAX with this intervals set
     //
-    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport,
-        intervals);
+    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport, intervals,
+        normalizationThreshold);
     Date end = new Date();
 
     System.out.println(discords.toString() + CR + "Discords found in "
@@ -698,6 +699,8 @@ public class GrammarVizAnomaly {
     LOGGER.info("running RRA algorithm...");
     Date start = new Date();
 
+    // [1] get the grammar induced
+    //
     GrammarRules rules;
 
     if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
@@ -720,23 +723,23 @@ public class GrammarVizAnomaly {
           + SAXProcessor.timeToString(start.getTime(), end.getTime()));
     }
 
+    // [2] extract all the intervals
+    //
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>(rules.size() * 2);
 
     // populate all intervals with their frequency
     //
     for (GrammarRuleRecord rule : rules) {
-
       if (0 == rule.ruleNumber()) {
         continue;
       }
       for (RuleInterval ri : rule.getRuleIntervals()) {
         RuleInterval i = (RuleInterval) ri.clone();
         i.setCoverage(rule.getRuleIntervals().size()); // not a coverage used here but a rule
-                                                       // frequency
+                                                       // frequency, will override later
         i.setId(rule.ruleNumber());
         intervals.add(i);
       }
-
     }
 
     // get the coverage array
@@ -770,8 +773,8 @@ public class GrammarVizAnomaly {
 
     // run HOTSAX with this intervals set
     //
-    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport,
-        intervals);
+    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport, intervals,
+        normalizationThreshold);
     Date end = new Date();
 
     System.out.println(discords.toString() + CR + discords.getSize() + " discords found in "
@@ -850,16 +853,17 @@ public class GrammarVizAnomaly {
    * @param ts timeseries to use
    * @param windowSize the sliding window size.
    * @param discordsToReport num of discords to report.
+   * @param nThreshold the z-Normlization threshold value.
    * @throws Exception if error occurs.
    */
-  private static void findBruteForce(double[] ts, int windowSize, int discordsToReport)
-      throws Exception {
+  private static void findBruteForce(double[] ts, int windowSize, int discordsToReport,
+      double nThreshold) throws Exception {
 
     LOGGER.info("running brute force algorithm...");
 
     Date start = new Date();
     DiscordRecords discords = BruteForceDiscordImplementation.series2BruteForceDiscords(ts,
-        windowSize, discordsToReport, new LargeWindowAlgorithm());
+        windowSize, discordsToReport, new LargeWindowAlgorithm(), nThreshold);
     Date end = new Date();
 
     System.out.println(CR + discords.toString() + CR + discords.getSize() + " discords found in "

@@ -29,7 +29,7 @@ public class SamplerAnomaly {
   // locale, charset, etc
   //
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-  
+
   private static final String CR = "\n";
 
   // static block - we instantiate the logger
@@ -134,7 +134,8 @@ public class SamplerAnomaly {
         // run HOTSAX with this intervals set
         //
         DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts,
-            SamplerAnomalyParameters.DISCORDS_NUM, intervals);
+            SamplerAnomalyParameters.DISCORDS_NUM, intervals,
+            SamplerAnomalyParameters.SAX_NORM_THRESHOLD);
 
         // now compose the output file with anomalies
         //

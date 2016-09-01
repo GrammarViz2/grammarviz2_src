@@ -2,10 +2,8 @@ package net.seninp.grammarviz.logic;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Observable;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.RuleInterval;
@@ -41,55 +39,50 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
   @Override
   public void run() {
 
-    // save the timestamp
+    // save the start timestamp
     Date start = new Date();
 
-    // [1] build an array of rules along with their use frequency
+    // [2] extract all the intervals
     //
-    HashMap<RuleDescriptor, ArrayList<RuleInterval>> rules = new HashMap<RuleDescriptor, ArrayList<RuleInterval>>();
-
-    for (GrammarRuleRecord r : this.chartData.getGrammarRules()) {
-      if (0 == r.ruleNumber()) {
-        continue;
+    log("walking through the grammar rules...");
+    ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>(
+        this.chartData.getGrammarRules().size() * 6);
+    try {
+      for (GrammarRuleRecord r : this.chartData.getGrammarRules()) {
+        if (0 == r.ruleNumber()) {
+          continue;
+        }
+        for (RuleInterval ri : getRulePositionsByRuleNum(r.ruleNumber())) {
+          RuleInterval i;
+          i = (RuleInterval) ri.clone();
+          i.setCoverage(r.getRuleIntervals().size()); // not a coverage used here but a rule
+          // frequency, will override later
+          i.setId(r.ruleNumber());
+          intervals.add(i);
+        }
       }
-      ArrayList<RuleInterval> intervals = getRulePositionsByRuleNum(r.ruleNumber());
-      rules.put(new RuleDescriptor(r.ruleNumber(), r.getRuleName(), r.getRuleString(),
-          r.getMeanLength(), r.getRuleUseFrequency()), intervals);
+    }
+    catch (CloneNotSupportedException e) {
+      e.printStackTrace();
+      log("Exception thrown: " + e.toString());
+      return;
     }
 
     // [2] populate all intervals with their coverage
     //
-    ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
-    for (Entry<RuleDescriptor, ArrayList<RuleInterval>> e : rules.entrySet()) {
-      for (RuleInterval ri : e.getValue()) {
-        // ri.setCoverage(e.getKey().getRuleFrequency());
-        ri.setCoverage(e.getValue().size());
-        ri.setId(e.getKey().getRuleIndex());
-        intervals.add(ri);
-      }
-    }
-
-    // [3] compute the coverage
-    //
-    this.setChanged();
-    notifyObservers("computing coverage...");
-
+    log("computing the rule coverage...");
     int[] coverageArray = new int[this.chartData.originalTimeSeries.length];
-
-    for (GrammarRuleRecord ruleEntry : this.chartData.getGrammarRules()) {
-      if (0 == ruleEntry.ruleNumber()) {
-        continue;
-      }
-      ArrayList<RuleInterval> ruleIntervals = getRulePositionsByRuleNum(ruleEntry.ruleNumber());
-      for (RuleInterval interval : ruleIntervals) {
-        for (int j = interval.getStart(); j < interval.getEnd(); j++) {
-          coverageArray[j]++;
-        }
+    for (RuleInterval interval : intervals) {
+      int startPos = interval.getStart();
+      int endPos = interval.getEnd();
+      for (int j = startPos; j < endPos; j++) {
+        coverageArray[j] = coverageArray[j] + 1;
       }
     }
 
     // [3] check if somewhere there is a ZERO coverage!
     //
+    log("looking for uncovered regions...");
     for (int i = 0; i < coverageArray.length; i++) {
       if (0 == coverageArray[i]) {
         int j = i;
@@ -112,24 +105,24 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       log("the whole timeseries is covered by rule intervals ...");
     }
 
-    // run HOTSAX with this intervals set
-    //
-
     // resulting discords collection
     this.chartData.discords = new DiscordRecords();
 
     // visit registry
-    HashSet<Integer> registry = new HashSet<Integer>(40 * intervals.get(0).getLength());
+    // visit registry
+    HashSet<Integer> registry = new HashSet<Integer>(5 * intervals.get(0).getLength() * 2);
 
     // we conduct the search until the number of discords is less than desired
     //
-    while (this.chartData.discords.getSize() < 10) {
+    while (this.chartData.discords.getSize() < 5) {
 
       start = new Date();
       DiscordRecord bestDiscord;
       try {
-        bestDiscord = RRAImplementation
-            .findBestDiscordForIntervals(this.chartData.originalTimeSeries, intervals, registry);
+
+        bestDiscord = RRAImplementation.findBestDiscordForIntervals(
+            this.chartData.originalTimeSeries, intervals, registry,
+            this.chartData.getZNormThreshold());
         Date end = new Date();
 
         // if the discord is null we getting out of the search
@@ -182,7 +175,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
   private void log(String message) {
     this.setChanged();
     notifyObservers(
-        new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "SAXSequitur: " + message));
+        new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "Grammarviz3: " + message));
   }
 
   /**

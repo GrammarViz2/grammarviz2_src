@@ -27,10 +27,10 @@ public class TestRRAanomaly {
   private static final String TEST_DATA_FNAME = "src/resources/test-data/ecg0606_1.csv";
 
   private static final int WIN_SIZE = 100;
-  private static final int PAA_SIZE = 4;
-  private static final int ALPHABET_SIZE = 4;
+  private static final int PAA_SIZE = 3;
+  private static final int ALPHABET_SIZE = 3;
 
-  private static final double NORM_THRESHOLD = 0.01;
+  private static final double NORM_THRESHOLD = 0.5;
 
   private static final int DISCORDS_TO_TEST = 1;
 
@@ -54,7 +54,7 @@ public class TestRRAanomaly {
     try {
 
       discordsBruteForce = BruteForceDiscordImplementation.series2BruteForceDiscords(series,
-          WIN_SIZE, DISCORDS_TO_TEST, new LargeWindowAlgorithm());
+          WIN_SIZE, DISCORDS_TO_TEST, new LargeWindowAlgorithm(), NORM_THRESHOLD);
       for (DiscordRecord d : discordsBruteForce) {
         System.out.println("brute force discord " + d.toString());
       }
@@ -65,7 +65,7 @@ public class TestRRAanomaly {
         System.out.println("hotsax hash discord " + d.toString());
       }
 
-      //
+      // RRA
       //
       //
 
@@ -107,7 +107,8 @@ public class TestRRAanomaly {
         intervals.addAll(zeros);
       }
 
-      discordsRRA = RRAImplementation.series2RRAAnomalies(series, DISCORDS_TO_TEST, intervals);
+      discordsRRA = RRAImplementation.series2RRAAnomalies(series, DISCORDS_TO_TEST, intervals,
+          NORM_THRESHOLD);
 
       for (DiscordRecord d : discordsRRA) {
         System.out.println("RRA discords " + d.toString());

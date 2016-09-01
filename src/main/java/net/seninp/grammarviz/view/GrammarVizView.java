@@ -51,7 +51,7 @@ import net.seninp.util.StackTrace;
  */
 public class GrammarVizView implements Observer, ActionListener {
 
-  private static final String APPLICATION_MOTTO = "GrammarViz 2.0: visualizing time series grammars";
+  private static final String APPLICATION_MOTTO = "GrammarViz 3.0: visualizing time series grammars";
 
   // static block - we instantiate the logger
   //
@@ -238,6 +238,7 @@ public class GrammarVizView implements Observer, ActionListener {
     buildMenuBar();
 
     buildDataSourcePane();
+    
     buildSAXParamsPane();
 
     buildChartPane();
@@ -480,7 +481,7 @@ public class GrammarVizView implements Observer, ActionListener {
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
 
     // insets: T, L, B, R.
-    MigLayout numerosityPaneLayout = new MigLayout("insets 3 2 6 2", "[]5[]5[]", "[]");
+    MigLayout numerosityPaneLayout = new MigLayout("insets 3 2 10 2", "[]5[]5[]", "[]");
     numerosityReductionPane.setLayout(numerosityPaneLayout);
 
     numerosityReductionOFFButton.setActionCommand(NumerosityReductionStrategy.NONE.toString());
@@ -597,8 +598,11 @@ public class GrammarVizView implements Observer, ActionListener {
     ruleChartPane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Rule subsequences, normalized",
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
+    
     MigLayout ruleChartPaneLayout = new MigLayout(",insets 0 2 0 0", "[fill,grow]", "[fill,grow]");
+    
     ruleChartPane.setLayout(ruleChartPaneLayout);
+    
     ruleChartPane.setController(this.controller);
 
   }

@@ -29,7 +29,7 @@ public class GrammarVizGUI {
    */
   public static void main(String[] args) {
 
-    System.out.println("Starting GrammarViz 2.0 ...");
+    System.out.println("Starting GrammarViz 3.0 ...");
 
     /** Boilerplate */
     // the locale setup

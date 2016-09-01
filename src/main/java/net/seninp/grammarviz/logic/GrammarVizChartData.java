@@ -35,6 +35,7 @@ public class GrammarVizChartData extends Observable implements Observer {
   protected final int saxWindowSize;
   protected final int saxAlphabetSize;
   protected final int saxPAASize;
+  protected final double zNormThreshold;
 
   /** Original data file name. */
   @SuppressWarnings("unused")
@@ -70,10 +71,11 @@ public class GrammarVizChartData extends Observable implements Observer {
    * @param windowSize SAX window size.
    * @param alphabetSize SAX alphabet size.
    * @param paaSize SAX PAA size.
+   * @param zNormThreshold the z-normalization threshold.
    */
   public GrammarVizChartData(String dataFileName, double[] ts, boolean useSlidingWindow,
       NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
-      int alphabetSize) {
+      int alphabetSize, double zNormThreshold) {
 
     this.fname = dataFileName;
 
@@ -85,6 +87,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     this.saxWindowSize = windowSize;
     this.saxPAASize = paaSize;
     this.saxAlphabetSize = alphabetSize;
+    this.zNormThreshold = zNormThreshold;
   }
 
   /**
@@ -133,6 +136,10 @@ public class GrammarVizChartData extends Observable implements Observer {
    */
   public int getSAXPaaSize() {
     return saxPAASize;
+  }
+
+  public double getZNormThreshold() {
+    return this.zNormThreshold;
   }
 
   /**

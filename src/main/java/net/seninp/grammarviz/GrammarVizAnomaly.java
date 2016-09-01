@@ -699,6 +699,8 @@ public class GrammarVizAnomaly {
     LOGGER.info("running RRA algorithm...");
     Date start = new Date();
 
+    // [1] get the grammar induced
+    //
     GrammarRules rules;
 
     if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
@@ -721,23 +723,23 @@ public class GrammarVizAnomaly {
           + SAXProcessor.timeToString(start.getTime(), end.getTime()));
     }
 
+    // [2] extract all the intervals
+    //
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>(rules.size() * 2);
 
     // populate all intervals with their frequency
     //
     for (GrammarRuleRecord rule : rules) {
-
       if (0 == rule.ruleNumber()) {
         continue;
       }
       for (RuleInterval ri : rule.getRuleIntervals()) {
         RuleInterval i = (RuleInterval) ri.clone();
         i.setCoverage(rule.getRuleIntervals().size()); // not a coverage used here but a rule
-                                                       // frequency
+                                                       // frequency, will override later
         i.setId(rule.ruleNumber());
         intervals.add(i);
       }
-
     }
 
     // get the coverage array

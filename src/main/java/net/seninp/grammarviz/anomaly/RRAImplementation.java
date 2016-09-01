@@ -335,7 +335,7 @@ public class RRAImplementation {
 
     double[] ref = Arrays.copyOfRange(series, reference.getStart(), reference.getEnd());
     double[] cand = Arrays.copyOfRange(series, candidate.getStart(), candidate.getEnd());
-
+double divisor = ref.length;
     // if sequences are of the same length -- we just compute the distance
     //
 
@@ -343,6 +343,7 @@ public class RRAImplementation {
     //
     if (ref.length > cand.length) {
       ref = tp.paa(ref, cand.length);
+      divisor = cand.length;
     }
     // if the candidate is longest, we shrink it with PAA too
     //
@@ -350,7 +351,7 @@ public class RRAImplementation {
       cand = tp.paa(cand, ref.length);
     }
 
-    return ed.distance(tp.znorm(ref, zNormThreshold), tp.znorm(cand, zNormThreshold)) / ref.length;
+    return ed.distance(tp.znorm(ref, zNormThreshold), tp.znorm(cand, zNormThreshold)) / divisor;
 
   }
 

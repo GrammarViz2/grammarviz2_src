@@ -188,7 +188,7 @@ public class GrammarVizModel extends Observable {
   public synchronized void processData(GIAlgorithm algorithm, boolean useSlidingWindow,
       NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
       int alphabetSize, double normalizationThreshold, String grammarOutputFileName)
-          throws IOException {
+      throws IOException {
 
     // check if the data is loaded
     //
@@ -216,7 +216,7 @@ public class GrammarVizModel extends Observable {
 
       LOGGER.debug("creating ChartDataStructure");
       this.chartData = new GrammarVizChartData(this.dataFileName, this.ts, useSlidingWindow,
-          numerosityReductionStrategy, windowSize, paaSize, alphabetSize);
+          numerosityReductionStrategy, windowSize, paaSize, alphabetSize, normalizationThreshold);
 
       NormalAlphabet na = new NormalAlphabet();
 

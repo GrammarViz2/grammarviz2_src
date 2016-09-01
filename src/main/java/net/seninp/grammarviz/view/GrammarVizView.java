@@ -238,6 +238,7 @@ public class GrammarVizView implements Observer, ActionListener {
     buildMenuBar();
 
     buildDataSourcePane();
+    
     buildSAXParamsPane();
 
     buildChartPane();
@@ -480,7 +481,7 @@ public class GrammarVizView implements Observer, ActionListener {
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
 
     // insets: T, L, B, R.
-    MigLayout numerosityPaneLayout = new MigLayout("insets 3 2 6 2", "[]5[]5[]", "[]");
+    MigLayout numerosityPaneLayout = new MigLayout("insets 3 2 10 2", "[]5[]5[]", "[]");
     numerosityReductionPane.setLayout(numerosityPaneLayout);
 
     numerosityReductionOFFButton.setActionCommand(NumerosityReductionStrategy.NONE.toString());

@@ -44,21 +44,20 @@ import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
 
 /**
- * View component of Sequitur MVC GUI.
+ * View component of the GrammarViz MVC GUI.
  * 
  * @author psenin
  * 
  */
 public class GrammarVizView implements Observer, ActionListener {
 
+  // the main window title
   private static final String APPLICATION_MOTTO = "GrammarViz 3.0: visualizing time series grammars";
 
   // static block - we instantiate the logger
-  //
   private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizView.class);
 
   // relevant string constants and formatters go here
-  //
   // private static final String COMMA = ",";
   private static final String CR = "\n";
   private static final String TITLE_FONT = "helvetica";
@@ -90,15 +89,12 @@ public class GrammarVizView implements Observer, ActionListener {
   protected static final String DISPLAY_ANOMALIES_DATA = "display_anomalies_data";
   /** Save chart action key. */
   protected static final String SAVE_CHART = "save_chart";
-
+  /** The guess button has two functions: "GUESS" and "STOP SAMPLING", so we need some flags */
   protected static final String RESET_GUESS_BUTTON_LISTENER = "reset_guess_button_listener";
-
   /** Chunking/Sliding switch action key. */
   protected static final String USE_SLIDING_WINDOW_ACTION_KEY = "sliding_window_key";
-
   /** The action command for Options dialog. */
   private static final String OPTIONS_MENU_ITEM = "menu_item_options";
-
   /** The action command for About dialog. */
   private static final String ABOUT_MENU_ITEM = "menu_item_about";
 
@@ -150,7 +146,7 @@ public class GrammarVizView implements Observer, ActionListener {
   // sequitur rules table and other tables panel
   //
   private JTabbedPane tabbedRulesPane;
-  private GrammarRulesPanel sequiturRulesPane;
+  private GrammarRulesPanel grammarRulesPane;
   private PackedRulesPanel packedRulesPane;
   private RulesPeriodicityPanel rulesPeriodicityPane;
   private GrammarVizAnomaliesPanel anomaliesPane;
@@ -217,9 +213,11 @@ public class GrammarVizView implements Observer, ActionListener {
         catch (Exception e) {
           System.err.print(StackTrace.toString(e));
         }
-
         configureGUI();
-        disableAllExceptSelectButton();
+        // do some buttons work
+        //
+        disableAllButtons();
+        selectFileButton.setEnabled(true);
       }
     });
   }
@@ -238,7 +236,7 @@ public class GrammarVizView implements Observer, ActionListener {
     buildMenuBar();
 
     buildDataSourcePane();
-    
+
     buildSAXParamsPane();
 
     buildChartPane();
@@ -251,10 +249,10 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // put listeners in place for the Sequitur rule panel
     //
-    sequiturRulesPane.addPropertyChangeListener(dataChartPane);
-    sequiturRulesPane.addPropertyChangeListener(ruleChartPane);
+    grammarRulesPane.addPropertyChangeListener(dataChartPane);
+    grammarRulesPane.addPropertyChangeListener(ruleChartPane);
     dataChartPane.addPropertyChangeListener(GrammarVizMessage.MAIN_CHART_CLICKED_MESSAGE,
-        sequiturRulesPane);
+        grammarRulesPane);
 
     // put listeners in place for the Clustered/Packed rule panel
     //
@@ -301,6 +299,9 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // Show frame
     frame.pack();
+    
+    // the resize trick
+    dataChartPane.bindToTheFrameSize();
     frame.setSize(new Dimension(1020, 840));
     frame.setVisible(true);
   }
@@ -548,11 +549,11 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // now add the raw Sequitur rules panel
     //
-    sequiturRulesPane = new GrammarRulesPanel();
+    grammarRulesPane = new GrammarRulesPanel();
     MigLayout sequiturPaneLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
-    sequiturRulesPane.setLayout(sequiturPaneLayout);
+    grammarRulesPane.setLayout(sequiturPaneLayout);
 
-    tabbedRulesPane.addTab("Grammar rules", null, sequiturRulesPane, "Shows grammar rules");
+    tabbedRulesPane.addTab("Grammar rules", null, grammarRulesPane, "Shows grammar rules");
     // tabbedRulesPane.addTab("Sequitur", sequiturRulesPane);
     // tabbedRulesPane.setIgnoreRepaint(false);
 
@@ -598,11 +599,11 @@ public class GrammarVizView implements Observer, ActionListener {
     ruleChartPane.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createEtchedBorder(BevelBorder.LOWERED), "Rule subsequences, normalized",
         TitledBorder.LEFT, TitledBorder.CENTER, new Font(TITLE_FONT, Font.PLAIN, 10)));
-    
+
     MigLayout ruleChartPaneLayout = new MigLayout(",insets 0 2 0 0", "[fill,grow]", "[fill,grow]");
-    
+
     ruleChartPane.setLayout(ruleChartPaneLayout);
-    
+
     ruleChartPane.setController(this.controller);
 
   }
@@ -723,7 +724,8 @@ public class GrammarVizView implements Observer, ActionListener {
           public void run() {
             dataFilePathField.setText((String) message.getPayload());
             dataFilePathField.repaint();
-            disableAllExceptSelectButton();
+            disableAllButtons();
+            selectFileButton.setEnabled(true);
             dataLoadButton.setEnabled(true);
           }
         };
@@ -740,15 +742,15 @@ public class GrammarVizView implements Observer, ActionListener {
         Runnable clearPanels = new Runnable() {
           @Override
           public void run() {
-            sequiturRulesPane.clearPanel();
+            grammarRulesPane.clearPanel();
             ruleChartPane.clear();
             rulesPeriodicityPane.clear();
             anomaliesPane.clear();
             frame.repaint();
-            disableAllExceptSelectButton();
+            disableAllButtons();
+            selectFileButton.setEnabled(true);
             dataLoadButton.setEnabled(true);
             guessParametersButton.setEnabled(true);
-            discretizeButton.setEnabled(true);
             discretizeButton.setEnabled(true);
           }
         };
@@ -770,7 +772,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
         // and the rules pane second
         //
-        sequiturRulesPane.setChartData(this.controller.getSession());
+        grammarRulesPane.setChartData(this.controller.getSession());
 
         // and the "snapshots panel"
         //
@@ -865,7 +867,7 @@ public class GrammarVizView implements Observer, ActionListener {
       }
       else {
         dataChartPane.resetChartPanel();
-        sequiturRulesPane.resetSelection();
+        grammarRulesPane.resetSelection();
         ruleChartPane.clear();
       }
     }
@@ -929,11 +931,11 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (GUESS_PARAMETERS.equalsIgnoreCase(command)) {
       log(Level.INFO, "starting the guessing params dialog");
-      disableAllExceptSelectButton();
-      this.dataLoadButton.setEnabled(true);
+      disableAllButtons();
       this.guessParametersButton.setEnabled(true);
       this.guessParametersButton.removeActionListener(this);
       this.dataChartPane.actionPerformed(new ActionEvent(this, 2, GUESS_PARAMETERS));
+      enableAllButtons();
     }
 
     else if (UserSession.PARAMS_CHANGED_EVENT.equalsIgnoreCase(command)) {
@@ -1010,7 +1012,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
         // and the rules pane second
         //
-        sequiturRulesPane.resetPanel();
+        grammarRulesPane.resetPanel();
 
         // and the "snapshots panel"
         //
@@ -1072,7 +1074,11 @@ public class GrammarVizView implements Observer, ActionListener {
     JOptionPane.showMessageDialog(frame, message, "Validation error", JOptionPane.ERROR_MESSAGE);
   }
 
-  private void disableAllExceptSelectButton() {
+  /**
+   * Shortcut to disable all buttons.
+   */
+  private void disableAllButtons() {
+    this.selectFileButton.setEnabled(false);
     this.dataLoadButton.setEnabled(false);
     this.guessParametersButton.setEnabled(false);
     this.discretizeButton.setEnabled(false);
@@ -1085,6 +1091,9 @@ public class GrammarVizView implements Observer, ActionListener {
     this.saveChartButton.setEnabled(false);
   }
 
+  /**
+   * Shortcut to enable all buttons.
+   */
   private void enableAllButtons() {
     this.dataLoadButton.setEnabled(true);
     this.guessParametersButton.setEnabled(true);

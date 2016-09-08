@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -167,10 +169,10 @@ public class GrammarvizChartPanel extends JPanel
 
     chartPanel = new ChartPanel(this.chart);
 
+    chartPanel.setMaximumDrawHeight(this.getParent().getHeight());
+    chartPanel.setMaximumDrawWidth(this.getParent().getWidth());
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
-    chartPanel.setMaximumDrawWidth(1920);
-    chartPanel.setMaximumDrawHeight(1920);
 
     chartPanel.setMouseWheelEnabled(true);
 
@@ -184,8 +186,10 @@ public class GrammarvizChartPanel extends JPanel
 
     // not sure if I need this
     //
-    revalidate();
-    repaint();
+    this.validate();
+    // this.repaint();
+    chartPanel.validate();
+    // chartPanel.repaint();
   }
 
   /**
@@ -268,10 +272,11 @@ public class GrammarvizChartPanel extends JPanel
     //
     paintTheChart(this.session.chartData.getOriginalTimeseries());
     chartPanel = new ChartPanel(this.chart);
+    chartPanel.setMaximumDrawHeight(this.getParent().getHeight());
+    chartPanel.setMaximumDrawWidth(this.getParent().getWidth());
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
-    chartPanel.setMaximumDrawWidth(1920);
-    chartPanel.setMaximumDrawHeight(1200);
+    chartPanel.revalidate();
     //
     this.removeAll();
     this.add(chartPanel);
@@ -609,10 +614,6 @@ public class GrammarvizChartPanel extends JPanel
     this.tsData = tsData;
     paintTheChart(tsData);
     chartPanel = new ChartPanel(this.chart);
-    // chartPanel.setMinimumDrawWidth(0);
-    // chartPanel.setMinimumDrawHeight(0);
-    // chartPanel.setMaximumDrawWidth(1920);
-    // chartPanel.setMaximumDrawHeight(1200);
     this.removeAll();
     this.add(chartPanel);
     revalidate();
@@ -665,6 +666,7 @@ public class GrammarvizChartPanel extends JPanel
 
     // set the progress listener to react to mouse clicks in the chart
     this.chart.addProgressListener(this);
+    this.chart.setNotify(true);
 
   }
 
@@ -756,14 +758,21 @@ public class GrammarvizChartPanel extends JPanel
       repaint();
       saveCurrentChart();
     }
+    // GUESS PARAMETERS procedure
+    //
     else if (GrammarVizView.GUESS_PARAMETERS.equalsIgnoreCase(e.getActionCommand())) {
+
+      // re-draw the plot, so selection wouldn't get weird...
+      //
+      this.resetChartPanel();
 
       // setting the new label on the chart-surrounding panel
       //
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SELECT_INTERVAL);
-      chartPanel.revalidate();
-      chartPanel.repaint();
+
+      // clear whatever markers are on the chart panel
+      //
       timeseriesPlot.clearDomainMarkers();
 
       // disabling zoom on the panel
@@ -921,6 +930,22 @@ public class GrammarvizChartPanel extends JPanel
 
   public void addActionListener(ActionListener listener) {
     this.listeners.add(listener);
+  }
+
+  public void bindToTheFrameSize() {
+    this.getTopLevelAncestor().addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentResized(ComponentEvent e) {
+        if (null != chartPanel) {
+          System.err.println("component resized");
+          chartPanel.setMaximumDrawHeight(e.getComponent().getHeight());
+          chartPanel.setMaximumDrawWidth(e.getComponent().getWidth());
+          chartPanel.setMinimumDrawWidth(0);
+          chartPanel.setMinimumDrawHeight(0);
+          chartPanel.revalidate();
+        }
+      }
+    });
   }
 
 }

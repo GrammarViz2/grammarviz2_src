@@ -53,6 +53,7 @@ public class MouseMarker extends MouseAdapter {
   }
 
   private Double getPosition(MouseEvent e) {
+    // System.err.println("Event position " + e.getX() + ", " + e.getY());
     Point2D p = panel.translateScreenToJava2D(e.getPoint());
     Rectangle2D plotArea = panel.getScreenDataArea();
     XYPlot plot = (XYPlot) chart.getPlot();

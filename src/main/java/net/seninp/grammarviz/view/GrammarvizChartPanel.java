@@ -167,6 +167,8 @@ public class GrammarvizChartPanel extends JPanel
       paintTheChart(this.session.chartData.getOriginalTimeseries());
     }
 
+    // instantiate and adjust the chart panel
+    //
     chartPanel = new ChartPanel(this.chart);
 
     chartPanel.setMaximumDrawHeight(this.getParent().getHeight());
@@ -184,12 +186,9 @@ public class GrammarvizChartPanel extends JPanel
     //
     this.add(chartPanel);
 
-    // not sure if I need this
+    // make sure all is set
     //
-    this.validate();
-    // this.repaint();
-    chartPanel.validate();
-    // chartPanel.repaint();
+    this.revalidate();
   }
 
   /**
@@ -270,13 +269,13 @@ public class GrammarvizChartPanel extends JPanel
 
     // this is the new "insert" - elastic boundaries chart panel
     //
-    paintTheChart(this.session.chartData.getOriginalTimeseries());
-    chartPanel = new ChartPanel(this.chart);
-    chartPanel.setMaximumDrawHeight(this.getParent().getHeight());
-    chartPanel.setMaximumDrawWidth(this.getParent().getWidth());
-    chartPanel.setMinimumDrawWidth(0);
-    chartPanel.setMinimumDrawHeight(0);
-    chartPanel.revalidate();
+    // paintTheChart(this.session.chartData.getOriginalTimeseries());
+    // chartPanel = new ChartPanel(this.chart);
+    // chartPanel.setMaximumDrawHeight(this.getParent().getHeight());
+    // chartPanel.setMaximumDrawWidth(this.getParent().getWidth());
+    // chartPanel.setMinimumDrawWidth(0);
+    // chartPanel.setMinimumDrawHeight(0);
+    // chartPanel.revalidate();
     //
     this.removeAll();
     this.add(chartPanel);
@@ -932,12 +931,14 @@ public class GrammarvizChartPanel extends JPanel
     this.listeners.add(listener);
   }
 
+  // working around the scaling chart issue
+  //
   public void bindToTheFrameSize() {
     this.getTopLevelAncestor().addComponentListener(new ComponentAdapter() {
       @Override
       public void componentResized(ComponentEvent e) {
         if (null != chartPanel) {
-          System.err.println("component resized");
+          // System.err.println("component resized");
           chartPanel.setMaximumDrawHeight(e.getComponent().getHeight());
           chartPanel.setMaximumDrawWidth(e.getComponent().getWidth());
           chartPanel.setMinimumDrawWidth(0);

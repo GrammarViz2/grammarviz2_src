@@ -74,7 +74,7 @@ public class GrammarVizModel extends Observable {
    */
   public synchronized void setDataSource(String filename) {
 
-    LOGGER.info("setting the file " + filename + " as current data source");
+    LOGGER.info("setting " + filename + " as the data source");
 
     // action
     this.dataFileName = filename;
@@ -84,7 +84,7 @@ public class GrammarVizModel extends Observable {
     notifyObservers(new GrammarVizMessage(GrammarVizMessage.DATA_FNAME, this.getDataFileName()));
 
     // this notification tells GUI which file was selected as the data source
-    this.log("set file " + filename + " as current data source");
+    this.log("set " + filename + " as the data source");
 
   }
 
@@ -110,7 +110,6 @@ public class GrammarVizModel extends Observable {
 
     // read the input
     //
-    // init the data araay
     ArrayList<Double> data = new ArrayList<Double>();
 
     // lets go
@@ -161,7 +160,7 @@ public class GrammarVizModel extends Observable {
     }
     data = new ArrayList<Double>();
 
-    LOGGER.debug("loaded " + this.ts.length + " points....");
+    LOGGER.info("loaded " + this.ts.length + " points....");
 
     // notify that the process finished
     this.log("loaded " + this.ts.length + " points from " + this.dataFileName);
@@ -173,7 +172,7 @@ public class GrammarVizModel extends Observable {
   }
 
   /**
-   * Process data with Sequitur. Populate and broadcast ChartData object.
+   * Process data with GI algorithm. Instantiate, populate, and broadcast the ChartData object.
    * 
    * @param algorithm the algorithm, 0 Sequitur, 1 RE-PAIR.
    * @param useSlidingWindow The use sliding window parameter.

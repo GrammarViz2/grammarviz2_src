@@ -628,7 +628,7 @@ public class GrammarVizView implements Observer, ActionListener {
     clusterRulesButton.setActionCommand(CLUSTER_RULES);
     clusterRulesButton.addActionListener(this);
 
-    displayChartButton = new JButton("Grammar rules");
+    displayChartButton = new JButton("Clear plot");
     displayChartButton.setMnemonic('R');
     displayChartButton.setActionCommand(DISPLAY_CHART);
     displayChartButton.addActionListener(this);
@@ -1078,7 +1078,7 @@ public class GrammarVizView implements Observer, ActionListener {
    * Shortcut to disable all buttons.
    */
   private void disableAllButtons() {
-    this.selectFileButton.setEnabled(false);
+    this.selectFileButton.setEnabled(true);
     this.dataLoadButton.setEnabled(false);
     this.guessParametersButton.setEnabled(false);
     this.discretizeButton.setEnabled(false);

@@ -154,8 +154,9 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
     this.acceptListEvents = true;
   }
 
-  public void setChartData(UserSession session2) {
-    this.session = session2;
+  public void setChartData(UserSession session) {
+    this.session = session;
+    resetPanel();
   }
 
 }

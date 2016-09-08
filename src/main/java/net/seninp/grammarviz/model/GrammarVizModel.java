@@ -235,20 +235,14 @@ public class GrammarVizModel extends Observable {
                 normalizationThreshold);
           }
 
-          LOGGER.trace("String: " + saxFrequencyData.getSAXString(SPACE));
-
-          LOGGER.debug("running sequitur ...");
           SAXRule sequiturGrammar = SequiturFactory
               .runSequitur(saxFrequencyData.getSAXString(SPACE));
 
-          LOGGER.debug("collecting grammar rules data ...");
           GrammarRules rules = sequiturGrammar.toGrammarRulesData();
 
-          LOGGER.debug("mapping rule intervals on timeseries ...");
           SequiturFactory.updateRuleIntervals(rules, saxFrequencyData, useSlidingWindow, this.ts,
               windowSize, paaSize);
 
-          LOGGER.debug("done ...");
           this.chartData.setGrammarRules(rules);
 
         }

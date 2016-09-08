@@ -299,7 +299,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     // Show frame
     frame.pack();
-    
+
     // the resize trick
     dataChartPane.bindToTheFrameSize();
     frame.setSize(new Dimension(1020, 840));
@@ -705,6 +705,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
   @Override
   public void update(Observable o, Object arg) {
+    
     if (arg instanceof GrammarVizMessage) {
 
       final GrammarVizMessage message = (GrammarVizMessage) arg;
@@ -1095,6 +1096,7 @@ public class GrammarVizView implements Observer, ActionListener {
    * Shortcut to enable all buttons.
    */
   private void enableAllButtons() {
+    this.selectFileButton.setEnabled(true);
     this.dataLoadButton.setEnabled(true);
     this.guessParametersButton.setEnabled(true);
     this.discretizeButton.setEnabled(true);

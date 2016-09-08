@@ -84,7 +84,7 @@ public class GrammarVizController extends Observable implements ActionListener {
     ActionListener loadDataActionListener = new ActionListener() {
       public void actionPerformed(ActionEvent event) {
 
-        StringBuffer logSB = new StringBuffer("controller: running inference with settings:");
+        StringBuffer logSB = new StringBuffer("running inference with settings:");
 
         logSB.append(" SAX window: ").append(session.useSlidingWindow);
         logSB.append(", SAX paa: ").append(session.useSlidingWindow);

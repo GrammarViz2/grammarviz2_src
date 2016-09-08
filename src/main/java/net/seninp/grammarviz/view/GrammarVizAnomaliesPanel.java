@@ -156,8 +156,9 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
     this.acceptListEvents = true;
   }
 
-  public void setChartData(UserSession session2) {
-    this.session = session2;
+  public void setChartData(UserSession session) {
+    this.session = session;
+    updateAnomalies();
   }
 
 }

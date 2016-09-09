@@ -674,7 +674,7 @@ public class GrammarVizView implements Observer, ActionListener {
     logTextArea.setCaretPosition(logTextArea.getDocument().getLength());
     logTextPane.setBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED));
     logTextPane.setAutoscrolls(true);
-    log(Level.INFO, "running GrammarViz 2.0 demo");
+    log(Level.INFO, "running GrammarViz 3.0 demo");
   }
 
   /**

@@ -65,6 +65,11 @@ public class GrammarVizController extends Observable implements ActionListener {
     return selectDataActionListener;
   }
 
+  /**
+   * Load file listener.
+   * 
+   * @return the listener instance.
+   */
   public ActionListener getLoadFileListener() {
     ActionListener loadDataActionListener = new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -81,7 +86,7 @@ public class GrammarVizController extends Observable implements ActionListener {
    */
   public ActionListener getProcessDataListener() {
 
-    ActionListener loadDataActionListener = new ActionListener() {
+    ActionListener discretizeAndGrammarListener = new ActionListener() {
       public void actionPerformed(ActionEvent event) {
 
         StringBuffer logSB = new StringBuffer("running inference with settings:");
@@ -112,7 +117,7 @@ public class GrammarVizController extends Observable implements ActionListener {
 
       }
     };
-    return loadDataActionListener;
+    return discretizeAndGrammarListener;
   }
 
   @Override

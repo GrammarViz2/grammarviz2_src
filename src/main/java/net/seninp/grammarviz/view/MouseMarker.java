@@ -49,6 +49,12 @@ public class MouseMarker extends MouseAdapter {
         marker.setAlpha(0.7f);
         plot.addDomainMarker(marker, Layer.BACKGROUND);
       }
+      else {
+        marker = new IntervalMarker(markerEnd, markerStart);
+        marker.setPaint(new Color(0xDD, 0xFF, 0xDD, 0x90));
+        marker.setAlpha(0.7f);
+        plot.addDomainMarker(marker, Layer.BACKGROUND);
+      }
     }
   }
 
@@ -93,10 +99,16 @@ public class MouseMarker extends MouseAdapter {
   }
 
   public double getSelectionStart() {
-    return this.markerStart;
+    if (markerEnd >= markerStart) {
+      return this.markerStart;
+    }
+    return this.markerEnd;
   }
 
   public double getSelectionEnd() {
-    return this.markerEnd;
+    if (markerEnd >= markerStart) {
+      return this.markerEnd;
+    }
+    return this.markerStart;
   }
 }

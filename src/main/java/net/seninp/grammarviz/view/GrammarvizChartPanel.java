@@ -27,6 +27,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
@@ -166,6 +167,11 @@ public class GrammarvizChartPanel extends JPanel
     else {
       paintTheChart(this.session.chartData.getOriginalTimeseries());
     }
+
+    // reset the border label
+    //
+    TitledBorder tb = (TitledBorder) this.getBorder();
+    tb.setTitle(LABEL_DEFAULT);
 
     // instantiate and adjust the chart panel
     //
@@ -736,6 +742,7 @@ public class GrammarvizChartPanel extends JPanel
 
   @Override
   public void actionPerformed(ActionEvent e) {
+
     if (GrammarVizView.DISPLAY_DENSITY_DATA.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_DENSITY + "coverage count strategy: "
@@ -744,12 +751,14 @@ public class GrammarvizChartPanel extends JPanel
       repaint();
       displayRuleDensity();
     }
+
     else if (GrammarVizView.DISPLAY_LENGTH_HISTOGRAM.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SHOWING_HISTOGRAMM);
       revalidate();
       displayRulesLengthHistogram();
     }
+
     else if (GrammarVizView.SAVE_CHART.equalsIgnoreCase(e.getActionCommand())) {
       TitledBorder tb = (TitledBorder) this.getBorder();
       tb.setTitle(LABEL_SAVING_CHART);
@@ -760,6 +769,8 @@ public class GrammarvizChartPanel extends JPanel
     // GUESS PARAMETERS procedure
     //
     else if (GrammarVizView.GUESS_PARAMETERS.equalsIgnoreCase(e.getActionCommand())) {
+
+      LOGGER.info("Starying the sampling dialog...");
 
       // re-draw the plot, so selection wouldn't get weird...
       //
@@ -778,6 +789,11 @@ public class GrammarvizChartPanel extends JPanel
       //
       chartPanel.setRangeZoomable(false);
       chartPanel.setDomainZoomable(false);
+
+      JOptionPane.showMessageDialog(this,
+          "Select the sampling range (preferrably the normal signal)\n"
+              + "by dragging the mouse pointer from left to right.",
+          null, JOptionPane.WARNING_MESSAGE);
 
       // attaching the custom mouse listener
       //
@@ -817,7 +833,7 @@ public class GrammarvizChartPanel extends JPanel
             parametersDialog.setVisible(true);
 
             if (parametersDialog.wasCancelled) {
-              LOGGER.debug("Selection process has been cancelled...");
+              LOGGER.info("Selection process has been cancelled...");
               paramsSampler.cancel();
             }
             else {
@@ -825,7 +841,7 @@ public class GrammarvizChartPanel extends JPanel
             }
           }
           if (selectionSucceeded) {
-            LOGGER.debug("Running the sampler...");
+            LOGGER.info("Running the sampler...");
             try {
 
               final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -860,14 +876,22 @@ public class GrammarvizChartPanel extends JPanel
       guessRefreshThread.start();
     }
     else if (GrammarvizChartPanel.SELECTION_CANCELLED.equalsIgnoreCase(e.getActionCommand())) {
+      LOGGER.info("selection cancelled...");
       this.resetChartPanel();
+      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
+      for (ActionListener l : this.listeners) {
+        l.actionPerformed(event);
+      }
     }
     else if (GrammarvizChartPanel.SELECTION_FINISHED.equalsIgnoreCase(e.getActionCommand())) {
+      LOGGER.info("selection finished...");
       this.resetChartPanel();
+      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
+      for (ActionListener l : this.listeners) {
+        l.actionPerformed(event);
+      }
     }
     else if (GrammarvizChartPanel.SAMPLING_SUCCEEDED.equalsIgnoreCase(e.getActionCommand())) {
-      TitledBorder tb = (TitledBorder) this.getBorder();
-      tb.setTitle(LABEL_DEFAULT);
       resetChartPanel();
       this.session.notifyParametersChangeListeners();
       ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);

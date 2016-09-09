@@ -46,7 +46,7 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
 
     getContentPane().setLayout(mainFrameLayout);
 
-    getContentPane().add(this.guesserPane, "h 200:300:,w 500:550:,growx,growy,wrap");
+    getContentPane().add(this.guesserPane, "h 200:200:,w 400:400:,growx,growy,wrap");
 
     JPanel buttonPane = new JPanel();
     JButton okButton = new JButton(OK_BUTTON_TEXT);

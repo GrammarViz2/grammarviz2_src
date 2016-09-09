@@ -23,7 +23,7 @@ public class GrammarvizGuesserPane extends JPanel {
   // The labels
   //
   private static final JLabel SAMPLING_INTERVAL_LABEL = new JLabel("Sampling interval range:");
-  private static final JLabel MINIMAL_COVER_LABEL = new JLabel("Minimal cover threshold:");
+  private static final JLabel MINIMAL_COVER_LABEL = new JLabel("Minimal rule cover threshold:");
   private static final JLabel WINDOW_BOUND_LABEL = new JLabel("Window range and step:");
   private static final JLabel PAA_BOUND_LABEL = new JLabel("PAA range and step:");
   private static final JLabel ALPHABET_BOUND_LABEL = new JLabel("Alphabet range and step:");
@@ -63,7 +63,7 @@ public class GrammarvizGuesserPane extends JPanel {
    */
   public GrammarvizGuesserPane(UserSession userSession) {
 
-    super(new MigLayout("fill", "[][fill,grow][fill,grow][fill,grow]", "[grow]"));
+    super(new MigLayout("", "[][fill,grow][fill,grow][fill,grow]", ""));
 
     this.add(SAMPLING_INTERVAL_LABEL, "span 2");
     this.add(intervalStartField);
@@ -71,6 +71,10 @@ public class GrammarvizGuesserPane extends JPanel {
 
     this.add(MINIMAL_COVER_LABEL, "span 2");
     this.add(minimalCoverField, "wrap");
+
+    this.add(new JLabel("MIN"), "skip 1");
+    this.add(new JLabel("MAX"));
+    this.add(new JLabel("STEP"), "wrap");
 
     this.add(WINDOW_BOUND_LABEL);
     this.add(windowMinField);

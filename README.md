@@ -15,7 +15,9 @@ GrammarViz 3.0 is a software for *time series exploratory analysis* with GUI and
 
 It is implemented in Java and is based on continuous signal discretization with [SAX](https://github.com/jMotif/SAX), Grammatical Inference with [Sequitur](https://github.com/jMotif/GI) and [Re-Pair](https://github.com/jMotif/GI), and [algorithmic (Kolmogorov) complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity). 
 
-GrammarViz3 also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**" algorithms for time series anomaly discovery [5], that significantly outperform HOT-SAX algorithm for time series discord discovery  which is current state of the art. In the table below, the algorithms performance is measured in the amount of calls to the distance function (less is better). The last column shows the RRA performance improvement over HOT-SAX:
+GrammarViz 3.0 introduces an approach for the automated discretization parameters selection based on the greedy grammar rule pruning algorithm and MDL.
+
+GrammarViz 3.0 also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**" algorithms for time series anomaly discovery [5], that significantly outperform HOT-SAX algorithm for time series discord discovery, which is current state of the art. In the table below, the algorithms performance is measured in the amount of calls to the distance function (less is better). The last column shows the RRA performance improvement over HOT-SAX:
 
 | Dataset and SAX parameters         | Dataset size    | Brute Force          | HOT-SAX     | RRA        | Reduction |
 |:-----------------------------------|--------:|---------------------:|------------:|-----------:|------:|

@@ -67,7 +67,7 @@ public class GrammarvizParamsSampler implements Callable<String> {
 
       for (int PAA_SIZE = boundaries[3]; PAA_SIZE < boundaries[4]; PAA_SIZE += boundaries[5]) {
 
-        System.out.println(WINDOW_SIZE);
+        // System.out.println(WINDOW_SIZE);
 
         // check for invalid cases
         if (PAA_SIZE > WINDOW_SIZE) {
@@ -100,7 +100,7 @@ public class GrammarvizParamsSampler implements Callable<String> {
             parent.session.saxPAA = res.get(0).getPAA();
             parent.session.saxAlphabet = res.get(0).getAlphabet();
 
-            System.out.println("\nApparently, the best parameters are " + res.get(0).toString());
+            LOGGER.info("\nApparently, the best parameters are " + res.get(0).toString());
             this.parent
                 .actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SAMPLING_SUCCEEDED));
 
@@ -113,7 +113,7 @@ public class GrammarvizParamsSampler implements Callable<String> {
       }
     }
 
-    System.out.println("\nLoop finished " + res.get(0).toString());
+    LOGGER.info("sampler loop finished " + res.get(0).toString());
 
     Collections.sort(res, new ReductionSorter());
 
@@ -121,7 +121,7 @@ public class GrammarvizParamsSampler implements Callable<String> {
     parent.session.saxPAA = res.get(0).getPAA();
     parent.session.saxAlphabet = res.get(0).getAlphabet();
 
-    System.out.println("\nApparently, the best parameters are " + res.get(0).toString());
+    LOGGER.info("apparently, the best parameters are " + res.get(0).toString());
 
     this.parent.actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SAMPLING_SUCCEEDED));
 

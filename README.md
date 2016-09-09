@@ -17,7 +17,7 @@ It is implemented in Java and is based on continuous signal discretization with 
 
 In contrast with 2.0, GrammarViz 3.0 introduces an approach for the grammar rule pruning and the automated discretization parameters selection procedure based on the greedy grammar rule pruning and MDL.
 
-GrammarViz 3.0 also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**" algorithms for time series anomaly discovery [5], that significantly outperform HOT-SAX algorithm for time series discord discovery, which is current state of the art. In the table below, the algorithms performance is measured in the amount of calls to the distance function (less is better). The last column shows the RRA performance improvement over HOT-SAX:
+It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**" algorithms for time series anomaly discovery [5], that significantly outperform HOT-SAX algorithm for time series discord discovery, which is current state of the art. In the table below, the algorithms performance is measured in the amount of calls to the distance function (less is better). The last column shows the RRA performance improvement over HOT-SAX:
 
 | Dataset and SAX parameters         | Dataset size    | Brute Force          | HOT-SAX     | RRA        | Reduction |
 |:-----------------------------------|--------:|---------------------:|------------:|-----------:|------:|

@@ -1005,7 +1005,7 @@ public class GrammarVizView implements Observer, ActionListener {
       }
       else {
 
-        this.controller.getSession().chartData.performRanking();
+        this.controller.getSession().chartData.performRulePruning();
 
         // setting the chart first
         //

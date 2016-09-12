@@ -22,16 +22,13 @@ public class UserSession {
   /** Params change event. */
   public static final String PARAMS_CHANGED_EVENT = "parameters_changed";
 
+  /** The default values. */
   private static final int DEFAULT_SAX_WINDOW = 170;
   private static final int DEFAULT_SAX_PAA = 4;
   private static final int DEFAULT_SAX_ALPHABET = 4;
-
   private static final boolean USE_SLIDING_WINDOW = true;
-
   private static final Double DEFAULT_NORMALIZATION_THRESHOLD_VALUE = 0.05;
-
   private static final NumerosityReductionStrategy DEFAULT_NUMEROSITY_REDUCTION_STRATEGY = NumerosityReductionStrategy.EXACT;
-
   private static final GIAlgorithm DEFAULT_GI_ALGORITHM = GIAlgorithm.SEQUITUR;
   private static final CoverageCountStrategy DEFAULT_COUNT_STRATEGY = CoverageCountStrategy.COUNT;
 
@@ -40,11 +37,8 @@ public class UserSession {
   public volatile int saxWindow;
   public volatile int saxPAA;
   public volatile int saxAlphabet;
-
   public volatile boolean useSlidingWindow;
-
   public volatile NumerosityReductionStrategy numerosityReductionStrategy;
-
   public volatile Double normalizationThreshold;
 
   // core algorithms variables
@@ -65,8 +59,13 @@ public class UserSession {
   public volatile String grammarOutputFileName;
   public volatile String anomaliesOutputFileName;
   public volatile String chartsSaveFolder;
+
+  // listeners for the parameter changes
+  //
   private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
+  // the huge class holding the timeseries and the grammar
+  //
   public volatile GrammarVizChartData chartData;
 
   public UserSession() {
@@ -76,15 +75,10 @@ public class UserSession {
     this.saxWindow = DEFAULT_SAX_WINDOW;
     this.saxPAA = DEFAULT_SAX_PAA;
     this.saxAlphabet = DEFAULT_SAX_ALPHABET;
-
     this.useSlidingWindow = USE_SLIDING_WINDOW;
-
     this.numerosityReductionStrategy = DEFAULT_NUMEROSITY_REDUCTION_STRATEGY;
-
     this.normalizationThreshold = DEFAULT_NORMALIZATION_THRESHOLD_VALUE;
-
     this.giAlgorithm = DEFAULT_GI_ALGORITHM;
-
     this.countStrategy = DEFAULT_COUNT_STRATEGY;
 
     // attempt to fill the rule coverage name automatically
@@ -99,13 +93,20 @@ public class UserSession {
           "Error has been thrown, unable to findout the current path: " + StackTrace.toString(e));
     }
     this.ruleDensityOutputFileName = filename;
-
   }
 
+  /**
+   * Adds a parameters change action listener which will be notified on any change.
+   * 
+   * @param e
+   */
   public void addActionListener(ActionListener e) {
     this.listeners.add(e);
   }
 
+  /**
+   * Notifies all registered listeners.
+   */
   public void notifyParametersChangeListeners() {
     ActionEvent event = new ActionEvent(this, 0, PARAMS_CHANGED_EVENT);
     for (ActionListener listener : listeners) {

@@ -39,7 +39,7 @@ public class GrammarVizChartData extends Observable implements Observer {
 
   /** Original data file name. */
   @SuppressWarnings("unused")
-  private final String fname;
+  private final String inputFname;
 
   /** Original data which will be used for the chart. */
   protected final double[] originalTimeSeries;
@@ -52,9 +52,6 @@ public class GrammarVizChartData extends Observable implements Observer {
 
   /** The discords. */
   protected DiscordRecords discords;
-
-  /** JMotif's data structure, product of series conversion into SAX words. */
-  // protected SAXFrequencyData saxFrequencyData = new SAXFrequencyData();
 
   /** Pruning related vars. */
   private SAXPointsNumber[] pointsNumberRemoveStrategy;
@@ -77,7 +74,7 @@ public class GrammarVizChartData extends Observable implements Observer {
       NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
       int alphabetSize, double zNormThreshold) {
 
-    this.fname = dataFileName;
+    this.inputFname = dataFileName;
 
     this.slidingWindowOn = useSlidingWindow;
     this.numerosityReductionStrategy = numerosityReductionStrategy;
@@ -88,6 +85,15 @@ public class GrammarVizChartData extends Observable implements Observer {
     this.saxPAASize = paaSize;
     this.saxAlphabetSize = alphabetSize;
     this.zNormThreshold = zNormThreshold;
+  }
+
+  /**
+   * Get the original, untransformed time series.
+   * 
+   * @return the original time series
+   */
+  public double[] getOriginalTimeseries() {
+    return originalTimeSeries;
   }
 
   /**
@@ -109,15 +115,6 @@ public class GrammarVizChartData extends Observable implements Observer {
   }
 
   /**
-   * Get the original, untransformed time series.
-   * 
-   * @return the original time series
-   */
-  public double[] getOriginalTimeseries() {
-    return originalTimeSeries;
-  }
-
-  /**
    * @return SAX window size
    */
   public int getSAXWindowSize() {
@@ -136,6 +133,10 @@ public class GrammarVizChartData extends Observable implements Observer {
    */
   public int getSAXPaaSize() {
     return saxPAASize;
+  }
+
+  public boolean isSlidingWindowOn() {
+    return this.slidingWindowOn;
   }
 
   public double getZNormThreshold() {
@@ -161,10 +162,10 @@ public class GrammarVizChartData extends Observable implements Observer {
   }
 
   /**
-   * converts rules from a foreign alphabet to the internal original SAX alphabet
+   * Сonverts rules from a foreign alphabet to the internal original SAX alphabet.
    * 
-   * @param rule the SAX rule in foreign SAX alphabet
-   * @return the SAX string in original alphabet, e.g. aabbdd
+   * @param rule the SAX rule in foreign SAX alphabet.
+   * @return the SAX string in original alphabet, e.g. aabbdd.
    */
   public String convert2OriginalSAXAlphabet(char firstForeignAlphabetChar, String rule) {
     String textRule = rule;
@@ -177,17 +178,17 @@ public class GrammarVizChartData extends Observable implements Observer {
   }
 
   /**
-   * @return SAX display formatted string
-   */
-  public String getSAXDisplay() {
-    return saxDisplayString;
-  }
-
-  /**
    * @param SAXDisplay SAX display formatted string
    */
   public void setSAXDisplay(String SAXDisplay) {
     saxDisplayString = SAXDisplay;
+  }
+
+  /**
+   * @return SAX display formatted string.
+   */
+  public String getSAXDisplay() {
+    return saxDisplayString;
   }
 
   /**
@@ -257,6 +258,34 @@ public class GrammarVizChartData extends Observable implements Observer {
   // ********************************
   // Refactoring in Xing's code below
   // ********************************
+
+  public GrammarRuleRecord getRule(Integer ruleIndex) {
+    return this.grammarRules.get(ruleIndex);
+  }
+
+  /**
+   * Performs greedy rule prunung, the grammar will be lost.
+   */
+  public void performRulePruning() {
+    GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(this.originalTimeSeries,
+        this.grammarRules);
+    this.grammarRules = prunedRulesSet;
+  }
+
+  /**
+   * This computes anomalies.
+   * 
+   * @throws Exception
+   */
+  public void findAnomalies() throws Exception {
+    GrammarVizAnomalyFinder finder = new GrammarVizAnomalyFinder(this);
+    finder.addObserver(this);
+    finder.run();
+  }
+
+  public DiscordRecords getAnomalies() {
+    return this.discords;
+  }
 
   /**
    * This method counts how many times each data point is used in ANY sequitur rule (i.e. data point
@@ -847,31 +876,12 @@ public class GrammarVizChartData extends Observable implements Observer {
     return allClassifiedMotifs;
   }
 
-  /**
-   * This computes anomalies.
-   * 
-   * @throws Exception
-   */
-  public void findAnomalies() throws Exception {
-    GrammarVizAnomalyFinder finder = new GrammarVizAnomalyFinder(this);
-    finder.addObserver(this);
-    finder.run();
-  }
-
-  public DiscordRecords getAnomalies() {
-    return this.discords;
-  }
-
   @Override
   public void update(Observable o, Object arg) {
     if (arg instanceof GrammarVizMessage) {
       this.setChanged();
       notifyObservers(arg);
     }
-  }
-
-  public GrammarRuleRecord getRule(Integer ruleIndex) {
-    return this.grammarRules.get(ruleIndex);
   }
 
   @SuppressWarnings("unused")
@@ -900,22 +910,6 @@ public class GrammarVizChartData extends Observable implements Observer {
       sum = sum + l;
     }
     return sum / lengths.length;
-  }
-
-  public boolean isSlidingWindowOn() {
-    return this.slidingWindowOn;
-  }
-
-  // EXPERIMENTAL FUNCTIONALITY
-  //
-  //
-  //
-  //
-  //
-  public void performRanking() {
-    GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(this.originalTimeSeries,
-        this.grammarRules);
-    this.grammarRules = prunedRulesSet;
   }
 
 }

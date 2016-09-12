@@ -770,7 +770,7 @@ public class GrammarvizChartPanel extends JPanel
     //
     else if (GrammarVizView.GUESS_PARAMETERS.equalsIgnoreCase(e.getActionCommand())) {
 
-      LOGGER.info("Starying the sampling dialog...");
+      LOGGER.info("Starting the sampling dialog...");
 
       // re-draw the plot, so selection wouldn't get weird...
       //

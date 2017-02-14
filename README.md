@@ -94,4 +94,3 @@ By using CLI as discussed in [these tutorials](http://grammarviz2.github.io/gram
 
 ## Made with Aloha!
 ![Made with Aloha!](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/src/resources/assets/aloha.jpg)
-

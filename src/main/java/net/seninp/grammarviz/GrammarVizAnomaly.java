@@ -28,6 +28,7 @@ import net.seninp.gi.rulepruner.SampledPoint;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.anomaly.AnomalyAlgorithm;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
+import net.seninp.grammarviz.logic.GrammarSizeSorter;
 import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;

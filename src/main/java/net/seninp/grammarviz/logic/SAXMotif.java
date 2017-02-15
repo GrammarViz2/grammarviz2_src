@@ -10,7 +10,7 @@ import net.seninp.gi.logic.RuleInterval;
  */
 public class SAXMotif implements Comparable<SAXMotif> {
 
-  private RuleInterval pos;
+  private RuleInterval interval;
   private int ruleIndex;
 
   private boolean classified = false;
@@ -20,14 +20,14 @@ public class SAXMotif implements Comparable<SAXMotif> {
    * @return the pos
    */
   public RuleInterval getPos() {
-    return pos;
+    return interval;
   }
 
   /**
    * @param pos the pos to set
    */
   public void setPos(RuleInterval pos) {
-    this.pos = pos;
+    this.interval = pos;
   }
 
   /**
@@ -73,12 +73,12 @@ public class SAXMotif implements Comparable<SAXMotif> {
   }
 
   public String toString() {
-    return "Rule" + ruleIndex + "\tPosition: " + pos + "\nSimilar With: Rule"
+    return "Rule" + ruleIndex + "\tPosition: " + interval + "\nSimilar With: Rule"
         + similarWith.getRuleIndex() + "\tpos: " + similarWith.getPos() + "\n\n";
   }
 
   public int compareTo(SAXMotif o) {
-    int thisLength = this.pos.getEnd() - this.pos.getStart() + 1;
+    int thisLength = this.interval.getEnd() - this.interval.getStart() + 1;
     int otherLength = o.getPos().getEnd() - o.getPos().getStart() + 1;
     if (thisLength > otherLength) {
       return 1;

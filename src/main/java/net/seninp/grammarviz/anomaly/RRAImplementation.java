@@ -37,7 +37,7 @@ public class RRAImplementation {
    * 
    * @param series The series to find discord at.
    * @param discordCollectionSize How many discords to find.
-   * @param intervals The intervals. In our implementation these come from the set of Sequitur
+   * @param intervals The intervals. In our implementation these come from the set of Sequitur/RePair
    * grammar rules.
    * @param zNormThreshold - the normalization threshold (dstance).
    * @return Discords.
@@ -71,7 +71,7 @@ public class RRAImplementation {
           zNormThreshold);
       Date end = new Date();
 
-      // if the discord is null we getting out of the search
+      // if the discord is null we are getting out of the search
       if (bestDiscord.getNNDistance() == Integer.MIN_VALUE
           || bestDiscord.getPosition() == Integer.MIN_VALUE) {
         LOGGER.trace("breaking the outer search loop, discords found: " + discords.getSize()

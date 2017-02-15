@@ -331,6 +331,7 @@ public class GrammarVizView implements Observer, ActionListener {
     exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
     exitItem.getAccessibleContext().setAccessibleDescription("Exit from here");
     exitItem.addActionListener(this);
+    exitItem.addActionListener(controller);
     fileMenu.add(exitItem);
 
     // Build the Options menu.
@@ -355,7 +356,6 @@ public class GrammarVizView implements Observer, ActionListener {
     // a help item
     JMenuItem helpItem = new JMenuItem("Help", KeyEvent.VK_H);
     helpItem.getAccessibleContext().setAccessibleDescription("Get some help here.");
-    exitItem.addActionListener(controller);
     helpMenu.add(helpItem);
 
     // an about item

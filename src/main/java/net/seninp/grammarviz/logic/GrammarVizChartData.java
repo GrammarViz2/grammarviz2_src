@@ -30,7 +30,7 @@ import net.seninp.jmotif.sax.discord.DiscordRecords;
 public class GrammarVizChartData extends Observable implements Observer {
 
   /** SAX conversion parameters. */
-  protected final boolean slidingWindowOn;
+  protected final boolean isSlidingWindowOn;
   protected final NumerosityReductionStrategy numerosityReductionStrategy;
   protected final int saxWindowSize;
   protected final int saxAlphabetSize;
@@ -76,7 +76,7 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     this.inputFname = dataFileName;
 
-    this.slidingWindowOn = useSlidingWindow;
+    this.isSlidingWindowOn = useSlidingWindow;
     this.numerosityReductionStrategy = numerosityReductionStrategy;
 
     this.originalTimeSeries = ts;
@@ -136,7 +136,7 @@ public class GrammarVizChartData extends Observable implements Observer {
   }
 
   public boolean isSlidingWindowOn() {
-    return this.slidingWindowOn;
+    return this.isSlidingWindowOn;
   }
 
   public double getZNormThreshold() {

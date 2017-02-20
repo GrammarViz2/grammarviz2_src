@@ -30,7 +30,7 @@ public class TestRRAanomaly {
   private static final int PAA_SIZE = 3;
   private static final int ALPHABET_SIZE = 3;
 
-  private static final double NORM_THRESHOLD = 0.5;
+  private static final double NORM_THRESHOLD = 0.05;
 
   private static final int DISCORDS_TO_TEST = 1;
 
@@ -70,7 +70,7 @@ public class TestRRAanomaly {
       //
 
       GrammarRules rules = SequiturFactory.series2SequiturRules(series, WIN_SIZE, PAA_SIZE,
-          ALPHABET_SIZE, STRATEGY, NORM_THRESHOLD);
+          ALPHABET_SIZE, NumerosityReductionStrategy.EXACT, NORM_THRESHOLD);
       ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
 
       // populate all intervals with their frequency

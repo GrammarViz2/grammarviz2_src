@@ -10,6 +10,7 @@ import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
+import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ public class TS2SequiturGrammar {
     private static TSProcessor tp = new TSProcessor();
     private static NormalAlphabet na = new NormalAlphabet();
     private static SAXProcessor sp = new SAXProcessor();
+    private static ParallelSAXImplementation psax = new ParallelSAXImplementation();
 
     public static void main(String[] args) throws Exception {
         parseArgs(args);
@@ -86,9 +88,15 @@ public class TS2SequiturGrammar {
 
     private static SAXRecords discretize(double[] series) throws SAXException {
         consoleLogger.info("Performing SAX conversion ...");
-        return sp.ts2saxViaWindow(series, TS2GrammarParameters.SAX_WINDOW_SIZE,
-                                  TS2GrammarParameters.SAX_PAA_SIZE, na.getCuts(TS2GrammarParameters.SAX_ALPHABET_SIZE),
-                                  TS2GrammarParameters.SAX_NR_STRATEGY, TS2GrammarParameters.SAX_NORM_THRESHOLD);
+        if (TS2GrammarParameters.NUM_WORKERS <= 1) {
+            return sp.ts2saxViaWindow(series, TS2GrammarParameters.SAX_WINDOW_SIZE,
+                                      TS2GrammarParameters.SAX_PAA_SIZE, na.getCuts(TS2GrammarParameters.SAX_ALPHABET_SIZE),
+                                      TS2GrammarParameters.SAX_NR_STRATEGY, TS2GrammarParameters.SAX_NORM_THRESHOLD);
+        } else {
+            return psax.process(series, TS2GrammarParameters.NUM_WORKERS, TS2GrammarParameters.SAX_WINDOW_SIZE,
+                                      TS2GrammarParameters.SAX_PAA_SIZE, TS2GrammarParameters.SAX_ALPHABET_SIZE,
+                                      TS2GrammarParameters.SAX_NR_STRATEGY, TS2GrammarParameters.SAX_NORM_THRESHOLD);
+        }
     }
 
     private static double[] readTimeSeries() throws SAXException, IOException {

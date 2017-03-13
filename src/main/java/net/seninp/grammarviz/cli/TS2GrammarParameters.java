@@ -46,4 +46,7 @@ public class TS2GrammarParameters {
 
   @Parameter(names = "--prune", description = "Pass to prune rules")
   public static boolean PRUNE_RULES = false;
+
+  @Parameter(names = {"--num-workers", "-n"}, description = "Number of worker threads to use for SAX")
+  public static int NUM_WORKERS = 1;
 }

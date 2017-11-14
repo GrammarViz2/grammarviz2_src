@@ -47,9 +47,9 @@ It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**
 
 ### [Citing this work](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/citation.bib):
 
-[4] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**GrammarViz 2.0: a tool for grammar-based pattern discovery in time series**](http://www2.hawaii.edu/~senin/assets/papers/grammarviz2.pdf), ECML/PKDD Conference, 2014.
+[4] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**GrammarViz 2.0: a tool for grammar-based pattern discovery in time series**](https://github.com/csdl/techreports/raw/master/techreports/2014/14-06/14-06.pdf), ECML/PKDD Conference, 2014.
 
-[5] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**Time series anomaly discovery with grammar-based compression**](https://csdl-techreports.googlecode.com/svn/trunk/techreports/2014/14-05/14-05.pdf), The International Conference on Extending Database Technology, EDBT 15.
+[5] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**Time series anomaly discovery with grammar-based compression**](https://github.com/csdl/techreports/raw/master/techreports/2014/14-05/14-05.pdf), The International Conference on Extending Database Technology, EDBT 15.
 
 1.0 Building
 ------------

@@ -49,6 +49,8 @@ It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**
 
 [4] Pavel Senin, Jessica Lin, Xing Wang, Tim Oates, Sunil Gandhi, Arnold P. Boedihardjo, Crystal Chen, and Susan Frankenstein. 2018. GrammarViz 3.0: Interactive Discovery of Variable-Length Time Series Patterns. ACM Trans. Knowl. Discov. Data 12, 1, Article 10 (February 2018), 28 pages. DOI: https://doi.org/10.1145/3051126
 
+[5] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**Time series anomaly discovery with grammar-based compression**](https://github.com/csdl/techreports/raw/master/techreports/2014/14-05/14-05.pdf), The International Conference on Extending Database Technology, EDBT 15.
+
 1.0 Building
 ------------
 

@@ -67,7 +67,7 @@ public class GrammarVizChartData extends Observable implements Observer {
    * @param dataFileName the original filename.
    * @param ts the time series.
    * @param useSlidingWindow whereas a sliding window should be used.
-   * @param numerosityReductionStrategy
+   * @param numerosityReductionStrategy the type of numerosity reduction to use.
    * @param windowSize SAX window size.
    * @param alphabetSize SAX alphabet size.
    * @param paaSize SAX PAA size.
@@ -568,7 +568,7 @@ public class GrammarVizChartData extends Observable implements Observer {
    * 
    * @param ts , a series of points for time series.
    * @param pValue , a series of points for pattern.
-   * @return
+   * @return the distance value.
    */
   protected double calcDistTSAndPattern(double[] ts, double[] pValue) {
     double INF = 10000000000000000000f;
@@ -801,10 +801,10 @@ public class GrammarVizChartData extends Observable implements Observer {
    * sub-sequence, A is the average weight of the whole time series, and L is the length of that
    * sub-sequence.
    * 
-   * @param motif1
-   * @param motif2
+   * @param motif1 the first motif.
+   * @param motif2 the second motif.
    * 
-   * @return
+   * @return the remove or not indication flag.
    */
   protected boolean decideRemove(SAXMotif motif1, SAXMotif motif2) {
 
@@ -853,8 +853,8 @@ public class GrammarVizChartData extends Observable implements Observer {
   /**
    * Performs rules pruning based on their overlap.
    * 
-   * @param thresholdLength
-   * @param thresholdCom
+   * @param thresholdLength the overlap length threshold.
+   * @param thresholdCom the internal/common threshold value.
    */
   public void performRemoveOverlapping(double thresholdLength, double thresholdCom) {
 

@@ -1,4 +1,4 @@
-GrammarViz 3.0 (the new version is out)
+GrammarViz 3.0 (updated build 12/29/2021)
 ==========
 ![maven build](https://github.com/GrammarViz2/grammarviz2_src/actions/workflows/maven.yml/badge.svg) 
 [![codecov.io](http://codecov.io/github/GrammarViz2/grammarviz2_src/coverage.svg?branch=master)](http://codecov.io/github/GrammarViz2/grammarviz2_src?branch=master)

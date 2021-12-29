@@ -24,9 +24,11 @@ public class GrammarVizGUI {
 
   /**
    * Runnable GIU.
+   * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
    * 
    * @param args None used.
    */
+  @SuppressWarnings("deprecation")
   public static void main(String[] args) {
 
     System.out.println("Starting GrammarViz 3.0 ...");

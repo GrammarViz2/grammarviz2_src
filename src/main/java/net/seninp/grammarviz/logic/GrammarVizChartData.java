@@ -24,9 +24,12 @@ import net.seninp.jmotif.sax.discord.DiscordRecords;
  * The main data structure used in SAXSequitur. It contains all the information needed for charting
  * and tables.
  * 
+ * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
+ * 
  * @author Manfred Lerner, seninp
  * 
  */
+@SuppressWarnings("deprecation")
 public class GrammarVizChartData extends Observable implements Observer {
 
   /** SAX conversion parameters. */

@@ -45,10 +45,12 @@ import net.seninp.util.StackTrace;
 
 /**
  * View component of the GrammarViz MVC GUI.
+ * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
  * 
  * @author psenin
  * 
  */
+@SuppressWarnings("deprecation")
 public class GrammarVizView implements Observer, ActionListener {
 
   // the main window title

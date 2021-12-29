@@ -35,10 +35,12 @@ import net.seninp.util.StackTrace;
 
 /**
  * Implements the Sequitur Model component of MVC GUI pattern.
+ * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
  * 
  * @author psenin
  * 
  */
+@SuppressWarnings("deprecation")
 public class GrammarVizModel extends Observable {
 
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;

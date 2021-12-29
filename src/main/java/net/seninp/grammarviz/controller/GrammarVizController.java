@@ -12,10 +12,12 @@ import net.seninp.grammarviz.session.UserSession;
 
 /**
  * Implements the Controler component for GrammarViz2 GUI MVC.
+ * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
  * 
  * @author psenin
  * 
  */
+@SuppressWarnings("deprecation")
 public class GrammarVizController extends Observable implements ActionListener {
 
   private GrammarVizModel model;

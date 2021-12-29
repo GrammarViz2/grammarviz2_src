@@ -17,10 +17,12 @@ import net.seninp.util.StackTrace;
 
 /**
  * Implements a runnable for the proposed in EDBT15 anomaly discovery technique.
+ * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
  * 
  * @author psenin
  * 
  */
+@SuppressWarnings("deprecation")
 public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
   /** The chart data handler. */

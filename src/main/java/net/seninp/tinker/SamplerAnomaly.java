@@ -41,12 +41,14 @@ public class SamplerAnomaly {
     try {
 
       SamplerAnomalyParameters params = new SamplerAnomalyParameters();
-      JCommander jct = new JCommander(params, args);
+      JCommander jct = new JCommander(params);
 
       if (0 == args.length) {
         jct.usage();
       }
       else {
+        
+        jct.parse(args);
         // get params printed
 
         StringBuffer sb = new StringBuffer(1024);

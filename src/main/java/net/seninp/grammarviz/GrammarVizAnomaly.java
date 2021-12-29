@@ -70,12 +70,14 @@ public class GrammarVizAnomaly {
   public static void main(String[] args) throws Exception {
 
     GrammarVizAnomalyParameters params = new GrammarVizAnomalyParameters();
-    JCommander jct = new JCommander(params, args);
+    JCommander jct = new JCommander(params);
 
     if (0 == args.length) {
       jct.usage();
     }
     else {
+      
+      jct.parse(args);
       // get params printed
       //
       StringBuffer sb = new StringBuffer(1024);

@@ -2,6 +2,7 @@ GrammarViz 3.0 (updated build 12/29/2021)
 ==========
 ![maven build](https://github.com/GrammarViz2/grammarviz2_src/actions/workflows/maven.yml/badge.svg) 
 [![codecov.io](http://codecov.io/github/GrammarViz2/grammarviz2_src/coverage.svg?branch=master)](http://codecov.io/github/GrammarViz2/grammarviz2_src?branch=master)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.seninp/grammarviz2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.seninp/grammarviz2)
 [![License](http://img.shields.io/:license-gpl2-green.svg)](http://www.gnu.org/licenses/gpl-2.0.html)
 
 GrammarViz 3.0 source code public repository. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).

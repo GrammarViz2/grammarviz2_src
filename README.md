@@ -1,6 +1,6 @@
 GrammarViz 3.0 (the new version is out)
 ==========
-[![Build Status](https://travis-ci.org/GrammarViz2/grammarviz2_src.svg?branch=master)](https://travis-ci.org/GrammarViz2/grammarviz2_src)
+![maven build](https://github.com/GrammarViz2/grammarviz2_src/actions/workflows/maven.yml/badge.svg) 
 [![codecov.io](http://codecov.io/github/GrammarViz2/grammarviz2_src/coverage.svg?branch=master)](http://codecov.io/github/GrammarViz2/grammarviz2_src?branch=master)
 [![License](http://img.shields.io/:license-gpl2-green.svg)](http://www.gnu.org/licenses/gpl-2.0.html)
 

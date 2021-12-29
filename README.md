@@ -54,39 +54,67 @@ It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**
 1.0 Building
 ------------
 
-We use Maven and Java 7 to build an executable.
+We use Maven and Java 8 to build an executable. However, Github actions designed to test the build using a matrix of Linux, Windows, and MacOS hosting Java 8, 11, and 17 -- check the builds by clicking "Java CI with Maven" badge at the README top. Below is the build trace from my windows machine:
 
 <pre>
 
 $ java -version
-java version "1.7.0_80"
-Java(TM) SE Runtime Environment (build 1.7.0_80-b15)
-Java HotSpot(TM) 64-Bit Server VM (build 24.80-b11, mixed mode)
+openjdk version "1.8.0_292"
+OpenJDK Runtime Environment (AdoptOpenJDK)(build 1.8.0_292-b10)
+OpenJDK 64-Bit Server VM (AdoptOpenJDK)(build 25.292-b10, mixed mode)
 
 $ mvn -version
-Apache Maven 2.2.1 (rdebian-8)
-Java version: 1.7.0_80
-Java home: /usr/lib/jvm/java-7-oracle/jre
-Default locale: fr_FR, platform encoding: UTF-8
-OS name: "linux" version: "3.2.0-86-generic" arch: "amd64" Family: "unix"
+Apache Maven 3.8.4 (9b656c72d54e5bacbed989b64718c159fe39b537)
+Maven home: C:\ProgramData\chocolatey\lib\maven\apache-maven-3.8.4
+Java version: 1.8.0_302, vendor: ojdkbuild, runtime: C:\Program Files\ojdkbuild\java-1.8.0-openjdk-1.8.0.302-1\jre
+Default locale: en_US, platform encoding: Cp1252
+OS name: "windows 10", version: "10.0", arch: "amd64", family: "windows"
 
 $ mvn package -Psingle
 [INFO] Scanning for projects...
 ....
 
-[INFO] Building jar: /media/Stock/git/grammarviz2_src.git/target/grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running net.seninp.grammarviz.anomaly.TestRRAanomaly
+brute force discord '#0', distance: 9.949874371066695, position: 363, info: position 363, NN distance 9.949874371066695, elapsed time: 0d0h0m2s868ms, distance calls: 1957201
+hotsax hash discord 'bca', distance: 9.949874371066695, position: 363, info: position 363, NN distance 9.949874371066695, elapsed time: 0d0h0m0s175ms, distance calls: 9289
+10:49:39.684 [main] DEBUG net.seninp.gi.sequitur.SequiturFactory - Discretizing time series...
+10:49:39.701 [main] DEBUG net.seninp.gi.sequitur.SequiturFactory - Inferring the grammar...
+10:49:39.763 [main] DEBUG net.seninp.gi.sequitur.SequiturFactory - Collecting the grammar rules statistics and expanding the rules...
+10:49:39.779 [main] DEBUG net.seninp.gi.sequitur.SequiturFactory - Mapping expanded rules to time-series intervals...
+10:49:40.059 [main] DEBUG net.seninp.grammarviz.anomaly.RRAImplementation - position 366, length 101, NN distance 0.09900990099010303, elapsed time: 0d0h0m0s235ms, distance calls: 11553
+10:49:40.059 [main] INFO net.seninp.grammarviz.anomaly.RRAImplementation - 1 discords found in 0d0h0m0s235ms
+RRA discords 'pos,calls,len,rule 366 11553 101 7', distance: 0.09900990099010303, position: 366, info: position 366, length 101, NN distance 0.09900990099010303, elapsed time: 0d0h0m0s235ms, distance calls: 11553
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.165 s - in net.seninp.grammarviz.anomaly.TestRRAanomaly
+[INFO] Running net.seninp.tinker.TestInterval
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s - in net.seninp.tinker.TestInterval
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- jacoco-maven-plugin:0.8.7:report (report) @ grammarviz2 ---
+[INFO] Loading execution data file C:\Users\I0466996\git\grammarviz2_src\target\jacoco.exec
+[INFO] Analyzed bundle 'GrammarViz2' with 25 classes
+[INFO]
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ grammarviz2 ---
+[INFO]
+[INFO] --- maven-assembly-plugin:3.3.0:single (make-assembly) @ grammarviz2 ---
+[INFO] Building jar: C:\Users\I0466996\git\grammarviz2_src\target\grammarviz2-1.0.0-SNAPSHOT-jar-with-dependencies.jar
 [INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESSFUL
+[INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time: 5 seconds
-[INFO] Finished at: Wed Jun 17 15:43:01 CEST 2015
-[INFO] Final Memory: 47M/238M
+[INFO] Total time:  35.551 s
+[INFO] Finished at: 2021-12-29T10:49:59+01:00
 [INFO] ------------------------------------------------------------------------
 </pre>
 
 2.0 Running
 ------------
-To run the GrammarViz 3.0 GUI use `net.seninp.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar target/grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar` (here I have allocated max of 2Gb of memory for the software).
+To run the GrammarViz 3.0 GUI use `net.seninp.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx4g -jar target/grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar` (here I have allocated max of 4Gb of memory for Grammarviz).
 
 3.0 CLI interface
 ------------

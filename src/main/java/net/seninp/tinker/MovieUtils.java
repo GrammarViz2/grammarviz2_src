@@ -28,7 +28,7 @@ public class MovieUtils {
    * This reads the data
    * 
    * @param fname The filename.
-   * @return
+   * @return the data, i.e., timeseries.
    */
   public static double[] loadData(String fname) {
 

@@ -59,7 +59,7 @@ public class GrammarvizGuesserPane extends JPanel {
   /**
    * Constructor.
    * 
-   * @param userSession
+   * @param userSession the user session
    */
   public GrammarvizGuesserPane(UserSession userSession) {
 

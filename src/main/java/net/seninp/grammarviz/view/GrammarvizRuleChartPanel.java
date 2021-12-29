@@ -141,7 +141,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
   /**
    * Highlight the original time series sequences of a rule.
    * 
-   * @param index index of the rule in the sequitur table.
+   * @param newlySelectedRaw index of the rule in the sequitur table.
    */
   protected void chartIntervalsForRule(ArrayList<String> newlySelectedRaw) {
     try {
@@ -163,7 +163,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
   /**
    * Highlight the original time series sequences of a sub-sequences class.
    * 
-   * @param index index of the class in the sub-sequences class table.
+   * @param newlySelectedRaw index of the class in the sub-sequences class table.
    */
   protected void chartIntervalsForClass(ArrayList<String> newlySelectedRaw) {
     try {

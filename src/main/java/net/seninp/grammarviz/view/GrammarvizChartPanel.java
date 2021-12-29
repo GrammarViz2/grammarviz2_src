@@ -137,7 +137,7 @@ public class GrammarvizChartPanel extends JPanel
   /**
    * This sets the chartData and forces the panel to repaint itself showing the new chart.
    * 
-   * @param chartData the data to use.
+   * @param session the user session.
    */
   public void setSession(UserSession session) {
     this.session = session;

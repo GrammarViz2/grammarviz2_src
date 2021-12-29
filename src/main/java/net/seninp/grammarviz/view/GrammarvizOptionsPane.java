@@ -84,7 +84,7 @@ public class GrammarvizOptionsPane extends JPanel {
   /**
    * Constructor.
    * 
-   * @param userSession
+   * @param userSession the user session.
    */
   public GrammarvizOptionsPane(UserSession userSession) {
 
@@ -318,7 +318,7 @@ public class GrammarvizOptionsPane extends JPanel {
   /**
    * Get the rule coverage output filename.
    * 
-   * @return
+   * @return the coverage file name.
    */
   public String getRuleCoverageFileName() {
     return outputRuleCoverageFilename.getText();
@@ -327,7 +327,7 @@ public class GrammarvizOptionsPane extends JPanel {
   /**
    * Get the rule coverage output filename.
    * 
-   * @return
+   * @return the output file name.
    */
   public String getGrammarOutputFileName() {
     return outputGrammarFileName.getText();
@@ -336,7 +336,7 @@ public class GrammarvizOptionsPane extends JPanel {
   /**
    * Get the rule coverage output filename.
    * 
-   * @return
+   * @return the output folder name.
    */
   public String getChartsFolderName() {
     return outputChartsFolderName.getText();
@@ -345,7 +345,7 @@ public class GrammarvizOptionsPane extends JPanel {
   /**
    * Get the rule coverage output filename.
    * 
-   * @return
+   * @return the output file name.
    */
   public String getAnomalyOutputFileName() {
     return outputAnomalyFileName.getText();

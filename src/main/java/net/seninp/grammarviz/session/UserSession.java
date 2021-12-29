@@ -98,7 +98,7 @@ public class UserSession {
   /**
    * Adds a parameters change action listener which will be notified on any change.
    * 
-   * @param e
+   * @param e the listener.
    */
   public void addActionListener(ActionListener e) {
     this.listeners.add(e);

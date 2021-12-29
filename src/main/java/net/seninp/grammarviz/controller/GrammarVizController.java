@@ -84,7 +84,7 @@ public class GrammarVizController extends Observable implements ActionListener {
   /**
    * This provide Process action listener. Gets all the parameters from the session component
    * 
-   * @return
+   * @return the action listener.
    */
   public ActionListener getProcessDataListener() {
 
@@ -132,7 +132,7 @@ public class GrammarVizController extends Observable implements ActionListener {
   /**
    * Gets the current session.
    * 
-   * @return
+   * @return the user session.
    */
   public UserSession getSession() {
     return this.session;

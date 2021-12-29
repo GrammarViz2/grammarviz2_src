@@ -41,7 +41,7 @@ public class RRAImplementation {
    * grammar rules.
    * @param zNormThreshold - the normalization threshold (dstance).
    * @return Discords.
-   * @throws TSException If error occurs.
+   * @throws Exception If error occurs.
    */
   public static DiscordRecords series2RRAAnomalies(double[] series, int discordCollectionSize,
       ArrayList<RuleInterval> intervals, double zNormThreshold) throws Exception {
@@ -113,13 +113,14 @@ public class RRAImplementation {
   }
 
   /**
+   * Finds a best discord for the specified interval.
    * 
-   * @param series
-   * @param globalIntervals
-   * @param registry
-   * @param zNormThreshold
-   * @return
-   * @throws Exception
+   * @param series the data.
+   * @param globalIntervals set of intervals.
+   * @param registry the registry for track keeping.
+   * @param zNormThreshold normalization threshold value.
+   * @return the best discord.
+   * @throws Exception if error occurs.
    */
   public static DiscordRecord findBestDiscordForIntervals(double[] series,
       ArrayList<RuleInterval> globalIntervals, HashSet<Integer> registry, double zNormThreshold)

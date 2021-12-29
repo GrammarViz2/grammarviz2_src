@@ -97,9 +97,7 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
   }
 
   /**
-   * create the panel with the sequitur rules table
-   * 
-   * @return sequitur panel
+   * Create the panel with the sequitur rules table.
    */
   public void resetPanel() {
     // cleanup all the content

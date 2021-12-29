@@ -130,8 +130,6 @@ public class PackedRulesPanel extends JPanel
 
   /**
    * create the panel with the sequitur rules table
-   * 
-   * @return sequitur panel
    */
   public void resetPanel() {
     // cleanup all the content
@@ -142,6 +140,8 @@ public class PackedRulesPanel extends JPanel
   }
 
   /**
+   * Get the table model.
+   * 
    * @return packed table model
    */
   public PrunedRulesTableModel getPackedTableModel() {

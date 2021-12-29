@@ -137,8 +137,6 @@ public class GrammarRulesPanel extends JPanel
 
   /**
    * create the panel with the sequitur rules table
-   * 
-   * @return sequitur panel
    */
   public void resetPanel() {
     // cleanup all the content

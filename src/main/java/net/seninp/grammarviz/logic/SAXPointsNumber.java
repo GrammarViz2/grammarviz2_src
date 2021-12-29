@@ -49,16 +49,16 @@ public class SAXPointsNumber {
     this.pointOccurenceNumber = pointOccurenceNumber;
   }
 
-  /**
-   * @return the rule
-   */
+  // /**
+  // * @return the rule
+  // */
   // public String getRule() {
   // return rule;
   // }
 
-  /**
-   * @param rule the rule to set
-   */
+  // /**
+  // * @param rule the rule to set
+  // */
   // public void setRule(String rule) {
   // this.rule = rule;
   // }

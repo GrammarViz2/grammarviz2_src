@@ -104,7 +104,7 @@
     <url>http://github.com/GrammarViz2/grammarviz2_src.git</url>
     <connection>scm:git:git://git@github.com/GrammarViz2/grammarviz2_src.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/GrammarViz2/grammarviz2_src.git</developerConnection>
-    <tag>grammarviz2-1.0.0</tag>
+    <tag>grammarviz2-1.0.0-SNAPSHOT</tag>
   </scm>
 
   <distributionManagement>

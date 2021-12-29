@@ -184,7 +184,7 @@ public class GrammarVizModel extends Observable {
    * @param alphabetSize The SAX alphabet size.
    * @param normalizationThreshold The normalization threshold.
    * @param grammarOutputFileName The file name to where save the grammar.
-   * @throws IOException
+   * @throws IOException if occurs.
    */
   public synchronized void processData(GIAlgorithm algorithm, boolean useSlidingWindow,
       NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,

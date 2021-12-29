@@ -66,7 +66,7 @@ public class GrammarVizChartData extends Observable implements Observer {
    * 
    * @param dataFileName the original filename.
    * @param ts the time series.
-   * @param useSlidingWindow
+   * @param useSlidingWindow whereas a sliding window should be used.
    * @param numerosityReductionStrategy
    * @param windowSize SAX window size.
    * @param alphabetSize SAX alphabet size.
@@ -165,9 +165,11 @@ public class GrammarVizChartData extends Observable implements Observer {
   }
 
   /**
-   * Сonverts rules from a foreign alphabet to the internal original SAX alphabet.
+   * Converts rules from a foreign alphabet to the internal original SAX alphabet.
    * 
+   * @param firstForeignAlphabetChar a char of another alphabet.
    * @param rule the SAX rule in foreign SAX alphabet.
+   * 
    * @return the SAX string in original alphabet, e.g. aabbdd.
    */
   public String convert2OriginalSAXAlphabet(char firstForeignAlphabetChar, String rule) {
@@ -278,7 +280,7 @@ public class GrammarVizChartData extends Observable implements Observer {
   /**
    * This computes anomalies.
    * 
-   * @throws Exception
+   * @throws Exception if occurs.
    */
   public void findAnomalies() throws Exception {
     GrammarVizAnomalyFinder finder = new GrammarVizAnomalyFinder(this);
@@ -286,6 +288,11 @@ public class GrammarVizChartData extends Observable implements Observer {
     finder.run();
   }
 
+  /**
+   * Get the anomalies.
+   * 
+   * @return the discord.
+   */
   public DiscordRecords getAnomalies() {
     return this.discords;
   }

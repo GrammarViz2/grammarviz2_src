@@ -97,13 +97,13 @@ RRA discords 'pos,calls,len,rule 366 11553 101 7', distance: 0.09900990099010303
 [INFO]
 [INFO]
 [INFO] --- jacoco-maven-plugin:0.8.7:report (report) @ grammarviz2 ---
-[INFO] Loading execution data file C:\Users\I0466996\git\grammarviz2_src\target\jacoco.exec
+[INFO] Loading execution data file C:\Users\seninp\git\grammarviz2_src\target\jacoco.exec
 [INFO] Analyzed bundle 'GrammarViz2' with 25 classes
 [INFO]
 [INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ grammarviz2 ---
 [INFO]
 [INFO] --- maven-assembly-plugin:3.3.0:single (make-assembly) @ grammarviz2 ---
-[INFO] Building jar: C:\Users\I0466996\git\grammarviz2_src\target\grammarviz2-1.0.0-SNAPSHOT-jar-with-dependencies.jar
+[INFO] Building jar: C:\Users\seninp\git\grammarviz2_src\target\grammarviz2-1.0.0-SNAPSHOT-jar-with-dependencies.jar
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------

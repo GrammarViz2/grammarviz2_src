@@ -5,6 +5,8 @@ GrammarViz 3.0 (updated build 12/29/2021)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.seninp/grammarviz2/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.seninp/grammarviz2)
 [![License](http://img.shields.io/:license-gpl2-green.svg)](http://www.gnu.org/licenses/gpl-2.0.html)
 
+[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-black.svg)](https://sonarcloud.io/summary/new_code?id=GrammarViz2_grammarviz2_src)
+
 GrammarViz 3.0 source code public repository. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
 
 ##### For the detailed software description, please visit our [demo site](http://grammarviz2.github.io/grammarviz2_site).

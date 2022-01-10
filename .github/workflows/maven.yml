@@ -41,3 +41,17 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         verbose: true
+
+  sonarcloud:
+    # https://github.com/sonarsource/sonarcloud-github-action
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+    - name: SonarCloud Scan
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=GrammarViz2_grammarviz2_src

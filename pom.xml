@@ -16,6 +16,8 @@
     <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>
     <maven-findbugs-plugin.version>3.0.5</maven-findbugs-plugin.version>
     <maven-jacoco-plugin.version>0.8.7</maven-jacoco-plugin.version>
+    <sonar.organization>grammarviz2</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>    
   </properties>
 
   <dependencies>

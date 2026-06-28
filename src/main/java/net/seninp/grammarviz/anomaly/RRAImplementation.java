@@ -45,6 +45,29 @@ public class RRAImplementation {
    */
   public static DiscordRecords series2RRAAnomalies(double[] series, int discordCollectionSize,
       ArrayList<RuleInterval> intervals, double zNormThreshold) throws Exception {
+    // Historical behavior: an unseeded RNG drives the phase-2 visit-order shuffle, so the
+    // search trajectory (and its distance-call count) varies run-to-run. The reported discords
+    // are order-independent, so this does not change results -- only the trajectory.
+    return series2RRAAnomalies(series, discordCollectionSize, intervals, zNormThreshold,
+        new Random());
+  }
+
+  /**
+   * Reproducible overload of {@link #series2RRAAnomalies(double[], int, ArrayList, double)} that
+   * takes an explicit {@link Random}. Pass a seeded {@code new Random(seed)} to make the phase-2
+   * search-order shuffle -- and hence the distance-call count / search trajectory -- reproducible.
+   * The reported discords are identical regardless of the RNG.
+   *
+   * @param series the input timeseries.
+   * @param discordCollectionSize the number of discords to report.
+   * @param intervals the candidate rule intervals.
+   * @param zNormThreshold the z-normalization threshold.
+   * @param rnd the random source for the visit-order shuffle.
+   * @return the discords collection.
+   * @throws Exception if error occurs.
+   */
+  public static DiscordRecords series2RRAAnomalies(double[] series, int discordCollectionSize,
+      ArrayList<RuleInterval> intervals, double zNormThreshold, Random rnd) throws Exception {
 
     Date gStart = new Date();
 
@@ -68,7 +91,7 @@ public class RRAImplementation {
 
       Date start = new Date();
       DiscordRecord bestDiscord = findBestDiscordForIntervals(series, intervals, registry,
-          zNormThreshold);
+          zNormThreshold, rnd);
       Date end = new Date();
 
       // if the discord is null we getting out of the search
@@ -125,6 +148,26 @@ public class RRAImplementation {
   public static DiscordRecord findBestDiscordForIntervals(double[] series,
       ArrayList<RuleInterval> globalIntervals, HashSet<Integer> registry, double zNormThreshold)
       throws Exception {
+    return findBestDiscordForIntervals(series, globalIntervals, registry, zNormThreshold,
+        new Random());
+  }
+
+  /**
+   * Reproducible overload that takes an explicit {@link Random} for the phase-2 visit-order
+   * shuffle. The reported discord is order-independent; the RNG only affects the search
+   * trajectory and its distance-call count.
+   *
+   * @param series the data.
+   * @param globalIntervals set of intervals.
+   * @param registry the registry for track keeping.
+   * @param zNormThreshold normalization threshold value.
+   * @param rnd the random source for the visit-order shuffle.
+   * @return the best discord.
+   * @throws Exception if error occurs.
+   */
+  public static DiscordRecord findBestDiscordForIntervals(double[] series,
+      ArrayList<RuleInterval> globalIntervals, HashSet<Integer> registry, double zNormThreshold,
+      Random rnd) throws Exception {
 
     // prepare the visits array, note that there can't be more points to visit that in a SAX index
     int[] visitArray = new int[globalIntervals.size()];
@@ -250,9 +293,9 @@ public class RRAImplementation {
         }
         cIndex--;
 
-        // shuffle the visit array
+        // shuffle the visit array (rnd is supplied by the caller; an unseeded Random preserves
+        // the historical non-reproducible order, a seeded one makes the trajectory reproducible)
         //
-        Random rnd = new Random();
         for (int j = cIndex; j > 0; j--) {
           int index = rnd.nextInt(j + 1);
           int a = visitArray[index];

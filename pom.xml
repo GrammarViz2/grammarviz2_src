@@ -4,8 +4,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
     <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
     <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
     <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
@@ -15,7 +15,7 @@
     <maven-pmd-plugin.version>3.15.0</maven-pmd-plugin.version>
     <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>
     <maven-findbugs-plugin.version>3.0.5</maven-findbugs-plugin.version>
-    <maven-jacoco-plugin.version>0.8.7</maven-jacoco-plugin.version>
+    <maven-jacoco-plugin.version>0.8.13</maven-jacoco-plugin.version>
     <sonar.organization>grammarviz2</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>    
   </properties>
@@ -69,12 +69,12 @@
     <dependency>
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-sax</artifactId>
-      <version>1.2.0</version>
+      <version>2.0.0</version>
     </dependency>
     <dependency>
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-gi</artifactId>
-      <version>1.1.0</version>
+      <version>2.0.0</version>
     </dependency>
   </dependencies>
 
@@ -126,8 +126,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <release>21</release>
         </configuration>
       </plugin>
 

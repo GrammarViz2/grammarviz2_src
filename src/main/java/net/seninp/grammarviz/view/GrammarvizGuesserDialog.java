@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.session.UserSession;
@@ -19,7 +20,7 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
   private static final String OK_BUTTON_TEXT = "OK";
   private static final String CANCEL_BUTTON_TEXT = "Cancel";
 
-  //private UserSession session;
+  private UserSession session;
 
   private GrammarvizGuesserPane guesserPane;
 
@@ -38,7 +39,7 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
 
     this.setTitle("Sampler interval and parameter ranges verification");
 
-    // this.session = session;
+    this.session = session;
 
     this.guesserPane = (GrammarvizGuesserPane) guesserPane;
 
@@ -68,7 +69,16 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
   public void actionPerformed(ActionEvent e) {
     if (OK_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {
 
-      // set params
+      // commit the edited fields back into the session; on invalid input keep the dialog
+      // open so the user can correct it (do NOT dispose, do NOT mark not-cancelled)
+      if (!this.guesserPane.saveValues(this.session)) {
+        JOptionPane.showMessageDialog(this,
+            "Please check the parameter ranges:\n"
+                + "each MIN must be <= MAX, all steps > 0, interval start < end,\n"
+                + "alphabet within [2, 20], and cover threshold within [0.0, 1.0].",
+            "Invalid parameters", JOptionPane.WARNING_MESSAGE);
+        return;
+      }
       this.wasCancelled = false;
 
     }

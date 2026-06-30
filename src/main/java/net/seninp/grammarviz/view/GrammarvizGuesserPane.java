@@ -2,10 +2,10 @@ package net.seninp.grammarviz.view;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.text.NumberFormatter;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.session.UserSession;
@@ -22,38 +22,41 @@ public class GrammarvizGuesserPane extends JPanel {
 
   // The labels
   //
-  private static final JLabel SAMPLING_INTERVAL_LABEL = new JLabel("Sampling interval range:");
-  private static final JLabel MINIMAL_COVER_LABEL = new JLabel("Minimal rule cover threshold:");
-  private static final JLabel WINDOW_BOUND_LABEL = new JLabel("Window range and step:");
-  private static final JLabel PAA_BOUND_LABEL = new JLabel("PAA range and step:");
-  private static final JLabel ALPHABET_BOUND_LABEL = new JLabel("Alphabet range and step:");
+  // NOTE: labels and widgets are instance (NOT static) fields -- a new pane is
+  // constructed on every "Guess parameters" invocation, and a Swing component can
+  // only belong to one container, so shared statics would alias across instances.
+  private final JLabel samplingIntervalLabel = new JLabel("Sampling interval range:");
+  private final JLabel minimalCoverLabel = new JLabel("Minimal rule cover threshold:");
+  private final JLabel windowBoundLabel = new JLabel("Window range and step:");
+  private final JLabel paaBoundLabel = new JLabel("PAA range and step:");
+  private final JLabel alphabetBoundLabel = new JLabel("Alphabet range and step:");
 
   // and their UI widgets
   //
-  private static final JTextField intervalStartField = new JFormattedTextField(
+  private final JFormattedTextField intervalStartField = new JFormattedTextField(
       integerNumberFormatter());
-  private static final JTextField intervalEndField = new JFormattedTextField(
+  private final JFormattedTextField intervalEndField = new JFormattedTextField(
       integerNumberFormatter());
 
-  private static final JTextField minimalCoverField = new JFormattedTextField(
+  private final JFormattedTextField minimalCoverField = new JFormattedTextField(
       new DecimalFormat("0.00"));
 
-  private static final JTextField windowMinField = new JFormattedTextField(
+  private final JFormattedTextField windowMinField = new JFormattedTextField(
       integerNumberFormatter());
-  private static final JTextField windowMaxField = new JFormattedTextField(
+  private final JFormattedTextField windowMaxField = new JFormattedTextField(
       integerNumberFormatter());
-  private static final JTextField windowIncrement = new JFormattedTextField(
+  private final JFormattedTextField windowIncrement = new JFormattedTextField(
       integerNumberFormatter());
 
-  private static final JTextField paaMinField = new JFormattedTextField(integerNumberFormatter());
-  private static final JTextField paaMaxField = new JFormattedTextField(integerNumberFormatter());
-  private static final JTextField paaIncrement = new JFormattedTextField(integerNumberFormatter());
+  private final JFormattedTextField paaMinField = new JFormattedTextField(integerNumberFormatter());
+  private final JFormattedTextField paaMaxField = new JFormattedTextField(integerNumberFormatter());
+  private final JFormattedTextField paaIncrement = new JFormattedTextField(integerNumberFormatter());
 
-  private static final JTextField alphabetMinField = new JFormattedTextField(
+  private final JFormattedTextField alphabetMinField = new JFormattedTextField(
       integerNumberFormatter());
-  private static final JTextField alphabetMaxField = new JFormattedTextField(
+  private final JFormattedTextField alphabetMaxField = new JFormattedTextField(
       integerNumberFormatter());
-  private static final JTextField alphabetIncrement = new JFormattedTextField(
+  private final JFormattedTextField alphabetIncrement = new JFormattedTextField(
       integerNumberFormatter());
 
   /**
@@ -65,28 +68,28 @@ public class GrammarvizGuesserPane extends JPanel {
 
     super(new MigLayout("", "[][fill,grow][fill,grow][fill,grow]", ""));
 
-    this.add(SAMPLING_INTERVAL_LABEL, "span 2");
+    this.add(samplingIntervalLabel, "span 2");
     this.add(intervalStartField);
     this.add(intervalEndField, "wrap");
 
-    this.add(MINIMAL_COVER_LABEL, "span 2");
+    this.add(minimalCoverLabel, "span 2");
     this.add(minimalCoverField, "wrap");
 
     this.add(new JLabel("MIN"), "skip 1");
     this.add(new JLabel("MAX"));
     this.add(new JLabel("STEP"), "wrap");
 
-    this.add(WINDOW_BOUND_LABEL);
+    this.add(windowBoundLabel);
     this.add(windowMinField);
     this.add(windowMaxField);
     this.add(windowIncrement, "wrap");
 
-    this.add(PAA_BOUND_LABEL);
+    this.add(paaBoundLabel);
     this.add(paaMinField);
     this.add(paaMaxField);
     this.add(paaIncrement, "wrap");
 
-    this.add(ALPHABET_BOUND_LABEL);
+    this.add(alphabetBoundLabel);
     this.add(alphabetMinField);
     this.add(alphabetMaxField);
     this.add(alphabetIncrement, "wrap");
@@ -114,6 +117,72 @@ public class GrammarvizGuesserPane extends JPanel {
     alphabetMaxField.setText(Integer.valueOf(userSession.boundaries[7]).toString());
     alphabetIncrement.setText(Integer.valueOf(userSession.boundaries[8]).toString());
 
+  }
+
+  /**
+   * Commits and validates the edited field values back into the session. This is the
+   * read-back counterpart to {@link #setValues(UserSession)} -- without it the dialog's
+   * edits are silently discarded.
+   *
+   * @param userSession the session to write the validated values into.
+   * @return {@code true} if all fields parsed and the ranges are sane (values written);
+   *         {@code false} if any field is unparseable or a range is invalid (session left
+   *         untouched so the caller can keep the dialog open).
+   */
+  public boolean saveValues(UserSession userSession) {
+
+    // commit each field through its formatter; bad text throws ParseException
+    //
+    try {
+      for (JFormattedTextField f : new JFormattedTextField[] { intervalStartField,
+          intervalEndField, minimalCoverField, windowMinField, windowMaxField, windowIncrement,
+          paaMinField, paaMaxField, paaIncrement, alphabetMinField, alphabetMaxField,
+          alphabetIncrement }) {
+        f.commitEdit();
+      }
+    }
+    catch (ParseException e) {
+      return false;
+    }
+
+    int iStart = intValue(intervalStartField);
+    int iEnd = intValue(intervalEndField);
+    double cover = doubleValue(minimalCoverField);
+    int wMin = intValue(windowMinField);
+    int wMax = intValue(windowMaxField);
+    int wInc = intValue(windowIncrement);
+    int pMin = intValue(paaMinField);
+    int pMax = intValue(paaMaxField);
+    int pInc = intValue(paaIncrement);
+    int aMin = intValue(alphabetMinField);
+    int aMax = intValue(alphabetMaxField);
+    int aInc = intValue(alphabetIncrement);
+
+    // range sanity -- also keeps the sampler grid non-degenerate (guards the empty-grid case)
+    //
+    if (iStart >= iEnd || wMin > wMax || pMin > pMax || aMin > aMax || wInc <= 0 || pInc <= 0
+        || aInc <= 0 || cover < 0.0 || cover > 1.0) {
+      return false;
+    }
+    // alphabet is bounded by NormalAlphabet's supported range [2, 20]
+    if (aMin < 2 || aMax > 20) {
+      return false;
+    }
+
+    userSession.samplingStart = iStart;
+    userSession.samplingEnd = iEnd;
+    userSession.minimalCoverThreshold = cover;
+    userSession.boundaries = new int[] { wMin, wMax, wInc, pMin, pMax, pInc, aMin, aMax, aInc };
+
+    return true;
+  }
+
+  private static int intValue(JFormattedTextField field) {
+    return ((Number) field.getValue()).intValue();
+  }
+
+  private static double doubleValue(JFormattedTextField field) {
+    return ((Number) field.getValue()).doubleValue();
   }
 
   /**

@@ -81,7 +81,7 @@
 
   <groupId>net.seninp</groupId>
   <artifactId>grammarviz2</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>3.0.0</version>
   <packaging>jar</packaging>
 
   <name>GrammarViz2</name>

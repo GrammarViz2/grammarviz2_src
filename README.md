@@ -124,7 +124,7 @@ $ mvn package -Psingle
 To run the GrammarViz 3.0 GUI use the `net.seninp.grammarviz.GrammarVizGUI` class, or run the self-contained `jar` from the command line: `$ java -Xmx4g -jar target/grammarviz2-3.0.0-jar-with-dependencies.jar` (here I have allocated a max of 4 GB of memory for GrammarViz).
 
 ## CLI interface
-By using CLI as discussed in [these tutorials](https://grammarviz2.github.io/grammarviz2_site/experiences/), it is possible to save the inferred grammar, motifs, and discords.
+By using CLI as discussed in [these tutorials](https://grammarviz2.github.io/grammarviz2_site/anomaly/experience-a2/), it is possible to save the inferred grammar, motifs, and discords.
 
 ## Made with Aloha!
 ![Made with Aloha!](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/src/resources/assets/aloha.jpg)

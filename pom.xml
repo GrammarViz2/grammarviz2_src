@@ -9,13 +9,14 @@
     <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
     <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
     <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
-    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-    <maven-nexus-staging-plugin.version>2.5.3</maven-nexus-staging-plugin.version>
+    <central-publishing-plugin.version>0.11.0</central-publishing-plugin.version>
     <maven-pmd-plugin.version>3.15.0</maven-pmd-plugin.version>
     <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>
     <maven-findbugs-plugin.version>3.0.5</maven-findbugs-plugin.version>
     <maven-jacoco-plugin.version>0.8.13</maven-jacoco-plugin.version>
+    <gpg.keyname>2EAECBE3B77F5D0A55278EC1B5E0F3D37C8A1537</gpg.keyname>
     <sonar.organization>grammarviz2</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>    
   </properties>
@@ -231,6 +232,14 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <version>${maven-javadoc-plugin.version}</version>
+            <configuration>
+              <!-- JDK 9+ javadoc (doclint) rejects legacy HTML and out-of-sequence
+                   headings in some legacy sources. Maven Central only requires the
+                   javadoc jar to EXIST, not to be lint-clean, so disable doclint and
+                   don't fail the build on doc warnings. -->
+              <doclint>none</doclint>
+              <failOnError>false</failOnError>
+            </configuration>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -241,28 +250,20 @@
             </executions>
           </plugin>
 
+          <!-- Publishes to Maven Central via the Sonatype Central Portal
+               (central.sonatype.com), replacing the retired OSSRH + nexus-staging
+               flow (oss.sonatype.org shut down 2025-06-30). publishingServerId must
+               match the <server> id in settings.xml (here: 'central').
+               autoPublish=false uploads and validates the deployment, leaving the
+               final release as a manual Publish click in the Portal UI. -->
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>${maven-nexus-staging-plugin.version}</version>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>${central-publishing-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-release-plugin</artifactId>
-            <version>${maven-release-plugin.version}</version>
-            <configuration>
-              <autoVersionSubmodules>true</autoVersionSubmodules>
-              <!-- disable 'release' profile from super pom -->
-              <useReleaseProfile>false</useReleaseProfile>
-              <releaseProfiles>release</releaseProfiles>
-              <goals>deploy</goals>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>false</autoPublish>
             </configuration>
           </plugin>
         </plugins>
@@ -292,7 +293,14 @@
                 </goals>
                 <configuration>
                   <keyname>${gpg.keyname}</keyname>
-                  <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                  <!-- GnuPG 2.x + gpg-plugin 3.x: the passphrase comes from gpg-agent
+                       (loopback pinentry) or the MAVEN_GPG_PASSPHRASE env var, not a
+                       settings.xml server entry. Force loopback so signing works in a
+                       non-interactive (CI / headless) build. -->
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
                 </configuration>
               </execution>
             </executions>
@@ -335,51 +343,6 @@
       </build>
     </profile>
 
-    <profile>
-      <id>mavenCentral</id>
-      <distributionManagement>
-        <repository>
-          <id>ossrh</id>
-          <name>Central Repository OSSRH</name>
-          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-        <snapshotRepository>
-          <id>ossrh</id>
-          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-      </distributionManagement>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>${maven-source-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${maven-javadoc-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 
 

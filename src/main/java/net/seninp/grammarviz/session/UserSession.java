@@ -29,7 +29,7 @@ public class UserSession {
   private static final boolean USE_SLIDING_WINDOW = true;
   private static final Double DEFAULT_NORMALIZATION_THRESHOLD_VALUE = 0.05;
   private static final NumerosityReductionStrategy DEFAULT_NUMEROSITY_REDUCTION_STRATEGY = NumerosityReductionStrategy.EXACT;
-  private static final GIAlgorithm DEFAULT_GI_ALGORITHM = GIAlgorithm.SEQUITUR;
+  private static final GIAlgorithm DEFAULT_GI_ALGORITHM = GIAlgorithm.REPAIR;
   private static final CoverageCountStrategy DEFAULT_COUNT_STRATEGY = CoverageCountStrategy.COUNT;
 
   // discretization variables

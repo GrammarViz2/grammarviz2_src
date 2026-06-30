@@ -94,6 +94,12 @@ public class GrammarvizChartPanel extends JPanel
 
   public static final String SAMPLING_SUCCEEDED = "parameters_sampling_succeeded";
 
+  /** Best parameters were applied, but none reached the user's minimal-cover threshold. */
+  public static final String SAMPLING_BELOW_THRESHOLD = "parameters_sampling_below_threshold";
+
+  /** The sampler produced no usable parameters (empty grid or error). */
+  public static final String SAMPLING_FAILED = "parameters_sampling_failed";
+
   public static final String SELECTION_FINISHED = "interval_selection_finished";
 
   /** Current chart data instance. */
@@ -846,6 +852,9 @@ public class GrammarvizChartPanel extends JPanel
 
               final ExecutorService executorService = Executors.newSingleThreadExecutor();
               final Future<String> bestParams = executorService.submit(paramsSampler);
+              // shut down so awaitTermination returns as soon as the task ends (success or
+              // exception) instead of blocking the full timeout; submitted task still runs
+              executorService.shutdown();
 
               setOperationalButton.setText("Stop!");
               setOperationalButton.addActionListener(new ActionListener() {
@@ -898,6 +907,36 @@ public class GrammarvizChartPanel extends JPanel
       for (ActionListener l : this.listeners) {
         l.actionPerformed(event);
       }
+    }
+    else if (GrammarvizChartPanel.SAMPLING_BELOW_THRESHOLD
+        .equalsIgnoreCase(e.getActionCommand())) {
+      // best params WERE applied, but none reached the requested cover threshold -- apply
+      // them (as before) and let the user know rather than silently violating their input
+      resetChartPanel();
+      this.session.notifyParametersChangeListeners();
+      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
+      for (ActionListener l : this.listeners) {
+        l.actionPerformed(event);
+      }
+      final double cover = this.session.minimalCoverThreshold;
+      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this,
+          "No parameter set reached the minimal rule cover threshold (" + cover + ").\n"
+              + "Applied the best available parameters (window " + this.session.saxWindow + ", PAA "
+              + this.session.saxPAA + ", alphabet " + this.session.saxAlphabet + ") instead.",
+          "Cover threshold not reached", JOptionPane.INFORMATION_MESSAGE));
+    }
+    else if (GrammarvizChartPanel.SAMPLING_FAILED.equalsIgnoreCase(e.getActionCommand())) {
+      // nothing usable was produced (empty grid or sampler error) -- reset the UI and tell
+      // the user so the guess button doesn't sit stuck on "Stop!"
+      resetChartPanel();
+      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
+      for (ActionListener l : this.listeners) {
+        l.actionPerformed(event);
+      }
+      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this,
+          "No valid SAX parameters were found for the selected interval and ranges.\n"
+              + "Try a longer interval or wider window/PAA/alphabet ranges.",
+          "Parameter guessing failed", JOptionPane.WARNING_MESSAGE));
     }
 
   }

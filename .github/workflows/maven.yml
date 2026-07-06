@@ -37,7 +37,10 @@ jobs:
         directory: ./target/site/jacoco
         files: jacoco.xml
         env_vars: OS,JAVA
-        fail_ci_if_error: true
+        # don't fail the build if the coverage upload can't authenticate (Codecov
+        # requires a token on protected branches); coverage still uploads when CODECOV_TOKEN is set
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
         flags: unittests
         name: codecov-umbrella
         verbose: true
@@ -45,6 +48,8 @@ jobs:
   sonarcloud:
     # https://github.com/sonarsource/sonarcloud-github-action
     runs-on: ubuntu-latest
+    # non-blocking: a missing or invalid SONAR_TOKEN must not fail the workflow
+    continue-on-error: true
     steps:
     - uses: actions/checkout@v4
       with:

@@ -55,7 +55,7 @@ public class GrammarVizAnomalyParameters {
   @Parameter(names = { "--algorithm", "-alg" }, description = "The algorithm to use")
   public static AnomalyAlgorithm ALGORITHM = AnomalyAlgorithm.RRA;
   
-  @Parameter(names = { "--discords_num", "-n" }, description = "The algorithm to use")
+  @Parameter(names = { "--discords_num", "-n" }, description = "The number of discords to report")
   public static int DISCORDS_NUM = 5;
   
   // GI parameter

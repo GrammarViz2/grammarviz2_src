@@ -15,7 +15,7 @@
     <maven-pmd-plugin.version>3.15.0</maven-pmd-plugin.version>
     <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>
     <maven-findbugs-plugin.version>3.0.5</maven-findbugs-plugin.version>
-    <maven-jacoco-plugin.version>0.8.13</maven-jacoco-plugin.version>
+    <maven-jacoco-plugin.version>0.8.15</maven-jacoco-plugin.version>
     <gpg.keyname>2EAECBE3B77F5D0A55278EC1B5E0F3D37C8A1537</gpg.keyname>
     <sonar.organization>grammarviz2</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>    
@@ -25,17 +25,19 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.32</version>
+      <version>2.0.9</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.10</version>
+      <version>1.3.14</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
@@ -70,19 +72,19 @@
     <dependency>
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-sax</artifactId>
-      <version>2.0.0</version>
+      <version>2.0.1</version>
     </dependency>
     <dependency>
       <groupId>net.seninp</groupId>
       <artifactId>jmotif-gi</artifactId>
-      <version>2.0.0</version>
+      <version>2.0.1</version>
     </dependency>
   </dependencies>
 
 
   <groupId>net.seninp</groupId>
   <artifactId>grammarviz2</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
   <packaging>jar</packaging>
 
   <name>GrammarViz2</name>
@@ -148,7 +150,6 @@
           <excludes>
             <exclude>**/tinker/**</exclude>
             <exclude>**/util/**</exclude>
-            <exclude>**/view/**</exclude>
             <exclude>**/cli/**</exclude>
           </excludes>
         </configuration>

@@ -3,6 +3,21 @@
 All notable changes to GrammarViz2 are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.0.1] — 2026-07-09
+
+Stack alignment release: no application behavior changes.
+
+### Changed
+- **Dependencies:** `jmotif-sax` and `jmotif-gi` **2.0.0 → 2.0.1**; SLF4J **2.0.9**,
+  Logback **1.3.14** (`runtime` scope), JUnit **`test`** scope.
+- **JaCoCo** **0.8.13 → 0.8.15** (JDK 25/26); stop excluding the `view` package now
+  covered by unit tests (`TestGrammarReductor`, `TestParamsSampler*`).
+- **CI / publish:** clone and `mvn install` SAX + GI from source before build/deploy
+  (until `jmotif-sax` 2.0.1 is on Maven Central); Sonar job uses the same bootstrap.
+
+### Added
+- README link to [jmotif-conformance](https://github.com/jMotif/jmotif-conformance).
+
 ## [3.0.0] — 2026-06-30
 
 Modernization + correctness release: upgrades to the jMotif 2.0.0 line, moves the

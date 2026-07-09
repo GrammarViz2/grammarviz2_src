@@ -22,6 +22,13 @@ jobs:
         java-version: ${{ matrix.java }}
         cache: maven
     
+    - name: Install jmotif-sax and jmotif-gi from source
+      run: |
+        git clone --depth 1 https://github.com/jMotif/SAX.git ../SAX
+        git clone --depth 1 https://github.com/jMotif/GI.git ../GI
+        mvn -B install -P single -DskipTests -f ../SAX/pom.xml
+        mvn -B install -DskipTests -f ../GI/pom.xml
+
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
@@ -39,6 +46,13 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           server-id: github
+          cache: maven
+      - name: Install jmotif-sax and jmotif-gi from source
+        run: |
+          git clone --depth 1 https://github.com/jMotif/SAX.git ../SAX
+          git clone --depth 1 https://github.com/jMotif/GI.git ../GI
+          mvn -B install -P single -DskipTests -f ../SAX/pom.xml
+          mvn -B install -DskipTests -f ../GI/pom.xml
       - name: Publish to GitHub Packages
         run: mvn --batch-mode deploy
         env:

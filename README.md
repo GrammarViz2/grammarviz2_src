@@ -1,4 +1,4 @@
-# GrammarViz 3.0 (3.0.0 release, 2026)
+# GrammarViz 3.0 (3.0.1 release, 2026)
 
 ![maven build](https://github.com/GrammarViz2/grammarviz2_src/actions/workflows/maven.yml/badge.svg)
 [![codecov.io](https://codecov.io/github/GrammarViz2/grammarviz2_src/coverage.svg?branch=master)](https://codecov.io/github/GrammarViz2/grammarviz2_src?branch=master)
@@ -13,9 +13,17 @@ GrammarViz 3.0 source code public repository. This code is released under [GPL v
 GrammarViz 3.0 is a software for *time series exploratory analysis* with GUI and CLI interfaces. The GUI enables interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]:
 ![GrammarViz 3.0 screen](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/src/resources/assets/screen.png)
 
-It is implemented in Java and is based on continuous signal discretization with [SAX](https://github.com/jMotif/SAX), Grammatical Inference with [Sequitur](https://github.com/jMotif/GI) and [Re-Pair](https://github.com/jMotif/GI), and [algorithmic (Kolmogorov) complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity). 
+It is implemented in Java and is based on continuous signal discretization with [SAX](https://github.com/jMotif/SAX), Grammatical Inference with [Sequitur](https://github.com/jMotif/GI) and [Re-Pair](https://github.com/jMotif/GI), and [algorithmic (Kolmogorov) complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity).
+
+Cross-language checks for the shared SAX and GI layers (discord search, sliding-window SAX, RePair) live in [jmotif-conformance](https://github.com/jMotif/jmotif-conformance).
 
 In contrast with 2.0, GrammarViz 3.0 introduces an approach for the grammar rule pruning and the automated discretization parameters selection procedure based on the greedy grammar rule pruning and MDL -- by sampling a possible parameters space, it finds a parameters set which produces the most _concise_ grammar _describing_ the observed time series the best, which often is close to the optimal -- here _concise_ and _describing_ are based on other specific criteria.
+
+### What's new in the 3.0.1 release
+
+Maintenance release: bumps the jMotif stack to **2.0.1** (`jmotif-sax`, `jmotif-gi`), aligns
+SLF4J/Logback/JaCoCo with the rest of the family, and installs SAX/GI from source in CI
+until `jmotif-sax` 2.0.1 is on Maven Central. No application behavior changes.
 
 ### What's new in the 3.0.0 release
 
@@ -76,7 +84,20 @@ It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**
 
 ## Building
 
-We use Maven and Java 21 to build an executable. The GitHub Actions CI tests the build on a matrix of Linux, Windows, and macOS across Java 21 and 25 -- check the builds by clicking the "Java CI with Maven" badge at the top of this README. Below is a build trace on Java 21:
+We use Maven and Java 21 to build an executable. Version **3.0.1** depends on
+**`jmotif-sax` 2.0.1** and **`jmotif-gi` 2.0.1**, which are not yet on Maven Central —
+install them from sibling checkouts first:
+
+<pre>
+$ git clone https://github.com/jMotif/SAX.git ../SAX
+$ git clone https://github.com/jMotif/GI.git ../GI
+$ mvn -f ../SAX/pom.xml install -P single -DskipTests
+$ mvn -f ../GI/pom.xml install -DskipTests
+$ mvn -Psingle package
+</pre>
+
+The GitHub Actions CI clones and installs SAX/GI before each build. Below is a full build
+trace on Java 21 after the local installs above:
 
 <pre>
 
@@ -107,12 +128,12 @@ $ mvn package -Psingle
 [INFO]
 [INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0
 [INFO]
-[INFO] --- jacoco-maven-plugin:0.8.13:report (report) @ grammarviz2 ---
+[INFO] --- jacoco-maven-plugin:0.8.15:report (report) @ grammarviz2 ---
 [INFO] Analyzed bundle 'GrammarViz2' with 25 classes
 [INFO]
 [INFO] --- maven-assembly-plugin:3.3.0:single (make-assembly) @ grammarviz2 ---
-[INFO] Building jar: target/grammarviz2-3.0.0.jar
-[INFO] Building jar: target/grammarviz2-3.0.0-jar-with-dependencies.jar
+[INFO] Building jar: target/grammarviz2-3.0.1.jar
+[INFO] Building jar: target/grammarviz2-3.0.1-jar-with-dependencies.jar
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
@@ -121,7 +142,7 @@ $ mvn package -Psingle
 </pre>
 
 ## Running
-To run the GrammarViz 3.0 GUI use the `net.seninp.grammarviz.GrammarVizGUI` class, or run the self-contained `jar` from the command line: `$ java -Xmx4g -jar target/grammarviz2-3.0.0-jar-with-dependencies.jar` (here I have allocated a max of 4 GB of memory for GrammarViz).
+To run the GrammarViz 3.0 GUI use the `net.seninp.grammarviz.GrammarVizGUI` class, or run the self-contained `jar` from the command line: `$ java -Xmx4g -jar target/grammarviz2-3.0.1-jar-with-dependencies.jar` (here I have allocated a max of 4 GB of memory for GrammarViz).
 
 ## CLI interface
 By using CLI as discussed in [these tutorials](https://grammarviz2.github.io/grammarviz2_site/anomaly/experience-a2/), it is possible to save the inferred grammar, motifs, and discords.

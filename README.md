@@ -1,9 +1,9 @@
 # GrammarViz 3.0 (3.0.1 release, 2026)
 
-![maven build](https://github.com/GrammarViz2/grammarviz2_src/actions/workflows/maven.yml/badge.svg)
-[![codecov.io](https://codecov.io/github/GrammarViz2/grammarviz2_src/coverage.svg?branch=master)](https://codecov.io/github/GrammarViz2/grammarviz2_src?branch=master)
-[![License](https://img.shields.io/:license-gpl2-green.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-black.svg)](https://sonarcloud.io/summary/new_code?id=GrammarViz2_grammarviz2_src)
+[![build](https://github.com/GrammarViz2/grammarviz2_src/actions/workflows/maven.yml/badge.svg)](https://github.com/GrammarViz2/grammarviz2_src/actions/workflows/maven.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/net.seninp/grammarviz2)](https://central.sonatype.com/artifact/net.seninp/grammarviz2)
+[![coverage](https://codecov.io/github/GrammarViz2/grammarviz2_src/graph/badge.svg?branch=master)](https://codecov.io/github/GrammarViz2/grammarviz2_src?branch=master)
+[![License](https://img.shields.io/github/license/GrammarViz2/grammarviz2_src)](https://www.gnu.org/licenses/gpl-2.0.html)
 
 GrammarViz 3.0 source code public repository. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
 

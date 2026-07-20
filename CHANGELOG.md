@@ -3,6 +3,34 @@
 All notable changes to GrammarViz2 are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+GUI modernization: retires deprecated/abandoned UI dependencies and refactors the MVC
+wiring. No changes to the command line, output formats, or public artifact coordinates
+(`net.seninp:grammarviz2:3.0.1`).
+
+### Changed
+- **Dependencies:** dropped the abandoned **SwingX** (`swingx-all` 1.6.5-1, unmaintained
+  since 2011) — the rule/anomaly tables now use plain `javax.swing.JTable`; upgraded
+  **JFreeChart 1.0.19 → 1.5.6** (maintained line; drops the old `jcommon` transitive
+  dependency, `org.jfree.ui.*` → `org.jfree.chart.ui.*`, `ChartUtilities` → `ChartUtils`).
+- **MVC event wiring:** replaced the deprecated `java.util.Observable`/`Observer`
+  (deprecated since Java 9) with a typed `GrammarVizListener` and a thread-safe
+  `GrammarVizMessageBoard` (composition instead of inheritance), and centralized all view
+  UI updates on the Swing event-dispatch thread.
+- **Logging hygiene:** routed stray `System.out`/`System.err`/`printStackTrace` through
+  SLF4J and removed dead commented-out debug prints across the GUI/view/model classes
+  (intentional CLI output and the GUI startup banner unchanged).
+
+### Fixed
+- **Anomaly search no longer freezes the GUI.** The RRA discord search runs on a
+  `SwingWorker` off the event-dispatch thread; progress streams to the log pane live, a
+  wait cursor is shown, and the UI stays responsive (browse rules/charts/tabs) while the
+  results are computed.
+- **Rule/anomaly table sizing** after the SwingX removal: capped the preferred viewport
+  height so the tables panel no longer over-claims vertical space from the neighbouring
+  chart and workflow rows.
+
 ## [3.0.1] — 2026-07-09
 
 Stack alignment release: no application behavior changes.

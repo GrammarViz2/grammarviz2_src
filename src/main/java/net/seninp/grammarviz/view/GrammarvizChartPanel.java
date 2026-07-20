@@ -841,8 +841,16 @@ public class GrammarvizChartPanel extends JPanel
               listener.clearSelectionReleased();
             }
 
-            session.samplingStart = (int) Math.floor(listener.getSelectionStart());
-            session.samplingEnd = (int) Math.ceil(listener.getSelectionEnd());
+            // JFreeChart lets the drag run past the data edges, so clamp the
+            // selection to the valid series bounds before using it as indices
+            // (see GrammarViz2/grammarviz2_src#30).
+            int tsLength = (null != session.chartData)
+                ? session.chartData.getOriginalTimeseries().length
+                : tsData.length;
+            int selStart = (int) Math.floor(listener.getSelectionStart());
+            int selEnd = (int) Math.ceil(listener.getSelectionEnd());
+            session.samplingStart = Math.max(0, Math.min(selStart, tsLength));
+            session.samplingEnd = Math.max(0, Math.min(selEnd, tsLength));
 
             GrammarvizGuesserPane parametersPanel = new GrammarvizGuesserPane(session);
             GrammarvizGuesserDialog parametersDialog = new GrammarvizGuesserDialog(topFrame,

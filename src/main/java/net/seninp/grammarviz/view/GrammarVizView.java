@@ -201,19 +201,19 @@ public class GrammarVizView implements Observer, ActionListener {
           // UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         }
         catch (ClassNotFoundException e) {
-          System.err.println("ClassNotFoundException: " + e.getMessage());
+          LOGGER.error("ClassNotFoundException while setting the look and feel", e);
         }
         catch (InstantiationException e) {
-          System.err.println("InstantiationException: " + e.getMessage());
+          LOGGER.error("InstantiationException while setting the look and feel", e);
         }
         catch (IllegalAccessException e) {
-          System.err.println("IllegalAccessException: " + e.getMessage());
+          LOGGER.error("IllegalAccessException while setting the look and feel", e);
         }
         catch (UnsupportedLookAndFeelException e) {
-          System.err.println("UnsupportedLookAndFeelException: " + e.getMessage());
+          LOGGER.error("UnsupportedLookAndFeelException while setting the look and feel", e);
         }
         catch (Exception e) {
-          System.err.print(StackTrace.toString(e));
+          LOGGER.error("error while setting the look and feel", e);
         }
         configureGUI();
         // do some buttons work

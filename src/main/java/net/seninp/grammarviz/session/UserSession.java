@@ -9,7 +9,8 @@ import net.seninp.gi.GIAlgorithm;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
-import net.seninp.util.StackTrace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Keeps user parameters organized.
@@ -18,6 +19,8 @@ import net.seninp.util.StackTrace;
  * 
  */
 public class UserSession {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserSession.class);
 
   /** Params change event. */
   public static final String PARAMS_CHANGED_EVENT = "parameters_changed";
@@ -89,8 +92,7 @@ public class UserSession {
       filename = currentPath + File.separator + "density_curve.txt";
     }
     catch (IOException e) {
-      System.err.println(
-          "Error has been thrown, unable to findout the current path: " + StackTrace.toString(e));
+      LOGGER.error("unable to find out the current path", e);
     }
     this.ruleDensityOutputFileName = filename;
   }

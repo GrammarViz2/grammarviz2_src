@@ -442,7 +442,7 @@ public class GrammarvizChartPanel extends JPanel
       }
     }
     catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("error while writing the rule coverage file", e);
     }
   }
 
@@ -879,14 +879,13 @@ public class GrammarvizChartPanel extends JPanel
               if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {
                 executorService.shutdownNow();
                 if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
-                  System.err.println("Pool did not terminate... FATAL ERROR");
+                  LOGGER.error("executor pool did not terminate");
                 }
               }
 
             }
             catch (Exception e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
+              LOGGER.error("error while refreshing the guess", e);
             }
           }
         }
@@ -991,7 +990,7 @@ public class GrammarvizChartPanel extends JPanel
       ChartUtilities.saveChartAsPNG(new File(fileName), this.chart, 900, 600);
     }
     catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("error while saving the chart as PNG", e);
     }
   }
 

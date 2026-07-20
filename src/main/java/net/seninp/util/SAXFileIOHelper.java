@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.seninp.gi.logic.RuleInterval;
 
 /**
@@ -17,6 +19,8 @@ import net.seninp.gi.logic.RuleInterval;
  *
  */
 public class SAXFileIOHelper {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SAXFileIOHelper.class);
 
   /**
    * Delete a file.
@@ -36,7 +40,7 @@ public class SAXFileIOHelper {
 
     }
     catch (Exception e) {
-      System.out.println(StackTrace.toString(e));
+      LOGGER.error("error while deleting file {}", fullPath, e);
     }
   }
 
@@ -124,15 +128,15 @@ public class SAXFileIOHelper {
       try (BufferedWriter output = new BufferedWriter(new FileWriter(file))) {
         output.write(s.toString());
       }
-      System.out.println("\nWritten to file: " + file.getAbsolutePath());
+      LOGGER.info("written to file: {}", file.getAbsolutePath());
 
       try (BufferedWriter outputPosition = new BufferedWriter(new FileWriter(filePosition))) {
         outputPosition.write(relatedPositionS.toString());
       }
-      System.out.println("\nWritten to file: " + filePosition.getAbsolutePath());
+      LOGGER.info("written to file: {}", filePosition.getAbsolutePath());
     }
     catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.error("error while writing XY series to {}", fullPath, e);
     }
 
   }
@@ -177,10 +181,10 @@ public class SAXFileIOHelper {
       try (BufferedWriter output = new BufferedWriter(new FileWriter(file))) {
         output.write(s1);
       }
-      System.out.println("\nWritten to file: " + file.getAbsolutePath());
+      LOGGER.info("written to file: {}", file.getAbsolutePath());
     }
     catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.error("error while writing to file {}", fullPath, e);
     }
   }
 }

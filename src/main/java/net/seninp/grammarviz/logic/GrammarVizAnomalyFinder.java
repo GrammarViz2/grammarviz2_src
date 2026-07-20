@@ -14,6 +14,8 @@ import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 import net.seninp.util.StackTrace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements a runnable for the proposed in EDBT15 anomaly discovery technique.
@@ -24,6 +26,8 @@ import net.seninp.util.StackTrace;
  */
 @SuppressWarnings("deprecation")
 public class GrammarVizAnomalyFinder extends Observable implements Runnable {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizAnomalyFinder.class);
 
   /** The chart data handler. */
   private GrammarVizChartData chartData;
@@ -65,7 +69,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       }
     }
     catch (CloneNotSupportedException e) {
-      e.printStackTrace();
+      LOGGER.error("error while cloning rule intervals", e);
       log("Exception thrown: " + e.toString());
       return;
     }
@@ -162,7 +166,7 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
       }
       catch (Exception e) {
         log(StackTrace.toString(e));
-        e.printStackTrace();
+        LOGGER.error("error while computing discords", e);
       }
 
     }

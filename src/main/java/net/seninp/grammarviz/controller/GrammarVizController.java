@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 import javax.swing.JFileChooser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.grammarviz.model.GrammarVizModel;
 import net.seninp.grammarviz.session.UserSession;
@@ -19,6 +21,8 @@ import net.seninp.grammarviz.session.UserSession;
  */
 @SuppressWarnings("deprecation")
 public class GrammarVizController extends Observable implements ActionListener {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizController.class);
 
   private GrammarVizModel model;
 
@@ -113,8 +117,7 @@ public class GrammarVizController extends Observable implements ActionListener {
               session.saxAlphabet, session.normalizationThreshold, session.grammarOutputFileName);
         }
         catch (IOException exception) {
-          // TODO Auto-generated catch block
-          exception.printStackTrace();
+          LOGGER.error("error while processing data", exception);
         }
 
       }

@@ -14,14 +14,17 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.session.UserSession;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
-import net.seninp.util.StackTrace;
 
 public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeListener {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(GrammarvizRuleChartPanel.class);
 
   /** Fancy serial. */
   private static final long serialVersionUID = 5334407476500195779L;
@@ -156,7 +159,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
       chartIntervals(intervals);
     }
     catch (Exception e) {
-      System.err.println(StackTrace.toString(e));
+      LOGGER.error("error while charting rule intervals", e);
     }
   }
 
@@ -178,7 +181,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
         chartIntervals(intervals);
       }
       catch (Exception e) {
-        System.err.println(StackTrace.toString(e));
+        LOGGER.error("error while charting subsequence-class intervals", e);
       }
   }
 
@@ -197,7 +200,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
       chartIntervals(intervals);
     }
     catch (Exception e) {
-      System.err.println(StackTrace.toString(e));
+      LOGGER.error("error while charting the anomaly interval", e);
     }
   }
 

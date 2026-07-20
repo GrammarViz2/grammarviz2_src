@@ -142,9 +142,9 @@ public class GrammarVizModel extends Observable {
       }
     }
     catch (Exception e) {
-      String stackTrace = StackTrace.toString(e);
-      System.err.println(StackTrace.toString(e));
-      this.log("error while trying to read data from " + this.dataFileName + ":\n" + stackTrace);
+      LOGGER.error("error while trying to read data from {}", this.dataFileName, e);
+      this.log("error while trying to read data from " + this.dataFileName + ":\n"
+          + StackTrace.toString(e));
     }
 
     // convert to simple doubles array and clean the variable
@@ -262,7 +262,7 @@ public class GrammarVizModel extends Observable {
       }
       catch (Exception e) {
         this.log("error while processing data " + StackTrace.toString(e));
-        e.printStackTrace();
+        LOGGER.error("error while processing data", e);
       }
 
       this.log("processed data, broadcasting charts");
@@ -341,8 +341,7 @@ public class GrammarVizModel extends Observable {
       }
     }
     catch (IOException e) {
-      System.err.print(
-          "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
+      LOGGER.error("encountered an error while writing stats file", e);
     }
 
   }

@@ -11,9 +11,13 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.miginfocom.swing.MigLayout;
 
 public class AboutGrammarVizDialog extends JDialog implements ActionListener {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AboutGrammarVizDialog.class);
 
   private static final long serialVersionUID = -8273240552350932580L;
 
@@ -37,11 +41,11 @@ public class AboutGrammarVizDialog extends JDialog implements ActionListener {
         aboutTextPane.setPage(helpURL);
       }
       catch (IOException e) {
-        System.err.println("Attempted to read a bad URL: " + helpURL);
+        LOGGER.error("attempted to read a bad URL: {}", helpURL, e);
       }
     }
     else {
-      System.err.println("Couldn't find file: AboutText.html");
+      LOGGER.error("couldn't find file: AboutText.html");
     }
 
     // Put the editor pane in a scroll pane.

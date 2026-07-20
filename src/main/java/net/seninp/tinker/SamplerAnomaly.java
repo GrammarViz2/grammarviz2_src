@@ -187,6 +187,9 @@ public class SamplerAnomaly {
         intervalsCounter--;
       }
     }
+    if (inInterval) {
+      res.add(new RuleInterval(intervalsCounter, start, coverageArray.length, 0));
+    }
     return res;
   }
 

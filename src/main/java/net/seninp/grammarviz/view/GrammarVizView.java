@@ -1,5 +1,6 @@
 package net.seninp.grammarviz.view;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -27,6 +28,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
@@ -919,19 +921,39 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
 
         log(Level.INFO, "going to run anomalies search, this takes time, please wait... ");
 
-        try {
-          this.controller.getSession().chartData.addListener(this);
+        final GrammarVizChartData anomalyChartData = this.controller.getSession().chartData;
+        anomalyChartData.addListener(this);
 
-          this.controller.getSession().chartData.findAnomalies();
-          this.anomaliesPane.updateAnomalies();
-          this.anomaliesPane.resetPanel();
+        // run the (potentially long) anomaly search off the event-dispatch thread so the UI stays
+        // responsive; the finder's progress is logged live via STATUS_MESSAGE, and the results are
+        // applied back on the EDT in done().
+        frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-          this.controller.getSession().chartData.removeListener(this);
-        }
-        catch (Exception e) {
-          String errorTrace = StackTrace.toString(e);
-          log(Level.ALL, errorTrace);
-        }
+        SwingWorker<Void, Void> anomalyWorker = new SwingWorker<Void, Void>() {
+          @Override
+          protected Void doInBackground() throws Exception {
+            anomalyChartData.findAnomalies();
+            return null;
+          }
+
+          @Override
+          protected void done() {
+            try {
+              get();
+              anomaliesPane.updateAnomalies();
+              anomaliesPane.resetPanel();
+              log(Level.INFO, "anomaly search finished");
+            }
+            catch (Exception e) {
+              log(Level.ALL, StackTrace.toString(e));
+            }
+            finally {
+              anomalyChartData.removeListener(GrammarVizView.this);
+              frame.setCursor(Cursor.getDefaultCursor());
+            }
+          }
+        };
+        anomalyWorker.execute();
       }
     }
 

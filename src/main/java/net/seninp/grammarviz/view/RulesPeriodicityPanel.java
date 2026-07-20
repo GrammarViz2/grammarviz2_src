@@ -9,8 +9,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.grammarviz.session.UserSession;
@@ -34,7 +32,7 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
 
   private PeriodicityTableModel periodicityTableModel = new PeriodicityTableModel();
 
-  private JXTable periodicityTable;
+  private JTable periodicityTable;
 
   private UserSession session;
 
@@ -54,13 +52,13 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
   public RulesPeriodicityPanel() {
     super();
     this.periodicityTableModel = new PeriodicityTableModel();
-    this.periodicityTable = new JXTable() {
+    this.periodicityTable = new JTable() {
 
       private static final long serialVersionUID = 2L;
 
       @Override
       protected JTableHeader createDefaultTableHeader() {
-        return new JXTableHeader(columnModel) {
+        return new JTableHeader(columnModel) {
           private static final long serialVersionUID = 1L;
 
           @Override
@@ -82,10 +80,6 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
     this.periodicityTable.setDefaultRenderer(Double.class, new CellDoubleRenderer());
 
     this.periodicityTable.getSelectionModel().addListSelectionListener(this);
-
-    @SuppressWarnings("unused")
-    org.jdesktop.swingx.renderer.DefaultTableRenderer renderer = (org.jdesktop.swingx.renderer.DefaultTableRenderer) periodicityTable
-        .getDefaultRenderer(String.class);
 
     TableRowSorter<PeriodicityTableModel> sorter = new TableRowSorter<PeriodicityTableModel>(
         periodicityTableModel);

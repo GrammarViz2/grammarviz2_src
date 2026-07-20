@@ -13,8 +13,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
@@ -38,7 +36,7 @@ public class PackedRulesPanel extends JPanel
 
   private PrunedRulesTableModel packedTableModel = new PrunedRulesTableModel();
 
-  private JXTable packedTable;
+  private JTable packedTable;
 
   private GrammarVizChartData chartData;
 
@@ -66,13 +64,13 @@ public class PackedRulesPanel extends JPanel
   public PackedRulesPanel() {
     super();
     this.packedTableModel = new PrunedRulesTableModel();
-    this.packedTable = new JXTable() {
+    this.packedTable = new JTable() {
 
       private static final long serialVersionUID = 2L;
 
       @Override
       protected JTableHeader createDefaultTableHeader() {
-        return new JXTableHeader(columnModel) {
+        return new JTableHeader(columnModel) {
           private static final long serialVersionUID = 1L;
 
           @Override
@@ -93,10 +91,6 @@ public class PackedRulesPanel extends JPanel
     this.packedTable.setShowGrid(false);
 
     this.packedTable.getSelectionModel().addListSelectionListener(this);
-
-    @SuppressWarnings("unused")
-    org.jdesktop.swingx.renderer.DefaultTableRenderer renderer = (org.jdesktop.swingx.renderer.DefaultTableRenderer) packedTable
-        .getDefaultRenderer(String.class);
 
     TableRowSorter<PrunedRulesTableModel> sorter = new TableRowSorter<PrunedRulesTableModel>(
         packedTableModel);

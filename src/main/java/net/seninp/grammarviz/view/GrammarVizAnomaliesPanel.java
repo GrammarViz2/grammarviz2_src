@@ -11,8 +11,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.grammarviz.session.UserSession;
@@ -31,7 +29,7 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
 
   private AnomalyTableModel anomalyTableModel;
 
-  private JXTable anomalyTable;
+  private JTable anomalyTable;
 
   private JScrollPane anomaliesPane;
 
@@ -49,13 +47,13 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
   public GrammarVizAnomaliesPanel() {
     super();
     this.anomalyTableModel = new AnomalyTableModel();
-    this.anomalyTable = new JXTable() {
+    this.anomalyTable = new JTable() {
 
       private static final long serialVersionUID = 3L;
 
       @Override
       protected JTableHeader createDefaultTableHeader() {
-        return new JXTableHeader(columnModel) {
+        return new JTableHeader(columnModel) {
           private static final long serialVersionUID = 1L;
 
           @Override
@@ -79,10 +77,6 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
     this.anomalyTable.setDefaultRenderer(Double.class, new CellDoubleRenderer());
 
     this.anomalyTable.getSelectionModel().addListSelectionListener(this);
-
-    @SuppressWarnings("unused")
-    org.jdesktop.swingx.renderer.DefaultTableRenderer renderer = (org.jdesktop.swingx.renderer.DefaultTableRenderer) anomalyTable
-        .getDefaultRenderer(String.class);
 
     TableRowSorter<AnomalyTableModel> sorter = new TableRowSorter<AnomalyTableModel>(
         anomalyTableModel);

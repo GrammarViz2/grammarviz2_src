@@ -17,8 +17,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.grammarviz.model.GrammarVizMessage;
@@ -44,7 +42,7 @@ public class GrammarRulesPanel extends JPanel
 
   private GrammarvizRulesTableModel sequiturTableModel = new GrammarvizRulesTableModel();
 
-  private JXTable sequiturTable;
+  private JTable sequiturTable;
 
   private UserSession session;
 
@@ -75,13 +73,13 @@ public class GrammarRulesPanel extends JPanel
   public GrammarRulesPanel() {
     super();
     this.sequiturTableModel = new GrammarvizRulesTableModel();
-    this.sequiturTable = new JXTable() {
+    this.sequiturTable = new JTable() {
 
       private static final long serialVersionUID = 2L;
 
       @Override
       protected JTableHeader createDefaultTableHeader() {
-        return new JXTableHeader(columnModel) {
+        return new JTableHeader(columnModel) {
           private static final long serialVersionUID = 1L;
 
           @Override
@@ -105,10 +103,6 @@ public class GrammarRulesPanel extends JPanel
     this.sequiturTable.setShowGrid(false);
 
     this.sequiturTable.getSelectionModel().addListSelectionListener(this);
-
-    @SuppressWarnings("unused")
-    org.jdesktop.swingx.renderer.DefaultTableRenderer renderer = (org.jdesktop.swingx.renderer.DefaultTableRenderer) sequiturTable
-        .getDefaultRenderer(String.class);
 
     // Make some columns wider than the rest, so that the info fits in.
     TableColumnModel columnModel = sequiturTable.getColumnModel();

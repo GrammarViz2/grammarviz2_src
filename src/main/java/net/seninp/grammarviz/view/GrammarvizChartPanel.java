@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.AxisState;
@@ -52,11 +52,11 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.Layer;
-import org.jfree.ui.LengthAdjustmentType;
-import org.jfree.ui.RectangleAnchor;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.TextAnchor;
+import org.jfree.chart.ui.Layer;
+import org.jfree.chart.ui.LengthAdjustmentType;
+import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.TextAnchor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.gi.logic.GrammarRuleRecord;
@@ -659,7 +659,7 @@ public class GrammarvizChartPanel extends JPanel
     //
     XYLineAndShapeRenderer xyRenderer = new XYLineAndShapeRenderer(true, false);
     xyRenderer.setSeriesPaint(0, new Color(0, 0, 0));
-    xyRenderer.setBaseStroke(new BasicStroke(3));
+    xyRenderer.setDefaultStroke(new BasicStroke(3));
 
     // X - the time axis
     //
@@ -987,7 +987,7 @@ public class GrammarvizChartPanel extends JPanel
 
       // this.paintTheChart();
 
-      ChartUtilities.saveChartAsPNG(new File(fileName), this.chart, 900, 600);
+      ChartUtils.saveChartAsPNG(new File(fileName), this.chart, 900, 600);
     }
     catch (IOException e) {
       LOGGER.error("error while saving the chart as PNG", e);

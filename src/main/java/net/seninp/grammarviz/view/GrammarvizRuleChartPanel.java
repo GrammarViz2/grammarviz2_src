@@ -78,7 +78,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     //
     XYLineAndShapeRenderer xyRenderer = new XYLineAndShapeRenderer(true, false);
     xyRenderer.setSeriesPaint(0, new Color(0, 0, 0));
-    xyRenderer.setBaseStroke(new BasicStroke(3));
+    xyRenderer.setDefaultStroke(new BasicStroke(3));
 
     // X - the time axis
     //

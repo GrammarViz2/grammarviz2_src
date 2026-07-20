@@ -12,7 +12,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.ui.Layer;
+import org.jfree.chart.ui.Layer;
 
 public class MouseMarker extends MouseAdapter {
 

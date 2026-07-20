@@ -131,6 +131,7 @@ public class GrammarVizAnomaliesPanel extends JPanel implements ListSelectionLis
         rules.add(rule);
       }
       this.firePropertyChange(FIRING_PROPERTY_ANOMALY, this.selectedAnomalies, rules);
+      this.selectedAnomalies = rules;
     }
 
   }

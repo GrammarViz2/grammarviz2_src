@@ -12,9 +12,9 @@
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
     <central-publishing-plugin.version>0.11.0</central-publishing-plugin.version>
-    <maven-pmd-plugin.version>3.15.0</maven-pmd-plugin.version>
+    <maven-pmd-plugin.version>3.26.0</maven-pmd-plugin.version>
     <maven-jxr-plugin.version>3.1.1</maven-jxr-plugin.version>
-    <maven-findbugs-plugin.version>3.0.5</maven-findbugs-plugin.version>
+    <spotbugs-maven-plugin.version>4.8.6.6</spotbugs-maven-plugin.version>
     <maven-jacoco-plugin.version>0.8.15</maven-jacoco-plugin.version>
     <gpg.keyname>2EAECBE3B77F5D0A55278EC1B5E0F3D37C8A1537</gpg.keyname>
     <sonar.organization>grammarviz2</sonar.organization>
@@ -338,6 +338,41 @@
                   <goal>single</goal>
                 </goals>
               </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>quality</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-maven-plugin</artifactId>
+            <version>${spotbugs-maven-plugin.version}</version>
+            <configuration>
+              <effort>Max</effort>
+              <includeFilterFile>config/spotbugs-include.xml</includeFilterFile>
+              <failOnError>true</failOnError>
+            </configuration>
+            <executions>
+              <execution><id>spotbugs-check</id><phase>verify</phase><goals><goal>check</goal></goals></execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-pmd-plugin</artifactId>
+            <version>${maven-pmd-plugin.version}</version>
+            <configuration>
+              <rulesets><ruleset>config/pmd-ruleset.xml</ruleset></rulesets>
+              <targetJdk>21</targetJdk>
+              <printFailingErrors>true</printFailingErrors>
+              <failOnViolation>true</failOnViolation>
+            </configuration>
+            <executions>
+              <execution><id>pmd-check</id><phase>verify</phase><goals><goal>check</goal></goals></execution>
             </executions>
           </plugin>
         </plugins>

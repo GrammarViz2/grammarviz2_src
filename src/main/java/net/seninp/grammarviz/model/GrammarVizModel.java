@@ -123,34 +123,28 @@ public class GrammarVizModel extends Observable {
         loadLimit = Long.parseLong(limitStr);
       }
 
-      // open the reader
-      BufferedReader reader = Files.newBufferedReader(path, DEFAULT_CHARSET);
-
-      // read by the line in the loop from reader
-      String line = null;
-      long lineCounter = 0;
-      while ((line = reader.readLine()) != null) {
-        String[] lineSplit = line.trim().split("\\s+");
-        // we read only first column
-        // for (int i = 0; i < lineSplit.length; i++) {
-        double value = new BigDecimal(lineSplit[0]).doubleValue();
-        data.add(value);
-        // }
-        lineCounter++;
-        // break the load if needed
-        if ((loadLimit > 0) && (lineCounter > loadLimit)) {
-          break;
+      try (BufferedReader reader = Files.newBufferedReader(path, DEFAULT_CHARSET)) {
+        String line = null;
+        long lineCounter = 0;
+        while ((line = reader.readLine()) != null) {
+          String[] lineSplit = line.trim().split("\\s+");
+          // we read only first column
+          // for (int i = 0; i < lineSplit.length; i++) {
+          double value = new BigDecimal(lineSplit[0]).doubleValue();
+          data.add(value);
+          // }
+          lineCounter++;
+          // break the load if needed
+          if ((loadLimit > 0) && (lineCounter > loadLimit)) {
+            break;
+          }
         }
       }
-      reader.close();
     }
     catch (Exception e) {
       String stackTrace = StackTrace.toString(e);
       System.err.println(StackTrace.toString(e));
       this.log("error while trying to read data from " + this.dataFileName + ":\n" + stackTrace);
-    }
-    finally {
-      assert true;
     }
 
     // convert to simple doubles array and clean the variable
@@ -296,75 +290,54 @@ public class GrammarVizModel extends Observable {
    */
   protected void saveGrammarStats(GrammarVizChartData data) {
 
-    boolean fileOpen = false;
-
-    BufferedWriter bw = null;
     try {
       String currentPath = new File(".").getCanonicalPath();
-      bw = new BufferedWriter(new OutputStreamWriter(
-          new FileOutputStream(currentPath + File.separator + "grammar_stats.txt"), "UTF-8"));
-      StringBuffer sb = new StringBuffer();
-      sb.append("# filename: ").append(this.dataFileName).append(CR);
-      sb.append("# sliding window: ").append(data.getSAXWindowSize()).append(CR);
-      if (data.isSlidingWindowOn()) {
-        sb.append("# window size: ").append(data.getSAXWindowSize()).append(CR);
-      }
-      sb.append("# paa size: ").append(data.getSAXPaaSize()).append(CR);
-      sb.append("# alphabet size: ").append(data.getSAXAlphabetSize()).append(CR);
-      bw.write(sb.toString());
-      fileOpen = true;
-    }
-    catch (IOException e) {
-      System.err.print(
-          "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
-    }
-
-    // ArrayList<int[]> ruleLengths = new ArrayList<int[]>();
-
-    for (GrammarRuleRecord ruleRecord : data.getGrammarRules()) {
-
-      StringBuffer sb = new StringBuffer();
-      sb.append("/// ").append(ruleRecord.getRuleName()).append(CR);
-      sb.append(ruleRecord.getRuleName()).append(" -> \'").append(ruleRecord.getRuleString().trim())
-          .append("\', expanded rule string: \'").append(ruleRecord.getExpandedRuleString())
-          .append("\'").append(CR);
-
-      if (ruleRecord.getRuleIntervals().size() > 0) {
-
-        int[] starts = new int[ruleRecord.getRuleIntervals().size()];
-        int[] lengths = new int[ruleRecord.getRuleIntervals().size()];
-        int i = 0;
-        for (RuleInterval sp : ruleRecord.getRuleIntervals()) {
-          starts[i] = sp.getStart();
-          lengths[i] = (sp.endPos - sp.startPos);
-          i++;
+      try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
+          new FileOutputStream(currentPath + File.separator + "grammar_stats.txt"), "UTF-8"))) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("# filename: ").append(this.getDataFileName()).append(CR);
+        sb.append("# sliding window: ").append(data.getSAXWindowSize()).append(CR);
+        if (data.isSlidingWindowOn()) {
+          sb.append("# window size: ").append(data.getSAXWindowSize()).append(CR);
         }
-        sb.append("subsequences starts: ").append(Arrays.toString(starts)).append(CR)
-            .append("subsequences lengths: ").append(Arrays.toString(lengths)).append(CR);
-      }
+        sb.append("# paa size: ").append(data.getSAXPaaSize()).append(CR);
+        sb.append("# alphabet size: ").append(data.getSAXAlphabetSize()).append(CR);
+        bw.write(sb.toString());
 
-      sb.append("rule occurrence frequency ").append(ruleRecord.getRuleIntervals().size())
-          .append(CR);
-      sb.append("rule use frequency ").append(ruleRecord.getRuleUseFrequency()).append(CR);
-      sb.append("min length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[0]).append(CR);
-      sb.append("max length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[1]).append(CR);
-      sb.append("mean length ").append(ruleRecord.getMeanLength()).append(CR);
+        for (GrammarRuleRecord ruleRecord : data.getGrammarRules()) {
 
-      if (fileOpen) {
-        try {
+          sb = new StringBuffer();
+          sb.append("/// ").append(ruleRecord.getRuleName()).append(CR);
+          sb.append(ruleRecord.getRuleName()).append(" -> \'")
+              .append(ruleRecord.getRuleString().trim())
+              .append("\', expanded rule string: \'").append(ruleRecord.getExpandedRuleString())
+              .append("\'").append(CR);
+
+          if (ruleRecord.getRuleIntervals().size() > 0) {
+
+            int[] starts = new int[ruleRecord.getRuleIntervals().size()];
+            int[] lengths = new int[ruleRecord.getRuleIntervals().size()];
+            int i = 0;
+            for (RuleInterval sp : ruleRecord.getRuleIntervals()) {
+              starts[i] = sp.getStart();
+              lengths[i] = (sp.endPos - sp.startPos);
+              i++;
+            }
+            sb.append("subsequences starts: ").append(Arrays.toString(starts)).append(CR)
+                .append("subsequences lengths: ").append(Arrays.toString(lengths)).append(CR);
+          }
+
+          sb.append("rule occurrence frequency ").append(ruleRecord.getRuleIntervals().size())
+              .append(CR);
+          sb.append("rule use frequency ").append(ruleRecord.getRuleUseFrequency()).append(CR);
+          sb.append("min length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[0])
+              .append(CR);
+          sb.append("max length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[1])
+              .append(CR);
+          sb.append("mean length ").append(ruleRecord.getMeanLength()).append(CR);
+
           bw.write(sb.toString());
         }
-        catch (IOException e) {
-          System.err.print(
-              "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
-        }
-      }
-    }
-
-    // try to write stats into the file
-    try {
-      if (fileOpen) {
-        bw.close();
       }
     }
     catch (IOException e) {

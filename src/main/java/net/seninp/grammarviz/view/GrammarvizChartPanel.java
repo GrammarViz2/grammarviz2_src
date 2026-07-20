@@ -428,11 +428,11 @@ public class GrammarvizChartPanel extends JPanel
     //
     try {
       String filename = session.ruleDensityOutputFileName;
-      BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename)));
-      for (int c : coverageArray) {
-        bw.write(String.valueOf(c) + "\n");
+      try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename)))) {
+        for (int c : coverageArray) {
+          bw.write(String.valueOf(c) + "\n");
+        }
       }
-      bw.close();
     }
     catch (IOException e) {
       e.printStackTrace();
@@ -822,11 +822,16 @@ public class GrammarvizChartPanel extends JPanel
           boolean selectionSucceeded = false;
           while (!(selectionSucceeded)) {
             synchronized (selectionLock) {
-              try {
-                selectionLock.wait(); // Send this thread to sleep until dirtyLock is unlocked
+              while (!listener.isSelectionReleased()) {
+                try {
+                  selectionLock.wait();
+                }
+                catch (InterruptedException e1) {
+                  Thread.currentThread().interrupt();
+                  return;
+                }
               }
-              catch (InterruptedException e1) {
-              }
+              listener.clearSelectionReleased();
             }
 
             session.samplingStart = (int) Math.floor(listener.getSelectionStart());
@@ -848,27 +853,24 @@ public class GrammarvizChartPanel extends JPanel
           }
           if (selectionSucceeded) {
             LOGGER.info("Running the sampler...");
-            try {
+            try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
 
-              final ExecutorService executorService = Executors.newSingleThreadExecutor();
               final Future<String> bestParams = executorService.submit(paramsSampler);
-              // shut down so awaitTermination returns as soon as the task ends (success or
-              // exception) instead of blocking the full timeout; submitted task still runs
-              executorService.shutdown();
 
               setOperationalButton.setText("Stop!");
               setOperationalButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                   bestParams.cancel(true);
-                  executorService.shutdown();
+                  executorService.shutdownNow();
                 }
               });
               setOperationalButton.revalidate();
               setOperationalButton.repaint();
 
+              executorService.shutdown();
               if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {
-                executorService.shutdownNow(); // Cancel currently executing tasks
+                executorService.shutdownNow();
                 if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
                   System.err.println("Pool did not terminate... FATAL ERROR");
                 }

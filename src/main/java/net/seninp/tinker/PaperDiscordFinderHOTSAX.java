@@ -31,13 +31,12 @@ public class PaperDiscordFinderHOTSAX {
     double[] ts = TSProcessor.readFileColumn(IN_DATA, 0, 0);
     LOGGER.info("read " + ts.length + " points from " + IN_DATA);
 
-    BufferedWriter bw = new BufferedWriter(
-        new FileWriter(new File("RCode/TKDD/sine_5anomalies_hotsax_rwalk_04noise_discord_res_10.txt")));
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter(
+        new File("RCode/TKDD/sine_5anomalies_hotsax_rwalk_04noise_discord_res_10.txt")));
+        BufferedReader br = new BufferedReader(new FileReader(new File(IN_PARAMS)))) {
 
-    BufferedReader br = new BufferedReader(new FileReader(new File(IN_PARAMS)));
-
-    String line = null;
-    while ((line = br.readLine()) != null) {
+      String line = null;
+      while ((line = br.readLine()) != null) {
 
       String[] split = line.trim().split(",");
       Integer WIN = Integer.valueOf(split[2]);
@@ -106,12 +105,10 @@ public class PaperDiscordFinderHOTSAX {
 
       logStr.delete(logStr.length() - 1, logStr.length());
 
-      bw.write(logStr.toString() + CR);
+        bw.write(logStr.toString() + CR);
 
+      }
     }
-    br.close();
-
-    bw.close();
   }
 
 }

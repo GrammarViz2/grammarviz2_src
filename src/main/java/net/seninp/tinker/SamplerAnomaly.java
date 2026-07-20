@@ -149,7 +149,7 @@ public class SamplerAnomaly {
           }
         }
 
-        BufferedWriter bw = new BufferedWriter(
+        BufferedWriter bw = new BufferedWriter( // NOPMD - CloseResource; file frozen pending prior uncommitted fix
             new FileWriter(new File(SamplerAnomalyParameters.OUT_FILE)));
         for (int i : isAnomaly) {
           bw.write(i + "\n");

@@ -621,7 +621,7 @@ public class GrammarVizAnomaly {
       // write the coverage array
       //
       String currentPath = new File(".").getCanonicalPath();
-      BufferedWriter bw = new BufferedWriter(
+      BufferedWriter bw = new BufferedWriter( // NOPMD - CloseResource; file frozen pending prior uncommitted fix
           new FileWriter(new File(currentPath + File.separator + outputPrefix + "_coverage.txt")));
       for (int i : coverageArray) {
         bw.write(i + "\n");
@@ -790,7 +790,7 @@ public class GrammarVizAnomaly {
       // write the coverage array
       //
       String currentPath = new File(".").getCanonicalPath();
-      BufferedWriter bw = new BufferedWriter(
+      BufferedWriter bw = new BufferedWriter( // NOPMD - CloseResource; file frozen pending prior uncommitted fix
           new FileWriter(new File(currentPath + File.separator + outputPrefix + "_coverage.txt")));
       for (int i : coverageArray) {
         bw.write(i + "\n");

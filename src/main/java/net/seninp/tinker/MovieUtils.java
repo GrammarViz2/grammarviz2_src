@@ -41,10 +41,7 @@ public class MovieUtils {
 
     ArrayList<Double> data = new ArrayList<Double>();
 
-    try {
-
-      BufferedReader reader = Files.newBufferedReader(path, DEFAULT_CHARSET);
-
+    try (BufferedReader reader = Files.newBufferedReader(path, DEFAULT_CHARSET)) {
       String line = null;
       while ((line = reader.readLine()) != null) {
         String[] lineSplit = line.trim().split("\\s+");
@@ -54,13 +51,9 @@ public class MovieUtils {
         }
         lineCounter++;
       }
-      reader.close();
     }
     catch (Exception e) {
       System.err.println(StackTrace.toString(e));
-    }
-    finally {
-      assert true;
     }
 
     if (!(data.isEmpty())) {
@@ -76,10 +69,10 @@ public class MovieUtils {
   }
 
   public static void saveColumn(int[] density, String filename) throws IOException {
-    BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename)));
-    for (int n : density) {
-      bw.write(Integer.valueOf(n).toString() + "\n");
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename)))) {
+      for (int n : density) {
+        bw.write(Integer.valueOf(n).toString() + "\n");
+      }
     }
-    bw.close();
   }
 }

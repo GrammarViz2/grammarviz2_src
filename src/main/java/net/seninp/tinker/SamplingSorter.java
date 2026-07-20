@@ -43,61 +43,61 @@ public class SamplingSorter {
         // get the file reader set up
         //
         LOGGER.info("processing " + file.getName());
-        CsvListReader reader = new CsvListReader(new FileReader(file),
-            CsvPreference.STANDARD_PREFERENCE);
-        final String[] header = reader.getHeader(true);
-        LOGGER.info(" file header: " + Arrays.toString(header));
+        try (CsvListReader reader = new CsvListReader(new FileReader(file),
+            CsvPreference.STANDARD_PREFERENCE)) {
+          final String[] header = reader.getHeader(true);
+          LOGGER.info(" file header: " + Arrays.toString(header));
 
-        // setup data keepers
-        //
-        List<SamplerRecord> values = new ArrayList<SamplerRecord>();
+          // setup data keepers
+          //
+          List<SamplerRecord> values = new ArrayList<SamplerRecord>();
 
-        // setup the processor and read the data
-        //
-        List<String> record;
-        while ((record = reader.read()) != null) {
-          SamplerRecord value = new SamplerRecord(record);
-          values.add(value);
-        }
-        reader.close();
-
-        // filter the data
-        //
-        List<SamplerRecord> cleanValues = cleanValuesByCoverage(values, 1.00);
-
-        // sort the data
-        //
-        Collections.sort(cleanValues, new Comparator<SamplerRecord>() {
-          @Override
-          public int compare(SamplerRecord o1, SamplerRecord o2) {
-            return Double.valueOf(o1.reduction).compareTo(Double.valueOf(o2.reduction));
+          // setup the processor and read the data
+          //
+          List<String> record;
+          while ((record = reader.read()) != null) {
+            SamplerRecord value = new SamplerRecord(record);
+            values.add(value);
           }
-        });
 
-        SamplerRecord bestParams = cleanValues.get(0);
-        LOGGER.info(bestParams.toString());
+          // filter the data
+          //
+          List<SamplerRecord> cleanValues = cleanValuesByCoverage(values, 1.00);
 
-        StringBuffer sb = new StringBuffer();
-        sb.append("java -cp \"grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar\"");
-        sb.append(" net.seninp.tinker.SamplerAnomaly");
-        sb.append(" -d ").append(prefix).append(file.getName().replaceAll(".out", ""));
-        sb.append(" -o ").append(prefix).append(file.getName().replaceAll(".out", ""))
-            .append(".anomaly");
-        sb.append(" -w ").append(bestParams.window);
-        if (bestParams.paa < 4) {
-          sb.append(" -p ").append(bestParams.paa * 2);
+          // sort the data
+          //
+          Collections.sort(cleanValues, new Comparator<SamplerRecord>() {
+            @Override
+            public int compare(SamplerRecord o1, SamplerRecord o2) {
+              return Double.valueOf(o1.reduction).compareTo(Double.valueOf(o2.reduction));
+            }
+          });
+
+          SamplerRecord bestParams = cleanValues.get(0);
+          LOGGER.info(bestParams.toString());
+
+          StringBuffer sb = new StringBuffer();
+          sb.append("java -cp \"grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar\"");
+          sb.append(" net.seninp.tinker.SamplerAnomaly");
+          sb.append(" -d ").append(prefix).append(file.getName().replaceAll(".out", ""));
+          sb.append(" -o ").append(prefix).append(file.getName().replaceAll(".out", ""))
+              .append(".anomaly");
+          sb.append(" -w ").append(bestParams.window);
+          if (bestParams.paa < 4) {
+            sb.append(" -p ").append(bestParams.paa * 2);
+          }
+          else {
+            sb.append(" -p ").append(bestParams.paa);
+          }
+          if (bestParams.paa < 4) {
+            sb.append(" -a ").append(bestParams.alphabet * 2);
+          }
+          else {
+            sb.append(" -a ").append(bestParams.alphabet);
+          }
+          sb.append(" -n 5");
+          System.out.println(sb.toString());
         }
-        else {
-          sb.append(" -p ").append(bestParams.paa);
-        }
-        if (bestParams.paa < 4) {
-          sb.append(" -a ").append(bestParams.alphabet * 2);
-        }
-        else {
-          sb.append(" -a ").append(bestParams.alphabet);
-        }
-        sb.append(" -n 5");
-        System.out.println(sb.toString());
 
         // // print the top
         // //

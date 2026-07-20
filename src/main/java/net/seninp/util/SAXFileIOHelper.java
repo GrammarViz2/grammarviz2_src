@@ -121,14 +121,14 @@ public class SAXFileIOHelper {
         }
       }
 
-      BufferedWriter output = new BufferedWriter(new FileWriter(file));
-      output.write(s.toString());
-      output.close();
+      try (BufferedWriter output = new BufferedWriter(new FileWriter(file))) {
+        output.write(s.toString());
+      }
       System.out.println("\nWritten to file: " + file.getAbsolutePath());
 
-      BufferedWriter outputPosition = new BufferedWriter(new FileWriter(filePosition));
-      outputPosition.write(relatedPositionS.toString());
-      outputPosition.close();
+      try (BufferedWriter outputPosition = new BufferedWriter(new FileWriter(filePosition))) {
+        outputPosition.write(relatedPositionS.toString());
+      }
       System.out.println("\nWritten to file: " + filePosition.getAbsolutePath());
     }
     catch (Exception e) {
@@ -147,7 +147,6 @@ public class SAXFileIOHelper {
   public static void writeFile(String path, String fileName, String content) {
 
     String s = new String();
-    String s1 = new String();
 
     String fullPath = path + File.separator + fileName;
     String dirPath = path;
@@ -164,19 +163,20 @@ public class SAXFileIOHelper {
       }
 
       int count = 0;
-      BufferedReader input = new BufferedReader(new FileReader(file));
-      while ((s = input.readLine()) != null) {
-        s1 += s + "\n";
-        count++;
+      String s1 = "";
+      try (BufferedReader input = new BufferedReader(new FileReader(file))) {
+        while ((s = input.readLine()) != null) {
+          s1 += s + "\n";
+          count++;
+        }
       }
 
-      input.close();
       if (count <= 32) {
         s1 += content;
       }
-      BufferedWriter output = new BufferedWriter(new FileWriter(file));
-      output.write(s1);
-      output.close();
+      try (BufferedWriter output = new BufferedWriter(new FileWriter(file))) {
+        output.write(s1);
+      }
       System.out.println("\nWritten to file: " + file.getAbsolutePath());
     }
     catch (Exception e) {

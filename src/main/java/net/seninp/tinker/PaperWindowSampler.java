@@ -28,11 +28,12 @@ public class PaperWindowSampler {
 
   public static void main(String[] args) throws Exception {
 
-    BufferedWriter bw = new BufferedWriter(new FileWriter(new File("RCode/TKDD/sine_and_5anomalies_out.txt")));
+    try (BufferedWriter bw = new BufferedWriter(
+        new FileWriter(new File("RCode/TKDD/sine_and_5anomalies_out.txt")))) {
 
-    // HashMap<String, SampledPoint> res_global = new HashMap<String, SampledPoint>();
+      // HashMap<String, SampledPoint> res_global = new HashMap<String, SampledPoint>();
 
-    double[] ts = TSProcessor.readFileColumn(IN_DATA, 0, 0);
+      double[] ts = TSProcessor.readFileColumn(IN_DATA, 0, 0);
     LOGGER.info("read " + ts.length + " points from " + IN_DATA);
 
     for (int upperLimit = 10; upperLimit <= (SAMPLE_END
@@ -74,11 +75,10 @@ public class PaperWindowSampler {
       String str = SAMPLE_START + "," + (SAMPLE_START + upperLimit) + ","
           + best_point.toLogString();
       
-      System.out.println("*** " + str);
-      bw.write(str + "\n");
+        System.out.println("*** " + str);
+        bw.write(str + "\n");
+      }
     }
-
-    bw.close();
   }
 
 }

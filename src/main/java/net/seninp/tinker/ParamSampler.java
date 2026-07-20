@@ -43,81 +43,81 @@ public class ParamSampler {
         // get the file reader set up
         //
         LOGGER.info("processing " + file.getName());
-        CsvListReader reader = new CsvListReader(new FileReader(file),
-            CsvPreference.STANDARD_PREFERENCE);
-        final String[] header = reader.getHeader(true);
-        LOGGER.info(" file header: " + Arrays.toString(header));
+        try (CsvListReader reader = new CsvListReader(new FileReader(file),
+            CsvPreference.STANDARD_PREFERENCE)) {
+          final String[] header = reader.getHeader(true);
+          LOGGER.info(" file header: " + Arrays.toString(header));
 
-        // findout needed fields indexes
-        //
-        int valueIdx = -1;
-        int anomalyFlagIdx = -1;
-        for (int i = 0; i < header.length; i++) {
-          String str = header[i];
-          if (str.equalsIgnoreCase("value")) {
-            valueIdx = i;
+          // findout needed fields indexes
+          //
+          int valueIdx = -1;
+          int anomalyFlagIdx = -1;
+          for (int i = 0; i < header.length; i++) {
+            String str = header[i];
+            if (str.equalsIgnoreCase("value")) {
+              valueIdx = i;
+            }
+            else if (str.equalsIgnoreCase("anomaly")) {
+              anomalyFlagIdx = i;
+            }
           }
-          else if (str.equalsIgnoreCase("anomaly")) {
-            anomalyFlagIdx = i;
+
+          // setup data keepers
+          //
+          List<Double> values = new ArrayList<Double>();
+          List<Byte> anomalyFlags = new ArrayList<Byte>();
+
+          // setup the processor
+          //
+          List<String> record;
+          while ((record = reader.read()) != null) {
+
+            Double value = Double.valueOf(record.get(valueIdx)).doubleValue();
+            values.add(value);
+
+            Byte isAnomaly = Byte.valueOf(record.get(anomalyFlagIdx));
+            anomalyFlags.add(isAnomaly);
+
           }
+
+          // write the data file
+          //
+          String samplerInputFilename = file.getName().concat(".column");
+          try (BufferedWriter bw = new BufferedWriter(
+              new FileWriter(new File(prefix + samplerInputFilename)))) {
+            for (Double v : values) {
+              bw.write(v + "\n");
+            }
+          }
+
+          // set boundaries string
+          //
+          StringBuffer samplingBoundaries = new StringBuffer("10 ");
+          if (values.size() < 3000) {
+            samplingBoundaries.append(Integer.valueOf(values.size() / 10).toString());
+          }
+          else {
+            samplingBoundaries.append("300 ");
+          }
+          samplingBoundaries.append(" 10 2 20 1 2 10 1");
+
+          // makeup the sampler command
+          //
+          StringBuffer samplerCommand = new StringBuffer(
+              "java -Xmx4G -cp \"jmotif-gi-0.3.1-SNAPSHOT-jar-with-dependencies.jar\"");
+          samplerCommand.append(" net.seninp.gi.rulepruner.RulePrunerPrinter ");
+
+          samplerCommand.append(" -d ");
+          samplerCommand.append(samplerInputFilename);
+
+          samplerCommand.append(" -b \"");
+          samplerCommand.append(samplingBoundaries.toString()).append("\"");
+
+          samplerCommand.append(" -o ");
+          samplerCommand.append(samplerInputFilename).append(".out");
+
+          samplerBatch.add(samplerCommand.toString());
         }
-
-        // setup data keepers
-        //
-        List<Double> values = new ArrayList<Double>();
-        List<Byte> anomalyFlags = new ArrayList<Byte>();
-
-        // setup the processor
-        //
-        List<String> record;
-        while ((record = reader.read()) != null) {
-
-          Double value = Double.valueOf(record.get(valueIdx)).doubleValue();
-          values.add(value);
-
-          Byte isAnomaly = Byte.valueOf(record.get(anomalyFlagIdx));
-          anomalyFlags.add(isAnomaly);
-
-        }
-        reader.close();
-
-        // write the data file
-        //
-        String samplerInputFilename = file.getName().concat(".column");
-        BufferedWriter bw = new BufferedWriter(
-            new FileWriter(new File(prefix + samplerInputFilename)));
-        for (Double v : values) {
-          bw.write(v + "\n");
-        }
-        bw.close();
-
-        // set boundaries string
-        //
-        StringBuffer samplingBoundaries = new StringBuffer("10 ");
-        if (values.size() < 3000) {
-          samplingBoundaries.append(Integer.valueOf(values.size() / 10).toString());
-        }
-        else {
-          samplingBoundaries.append("300 ");
-        }
-        samplingBoundaries.append(" 10 2 20 1 2 10 1");
-
-        // makeup the sampler command
-        //
-        StringBuffer samplerCommand = new StringBuffer(
-            "java -Xmx4G -cp \"jmotif-gi-0.3.1-SNAPSHOT-jar-with-dependencies.jar\"");
-        samplerCommand.append(" net.seninp.gi.rulepruner.RulePrunerPrinter ");
-
-        samplerCommand.append(" -d ");
-        samplerCommand.append(samplerInputFilename);
-
-        samplerCommand.append(" -b \"");
-        samplerCommand.append(samplingBoundaries.toString()).append("\"");
-
-        samplerCommand.append(" -o ");
-        samplerCommand.append(samplerInputFilename).append(".out");
-
-        samplerBatch.add(samplerCommand.toString());
 
       }
     }

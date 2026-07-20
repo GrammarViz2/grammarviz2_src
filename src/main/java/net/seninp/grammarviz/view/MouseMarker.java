@@ -32,6 +32,8 @@ public class MouseMarker extends MouseAdapter {
 
   private Object selectionLock;
 
+  private volatile boolean selectionReleased;
+
   public MouseMarker(ChartPanel panel) {
     this.panel = panel;
     this.chart = panel.getChart();
@@ -79,9 +81,24 @@ public class MouseMarker extends MouseAdapter {
     isMarking.set(false);
     markerEnd = getPosition(e);
     updateMarker();
+    selectionReleased = true;
     synchronized (selectionLock) {
       selectionLock.notifyAll();
     }
+  }
+
+  /**
+   * @return true after the user completes a mouse release that notifies the sampler thread.
+   */
+  public boolean isSelectionReleased() {
+    return selectionReleased;
+  }
+
+  /**
+   * Clears the release flag so the sampler thread waits for the next mouse release.
+   */
+  public void clearSelectionReleased() {
+    selectionReleased = false;
   }
 
   @Override

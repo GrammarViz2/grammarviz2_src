@@ -569,9 +569,13 @@ public class GrammarVizAnomaly {
         continue;
       }
       for (RuleInterval ri : rule.getRuleIntervals()) {
-        ri.setCoverage(rule.getRuleIntervals().size());
-        ri.setId(rule.ruleNumber());
-        intervals.add(ri);
+        // clone before mutating: these RuleInterval objects are owned by the
+        // grammar; setting coverage/id in place corrupts the shared grammar
+        // state for any later recomputation in the same JVM session.
+        RuleInterval clone = (RuleInterval) ri.clone();
+        clone.setCoverage(rule.getRuleIntervals().size());
+        clone.setId(rule.ruleNumber());
+        intervals.add(clone);
       }
     }
 
@@ -657,7 +661,7 @@ public class GrammarVizAnomaly {
 
         // this effectively finds the furthest hit
         //
-        for (int j = 0; j < ts.length - window - 1; j++) {
+        for (int j = 0; j <= ts.length - window; j++) {
           if (Math.abs(ruleStart - j) > window) {
             double[] currentSubsequence = tp.subseriesByCopy(ts, j, j + window);
             double dist = ed.distance(cw, currentSubsequence);
@@ -826,7 +830,7 @@ public class GrammarVizAnomaly {
 
         // this effectively finds the furthest hit
         //
-        for (int j = 0; j < ts.length - window - 1; j++) {
+        for (int j = 0; j <= ts.length - window; j++) {
           if (Math.abs(ruleStart - j) > window) {
             double[] currentSubsequence = tp.subseriesByCopy(ts, j, j + window);
             double dist = ed.distance(cw, currentSubsequence);
@@ -947,11 +951,25 @@ public class GrammarVizAnomaly {
    * @param str
    * @return
    */
-  private static int[] toBoundaries(String str) {
+  static int[] toBoundaries(String str) {
+    if (str == null) {
+      throw new IllegalArgumentException(
+          "the grid boundaries must be 9 whitespace-separated integers, got null");
+    }
+    String[] split = str.trim().split("\\s+");
+    if (split.length != 9) {
+      throw new IllegalArgumentException(
+          "the grid boundaries must contain exactly 9 whitespace-separated integers, got "
+              + split.length + ": \"" + str + "\"");
+    }
     int[] res = new int[9];
-    String[] split = str.split("\\s+");
     for (int i = 0; i < 9; i++) {
-      res[i] = Integer.valueOf(split[i]);
+      try {
+        res[i] = Integer.parseInt(split[i]);
+      } catch (NumberFormatException e) {
+        throw new IllegalArgumentException(
+            "grid boundary #" + (i + 1) + " is not an integer: \"" + split[i] + "\"", e);
+      }
     }
     return res;
   }

@@ -343,6 +343,13 @@ public class GrammarvizChartPanel extends JPanel
 
     // since we know the maximal coverage value, we can compute the increment for a single coverage
     // interval
+
+    // guard against a degenerate/empty coverage array: if no rule contributed,
+    // maxObservedCoverage stays Integer.MIN_VALUE and 1.0 / max would yield a
+    // bogus (near-zero, negative) alpha -- nothing meaningful to render.
+    if (maxObservedCoverage <= 0) {
+      return;
+    }
     double covIncrement = 1.0 / (double) maxObservedCoverage;
 
     for (GrammarRuleRecord r : this.session.chartData.getGrammarRules()) {

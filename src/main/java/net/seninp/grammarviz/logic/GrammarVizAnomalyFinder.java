@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Observable;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
+import net.seninp.grammarviz.model.GrammarVizListener;
 import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.model.GrammarVizMessageBoard;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
@@ -19,18 +20,37 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implements a runnable for the proposed in EDBT15 anomaly discovery technique.
- * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
  * 
  * @author psenin
  * 
  */
-@SuppressWarnings("deprecation")
-public class GrammarVizAnomalyFinder extends Observable implements Runnable {
+public class GrammarVizAnomalyFinder implements Runnable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizAnomalyFinder.class);
 
   /** The chart data handler. */
   private GrammarVizChartData chartData;
+
+  /** Broadcasts progress messages to listeners (replaces the deprecated Observable). */
+  private final GrammarVizMessageBoard messageBoard = new GrammarVizMessageBoard();
+
+  /**
+   * Registers a listener for progress messages.
+   *
+   * @param listener the listener to add.
+   */
+  public void addListener(GrammarVizListener listener) {
+    this.messageBoard.addListener(listener);
+  }
+
+  /**
+   * Unregisters a progress message listener.
+   *
+   * @param listener the listener to remove.
+   */
+  public void removeListener(GrammarVizListener listener) {
+    this.messageBoard.removeListener(listener);
+  }
 
   /**
    * Constructor.
@@ -179,9 +199,8 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
   }
 
   private void log(String message) {
-    this.setChanged();
-    notifyObservers(
-        new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "Grammarviz3: " + message));
+    this.messageBoard
+        .fire(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "Grammarviz3: " + message));
   }
 
   /**

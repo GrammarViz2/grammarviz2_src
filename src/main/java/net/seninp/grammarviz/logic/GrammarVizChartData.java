@@ -3,8 +3,6 @@ package net.seninp.grammarviz.logic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Random;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -16,7 +14,9 @@ import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.gi.rulepruner.RulePrunerFactory;
+import net.seninp.grammarviz.model.GrammarVizListener;
 import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.model.GrammarVizMessageBoard;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 
@@ -24,13 +24,13 @@ import net.seninp.jmotif.sax.discord.DiscordRecords;
  * The main data structure used in SAXSequitur. It contains all the information needed for charting
  * and tables.
  * 
- * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
- * 
  * @author Manfred Lerner, seninp
  * 
  */
-@SuppressWarnings("deprecation")
-public class GrammarVizChartData extends Observable implements Observer {
+public class GrammarVizChartData implements GrammarVizListener {
+
+  /** Broadcasts chart-data messages to listeners (replaces the deprecated Observable). */
+  private final GrammarVizMessageBoard messageBoard = new GrammarVizMessageBoard();
 
   /** SAX conversion parameters. */
   protected final boolean slidingWindowOn;
@@ -284,8 +284,26 @@ public class GrammarVizChartData extends Observable implements Observer {
    */
   public void findAnomalies() throws Exception {
     GrammarVizAnomalyFinder finder = new GrammarVizAnomalyFinder(this);
-    finder.addObserver(this);
+    finder.addListener(this);
     finder.run();
+  }
+
+  /**
+   * Registers a listener for chart-data messages.
+   *
+   * @param listener the listener to add.
+   */
+  public void addListener(GrammarVizListener listener) {
+    this.messageBoard.addListener(listener);
+  }
+
+  /**
+   * Unregisters a chart-data message listener.
+   *
+   * @param listener the listener to remove.
+   */
+  public void removeListener(GrammarVizListener listener) {
+    this.messageBoard.removeListener(listener);
   }
 
   /**
@@ -887,11 +905,9 @@ public class GrammarVizChartData extends Observable implements Observer {
   }
 
   @Override
-  public void update(Observable o, Object arg) {
-    if (arg instanceof GrammarVizMessage) {
-      this.setChanged();
-      notifyObservers(arg);
-    }
+  public void grammarVizMessageReceived(GrammarVizMessage message) {
+    // re-broadcast the anomaly finder's progress messages to our own listeners (the view)
+    this.messageBoard.fire(message);
   }
 
   @SuppressWarnings("unused")

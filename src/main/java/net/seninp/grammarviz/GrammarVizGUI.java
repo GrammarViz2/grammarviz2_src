@@ -22,13 +22,11 @@ public class GrammarVizGUI {
   /** The view instance. */
   private static GrammarVizView view;
 
-  /**
-   * Runnable GIU.
-   * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
-   * 
-   * @param args None used.
-   */
-  @SuppressWarnings("deprecation")
+/**
+ * Runnable GIU.
+ * 
+ * @param args None used.
+ */
   public static void main(String[] args) {
 
     System.out.println("Starting GrammarViz 3.0 ...");
@@ -56,8 +54,8 @@ public class GrammarVizGUI {
     view = new GrammarVizView(controller);
 
     // make sure these two met...
-    model.addObserver(view);
-    controller.addObserver(view);
+    model.addListener(view);
+    controller.addListener(view);
 
     // live!!!
     view.showGUI();

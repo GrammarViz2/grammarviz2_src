@@ -4,29 +4,49 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Observable;
 import javax.swing.JFileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import net.seninp.grammarviz.model.GrammarVizListener;
 import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.model.GrammarVizMessageBoard;
 import net.seninp.grammarviz.model.GrammarVizModel;
 import net.seninp.grammarviz.session.UserSession;
 
 /**
  * Implements the Controler component for GrammarViz2 GUI MVC.
- * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
  * 
  * @author psenin
  * 
  */
-@SuppressWarnings("deprecation")
-public class GrammarVizController extends Observable implements ActionListener {
+public class GrammarVizController implements ActionListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizController.class);
 
   private GrammarVizModel model;
 
   private UserSession session;
+
+  /** Broadcasts controller messages to listeners (replaces the deprecated Observable). */
+  private final GrammarVizMessageBoard messageBoard = new GrammarVizMessageBoard();
+
+  /**
+   * Registers a listener for controller messages.
+   *
+   * @param listener the listener to add.
+   */
+  public void addListener(GrammarVizListener listener) {
+    this.messageBoard.addListener(listener);
+  }
+
+  /**
+   * Unregisters a controller message listener.
+   *
+   * @param listener the listener to remove.
+   */
+  public void removeListener(GrammarVizListener listener) {
+    this.messageBoard.removeListener(listener);
+  }
 
   /**
    * Constructor.
@@ -127,8 +147,7 @@ public class GrammarVizController extends Observable implements ActionListener {
 
   @Override
   public void actionPerformed(ActionEvent e) {
-    this.setChanged();
-    notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE,
+    this.messageBoard.fire(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE,
         "controller: Unknown action performed " + e.getActionCommand()));
   }
 
@@ -147,8 +166,7 @@ public class GrammarVizController extends Observable implements ActionListener {
    * @param message the message to log.
    */
   private void log(String message) {
-    this.setChanged();
-    notifyObservers(
-        new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "controller: " + message));
+    this.messageBoard
+        .fire(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "controller: " + message));
   }
 }

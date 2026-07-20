@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.gi.GIAlgorithm;
@@ -35,13 +34,14 @@ import net.seninp.util.StackTrace;
 
 /**
  * Implements the Sequitur Model component of MVC GUI pattern.
- * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
  * 
  * @author psenin
  * 
  */
-@SuppressWarnings("deprecation")
-public class GrammarVizModel extends Observable {
+public class GrammarVizModel {
+
+  /** Broadcasts model messages to registered listeners (replaces the deprecated Observable). */
+  private final GrammarVizMessageBoard messageBoard = new GrammarVizMessageBoard();
 
   final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
   private static final String SPACE = " ";
@@ -59,6 +59,24 @@ public class GrammarVizModel extends Observable {
   // static block - we instantiate the logger
   //
   private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizModel.class);
+
+  /**
+   * Registers a listener for model messages.
+   *
+   * @param listener the listener to add.
+   */
+  public void addListener(GrammarVizListener listener) {
+    this.messageBoard.addListener(listener);
+  }
+
+  /**
+   * Unregisters a model message listener.
+   *
+   * @param listener the listener to remove.
+   */
+  public void removeListener(GrammarVizListener listener) {
+    this.messageBoard.removeListener(listener);
+  }
 
   /**
    * The file name getter.
@@ -82,8 +100,7 @@ public class GrammarVizModel extends Observable {
     this.dataFileName = filename;
 
     // notify the View
-    this.setChanged();
-    notifyObservers(new GrammarVizMessage(GrammarVizMessage.DATA_FNAME, this.getDataFileName()));
+    this.messageBoard.fire(new GrammarVizMessage(GrammarVizMessage.DATA_FNAME, this.getDataFileName()));
 
     // this notification tells GUI which file was selected as the data source
     this.log("set " + filename + " as the data source");
@@ -162,8 +179,7 @@ public class GrammarVizModel extends Observable {
     this.log("loaded " + this.ts.length + " points from " + this.dataFileName);
 
     // and send the timeseries
-    setChanged();
-    notifyObservers(new GrammarVizMessage(GrammarVizMessage.TIME_SERIES_MESSAGE, this.ts));
+    this.messageBoard.fire(new GrammarVizMessage(GrammarVizMessage.TIME_SERIES_MESSAGE, this.ts));
 
   }
 
@@ -268,8 +284,7 @@ public class GrammarVizModel extends Observable {
       this.log("processed data, broadcasting charts");
       LOGGER.info("process finished");
 
-      setChanged();
-      notifyObservers(new GrammarVizMessage(GrammarVizMessage.CHART_MESSAGE, this.chartData));
+      this.messageBoard.fire(new GrammarVizMessage(GrammarVizMessage.CHART_MESSAGE, this.chartData));
     }
   }
 
@@ -279,8 +294,8 @@ public class GrammarVizModel extends Observable {
    * @param message the message to log.
    */
   private void log(String message) {
-    this.setChanged();
-    notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "model: " + message));
+    this.messageBoard
+        .fire(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "model: " + message));
   }
 
   /**

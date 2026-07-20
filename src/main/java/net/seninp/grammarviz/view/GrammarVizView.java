@@ -6,8 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -38,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import net.miginfocom.swing.MigLayout;
 import net.seninp.grammarviz.controller.GrammarVizController;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
+import net.seninp.grammarviz.model.GrammarVizListener;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.grammarviz.session.UserSession;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
@@ -45,13 +44,11 @@ import net.seninp.util.StackTrace;
 
 /**
  * View component of the GrammarViz MVC GUI.
- * TODO: https://stackoverflow.com/questions/46380073/observer-is-deprecated-in-java-9-what-should-we-use-instead-of-it
  * 
  * @author psenin
  * 
  */
-@SuppressWarnings("deprecation")
-public class GrammarVizView implements Observer, ActionListener {
+public class GrammarVizView implements GrammarVizListener, ActionListener {
 
   // the main window title
   private static final String APPLICATION_MOTTO = "GrammarViz 3.0: visualizing time series grammars";
@@ -706,96 +703,112 @@ public class GrammarVizView implements Observer, ActionListener {
   }
 
   @Override
-  public void update(Observable o, Object arg) {
-    
-    if (arg instanceof GrammarVizMessage) {
-
-      final GrammarVizMessage message = (GrammarVizMessage) arg;
-
-      // new log message
-      //
-      if (GrammarVizMessage.STATUS_MESSAGE.equalsIgnoreCase(message.getType())) {
-        log(Level.ALL, (String) message.getPayload());
+  public void grammarVizMessageReceived(final GrammarVizMessage message) {
+    // funnel every UI update onto the event-dispatch thread; this runs inline when we are already
+    // on it (the usual button-driven model/controller path) and marshals otherwise.
+    runOnEventThread(new Runnable() {
+      @Override
+      public void run() {
+        handleMessage(message);
       }
+    });
+  }
 
-      // new FileName
-      //
-      else if (GrammarVizMessage.DATA_FNAME.equalsIgnoreCase(message.getType())) {
+  /**
+   * Handles a single MVC message. Always invoked on the Swing event-dispatch thread.
+   * 
+   * @param message the message to handle.
+   */
+  private void handleMessage(GrammarVizMessage message) {
 
-        Runnable doSetPath = new Runnable() {
-          @Override
-          public void run() {
-            dataFilePathField.setText((String) message.getPayload());
-            dataFilePathField.repaint();
-            disableAllButtons();
-            selectFileButton.setEnabled(true);
-            dataLoadButton.setEnabled(true);
-          }
-        };
-        SwingUtilities.invokeLater(doSetPath);
-
-      }
-
-      else if (GrammarVizMessage.TIME_SERIES_MESSAGE.equalsIgnoreCase(message.getType())) {
-
-        // setting the chart first
-        //
-        dataChartPane.showTimeSeries((double[]) message.getPayload());
-
-        Runnable clearPanels = new Runnable() {
-          @Override
-          public void run() {
-            grammarRulesPane.clearPanel();
-            ruleChartPane.clear();
-            rulesPeriodicityPane.clear();
-            anomaliesPane.clear();
-            frame.repaint();
-            disableAllButtons();
-            selectFileButton.setEnabled(true);
-            dataLoadButton.setEnabled(true);
-            guessParametersButton.setEnabled(true);
-            discretizeButton.setEnabled(true);
-          }
-        };
-        SwingUtilities.invokeLater(clearPanels);
-
-        this.isTimeSeriesLoaded = true;
-        this.controller.getSession().chartData = null;
-      }
-
-      // chart object
-      //
-      else if (GrammarVizMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
-
-        this.controller.getSession().chartData = (GrammarVizChartData) message.getPayload();
-
-        // setting the chart first
-        //
-        dataChartPane.setSession(this.controller.getSession());
-
-        // and the rules pane second
-        //
-        grammarRulesPane.setChartData(this.controller.getSession());
-
-        // and the "snapshots panel"
-        //
-        ruleChartPane.setChartData(this.controller.getSession());
-
-        // and the rules periodicity panel
-        //
-        rulesPeriodicityPane.setChartData(this.controller.getSession());
-
-        // and the anomalies panel
-        //
-        anomaliesPane.setChartData(this.controller.getSession());
-
-        enableAllButtons();
-        // dataChartPane.getChart().setNotify(true);
-        frame.revalidate();
-        frame.repaint();
-      }
+    if (message == null) {
+      return;
     }
 
+    // new log message
+    //
+    if (GrammarVizMessage.STATUS_MESSAGE.equalsIgnoreCase(message.getType())) {
+      log(Level.ALL, (String) message.getPayload());
+    }
+
+    // new FileName
+    //
+    else if (GrammarVizMessage.DATA_FNAME.equalsIgnoreCase(message.getType())) {
+      dataFilePathField.setText((String) message.getPayload());
+      dataFilePathField.repaint();
+      disableAllButtons();
+      selectFileButton.setEnabled(true);
+      dataLoadButton.setEnabled(true);
+    }
+
+    else if (GrammarVizMessage.TIME_SERIES_MESSAGE.equalsIgnoreCase(message.getType())) {
+
+      // setting the chart first
+      //
+      dataChartPane.showTimeSeries((double[]) message.getPayload());
+
+      grammarRulesPane.clearPanel();
+      ruleChartPane.clear();
+      rulesPeriodicityPane.clear();
+      anomaliesPane.clear();
+      frame.repaint();
+      disableAllButtons();
+      selectFileButton.setEnabled(true);
+      dataLoadButton.setEnabled(true);
+      guessParametersButton.setEnabled(true);
+      discretizeButton.setEnabled(true);
+
+      this.isTimeSeriesLoaded = true;
+      this.controller.getSession().chartData = null;
+    }
+
+    // chart object
+    //
+    else if (GrammarVizMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
+
+      this.controller.getSession().chartData = (GrammarVizChartData) message.getPayload();
+
+      // setting the chart first
+      //
+      dataChartPane.setSession(this.controller.getSession());
+
+      // and the rules pane second
+      //
+      grammarRulesPane.setChartData(this.controller.getSession());
+
+      // and the "snapshots panel"
+      //
+      ruleChartPane.setChartData(this.controller.getSession());
+
+      // and the rules periodicity panel
+      //
+      rulesPeriodicityPane.setChartData(this.controller.getSession());
+
+      // and the anomalies panel
+      //
+      anomaliesPane.setChartData(this.controller.getSession());
+
+      enableAllButtons();
+      // dataChartPane.getChart().setNotify(true);
+      frame.revalidate();
+      frame.repaint();
+    }
+
+  }
+
+  /**
+   * Runs the given task on the Swing event-dispatch thread: immediately if the caller is already on
+   * it, otherwise via {@link SwingUtilities#invokeLater(Runnable)}.
+   * 
+   * @param task the task to run.
+   */
+  private static void runOnEventThread(Runnable task) {
+    if (SwingUtilities.isEventDispatchThread()) {
+      task.run();
+    }
+    else {
+      SwingUtilities.invokeLater(task);
+    }
   }
 
   @Override
@@ -907,13 +920,13 @@ public class GrammarVizView implements Observer, ActionListener {
         log(Level.INFO, "going to run anomalies search, this takes time, please wait... ");
 
         try {
-          this.controller.getSession().chartData.addObserver(this);
+          this.controller.getSession().chartData.addListener(this);
 
           this.controller.getSession().chartData.findAnomalies();
           this.anomaliesPane.updateAnomalies();
           this.anomaliesPane.resetPanel();
 
-          this.controller.getSession().chartData.deleteObserver(this);
+          this.controller.getSession().chartData.removeListener(this);
         }
         catch (Exception e) {
           String errorTrace = StackTrace.toString(e);

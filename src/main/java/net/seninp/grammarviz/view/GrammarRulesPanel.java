@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.Dimension;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -125,6 +126,13 @@ public class GrammarRulesPanel extends JPanel
     DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
     rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
     this.sequiturTable.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
+
+    // plain JTable defaults to a 450x400 preferred viewport; cap the height to
+    // ~18 rows (as SwingX's JXTable did) so this panel doesn't over-claim
+    // vertical space from the chart above and the workflow bar below.
+    this.sequiturTable.setPreferredScrollableViewportSize(
+        new Dimension(this.sequiturTable.getPreferredScrollableViewportSize().width,
+            18 * this.sequiturTable.getRowHeight()));
 
     this.sequiturRulesPane = new JScrollPane(sequiturTable);
   }

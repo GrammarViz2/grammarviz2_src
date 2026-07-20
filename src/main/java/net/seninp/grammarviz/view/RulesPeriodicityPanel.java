@@ -2,6 +2,7 @@ package net.seninp.grammarviz.view;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.Dimension;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -86,6 +87,13 @@ public class RulesPeriodicityPanel extends JPanel implements ListSelectionListen
     periodicityTable.setRowSorter(sorter);
     // sorter.setComparator(PackedTableColumns.CLASS_NUMBER.ordinal(),
     // expandedRuleComparator);
+
+    // plain JTable defaults to a 450x400 preferred viewport; cap the height to
+    // ~18 rows (as SwingX's JXTable did) so this panel doesn't over-claim
+    // vertical space from the chart above and the workflow bar below.
+    this.periodicityTable.setPreferredScrollableViewportSize(
+        new Dimension(this.periodicityTable.getPreferredScrollableViewportSize().width,
+            18 * this.periodicityTable.getRowHeight()));
 
     this.periodicityRulesPane = new JScrollPane(periodicityTable);
   }

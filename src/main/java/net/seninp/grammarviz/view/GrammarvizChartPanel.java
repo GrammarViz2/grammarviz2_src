@@ -505,19 +505,21 @@ public class GrammarvizChartPanel extends JPanel
   }
 
   private void saveRuleDensityCurve(int[] coverageArray) {
-    // write down the coverage array
-    //
-    try {
-      String filename = session.ruleDensityOutputFileName;
+    final int[] snapshot = Arrays.copyOf(coverageArray, coverageArray.length);
+    final String filename = session.ruleDensityOutputFileName;
+    Thread writer = new Thread(() -> {
       try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filename)))) {
-        for (int c : coverageArray) {
+        for (int c : snapshot) {
           bw.write(String.valueOf(c) + "\n");
         }
+        LOGGER.info("rule coverage file written: " + filename);
       }
-    }
-    catch (IOException e) {
-      LOGGER.error("error while writing the rule coverage file", e);
-    }
+      catch (IOException e) {
+        LOGGER.error("error while writing the rule coverage file", e);
+      }
+    }, "rule-density-writer");
+    writer.setDaemon(true);
+    writer.start();
   }
 
   private void displayRulesLengthHistogram() {
@@ -540,6 +542,19 @@ public class GrammarvizChartPanel extends JPanel
       for (RuleInterval interval : r.getRuleIntervals()) {
         allRules.add(interval.getLength());
       }
+    }
+
+    if (allRules.isEmpty()) {
+      TitledBorder tb = (TitledBorder) this.getBorder();
+      tb.setTitle(LABEL_DEFAULT);
+      revalidate();
+      repaint();
+      LOGGER.info("no rules to histogram (empty or R0-only grammar)");
+      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this,
+          "No rules to histogram.\n"
+              + "The current grammar has no rules beyond R0 -- try different SAX parameters.",
+          "Nothing to show", JOptionPane.INFORMATION_MESSAGE));
+      return;
     }
 
     // [2.0] make data

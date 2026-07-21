@@ -759,11 +759,13 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
       rulesPeriodicityPane.clear();
       anomaliesPane.clear();
       frame.repaint();
-      disableAllButtons();
-      selectFileButton.setEnabled(true);
-      dataLoadButton.setEnabled(true);
-      guessParametersButton.setEnabled(true);
-      discretizeButton.setEnabled(true);
+      if (!workflowBusy.get()) {
+        disableAllButtons();
+        selectFileButton.setEnabled(true);
+        dataLoadButton.setEnabled(true);
+        guessParametersButton.setEnabled(true);
+        discretizeButton.setEnabled(true);
+      }
 
       this.isTimeSeriesLoaded = true;
       this.controller.getSession().chartData = null;
@@ -795,7 +797,9 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
       //
       anomaliesPane.setChartData(this.controller.getSession());
 
-      enableAllButtons();
+      if (!workflowBusy.get()) {
+        enableAllButtons();
+      }
       // dataChartPane.getChart().setNotify(true);
       frame.revalidate();
       frame.repaint();
@@ -820,7 +824,8 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
 
   private boolean isWorkflowBlocked() {
     return workflowBusy.get() || dataChartPane.isGuessActive()
-        || (anomalyWorker != null && !anomalyWorker.isDone());
+        || (anomalyWorker != null && !anomalyWorker.isDone()
+            && anomalyWorkerChartData == controller.getSession().chartData); // NOPMD - reference identity: block only when the live search targets the current chart
   }
 
   private boolean tryBeginLongOperation() {
@@ -1206,10 +1211,12 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
           return;
         }
 
+        final GrammarVizChartData chartData = this.controller.getSession().chartData;
+
         new SwingWorker<Void, Void>() {
           @Override
           protected Void doInBackground() throws Exception {
-            controller.getSession().chartData.performRulePruning();
+            chartData.performRulePruning();
             return null;
           }
 
@@ -1217,6 +1224,9 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
           protected void done() {
             try {
               get();
+              if (chartData != controller.getSession().chartData) { // NOPMD - reference identity
+                return;
+              }
 
               // setting the chart first
               //

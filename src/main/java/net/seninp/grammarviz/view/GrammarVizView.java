@@ -171,6 +171,9 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
   // tracks the running anomaly search so overlapping runs are prevented and stale results
   // (produced against a chart that was replaced meanwhile) are not applied to the UI
   private transient SwingWorker<Void, Void> anomalyWorker;
+  // the chart-data instance the running search is bound to; used to (a) reject only a second
+  // search for the SAME chart and (b) let the newest search own the cursor/button restore
+  private transient GrammarVizChartData anomalyWorkerChartData;
 
   private boolean isTimeSeriesLoaded = false;
 
@@ -918,17 +921,21 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
 
     else if (DISPLAY_ANOMALIES_DATA.equalsIgnoreCase(command)) {
       log(Level.INFO, "find/display anomalies action performed");
-      if (null == this.controller.getSession().chartData) {
+      final GrammarVizChartData anomalyChartData = this.controller.getSession().chartData;
+      if (null == anomalyChartData) {
         raiseValidationError("No chart data recieved yet.");
       }
-      else if (null != this.anomalyWorker && !this.anomalyWorker.isDone()) {
-        log(Level.INFO, "an anomaly search is already running; ignoring the request");
+      // reject only a second search for THIS chart (which would race on the same discords);
+      // a search left over from a chart that has since been replaced does not block a new
+      // one -- the orphan's results are discarded on completion
+      else if (null != this.anomalyWorker && !this.anomalyWorker.isDone()
+          && anomalyChartData == this.anomalyWorkerChartData) { // NOPMD - reference identity
+        log(Level.INFO, "an anomaly search is already running for this chart; ignoring the request");
       }
       else {
 
         log(Level.INFO, "going to run anomalies search, this takes time, please wait... ");
 
-        final GrammarVizChartData anomalyChartData = this.controller.getSession().chartData;
         anomalyChartData.addListener(this);
 
         // run the (potentially long) anomaly search off the event-dispatch thread so the UI stays
@@ -938,6 +945,7 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
         // still points at the same chart data (a reload/re-discretize may have replaced it).
         this.findAnomaliesButton.setEnabled(false);
         frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        this.anomalyWorkerChartData = anomalyChartData;
 
         this.anomalyWorker = new SwingWorker<Void, Void>() {
           @Override
@@ -967,8 +975,12 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
             }
             finally {
               anomalyChartData.removeListener(GrammarVizView.this);
-              frame.setCursor(Cursor.getDefaultCursor());
-              GrammarVizView.this.findAnomaliesButton.setEnabled(true);
+              // only the newest search restores the cursor/trigger, so an orphan finishing
+              // after a newer run started does not clobber the newer run's UI state
+              if (anomalyChartData == GrammarVizView.this.anomalyWorkerChartData) { // NOPMD
+                frame.setCursor(Cursor.getDefaultCursor());
+                GrammarVizView.this.findAnomaliesButton.setEnabled(true);
+              }
             }
           }
         };

@@ -41,7 +41,9 @@ Stack alignment release: no application behavior changes.
 - **JaCoCo** **0.8.13 → 0.8.15** (JDK 25/26); stop excluding the `view` package now
   covered by unit tests (`TestGrammarReductor`, `TestParamsSampler*`).
 - **CI / publish:** clone and `mvn install` SAX + GI from source before build/deploy
-  (until `jmotif-sax` 2.0.1 is on Maven Central); Sonar job uses the same bootstrap.
+  (until `jmotif-sax` 2.0.1 is on Maven Central).
+- **CI:** drop the orphaned SonarCloud "Build and analyze" job (no `SONAR_TOKEN`,
+  no Sonar badge/usage); remove `sonar.*` properties from `pom.xml`.
 
 ### Added
 - README link to [jmotif-conformance](https://github.com/jMotif/jmotif-conformance).

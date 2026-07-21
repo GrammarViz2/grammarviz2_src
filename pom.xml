@@ -17,8 +17,6 @@
     <spotbugs-maven-plugin.version>4.8.6.6</spotbugs-maven-plugin.version>
     <maven-jacoco-plugin.version>0.8.15</maven-jacoco-plugin.version>
     <gpg.keyname>2EAECBE3B77F5D0A55278EC1B5E0F3D37C8A1537</gpg.keyname>
-    <sonar.organization>grammarviz2</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>    
   </properties>
 
   <dependencies>

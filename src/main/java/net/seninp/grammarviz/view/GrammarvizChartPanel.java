@@ -346,8 +346,19 @@ public class GrammarvizChartPanel extends JPanel
 
     // guard against a degenerate/empty coverage array: if no rule contributed,
     // maxObservedCoverage stays Integer.MIN_VALUE and 1.0 / max would yield a
-    // bogus (near-zero, negative) alpha -- nothing meaningful to render.
+    // bogus (near-zero, negative) alpha -- nothing meaningful to render. Clear any
+    // stale density overlay and tell the user, rather than leaving the chart looking
+    // unchanged (which reads like a no-op / bug).
     if (maxObservedCoverage <= 0) {
+      this.timeseriesPlot.clearDomainMarkers();
+      this.timeseriesPlot.clearAnnotations();
+      revalidate();
+      repaint();
+      LOGGER.info("no rule coverage to display (empty or R0-only grammar)");
+      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this,
+          "No rule coverage to display.\n"
+              + "The current grammar has no rules beyond R0 -- try different SAX parameters.",
+          "Nothing to show", JOptionPane.INFORMATION_MESSAGE));
       return;
     }
     double covIncrement = 1.0 / (double) maxObservedCoverage;
@@ -841,24 +852,39 @@ public class GrammarvizChartPanel extends JPanel
               listener.clearSelectionReleased();
             }
 
-            // JFreeChart lets the drag run past the data edges, so clamp the
-            // selection to the valid series bounds before using it as indices
+            // Selection bounds are written by the mouse listener on the EDT and the guesser is a
+            // modal Swing dialog, so read the bounds and show the dialog on the EDT -- never touch
+            // Swing components off the EDT. JFreeChart also lets the drag run past the data edges,
+            // so clamp the selection to the valid series bounds before using it as indices
             // (see GrammarViz2/grammarviz2_src#30).
-            int tsLength = (null != session.chartData)
-                ? session.chartData.getOriginalTimeseries().length
-                : tsData.length;
-            int selStart = (int) Math.floor(listener.getSelectionStart());
-            int selEnd = (int) Math.ceil(listener.getSelectionEnd());
-            session.samplingStart = Math.max(0, Math.min(selStart, tsLength));
-            session.samplingEnd = Math.max(0, Math.min(selEnd, tsLength));
+            final boolean[] cancelled = { false };
+            try {
+              SwingUtilities.invokeAndWait(() -> {
+                int tsLength = (null != session.chartData)
+                    ? session.chartData.getOriginalTimeseries().length
+                    : tsData.length;
+                int selStart = (int) Math.floor(listener.getSelectionStart());
+                int selEnd = (int) Math.ceil(listener.getSelectionEnd());
+                session.samplingStart = Math.max(0, Math.min(selStart, tsLength));
+                session.samplingEnd = Math.max(0, Math.min(selEnd, tsLength));
 
-            GrammarvizGuesserPane parametersPanel = new GrammarvizGuesserPane(session);
-            GrammarvizGuesserDialog parametersDialog = new GrammarvizGuesserDialog(topFrame,
-                parametersPanel, session);
+                GrammarvizGuesserPane parametersPanel = new GrammarvizGuesserPane(session);
+                GrammarvizGuesserDialog parametersDialog = new GrammarvizGuesserDialog(topFrame,
+                    parametersPanel, session);
+                parametersDialog.setVisible(true);
+                cancelled[0] = parametersDialog.wasCancelled;
+              });
+            }
+            catch (InterruptedException e1) {
+              Thread.currentThread().interrupt();
+              return;
+            }
+            catch (java.lang.reflect.InvocationTargetException e1) {
+              LOGGER.error("error showing the guesser dialog", e1);
+              return;
+            }
 
-            parametersDialog.setVisible(true);
-
-            if (parametersDialog.wasCancelled) {
+            if (cancelled[0]) {
               LOGGER.info("Selection process has been cancelled...");
               paramsSampler.cancel();
             }
@@ -872,16 +898,18 @@ public class GrammarvizChartPanel extends JPanel
 
               final Future<String> bestParams = executorService.submit(paramsSampler);
 
-              setOperationalButton.setText("Stop!");
-              setOperationalButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                  bestParams.cancel(true);
-                  executorService.shutdownNow();
-                }
+              SwingUtilities.invokeLater(() -> {
+                setOperationalButton.setText("Stop!");
+                setOperationalButton.addActionListener(new ActionListener() {
+                  @Override
+                  public void actionPerformed(ActionEvent e) {
+                    bestParams.cancel(true);
+                    executorService.shutdownNow();
+                  }
+                });
+                setOperationalButton.revalidate();
+                setOperationalButton.repaint();
               });
-              setOperationalButton.revalidate();
-              setOperationalButton.repaint();
 
               executorService.shutdown();
               if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {

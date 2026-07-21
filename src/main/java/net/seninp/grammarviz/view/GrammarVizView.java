@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -176,6 +177,8 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
   private transient GrammarVizChartData anomalyWorkerChartData;
 
   private boolean isTimeSeriesLoaded = false;
+
+  private final AtomicBoolean workflowBusy = new AtomicBoolean(false);
 
   // logging area
   //
@@ -363,7 +366,6 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
     // a help item
     JMenuItem helpItem = new JMenuItem("Help", KeyEvent.VK_H);
     helpItem.getAccessibleContext().setAccessibleDescription("Get some help here.");
-    exitItem.addActionListener(controller);
     helpMenu.add(helpItem);
 
     // an about item
@@ -372,10 +374,6 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
     aboutItem.setActionCommand(ABOUT_MENU_ITEM);
     aboutItem.addActionListener(this);
     helpMenu.add(aboutItem);
-
-    // make sure that controller is connected with Exit item
-    //
-    exitItem.addActionListener(controller);
 
     menuBar.add(fileMenu);
     menuBar.add(settingsMenu);
@@ -820,6 +818,49 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
     }
   }
 
+  private boolean isWorkflowBlocked() {
+    return workflowBusy.get() || dataChartPane.isGuessActive()
+        || (anomalyWorker != null && !anomalyWorker.isDone());
+  }
+
+  private boolean tryBeginLongOperation() {
+    if (isWorkflowBlocked()) {
+      log(Level.INFO, "workflow busy; ignoring request");
+      return false;
+    }
+    workflowBusy.set(true);
+    disableAllButtons();
+    selectFileButton.setEnabled(false);
+    frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    return true;
+  }
+
+  private void endLongOperation() {
+    workflowBusy.set(false);
+    frame.setCursor(Cursor.getDefaultCursor());
+    refreshWorkflowButtons();
+  }
+
+  private void refreshWorkflowButtons() {
+    if (this.controller.getSession().chartData != null) {
+      enableAllButtons();
+    }
+    else if (this.isTimeSeriesLoaded) {
+      disableAllButtons();
+      selectFileButton.setEnabled(true);
+      dataLoadButton.setEnabled(true);
+      guessParametersButton.setEnabled(true);
+      discretizeButton.setEnabled(true);
+    }
+    else {
+      disableAllButtons();
+      selectFileButton.setEnabled(true);
+      if (!this.dataFilePathField.getText().isEmpty()) {
+        dataLoadButton.setEnabled(true);
+      }
+    }
+  }
+
   @Override
   public void actionPerformed(ActionEvent arg) {
 
@@ -861,8 +902,36 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
         raiseValidationError("The file is not yet selected.");
       }
       else {
-        String loadLimit = this.dataRowsLimitTextField.getText();
-        this.controller.getLoadFileListener().actionPerformed(new ActionEvent(this, 1, loadLimit));
+        if (!tryBeginLongOperation()) {
+          return;
+        }
+        final String loadLimit = this.dataRowsLimitTextField.getText();
+        new SwingWorker<Void, Void>() {
+          @Override
+          protected Void doInBackground() throws Exception {
+            controller.getLoadFileListener()
+                .actionPerformed(new ActionEvent(GrammarVizView.this, 1, loadLimit));
+            return null;
+          }
+
+          @Override
+          protected void done() {
+            try {
+              get();
+            }
+            catch (Exception e) {
+              log(Level.ALL, StackTrace.toString(e));
+            }
+            finally {
+              SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                  endLongOperation();
+                }
+              });
+            }
+          }
+        }.execute();
       }
     }
 
@@ -874,11 +943,35 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
         this.controller.getSession().saxPAA = Integer.valueOf(this.SAXpaaSizeField.getText());
         this.controller.getSession().saxAlphabet = Integer
             .valueOf(this.SAXalphabetSizeField.getText());
-        this.controller.getProcessDataListener().actionPerformed(new ActionEvent(this, 0, null)); // only
-                                                                                                  // one
-                                                                                                  // handler
-                                                                                                  // over
-                                                                                                  // there
+        if (!tryBeginLongOperation()) {
+          return;
+        }
+        new SwingWorker<Void, Void>() {
+          @Override
+          protected Void doInBackground() throws Exception {
+            controller.getProcessDataListener()
+                .actionPerformed(new ActionEvent(GrammarVizView.this, 0, null));
+            return null;
+          }
+
+          @Override
+          protected void done() {
+            try {
+              get();
+            }
+            catch (Exception e) {
+              log(Level.ALL, StackTrace.toString(e));
+            }
+            finally {
+              SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                  endLongOperation();
+                }
+              });
+            }
+          }
+        }.execute();
       }
       else {
         raiseValidationError("The timeseries is not loaded yet.");
@@ -920,6 +1013,10 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
     }
 
     else if (DISPLAY_ANOMALIES_DATA.equalsIgnoreCase(command)) {
+      if (isWorkflowBlocked()) {
+        log(Level.INFO, "workflow busy; ignoring request");
+        return;
+      }
       log(Level.INFO, "find/display anomalies action performed");
       final GrammarVizChartData anomalyChartData = this.controller.getSession().chartData;
       if (null == anomalyChartData) {
@@ -999,8 +1096,8 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
     }
 
     else if (GUESS_PARAMETERS.equalsIgnoreCase(command)) {
-      if (this.dataChartPane.isGuessActive()) {
-        LOGGER.info("guess already active, ignoring");
+      if (isWorkflowBlocked()) {
+        log(Level.INFO, "workflow busy; ignoring request");
         return;
       }
       log(Level.INFO, "starting the guessing params dialog");
@@ -1055,17 +1152,46 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
 
         if (result == JOptionPane.OK_OPTION) {
 
-          double thresholdLength = Double.parseDouble(lengthThreshold.getText());
-          double thresholdCommon = Double.parseDouble(overlapThreshold.getText());
+          final double thresholdLength = Double.parseDouble(lengthThreshold.getText());
+          final double thresholdCommon = Double.parseDouble(overlapThreshold.getText());
+          final GrammarVizChartData chartData = this.controller.getSession().chartData;
 
-          dataChartPane.resetChartPanel();
-          packedRulesPane.resetSelection();
-          ruleChartPane.clear();
+          if (!tryBeginLongOperation()) {
+            return;
+          }
 
-          this.controller.getSession().chartData.performRemoveOverlapping(thresholdLength,
-              thresholdCommon);
+          new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+              chartData.performRemoveOverlapping(thresholdLength, thresholdCommon);
+              return null;
+            }
 
-          packedRulesPane.setChartData(this.controller.getSession().chartData);
+            @Override
+            protected void done() {
+              try {
+                get();
+                if (chartData != controller.getSession().chartData) { // NOPMD - reference identity
+                  return;
+                }
+                dataChartPane.resetChartPanel();
+                packedRulesPane.resetSelection();
+                ruleChartPane.clear();
+                packedRulesPane.setChartData(controller.getSession().chartData);
+              }
+              catch (Exception e) {
+                log(Level.ALL, StackTrace.toString(e));
+              }
+              finally {
+                SwingUtilities.invokeLater(new Runnable() {
+                  @Override
+                  public void run() {
+                    endLongOperation();
+                  }
+                });
+              }
+            }
+          }.execute();
         }
 
       }
@@ -1076,32 +1202,59 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
         raiseValidationError("No chart data recieved yet.");
       }
       else {
+        if (!tryBeginLongOperation()) {
+          return;
+        }
 
-        this.controller.getSession().chartData.performRulePruning();
+        new SwingWorker<Void, Void>() {
+          @Override
+          protected Void doInBackground() throws Exception {
+            controller.getSession().chartData.performRulePruning();
+            return null;
+          }
 
-        // setting the chart first
-        //
-        dataChartPane.resetChartPanel();
+          @Override
+          protected void done() {
+            try {
+              get();
 
-        // and the rules pane second
-        //
-        grammarRulesPane.resetPanel();
+              // setting the chart first
+              //
+              dataChartPane.resetChartPanel();
 
-        // and the "snapshots panel"
-        //
-        ruleChartPane.clear();
+              // and the rules pane second
+              //
+              grammarRulesPane.resetPanel();
 
-        // and the rules periodicity panel
-        //
-        rulesPeriodicityPane.resetPanel();
+              // and the "snapshots panel"
+              //
+              ruleChartPane.clear();
 
-        // and the anomalies panel
-        //
-        anomaliesPane.resetPanel();
+              // and the rules periodicity panel
+              //
+              rulesPeriodicityPane.resetPanel();
 
-        // dataChartPane.getChart().setNotify(true);
-        frame.validate();
-        frame.repaint();
+              // and the anomalies panel
+              //
+              anomaliesPane.resetPanel();
+
+              // dataChartPane.getChart().setNotify(true);
+              frame.validate();
+              frame.repaint();
+            }
+            catch (Exception e) {
+              log(Level.ALL, StackTrace.toString(e));
+            }
+            finally {
+              SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                  endLongOperation();
+                }
+              });
+            }
+          }
+        }.execute();
 
       }
     }

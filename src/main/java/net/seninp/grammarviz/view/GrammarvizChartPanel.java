@@ -93,7 +93,8 @@ public class GrammarvizChartPanel extends JPanel
   private static final String LABEL_SHOWING_PACKED_RULES = " Data display: showing packed rule subsequences ";
   private static final String LABEL_SHOWING_PERIODS = " Data display: showing periods between selected rules ";
   private static final String LABEL_SHOWING_ANOMALY = " Data display: showing anomaly ";
-  private static final String LABEL_SAVING_CHART = " Data display: saving the rules density chart ";
+  private static final String LABEL_SAVING_CHART = " Data display: saving chart ";
+
   private static final String LABEL_SELECT_INTERVAL = " Select the timeseries interval for guessing ";
 
   public static final String SELECTION_CANCELLED = "interval_selection_cancelled";
@@ -144,6 +145,11 @@ public class GrammarvizChartPanel extends JPanel
 
   /** The timeseries plot itself. */
   private XYPlot timeseriesPlot;
+
+  /** Stable references to the time-series chart, so save/export always targets the series
+   * view even when the histogram has temporarily replaced {@link #chart}. */
+  private JFreeChart seriesChart;
+  private XYPlot seriesPlot;
 
   /** JFreeChart Object holding the chart times series */
   XYSeriesCollection chartXYSeriesCollection;
@@ -754,6 +760,9 @@ public class GrammarvizChartPanel extends JPanel
     this.chart.addProgressListener(this);
     this.chart.setNotify(true);
 
+    this.seriesChart = this.chart;
+    this.seriesPlot = this.timeseriesPlot;
+
   }
 
   public void chartProgress(ChartProgressEvent chartprogressevent) {
@@ -1171,13 +1180,18 @@ public class GrammarvizChartPanel extends JPanel
    * to be defined and modifiable by the user.
    */
   private void saveCurrentChart() {
-    String fileName = new SimpleDateFormat("yyyyMMddhhmmssSS'.png'").format(new Date());
+    if (null == this.seriesChart || null == this.seriesPlot) {
+      LOGGER.error("no time-series chart available to save");
+      return;
+    }
+
+    final String fileName = new SimpleDateFormat("yyyyMMddhhmmssSS'.png'").format(new Date());
     try {
 
-      NumberAxis domain = (NumberAxis) this.timeseriesPlot.getDomainAxis();
+      NumberAxis domain = (NumberAxis) this.seriesPlot.getDomainAxis();
       Range domainRange = domain.getRange();
 
-      NumberAxis range = (NumberAxis) this.timeseriesPlot.getRangeAxis();
+      NumberAxis range = (NumberAxis) this.seriesPlot.getRangeAxis();
       Range rangeRange = range.getRange();
 
       String annotationString = "W:" + this.session.chartData.getSAXWindowSize() + ", P:"
@@ -1196,17 +1210,15 @@ public class GrammarvizChartPanel extends JPanel
 
       a.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14));
 
-      // XYPointerAnnotation a = new XYPointerAnnotation("Bam!", domainRange.getLowerBound()
-      // + domainRange.getLength() / 10, rangeRange.getLowerBound() + rangeRange.getLength() / 5
-      // * 4, 5 * Math.PI / 8);
+      this.seriesPlot.addAnnotation(a);
 
-      this.timeseriesPlot.addAnnotation(a);
-
-      // this.paintTheChart();
-
-      ChartUtils.saveChartAsPNG(new File(fileName), this.chart, 900, 600);
+      // write the PNG on the EDT: seriesChart may be the live on-screen chart, and
+      // ChartUtils.saveChartAsPNG reads it -- doing that on a background thread would race
+      // the EDT's repaint of the same JFreeChart. The save is fast, so keep it synchronous.
+      ChartUtils.saveChartAsPNG(new File(fileName), this.seriesChart, 900, 600);
+      LOGGER.info("chart saved to " + fileName);
     }
-    catch (IOException e) {
+    catch (Exception e) {
       LOGGER.error("error while saving the chart as PNG", e);
     }
   }

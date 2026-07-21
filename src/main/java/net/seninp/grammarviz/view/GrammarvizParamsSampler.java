@@ -1,6 +1,5 @@
 package net.seninp.grammarviz.view;
 
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
@@ -15,18 +14,25 @@ import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 
 public class GrammarvizParamsSampler implements Callable<String> {
 
-  private GrammarvizChartPanel parent;
+  private final GrammarvizChartPanel parent;
+
+  private final GrammarvizChartPanel.GuessSamplingContext context;
+
+  private final long sessionId;
 
   // static block - we instantiate the logger
   //
   private static final Logger LOGGER = LoggerFactory.getLogger(GrammarvizParamsSampler.class);
 
-  public GrammarvizParamsSampler(GrammarvizChartPanel grammarvizChartPanel) {
-    this.parent = grammarvizChartPanel;
+  public GrammarvizParamsSampler(GrammarvizChartPanel parent,
+      GrammarvizChartPanel.GuessSamplingContext context, long sessionId) {
+    this.parent = parent;
+    this.context = context;
+    this.sessionId = sessionId;
   }
 
   public void cancel() {
-    this.parent.actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SELECTION_CANCELLED));
+    // selection cancel is handled by the chart panel; sampling stop uses cancelActiveSampling()
   }
 
   @Override
@@ -34,20 +40,16 @@ public class GrammarvizParamsSampler implements Callable<String> {
 
     ArrayList<SampledPoint> res = new ArrayList<SampledPoint>();
 
-    this.parent.actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SELECTION_FINISHED));
+    this.parent.dispatchGuessEvent(GrammarvizChartPanel.SELECTION_FINISHED, sessionId);
 
-    double[] ts = Arrays.copyOfRange(this.parent.tsData, this.parent.session.samplingStart,
-        this.parent.session.samplingEnd);
-
-    RulePruner rp = new RulePruner(ts);
-    int[] boundaries = Arrays.copyOf(this.parent.session.boundaries,
-        this.parent.session.boundaries.length);
+    RulePruner rp = new RulePruner(context.tsSlice);
+    int[] boundaries = context.boundaries;
 
     //
     //
-    LOGGER.info("starting sampling loop on interval [" + this.parent.session.samplingStart + ", "
-        + this.parent.session.samplingEnd + "] of length "
-        + Integer.valueOf(this.parent.session.samplingEnd - this.parent.session.samplingStart));
+    LOGGER.info("starting sampling loop on interval [" + context.samplingStart + ", "
+        + context.samplingEnd + "] of length "
+        + Integer.valueOf(context.samplingEnd - context.samplingStart));
     LOGGER
         .info("window range: " + boundaries[0] + " - " + boundaries[1] + ", step " + boundaries[2]);
     LOGGER.info("PAA range: " + boundaries[3] + " - " + boundaries[4] + ", step " + boundaries[5]);
@@ -56,19 +58,13 @@ public class GrammarvizParamsSampler implements Callable<String> {
     //
     //
 
-    // need to take care about the sliding window size and adjust it
-    //
-    int samplingIntervalLength = this.parent.session.samplingEnd
-        - this.parent.session.samplingStart;
-
-    int winLimit = Math.min(samplingIntervalLength, boundaries[1]);
+    int winLimit = Math.min(context.samplingEnd - context.samplingStart, boundaries[1]);
 
     // run the grid; success XOR failure always fires an event so the UI never hangs
     //
     try {
-      sampleGrid(rp, boundaries, winLimit, this.parent.session.giAlgorithm,
-          this.parent.session.numerosityReductionStrategy,
-          this.parent.session.normalizationThreshold, res);
+      sampleGrid(rp, boundaries, winLimit, context.giAlgorithm, context.nrStrategy,
+          context.normalizationThreshold, res);
       return finishSampling(res, false);
     }
     catch (InterruptedException e) {
@@ -77,7 +73,7 @@ public class GrammarvizParamsSampler implements Callable<String> {
     }
     catch (Exception e) {
       LOGGER.error("sampler failed", e);
-      this.parent.actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SAMPLING_FAILED));
+      this.parent.dispatchGuessEvent(GrammarvizChartPanel.SAMPLING_FAILED, sessionId);
       return "";
     }
   }
@@ -145,9 +141,7 @@ public class GrammarvizParamsSampler implements Callable<String> {
   }
 
   /**
-   * Picks the best sampled point, writes it into the session, and fires the appropriate UI
-   * event. Always fires SAMPLING_SUCCEEDED (point chosen) or SAMPLING_FAILED (nothing to
-   * choose) so the caller's button is never left stuck.
+   * Picks the best sampled point on the worker thread and posts the result to the EDT.
    *
    * @param res the sampled points (may be empty).
    * @param interrupted whether the run was interrupted (user pressed Stop).
@@ -155,40 +149,19 @@ public class GrammarvizParamsSampler implements Callable<String> {
    */
   private String finishSampling(ArrayList<SampledPoint> res, boolean interrupted) {
 
-    SampledPoint best = selectBest(res);
+    SampledPoint best = selectBest(res, context.minimalCoverThreshold);
 
     if (null == best) {
       LOGGER.warn("sampler produced no valid points for the selected interval and ranges");
-      this.parent.actionPerformed(new ActionEvent(this, 0, GrammarvizChartPanel.SAMPLING_FAILED));
+      this.parent.dispatchGuessEvent(GrammarvizChartPanel.SAMPLING_FAILED, sessionId);
       return "";
     }
 
-    parent.session.saxWindow = best.getWindow();
-    parent.session.saxPAA = best.getPAA();
-    parent.session.saxAlphabet = best.getAlphabet();
-
     LOGGER.info((interrupted ? "interrupted; " : "") + "best parameters are " + best.toString());
 
-    // signal whether the threshold was actually met so the view can inform the user
-    String event = best.getCoverage() >= this.parent.session.minimalCoverThreshold
-        ? GrammarvizChartPanel.SAMPLING_SUCCEEDED
-        : GrammarvizChartPanel.SAMPLING_BELOW_THRESHOLD;
-    this.parent.actionPerformed(new ActionEvent(this, 0, event));
+    this.parent.applySamplingResult(sessionId, best, interrupted);
 
     return best.getWindow() + " " + best.getPAA() + " " + best.getAlphabet();
-  }
-
-  /**
-   * Selects the "best" sampled point: among points whose pruned grammar covers at least the
-   * user's minimal-cover threshold, the one with the smallest surviving-rule fraction
-   * (reduction), breaking ties by grammar size for determinism. If no point meets the
-   * threshold, falls back to ranking all sampled points the same way (and logs it).
-   *
-   * @param res the sampled points.
-   * @return the best point, or {@code null} if {@code res} is empty.
-   */
-  private SampledPoint selectBest(ArrayList<SampledPoint> res) {
-    return selectBest(res, this.parent.session.minimalCoverThreshold);
   }
 
   /**

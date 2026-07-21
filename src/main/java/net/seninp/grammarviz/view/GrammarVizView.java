@@ -999,12 +999,15 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
     }
 
     else if (GUESS_PARAMETERS.equalsIgnoreCase(command)) {
+      if (this.dataChartPane.isGuessActive()) {
+        LOGGER.info("guess already active, ignoring");
+        return;
+      }
       log(Level.INFO, "starting the guessing params dialog");
       disableAllButtons();
       this.guessParametersButton.setEnabled(true);
       this.guessParametersButton.removeActionListener(this);
       this.dataChartPane.actionPerformed(new ActionEvent(this, 2, GUESS_PARAMETERS));
-      enableAllButtons();
     }
 
     else if (UserSession.PARAMS_CHANGED_EVENT.equalsIgnoreCase(command)) {
@@ -1017,8 +1020,9 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
 
     else if (RESET_GUESS_BUTTON_LISTENER.equalsIgnoreCase(command)) {
       this.guessParametersButton.setText("Guess");
+      this.guessParametersButton.removeActionListener(this);
       this.guessParametersButton.addActionListener(this);
-      this.discretizeButton.setEnabled(true);
+      enableAllButtons();
     }
 
     else if (FIND_PERIODICITY.equalsIgnoreCase(command)) {

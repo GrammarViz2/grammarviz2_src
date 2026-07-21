@@ -16,7 +16,7 @@ import org.jfree.chart.ui.Layer;
 
 public class MouseMarker extends MouseAdapter {
 
-  private static AtomicBoolean isMarking = new AtomicBoolean(false);
+  private final AtomicBoolean isMarking = new AtomicBoolean(false);
 
   private static final DecimalFormat dfFormatter = (new DecimalFormat("0.00"));
 

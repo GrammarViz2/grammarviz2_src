@@ -42,6 +42,7 @@ class GrammarvizGuesserDialog extends JDialog implements ActionListener {
     this.session = session;
 
     this.guesserPane = (GrammarvizGuesserPane) guesserPane;
+    this.wasCancelled = false;
 
     MigLayout mainFrameLayout = new MigLayout("fill", "[grow,center]", "[grow]5[]");
 

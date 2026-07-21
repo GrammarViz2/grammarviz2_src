@@ -18,13 +18,16 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -61,8 +64,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.RuleInterval;
+import net.seninp.gi.GIAlgorithm;
+import net.seninp.gi.rulepruner.SampledPoint;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
 import net.seninp.grammarviz.session.UserSession;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 
 /**
@@ -102,6 +108,34 @@ public class GrammarvizChartPanel extends JPanel
 
   public static final String SELECTION_FINISHED = "interval_selection_finished";
 
+  private enum GuessPhase {
+    IDLE, SELECTING, SAMPLING
+  }
+
+  static final class GuessSamplingContext {
+    final double[] tsSlice;
+    final int samplingStart;
+    final int samplingEnd;
+    final int[] boundaries;
+    final GIAlgorithm giAlgorithm;
+    final NumerosityReductionStrategy nrStrategy;
+    final double normalizationThreshold;
+    final double minimalCoverThreshold;
+
+    GuessSamplingContext(double[] tsSlice, int samplingStart, int samplingEnd, int[] boundaries,
+        GIAlgorithm giAlgorithm, NumerosityReductionStrategy nrStrategy,
+        double normalizationThreshold, double minimalCoverThreshold) {
+      this.tsSlice = tsSlice;
+      this.samplingStart = samplingStart;
+      this.samplingEnd = samplingEnd;
+      this.boundaries = boundaries;
+      this.giAlgorithm = giAlgorithm;
+      this.nrStrategy = nrStrategy;
+      this.normalizationThreshold = normalizationThreshold;
+      this.minimalCoverThreshold = minimalCoverThreshold;
+    }
+  }
+
   /** Current chart data instance. */
   protected double[] tsData;
 
@@ -124,6 +158,27 @@ public class GrammarvizChartPanel extends JPanel
   private ChartPanel chartPanel;
 
   private Thread guessRefreshThread;
+
+  private volatile GuessPhase guessPhase = GuessPhase.IDLE;
+
+  private final AtomicLong guessSessionId = new AtomicLong(0);
+
+  private MouseMarker activeMouseMarker;
+
+  private ChartPanel markerHostPanel;
+
+  private ExecutorService samplerExecutor;
+
+  private Future<String> samplerFuture;
+
+  private GuessSamplingContext activeSamplingContext;
+
+  private final ActionListener guessStopListener = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      cancelActiveSampling();
+    }
+  };
 
   private JButton setOperationalButton;
 
@@ -164,6 +219,8 @@ public class GrammarvizChartPanel extends JPanel
    * 
    */
   public void resetChartPanel() {
+
+    // Marker detach happens only in finishGuessSessionTerminal, not here (other features call reset).
 
     // this is the new "insert" - elastic boundaries chart panel
     //
@@ -764,6 +821,139 @@ public class GrammarvizChartPanel extends JPanel
 
   }
 
+  boolean isGuessActive() {
+    return guessPhase != GuessPhase.IDLE;
+  }
+
+  boolean tryBeginGuessSession() {
+    if (guessPhase != GuessPhase.IDLE) {
+      LOGGER.info("guess already active, ignoring");
+      return false;
+    }
+    guessSessionId.incrementAndGet();
+    guessPhase = GuessPhase.SELECTING;
+    return true;
+  }
+
+  void attachMouseMarker() {
+    activeMouseMarker = new MouseMarker(chartPanel);
+    markerHostPanel = chartPanel;
+    markerHostPanel.addMouseListener(activeMouseMarker);
+    markerHostPanel.addMouseMotionListener(activeMouseMarker);
+  }
+
+  void detachMouseMarker() {
+    if (activeMouseMarker != null && markerHostPanel != null) {
+      markerHostPanel.removeMouseListener(activeMouseMarker);
+      markerHostPanel.removeMouseMotionListener(activeMouseMarker);
+    }
+    activeMouseMarker = null;
+    markerHostPanel = null;
+  }
+
+  GuessSamplingContext captureSamplingContext() {
+    double[] source = (null != session.chartData)
+        ? session.chartData.getOriginalTimeseries()
+        : tsData;
+    double[] tsSlice = Arrays.copyOfRange(source, session.samplingStart, session.samplingEnd);
+    int[] boundaries = Arrays.copyOf(session.boundaries, 9);
+    return new GuessSamplingContext(tsSlice, session.samplingStart, session.samplingEnd,
+        boundaries, session.giAlgorithm, session.numerosityReductionStrategy,
+        session.normalizationThreshold, session.minimalCoverThreshold);
+  }
+
+  void dispatchGuessEvent(String actionCommand, long sessionId) {
+    SwingUtilities.invokeLater(() -> {
+      if (sessionId != guessSessionId.get()) {
+        return;
+      }
+      actionPerformed(new ActionEvent(this, 0, actionCommand));
+    });
+  }
+
+  void applySamplingResult(long sessionId, SampledPoint best, boolean interrupted) {
+    SwingUtilities.invokeLater(() -> {
+      if (sessionId != guessSessionId.get()) {
+        return;
+      }
+      session.saxWindow = best.getWindow();
+      session.saxPAA = best.getPAA();
+      session.saxAlphabet = best.getAlphabet();
+      String event = best.getCoverage() >= activeSamplingContext.minimalCoverThreshold
+          ? SAMPLING_SUCCEEDED
+          : SAMPLING_BELOW_THRESHOLD;
+      if (interrupted) {
+        LOGGER.info("interrupted; applied best parameters from partial sampling");
+      }
+      finishGuessSessionTerminal(event);
+    });
+  }
+
+  void finishGuessSessionTerminal(String terminalEvent) {
+    // idempotent: once a session has been finalized (phase back to IDLE) any later/duplicate
+    // terminal event for it is a no-op, so a session can never be torn down twice
+    if (guessPhase == GuessPhase.IDLE) {
+      return;
+    }
+    detachMouseMarker();
+
+    if (guessPhase == GuessPhase.SAMPLING) {
+      setOperationalButton.removeActionListener(guessStopListener);
+      setOperationalButton.setText("Guess");
+    }
+
+    if (SELECTION_CANCELLED.equalsIgnoreCase(terminalEvent)
+        || SAMPLING_FAILED.equalsIgnoreCase(terminalEvent)) {
+      resetChartPanel();
+    }
+    else if (SAMPLING_SUCCEEDED.equalsIgnoreCase(terminalEvent)
+        || SAMPLING_BELOW_THRESHOLD.equalsIgnoreCase(terminalEvent)) {
+      resetChartPanel();
+      session.notifyParametersChangeListeners();
+    }
+
+    if (SAMPLING_BELOW_THRESHOLD.equalsIgnoreCase(terminalEvent)) {
+      final double cover = activeSamplingContext.minimalCoverThreshold;
+      JOptionPane.showMessageDialog(this,
+          "No parameter set reached the minimal rule cover threshold (" + cover + ").\n"
+              + "Applied the best available parameters (window " + session.saxWindow + ", PAA "
+              + session.saxPAA + ", alphabet " + session.saxAlphabet + ") instead.",
+          "Cover threshold not reached", JOptionPane.INFORMATION_MESSAGE);
+    }
+    else if (SAMPLING_FAILED.equalsIgnoreCase(terminalEvent)) {
+      JOptionPane.showMessageDialog(this,
+          "No valid SAX parameters were found for the selected interval and ranges.\n"
+              + "Try a longer interval or wider window/PAA/alphabet ranges.",
+          "Parameter guessing failed", JOptionPane.WARNING_MESSAGE);
+    }
+
+    ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
+    for (ActionListener l : this.listeners) {
+      l.actionPerformed(event);
+    }
+
+    guessPhase = GuessPhase.IDLE;
+    activeSamplingContext = null;
+    guessRefreshThread = null;
+    samplerExecutor = null;
+    samplerFuture = null;
+  }
+
+  void cancelActiveSampling() {
+    if (guessPhase != GuessPhase.SAMPLING) {
+      return;
+    }
+    if (samplerFuture != null) {
+      samplerFuture.cancel(true);
+    }
+    if (samplerExecutor != null) {
+      samplerExecutor.shutdownNow();
+    }
+    if (guessRefreshThread != null) {
+      guessRefreshThread.interrupt();
+    }
+  }
+
   @Override
   public void actionPerformed(ActionEvent e) {
 
@@ -794,6 +984,10 @@ public class GrammarvizChartPanel extends JPanel
     //
     else if (GrammarVizView.GUESS_PARAMETERS.equalsIgnoreCase(e.getActionCommand())) {
 
+      if (!tryBeginGuessSession()) {
+        return;
+      }
+
       LOGGER.info("Starting the sampling dialog...");
 
       // re-draw the plot, so selection wouldn't get weird...
@@ -819,168 +1013,155 @@ public class GrammarvizChartPanel extends JPanel
               + "by dragging the mouse pointer from left to right.",
           null, JOptionPane.WARNING_MESSAGE);
 
-      // attaching the custom mouse listener
-      //
-      final MouseMarker listener = new MouseMarker(chartPanel);
-      chartPanel.addMouseListener(listener);
-      chartPanel.addMouseMotionListener(listener);
+      attachMouseMarker();
 
-      // creating the sampler object
-      //
-      final GrammarvizParamsSampler paramsSampler = new GrammarvizParamsSampler(this);
-
-      // running the thread which will look over the selection
-      //
+      final long sessionId = guessSessionId.get();
       final Object selectionLock = new Object();
       final JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-      listener.setLockObject(selectionLock);
+      activeMouseMarker.setLockObject(selectionLock);
 
       guessRefreshThread = new Thread(new Runnable() {
         public void run() {
-          boolean selectionSucceeded = false;
-          while (!(selectionSucceeded)) {
-            synchronized (selectionLock) {
-              while (!listener.isSelectionReleased()) {
-                try {
-                  selectionLock.wait();
-                }
-                catch (InterruptedException e1) {
-                  Thread.currentThread().interrupt();
-                  return;
-                }
+          synchronized (selectionLock) {
+            while (!activeMouseMarker.isSelectionReleased()) {
+              try {
+                selectionLock.wait();
               }
-              listener.clearSelectionReleased();
+              catch (InterruptedException e1) {
+                Thread.currentThread().interrupt();
+                // no sampler exists yet, so nothing else will recover the UI -- end the session
+                dispatchGuessEvent(SELECTION_CANCELLED, sessionId);
+                return;
+              }
             }
+            activeMouseMarker.clearSelectionReleased();
+          }
 
-            // Selection bounds are written by the mouse listener on the EDT and the guesser is a
-            // modal Swing dialog, so read the bounds and show the dialog on the EDT -- never touch
-            // Swing components off the EDT. JFreeChart also lets the drag run past the data edges,
-            // so clamp the selection to the valid series bounds before using it as indices
-            // (see GrammarViz2/grammarviz2_src#30).
-            final boolean[] cancelled = { false };
-            try {
-              SwingUtilities.invokeAndWait(() -> {
-                int tsLength = (null != session.chartData)
-                    ? session.chartData.getOriginalTimeseries().length
-                    : tsData.length;
-                int selStart = (int) Math.floor(listener.getSelectionStart());
-                int selEnd = (int) Math.ceil(listener.getSelectionEnd());
-                session.samplingStart = Math.max(0, Math.min(selStart, tsLength));
-                session.samplingEnd = Math.max(0, Math.min(selEnd, tsLength));
+          final boolean[] cancelled = { false };
+          try {
+            SwingUtilities.invokeAndWait(() -> {
+              int tsLength = (null != session.chartData)
+                  ? session.chartData.getOriginalTimeseries().length
+                  : tsData.length;
+              int selStart = (int) Math.floor(activeMouseMarker.getSelectionStart());
+              int selEnd = (int) Math.ceil(activeMouseMarker.getSelectionEnd());
+              session.samplingStart = Math.max(0, Math.min(selStart, tsLength));
+              session.samplingEnd = Math.max(0, Math.min(selEnd, tsLength));
 
-                GrammarvizGuesserPane parametersPanel = new GrammarvizGuesserPane(session);
-                GrammarvizGuesserDialog parametersDialog = new GrammarvizGuesserDialog(topFrame,
-                    parametersPanel, session);
-                parametersDialog.setVisible(true);
-                cancelled[0] = parametersDialog.wasCancelled;
-              });
-            }
-            catch (InterruptedException e1) {
-              Thread.currentThread().interrupt();
+              GrammarvizGuesserPane parametersPanel = new GrammarvizGuesserPane(session);
+              GrammarvizGuesserDialog parametersDialog = new GrammarvizGuesserDialog(topFrame,
+                  parametersPanel, session);
+              parametersDialog.wasCancelled = false;
+              parametersDialog.setVisible(true);
+              cancelled[0] = parametersDialog.wasCancelled;
+            });
+          }
+          catch (InterruptedException e1) {
+            Thread.currentThread().interrupt();
+            // no sampler exists yet, so nothing else will recover the UI -- end the session
+            dispatchGuessEvent(SELECTION_CANCELLED, sessionId);
+            return;
+          }
+          catch (InvocationTargetException e1) {
+            LOGGER.error("error showing the guesser dialog", e1);
+            dispatchGuessEvent(SAMPLING_FAILED, sessionId);
+            return;
+          }
+
+          if (cancelled[0]) {
+            LOGGER.info("Selection process has been cancelled...");
+            dispatchGuessEvent(SELECTION_CANCELLED, sessionId);
+            return;
+          }
+
+          final GuessSamplingContext[] ctxHolder = new GuessSamplingContext[1];
+          try {
+            SwingUtilities.invokeAndWait(() -> {
+              ctxHolder[0] = captureSamplingContext();
+            });
+          }
+          catch (InterruptedException e1) {
+            Thread.currentThread().interrupt();
+            // sampler not submitted yet, so nothing else will recover the UI -- end the session
+            dispatchGuessEvent(SELECTION_CANCELLED, sessionId);
+            return;
+          }
+          catch (InvocationTargetException e1) {
+            LOGGER.error("error capturing sampling context", e1);
+            dispatchGuessEvent(SAMPLING_FAILED, sessionId);
+            return;
+          }
+
+          activeSamplingContext = ctxHolder[0];
+          guessPhase = GuessPhase.SAMPLING;
+
+          samplerExecutor = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "params-sampler");
+            t.setDaemon(true);
+            return t;
+          });
+
+          GrammarvizParamsSampler sampler = new GrammarvizParamsSampler(
+              GrammarvizChartPanel.this, ctxHolder[0], sessionId);
+          samplerFuture = samplerExecutor.submit(sampler);
+
+          SwingUtilities.invokeLater(() -> {
+            // ignore if this session was superseded, or if a fast sampler already drove the
+            // terminal handler (which restored the "Guess" label) before this runnable ran --
+            // otherwise we would re-apply "Stop!" and re-attach the listener on a finished session
+            if (sessionId != guessSessionId.get() || guessPhase != GuessPhase.SAMPLING) {
               return;
             }
-            catch (java.lang.reflect.InvocationTargetException e1) {
-              LOGGER.error("error showing the guesser dialog", e1);
-              return;
-            }
+            setOperationalButton.setText("Stop!");
+            setOperationalButton.removeActionListener(guessStopListener);
+            setOperationalButton.addActionListener(guessStopListener);
+            setOperationalButton.revalidate();
+            setOperationalButton.repaint();
+          });
 
-            if (cancelled[0]) {
-              LOGGER.info("Selection process has been cancelled...");
-              paramsSampler.cancel();
-            }
-            else {
-              selectionSucceeded = true;
+          samplerExecutor.shutdown();
+          try {
+            if (!samplerExecutor.awaitTermination(10, TimeUnit.MINUTES)) {
+              samplerExecutor.shutdownNow();
+              if (!samplerExecutor.awaitTermination(30, TimeUnit.SECONDS)) {
+                LOGGER.error("executor pool did not terminate");
+              }
             }
           }
-          if (selectionSucceeded) {
-            LOGGER.info("Running the sampler...");
-            try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
-
-              final Future<String> bestParams = executorService.submit(paramsSampler);
-
-              SwingUtilities.invokeLater(() -> {
-                setOperationalButton.setText("Stop!");
-                setOperationalButton.addActionListener(new ActionListener() {
-                  @Override
-                  public void actionPerformed(ActionEvent e) {
-                    bestParams.cancel(true);
-                    executorService.shutdownNow();
-                  }
-                });
-                setOperationalButton.revalidate();
-                setOperationalButton.repaint();
-              });
-
-              executorService.shutdown();
-              if (!executorService.awaitTermination(10, TimeUnit.MINUTES)) {
-                executorService.shutdownNow();
-                if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
-                  LOGGER.error("executor pool did not terminate");
-                }
-              }
-
+          catch (InterruptedException e1) {
+            Thread.currentThread().interrupt();
+            return;
+          }
+          finally {
+            if (samplerExecutor != null && !samplerExecutor.isTerminated()) {
+              samplerExecutor.shutdownNow();
             }
-            catch (Exception e) {
-              LOGGER.error("error while refreshing the guess", e);
-            }
+            samplerExecutor = null;
+            samplerFuture = null;
           }
         }
       });
+      guessRefreshThread.setDaemon(true);
+      guessRefreshThread.setName("guess-refresh");
       guessRefreshThread.start();
     }
     else if (GrammarvizChartPanel.SELECTION_CANCELLED.equalsIgnoreCase(e.getActionCommand())) {
       LOGGER.info("selection cancelled...");
-      this.resetChartPanel();
-      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
-      for (ActionListener l : this.listeners) {
-        l.actionPerformed(event);
-      }
+      finishGuessSessionTerminal(SELECTION_CANCELLED);
     }
     else if (GrammarvizChartPanel.SELECTION_FINISHED.equalsIgnoreCase(e.getActionCommand())) {
       LOGGER.info("selection finished...");
       this.resetChartPanel();
-      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
-      for (ActionListener l : this.listeners) {
-        l.actionPerformed(event);
-      }
     }
     else if (GrammarvizChartPanel.SAMPLING_SUCCEEDED.equalsIgnoreCase(e.getActionCommand())) {
-      resetChartPanel();
-      this.session.notifyParametersChangeListeners();
-      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
-      for (ActionListener l : this.listeners) {
-        l.actionPerformed(event);
-      }
+      finishGuessSessionTerminal(SAMPLING_SUCCEEDED);
     }
     else if (GrammarvizChartPanel.SAMPLING_BELOW_THRESHOLD
         .equalsIgnoreCase(e.getActionCommand())) {
-      // best params WERE applied, but none reached the requested cover threshold -- apply
-      // them (as before) and let the user know rather than silently violating their input
-      resetChartPanel();
-      this.session.notifyParametersChangeListeners();
-      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
-      for (ActionListener l : this.listeners) {
-        l.actionPerformed(event);
-      }
-      final double cover = this.session.minimalCoverThreshold;
-      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this,
-          "No parameter set reached the minimal rule cover threshold (" + cover + ").\n"
-              + "Applied the best available parameters (window " + this.session.saxWindow + ", PAA "
-              + this.session.saxPAA + ", alphabet " + this.session.saxAlphabet + ") instead.",
-          "Cover threshold not reached", JOptionPane.INFORMATION_MESSAGE));
+      finishGuessSessionTerminal(SAMPLING_BELOW_THRESHOLD);
     }
     else if (GrammarvizChartPanel.SAMPLING_FAILED.equalsIgnoreCase(e.getActionCommand())) {
-      // nothing usable was produced (empty grid or sampler error) -- reset the UI and tell
-      // the user so the guess button doesn't sit stuck on "Stop!"
-      resetChartPanel();
-      ActionEvent event = new ActionEvent(this, 0, GrammarVizView.RESET_GUESS_BUTTON_LISTENER);
-      for (ActionListener l : this.listeners) {
-        l.actionPerformed(event);
-      }
-      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this,
-          "No valid SAX parameters were found for the selected interval and ranges.\n"
-              + "Try a longer interval or wider window/PAA/alphabet ranges.",
-          "Parameter guessing failed", JOptionPane.WARNING_MESSAGE));
+      finishGuessSessionTerminal(SAMPLING_FAILED);
     }
 
   }

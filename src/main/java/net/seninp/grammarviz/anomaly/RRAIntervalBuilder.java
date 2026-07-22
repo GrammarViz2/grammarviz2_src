@@ -17,6 +17,34 @@ public final class RRAIntervalBuilder {
   }
 
   /**
+   * Intervals plus coverage metadata from a single grammar walk (avoids recomputing coverage).
+   */
+  public static final class BuildResult {
+    private final ArrayList<RuleInterval> intervals;
+    private final int[] coverageArray;
+    private final List<RuleInterval> zeroIntervals;
+
+    BuildResult(ArrayList<RuleInterval> intervals, int[] coverageArray,
+        List<RuleInterval> zeroIntervals) {
+      this.intervals = intervals;
+      this.coverageArray = coverageArray;
+      this.zeroIntervals = zeroIntervals;
+    }
+
+    public ArrayList<RuleInterval> getIntervals() {
+      return intervals;
+    }
+
+    public int[] getCoverageArray() {
+      return coverageArray;
+    }
+
+    public List<RuleInterval> getZeroIntervals() {
+      return zeroIntervals;
+    }
+  }
+
+  /**
    * Counts how many grammar rule intervals cover each time-series index.
    *
    * @param rules the grammar rules.
@@ -63,6 +91,14 @@ public final class RRAIntervalBuilder {
    */
   public static ArrayList<RuleInterval> fromGrammarRules(GrammarRules rules, int seriesLength,
       int paaSize) throws CloneNotSupportedException {
+    return buildFromGrammarRules(rules, seriesLength, paaSize).getIntervals();
+  }
+
+  /**
+   * Builds intervals and coverage in one pass.
+   */
+  public static BuildResult buildFromGrammarRules(GrammarRules rules, int seriesLength, int paaSize)
+      throws CloneNotSupportedException {
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>(rules.size() * 6);
     int[] coverageArray = computePointCoverage(rules, seriesLength);
 
@@ -72,7 +108,6 @@ public final class RRAIntervalBuilder {
       }
       for (RuleInterval ri : rule.getRuleIntervals()) {
         RuleInterval clone = (RuleInterval) ri.clone();
-        // ascending sort key in RRA outer loop: rule occurrence count (not point coverage)
         clone.setCoverage(rule.getRuleIntervals().size());
         clone.setId(rule.ruleNumber());
         intervals.add(clone);
@@ -82,6 +117,6 @@ public final class RRAIntervalBuilder {
     List<RuleInterval> zeros = GrammarVizAnomaly.filterZeroIntervalsForAnomalySearch(
         GrammarVizAnomaly.getZeroIntervals(coverageArray), paaSize);
     intervals.addAll(zeros);
-    return intervals;
+    return new BuildResult(intervals, coverageArray, zeros);
   }
 }

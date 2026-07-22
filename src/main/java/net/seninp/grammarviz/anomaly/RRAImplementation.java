@@ -2,10 +2,11 @@ package net.seninp.grammarviz.anomaly;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,16 +173,22 @@ public class RRAImplementation {
       Random rnd) throws Exception {
 
     // prepare the visits array, note that there can't be more points to visit that in a SAX index
-    int[] visitArray = new int[globalIntervals.size()];
+    int intervalCount = globalIntervals.size();
+    int[] visitArray = new int[intervalCount];
 
-    // this is outer loop heuristics
-    ArrayList<RuleInterval> intervals = cloneIntervals(globalIntervals);
-    // stable sort on rule frequency only (matches saxpy / jmotif-R)
-    Collections.sort(intervals, new Comparator<RuleInterval>() {
-      public int compare(RuleInterval c1, RuleInterval c2) {
-        return Double.compare(c1.getCoverage(), c2.getCoverage());
+    Integer[] sortOrder = new Integer[intervalCount];
+    for (int i = 0; i < intervalCount; i++) {
+      sortOrder[i] = i;
+    }
+    Arrays.sort(sortOrder, new Comparator<Integer>() {
+      public int compare(Integer a, Integer b) {
+        return Double.compare(globalIntervals.get(a).getCoverage(),
+            globalIntervals.get(b).getCoverage());
       }
     });
+
+    Map<Integer, int[]> ruleOccurrenceIndex = buildRuleOccurrenceIndex(globalIntervals);
+    HashSet<Integer> alreadyVisited = new HashSet<Integer>(256);
 
     // init variables
     int bestSoFarPosition = Integer.MIN_VALUE;
@@ -197,13 +204,13 @@ public class RRAImplementation {
     int distanceCalls = 0;
 
     LOGGER
-        .trace("going to iterate over " + intervals.size() + " intervals looking for the discord");
+        .trace("going to iterate over " + intervalCount + " intervals looking for the discord");
 
-    for (int i = 0; i < intervals.size(); i++) {
+    for (int si = 0; si < intervalCount; si++) {
 
       iterationCounter++;
 
-      RuleInterval currentEntry = intervals.get(i);
+      RuleInterval currentEntry = globalIntervals.get(sortOrder[si]);
 
       // skip degenerate candidates (e.g. one-point boundary gaps)
       if (!GrammarVizAnomaly.isViableAnomalyCandidate(currentEntry)) {
@@ -218,13 +225,14 @@ public class RRAImplementation {
       int currentPos = currentEntry.getStart();
       String currentRule = String.valueOf(currentEntry.getId());
 
-      LOGGER.trace("iteration " + i + ", out of " + intervals.size() + ", rule " + currentRule
+      LOGGER.trace("iteration " + si + ", out of " + intervalCount + ", rule " + currentRule
           + " at " + currentPos + ", length " + currentEntry.getLength());
 
-      // other occurrences of the current rule
-      // TODO : this can be taken out of here to optimize multiple discords discovery
-      ArrayList<Integer> currentOccurences = listRuleOccurrences(currentEntry.getId(), intervals);
-      LOGGER.trace(" there are " + currentOccurences.size() + " occurrences for the rule "
+      int[] currentOccurences = ruleOccurrenceIndex.get(currentEntry.getId());
+      if (null == currentOccurences || 0 == currentOccurences.length) {
+        continue;
+      }
+      LOGGER.trace(" there are " + currentOccurences.length + " occurrences for the rule "
           + currentEntry.getId() + ", iterating...");
 
       // organize visited so-far positions tracking
@@ -239,8 +247,7 @@ public class RRAImplementation {
       }
 
       // exclusion band [start−length, end) — neighbor skip uses start-in-set membership
-      HashSet<Integer> alreadyVisited = new HashSet<Integer>(
-          currentOccurences.size() + (markEnd - markStart));
+      alreadyVisited.clear();
       for (int j = markStart; j < markEnd; j++) {
         alreadyVisited.add(j);
       }
@@ -254,9 +261,9 @@ public class RRAImplementation {
       boolean doRandomSearch = true;
 
       // this is the first INNER LOOP
-      for (Integer nextOccurrenceIdx : currentOccurences) {
+      for (int nextOccurrenceIdx : currentOccurences) {
 
-        RuleInterval nextOccurrence = intervals.get(nextOccurrenceIdx);
+        RuleInterval nextOccurrence = globalIntervals.get(nextOccurrenceIdx);
         int occStart = nextOccurrence.getStart();
         if (alreadyVisited.contains(occStart)) {
           continue;
@@ -289,8 +296,8 @@ public class RRAImplementation {
         //
         int visitCounter = 0;
         int cIndex = 0;
-        for (int j = 0; j < intervals.size(); j++) {
-          RuleInterval interval = intervals.get(j);
+        for (int j = 0; j < intervalCount; j++) {
+          RuleInterval interval = globalIntervals.get(j);
           if (!GrammarVizAnomaly.isViableAnomalyCandidate(interval)) {
             continue;
           }
@@ -319,7 +326,7 @@ public class RRAImplementation {
         // while there are unvisited locations
         while (cIndex >= 0) {
 
-          RuleInterval randomInterval = intervals.get(visitArray[cIndex]);
+          RuleInterval randomInterval = globalIntervals.get(visitArray[cIndex]);
           cIndex--;
 
           // double[] randomSubsequence = extractSubsequence(series, randomInterval);
@@ -435,34 +442,28 @@ public class RRAImplementation {
   // }
 
   /**
-   * Finds all the Sequitur rules with a given Id and populates their start and end into the array.
-   * 
-   * @param id The rule Id.
-   * @param intervals The rule intervals.
-   * @return map of start - end.
+   * Maps rule id to indices of its occurrences in {@code intervals} (includes negative gap ids).
    */
-  private static ArrayList<Integer> listRuleOccurrences(int id, ArrayList<RuleInterval> intervals) {
-    ArrayList<Integer> res = new ArrayList<Integer>(100);
+  private static Map<Integer, int[]> buildRuleOccurrenceIndex(ArrayList<RuleInterval> intervals) {
+    HashMap<Integer, ArrayList<Integer>> buckets = new HashMap<Integer, ArrayList<Integer>>();
     for (int j = 0; j < intervals.size(); j++) {
-      RuleInterval i = intervals.get(j);
-      if (id == i.getId()) {
-        res.add(j);
+      Integer id = intervals.get(j).getId();
+      ArrayList<Integer> bucket = buckets.get(id);
+      if (null == bucket) {
+        bucket = new ArrayList<Integer>(4);
+        buckets.put(id, bucket);
       }
+      bucket.add(j);
     }
-    return res;
-  }
-
-  /**
-   * Cloning an array.
-   * 
-   * @param source the source array.
-   * @return the clone.
-   */
-  private static ArrayList<RuleInterval> cloneIntervals(ArrayList<RuleInterval> source) {
-    ArrayList<RuleInterval> res = new ArrayList<RuleInterval>(source.size());
-    for (RuleInterval r : source) {
-      res.add(new RuleInterval(r.getId(), r.getStart(), r.getEnd(), r.getCoverage()));
+    HashMap<Integer, int[]> index = new HashMap<Integer, int[]>(buckets.size());
+    for (Map.Entry<Integer, ArrayList<Integer>> entry : buckets.entrySet()) {
+      ArrayList<Integer> bucket = entry.getValue();
+      int[] arr = new int[bucket.size()];
+      for (int i = 0; i < bucket.size(); i++) {
+        arr[i] = bucket.get(i);
+      }
+      index.put(entry.getKey(), arr);
     }
-    return res;
+    return index;
   }
 }

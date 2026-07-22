@@ -217,4 +217,13 @@ public class PackedRulesPanel extends JPanel
   // }
   // }
 
+  /**
+   * Drops retained grammar state when the chart is replaced or reloaded.
+   */
+  public void clear() {
+    this.chartData = null;
+    this.packedTableModel.clearRows();
+    this.selectedRules = null;
+  }
+
 }

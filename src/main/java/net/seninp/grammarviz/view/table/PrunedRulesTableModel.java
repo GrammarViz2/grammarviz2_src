@@ -29,6 +29,10 @@ public class PrunedRulesTableModel extends PrunedRulesTableDataModel {
   public void update(ArrayList<PackedRuleRecord> packedRulesSet) {
     int rowIndex = 0;
     rows.clear();
+    if (null == packedRulesSet) {
+      fireTableDataChanged();
+      return;
+    }
     for (rowIndex = 0; rowIndex < packedRulesSet.size(); rowIndex++) {
 
       Object[] item = new Object[getColumnCount() + 1];
@@ -43,6 +47,11 @@ public class PrunedRulesTableModel extends PrunedRulesTableDataModel {
       rows.add(item);
     }
 
+    fireTableDataChanged();
+  }
+
+  public void clearRows() {
+    rows.clear();
     fireTableDataChanged();
   }
 

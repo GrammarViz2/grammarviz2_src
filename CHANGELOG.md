@@ -3,6 +3,23 @@
 All notable changes to GrammarViz2 are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+Memory and allocation lean-down for long series and deep grammars (no release tag yet).
+
+### Added
+- **`TestRRAMemoryLean`** — smoke tests on ECG and Dutch-power subsamples.
+
+### Changed
+- **RRA discord search** — precomputed rule-occurrence index (once per discord), sort
+  indices instead of cloning all `RuleInterval`s, reuse exclusion-band `HashSet`.
+- **`RRAIntervalBuilder.BuildResult`** — single-pass interval + coverage construction for CLI
+  export (drops redundant `computePointCoverage` call).
+
+### Fixed
+- **GUI memory retention** — null `model.chartData` on reload; cancel orphan RRA worker on
+  reload/discretize; cap log pane at 2000 lines; clear `PackedRulesPanel` on chart replacement.
+
 ## [3.0.3] — 2026-07-22
 
 RRA anomaly discovery hardening: fixes zero NN distances, interval accounting drift,

@@ -172,6 +172,7 @@ public class GrammarVizModel {
       }
     }
     data = new ArrayList<Double>();
+    this.chartData = null;
 
     LOGGER.info("loaded " + this.ts.length + " points....");
 

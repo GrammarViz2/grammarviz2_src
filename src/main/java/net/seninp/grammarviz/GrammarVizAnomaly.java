@@ -563,15 +563,15 @@ public class GrammarVizAnomaly {
         "finished pruning in " + SAXProcessor.timeToString(start.getTime(), new Date().getTime())
             + ", keeping " + prunedRulesSet.size() + " rules for anomaly discovery ...");
 
-    ArrayList<RuleInterval> intervals = RRAIntervalBuilder.fromGrammarRules(prunedRulesSet, ts.length,
-        paaSize);
-    int[] coverageArray = RRAIntervalBuilder.computePointCoverage(prunedRulesSet, ts.length);
+    RRAIntervalBuilder.BuildResult built = RRAIntervalBuilder.buildFromGrammarRules(prunedRulesSet,
+        ts.length, paaSize);
+    ArrayList<RuleInterval> intervals = built.getIntervals();
+    int[] coverageArray = built.getCoverageArray();
 
-    List<RuleInterval> zeros = filterZeroIntervalsForAnomalySearch(getZeroIntervals(coverageArray),
-        paaSize);
-    if (zeros.size() > 0) {
-      LOGGER.info(
-          "found " + zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
+    if (!built.getZeroIntervals().isEmpty()) {
+      LOGGER.info("found " + built.getZeroIntervals().size()
+          + " intervals not covered by rules: "
+          + intervalsToString(built.getZeroIntervals()));
     }
     else {
       LOGGER.info("the whole timeseries is covered by rule intervals ...");
@@ -697,15 +697,15 @@ public class GrammarVizAnomaly {
           + SAXProcessor.timeToString(start.getTime(), end.getTime()));
     }
 
-    ArrayList<RuleInterval> intervals = RRAIntervalBuilder.fromGrammarRules(rules, ts.length,
-        paaSize);
-    int[] coverageArray = RRAIntervalBuilder.computePointCoverage(rules, ts.length);
+    RRAIntervalBuilder.BuildResult built = RRAIntervalBuilder.buildFromGrammarRules(rules,
+        ts.length, paaSize);
+    ArrayList<RuleInterval> intervals = built.getIntervals();
+    int[] coverageArray = built.getCoverageArray();
 
-    List<RuleInterval> zeros = filterZeroIntervalsForAnomalySearch(getZeroIntervals(coverageArray),
-        paaSize);
-    if (zeros.size() > 0) {
-      LOGGER.info(
-          "found " + zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
+    if (!built.getZeroIntervals().isEmpty()) {
+      LOGGER.info("found " + built.getZeroIntervals().size()
+          + " intervals not covered by rules: "
+          + intervalsToString(built.getZeroIntervals()));
     }
     else {
       LOGGER.info("the whole timeseries is covered by rule intervals ...");

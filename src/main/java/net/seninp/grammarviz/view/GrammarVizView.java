@@ -183,6 +183,7 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
   // logging area
   //
   private static final JTextArea logTextArea = new JTextArea();
+  private static final int LOG_MAX_LINES = 2000;
   private static final JScrollPane logTextPane = new JScrollPane(logTextArea,
       ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
       ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -706,7 +707,30 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
       logTextArea.append(dateStr + "view: " + message + CR);
     }
     logTextArea.setCaretPosition(logTextArea.getDocument().getLength());
+    trimLogIfNeeded();
     LOGGER.info(dateStr + message);
+  }
+
+  private static void trimLogIfNeeded() {
+    int lineCount = logTextArea.getLineCount();
+    if (lineCount <= LOG_MAX_LINES) {
+      return;
+    }
+    try {
+      int startOffset = logTextArea.getLineStartOffset(lineCount - LOG_MAX_LINES);
+      logTextArea.replaceRange("", 0, startOffset);
+    }
+    catch (Exception e) {
+      logTextArea.setText("");
+    }
+  }
+
+  private void cancelOrphanAnomalySearch() {
+    if (null != this.anomalyWorker && !this.anomalyWorker.isDone()) {
+      this.anomalyWorker.cancel(true);
+    }
+    this.anomalyWorker = null;
+    this.anomalyWorkerChartData = null;
   }
 
   @Override
@@ -758,6 +782,8 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
       ruleChartPane.clear();
       rulesPeriodicityPane.clear();
       anomaliesPane.clear();
+      packedRulesPane.clear();
+      cancelOrphanAnomalySearch();
       frame.repaint();
       if (!workflowBusy.get()) {
         disableAllButtons();
@@ -775,7 +801,9 @@ public class GrammarVizView implements GrammarVizListener, ActionListener {
     //
     else if (GrammarVizMessage.CHART_MESSAGE.equalsIgnoreCase(message.getType())) {
 
+      cancelOrphanAnomalySearch();
       this.controller.getSession().chartData = (GrammarVizChartData) message.getPayload();
+      packedRulesPane.clear();
 
       // setting the chart first
       //

@@ -28,6 +28,7 @@ import net.seninp.gi.rulepruner.SampledPoint;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.anomaly.AnomalyAlgorithm;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
+import net.seninp.grammarviz.anomaly.RRAIntervalBuilder;
 import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;
@@ -307,6 +308,11 @@ public class GrammarVizAnomaly {
     // Collections.sort(res, new ReductionSorter());
     Collections.sort(res, new GrammarSizeSorter());
 
+    if (!hasSampledPoints(res)) {
+      LOGGER.error("experiment grid produced no valid parameter samples; skipping RRA runs");
+      return;
+    }
+
     System.out.println(CR + "# GLOBALLY MIN GRAMMAR size is " + res.get(0).toString() + CR
         + "Running RRAPruned ..." + CR);
 
@@ -314,7 +320,7 @@ public class GrammarVizAnomaly {
     int paaSize = res.get(0).getPAA();
     int alphabetSize = res.get(0).getAlphabet();
 
-    findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
+    findRRAPruned(ts, windowSize, paaSize, alphabetSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
 
     Collections.sort(res, new ReducedGrammarSizeSorter());
@@ -326,16 +332,11 @@ public class GrammarVizAnomaly {
     paaSize = res.get(0).getPAA();
     alphabetSize = res.get(0).getAlphabet();
 
-    findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
+    findRRAPruned(ts, windowSize, paaSize, alphabetSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
 
     double threshold = 0.99;
-    ArrayList<SampledPoint> resCovered = new ArrayList<SampledPoint>();
-    for (SampledPoint p : res) {
-      if (p.getCoverage() >= threshold) {
-        resCovered.add(p);
-      }
-    }
+    ArrayList<SampledPoint> resCovered = poolAtCoverageThreshold(res, threshold);
 
     // Collections.sort(resCovered, new ReductionSorter());
     Collections.sort(resCovered, new GrammarSizeSorter());
@@ -347,7 +348,7 @@ public class GrammarVizAnomaly {
     paaSize = resCovered.get(0).getPAA();
     alphabetSize = resCovered.get(0).getAlphabet();
 
-    findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
+    findRRAPruned(ts, windowSize, paaSize, alphabetSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
 
     Collections.sort(resCovered, new ReducedGrammarSizeSorter());
@@ -359,7 +360,7 @@ public class GrammarVizAnomaly {
     paaSize = resCovered.get(0).getPAA();
     alphabetSize = resCovered.get(0).getAlphabet();
 
-    findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
+    findRRAPruned(ts, windowSize, paaSize, alphabetSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
 
   }
@@ -427,6 +428,11 @@ public class GrammarVizAnomaly {
 
     Collections.sort(res, new ReductionSorter());
 
+    if (!hasSampledPoints(res)) {
+      LOGGER.error("sampled grid produced no valid parameter samples; skipping RRA run");
+      return;
+    }
+
     System.out.println(CR + "Apparently, the best parameters are " + res.get(0).toString() + CR
         + "Running RRAPRUNED..." + CR);
 
@@ -434,7 +440,7 @@ public class GrammarVizAnomaly {
     int paaSize = res.get(0).getPAA();
     int alphabetSize = res.get(0).getAlphabet();
 
-    findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
+    findRRAPruned(ts, windowSize, paaSize, alphabetSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
 
   }
@@ -557,59 +563,21 @@ public class GrammarVizAnomaly {
         "finished pruning in " + SAXProcessor.timeToString(start.getTime(), new Date().getTime())
             + ", keeping " + prunedRulesSet.size() + " rules for anomaly discovery ...");
 
-    ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
+    ArrayList<RuleInterval> intervals = RRAIntervalBuilder.fromGrammarRules(prunedRulesSet, ts.length,
+        paaSize);
+    int[] coverageArray = RRAIntervalBuilder.computePointCoverage(prunedRulesSet, ts.length);
 
-    // populate all intervals with their frequency
-    //
-    for (GrammarRuleRecord rule : prunedRulesSet) {
-      //
-      // TODO: do we care about long rules?
-      // if (0 == rule.ruleNumber() || rule.getRuleYield() > 2) {
-      if (0 == rule.ruleNumber()) {
-        continue;
-      }
-      for (RuleInterval ri : rule.getRuleIntervals()) {
-        // clone before mutating: these RuleInterval objects are owned by the
-        // grammar; setting coverage/id in place corrupts the shared grammar
-        // state for any later recomputation in the same JVM session.
-        RuleInterval clone = (RuleInterval) ri.clone();
-        clone.setCoverage(rule.getRuleIntervals().size());
-        clone.setId(rule.ruleNumber());
-        intervals.add(clone);
-      }
-    }
-
-    // get the coverage array
-    //
-    int[] coverageArray = new int[ts.length];
-    for (GrammarRuleRecord rule : prunedRulesSet) {
-      if (0 == rule.ruleNumber()) {
-        continue;
-      }
-      ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
-      for (RuleInterval saxPos : arrPos) {
-        int startPos = saxPos.getStart();
-        int endPos = saxPos.getEnd();
-        for (int j = startPos; j < endPos; j++) {
-          coverageArray[j] = coverageArray[j] + 1;
-        }
-      }
-    }
-
-    // look for zero-covered intervals and add those to the list
-    //
-    List<RuleInterval> zeros = getZeroIntervals(coverageArray);
+    List<RuleInterval> zeros = filterZeroIntervalsForAnomalySearch(getZeroIntervals(coverageArray),
+        paaSize);
     if (zeros.size() > 0) {
       LOGGER.info(
           "found " + zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
-      intervals.addAll(zeros);
     }
     else {
       LOGGER.info("the whole timeseries is covered by rule intervals ...");
     }
 
-    // run HOTSAX with this intervals set
-    //
+    // run RRA with this intervals set
     DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport, intervals,
         normalizationThreshold);
     Date end = new Date();
@@ -729,56 +697,21 @@ public class GrammarVizAnomaly {
           + SAXProcessor.timeToString(start.getTime(), end.getTime()));
     }
 
-    // [2] extract all the intervals
-    //
-    ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>(rules.size() * 2);
+    ArrayList<RuleInterval> intervals = RRAIntervalBuilder.fromGrammarRules(rules, ts.length,
+        paaSize);
+    int[] coverageArray = RRAIntervalBuilder.computePointCoverage(rules, ts.length);
 
-    // populate all intervals with their frequency
-    //
-    for (GrammarRuleRecord rule : rules) {
-      if (0 == rule.ruleNumber()) {
-        continue;
-      }
-      for (RuleInterval ri : rule.getRuleIntervals()) {
-        RuleInterval i = (RuleInterval) ri.clone();
-        i.setCoverage(rule.getRuleIntervals().size()); // not a coverage used here but a rule
-                                                       // frequency, will override later
-        i.setId(rule.ruleNumber());
-        intervals.add(i);
-      }
-    }
-
-    // get the coverage array
-    //
-    int[] coverageArray = new int[ts.length];
-    for (GrammarRuleRecord rule : rules) {
-      if (0 == rule.ruleNumber()) {
-        continue;
-      }
-      ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
-      for (RuleInterval saxPos : arrPos) {
-        int startPos = saxPos.getStart();
-        int endPos = saxPos.getEnd();
-        for (int j = startPos; j < endPos; j++) {
-          coverageArray[j] = coverageArray[j] + 1;
-        }
-      }
-    }
-
-    // look for zero-covered intervals and add those to the list
-    //
-    List<RuleInterval> zeros = getZeroIntervals(coverageArray);
+    List<RuleInterval> zeros = filterZeroIntervalsForAnomalySearch(getZeroIntervals(coverageArray),
+        paaSize);
     if (zeros.size() > 0) {
       LOGGER.info(
           "found " + zeros.size() + " intervals not covered by rules: " + intervalsToString(zeros));
-      intervals.addAll(zeros);
     }
     else {
       LOGGER.info("the whole timeseries is covered by rule intervals ...");
     }
 
-    // run HOTSAX with this intervals set
-    //
+    // run RRA with this intervals set
     DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport, intervals,
         normalizationThreshold);
     Date end = new Date();
@@ -915,6 +848,118 @@ public class GrammarVizAnomaly {
       sb.append(i.toString()).append(",");
     }
     return sb.toString();
+  }
+
+  /** Minimum subsequence length for RRA anomaly candidates (shorter intervals cannot be z-normalized). */
+  public static final int MIN_ANOMALY_CANDIDATE_LENGTH = 2;
+
+  /**
+   * Returns {@code true} when the sampled-parameter list contains at least one grid point.
+   *
+   * @param res sampled grid results.
+   * @return whether RRA CLI paths can safely read {@code res.get(0)}.
+   */
+  static boolean hasSampledPoints(ArrayList<SampledPoint> res) {
+    return res != null && !res.isEmpty();
+  }
+
+  /**
+   * Returns sampled points whose pruned coverage meets {@code threshold}. When none qualify,
+   * returns a copy of the full pool (same fallback as the GUI parameter guesser).
+   *
+   * @param res all sampled grid points.
+   * @param threshold minimal pruned coverage (typically 0.99).
+   * @return filtered pool, never {@code null}; may be empty only when {@code res} is empty.
+   */
+  static ArrayList<SampledPoint> poolAtCoverageThreshold(ArrayList<SampledPoint> res,
+      double threshold) {
+    if (!hasSampledPoints(res)) {
+      return res;
+    }
+    ArrayList<SampledPoint> covered = new ArrayList<SampledPoint>();
+    for (SampledPoint p : res) {
+      if (p.getCoverage() >= threshold) {
+        covered.add(p);
+      }
+    }
+    if (covered.isEmpty()) {
+      LOGGER.warn("no parameter set reached cover threshold " + threshold + " over " + res.size()
+          + " samples; falling back to full sample pool");
+      return new ArrayList<SampledPoint>(res);
+    }
+    return covered;
+  }
+
+  /**
+   * Returns {@code true} when the interval id marks an uncovered gap (negative sentinel ids).
+   *
+   * @param interval the candidate interval.
+   * @return whether this interval represents uncovered time series.
+   */
+  public static boolean isUncoveredInterval(RuleInterval interval) {
+    return interval.getId() < 0;
+  }
+
+  /**
+   * Returns {@code true} when the interval is long enough for meaningful distance computation.
+   *
+   * @param interval the candidate interval.
+   * @return whether the interval should participate in RRA search.
+   */
+  public static boolean isViableAnomalyCandidate(RuleInterval interval) {
+    return interval.getLength() >= MIN_ANOMALY_CANDIDATE_LENGTH;
+  }
+
+  /**
+   * Minimum uncovered-gap length for RRA (matches saxpy / jmotif-R {@code max(2, paa_size)}).
+   *
+   * @param paaSize PAA size from the SAX discretization.
+   * @return minimum run length for synthetic zero-coverage candidates.
+   */
+  public static int minUncoveredGapLength(int paaSize) {
+    return Math.max(MIN_ANOMALY_CANDIDATE_LENGTH, paaSize);
+  }
+
+  /**
+   * Formats a grammar rule id for GUI display; negative ids are uncovered-gap sentinels.
+   *
+   * @param ruleId the rule id stored in a discord record.
+   * @return a human-readable label.
+   */
+  public static String formatRuleIdForDisplay(int ruleId) {
+    if (ruleId < 0) {
+      return "uncovered gap #" + (-ruleId);
+    }
+    return String.valueOf(ruleId);
+  }
+
+  /**
+   * Drops uncovered gaps that are too short to analyze (typically one-point boundary artifacts).
+   *
+   * @param zeroIntervals intervals returned by {@link #getZeroIntervals(int[])}.
+   * @return filtered list suitable for RRA.
+   */
+  public static List<RuleInterval> filterZeroIntervalsForAnomalySearch(List<RuleInterval> zeroIntervals) {
+    return filterZeroIntervalsForAnomalySearch(zeroIntervals, MIN_ANOMALY_CANDIDATE_LENGTH);
+  }
+
+  /**
+   * Drops uncovered gaps shorter than {@link #minUncoveredGapLength(int)}.
+   *
+   * @param zeroIntervals intervals returned by {@link #getZeroIntervals(int[])}.
+   * @param paaSize PAA size from the SAX discretization.
+   * @return filtered list suitable for RRA.
+   */
+  public static List<RuleInterval> filterZeroIntervalsForAnomalySearch(List<RuleInterval> zeroIntervals,
+      int paaSize) {
+    int minLen = minUncoveredGapLength(paaSize);
+    ArrayList<RuleInterval> res = new ArrayList<RuleInterval>(zeroIntervals.size());
+    for (RuleInterval interval : zeroIntervals) {
+      if (interval.getLength() >= minLen) {
+        res.add(interval);
+      }
+    }
+    return res;
   }
 
   /**

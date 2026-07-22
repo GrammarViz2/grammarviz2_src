@@ -1,5 +1,6 @@
 package net.seninp.grammarviz.view.table;
 
+import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 
 /**
@@ -36,7 +37,7 @@ public class AnomalyTableModel extends GrammarvizRulesTableDataModel {
         item[nColumn++] = discords.get(rowIndex).getPosition();
         item[nColumn++] = discords.get(rowIndex).getLength();
         item[nColumn++] = Double.valueOf(discords.get(rowIndex).getNNDistance());
-        item[nColumn++] = discords.get(rowIndex).getRuleId();
+        item[nColumn++] = GrammarVizAnomaly.formatRuleIdForDisplay(discords.get(rowIndex).getRuleId());
         rows.add(item);
       }
     }
@@ -62,7 +63,7 @@ public class AnomalyTableModel extends GrammarvizRulesTableDataModel {
     if (columnIndex == AnomalyTableColumns.ANOMALY_NNDISTANCE.ordinal())
       return Double.class;
     if (columnIndex == AnomalyTableColumns.ANOMALY_RULE.ordinal())
-      return Integer.class;
+      return String.class;
 
     return String.class;
   }

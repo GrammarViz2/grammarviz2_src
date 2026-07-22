@@ -7,16 +7,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
-import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.gi.repair.RePairFactory;
 import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
+import net.seninp.grammarviz.anomaly.RRAIntervalBuilder;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
@@ -92,48 +91,10 @@ public class SamplerAnomaly {
 
         // populate all intervals with their frequency
         //
-        ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
-        for (GrammarRuleRecord rule : rules) {
-          if (0 == rule.ruleNumber()) {
-            continue;
-          }
-          for (RuleInterval ri : rule.getRuleIntervals()) {
-            ri.setCoverage(rule.getRuleIntervals().size());
-            ri.setId(rule.ruleNumber());
-            intervals.add(ri);
-          }
-        }
+        ArrayList<RuleInterval> intervals = RRAIntervalBuilder.fromGrammarRules(rules, ts.length,
+            SamplerAnomalyParameters.SAX_PAA_SIZE);
 
-        // get the coverage array
-        //
-        int[] coverageArray = new int[ts.length];
-        for (GrammarRuleRecord rule : rules) {
-          if (0 == rule.ruleNumber()) {
-            continue;
-          }
-          ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
-          for (RuleInterval saxPos : arrPos) {
-            int startPos = saxPos.getStart();
-            int endPos = saxPos.getEnd();
-            for (int j = startPos; j < endPos; j++) {
-              coverageArray[j] = coverageArray[j] + 1;
-            }
-          }
-        }
-
-        // look for zero-covered intervals and add those to the list
-        //
-        List<RuleInterval> zeros = getZeroIntervals(coverageArray);
-        if (zeros.size() > 0) {
-          LOGGER.info("found " + zeros.size() + " intervals not covered by rules: "
-              + intervalsToString(zeros));
-          intervals.addAll(getZeroIntervals(coverageArray));
-        }
-        else {
-          LOGGER.info("the whole timeseries covered by rule intervals ...");
-        }
-
-        // run HOTSAX with this intervals set
+        // run RRA with this intervals set
         //
         DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts,
             SamplerAnomalyParameters.DISCORDS_NUM, intervals,
@@ -163,48 +124,6 @@ public class SamplerAnomaly {
           + StackTrace.toString(e));
       System.exit(-1);
     }
-  }
-
-  /**
-   * Run a quick scan along the timeseries coverage to find a zeroed intervals.
-   * 
-   * @param coverageArray the coverage to analyze.
-   * @return set of zeroed intervals (if found).
-   */
-  private static List<RuleInterval> getZeroIntervals(int[] coverageArray) {
-    ArrayList<RuleInterval> res = new ArrayList<RuleInterval>();
-    int start = -1;
-    boolean inInterval = false;
-    int intervalsCounter = -1;
-    for (int i = 0; i < coverageArray.length; i++) {
-      if (0 == coverageArray[i] && !inInterval) {
-        start = i;
-        inInterval = true;
-      }
-      if (coverageArray[i] > 0 && inInterval) {
-        res.add(new RuleInterval(intervalsCounter, start, i, 0));
-        inInterval = false;
-        intervalsCounter--;
-      }
-    }
-    if (inInterval) {
-      res.add(new RuleInterval(intervalsCounter, start, coverageArray.length, 0));
-    }
-    return res;
-  }
-
-  /**
-   * Makes a zeroed interval to appear nicely in output.
-   * 
-   * @param zeros the list of zeros.
-   * @return the intervals list as a string.
-   */
-  private static String intervalsToString(List<RuleInterval> zeros) {
-    StringBuilder sb = new StringBuilder();
-    for (RuleInterval i : zeros) {
-      sb.append(i.toString()).append(",");
-    }
-    return sb.toString();
   }
 
 }

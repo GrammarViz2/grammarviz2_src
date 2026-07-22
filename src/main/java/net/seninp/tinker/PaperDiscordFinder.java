@@ -6,17 +6,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.gi.repair.RePairFactory;
 import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.gi.rulepruner.RulePrunerFactory;
-import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
+import net.seninp.grammarviz.anomaly.RRAIntervalBuilder;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
@@ -77,50 +75,10 @@ public class PaperDiscordFinder {
       //
       GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
 
-      ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
+      ArrayList<RuleInterval> intervals = RRAIntervalBuilder.fromGrammarRules(prunedRulesSet,
+          ts.length, PAA);
 
-      // populate all intervals with their frequency
-      //
-      for (GrammarRuleRecord rule : prunedRulesSet) {
-        //
-        // TODO: do we care about long rules?
-        // if (0 == rule.ruleNumber() || rule.getRuleYield() > 2) {
-        if (0 == rule.ruleNumber()) {
-          continue;
-        }
-        for (RuleInterval ri : rule.getRuleIntervals()) {
-          ri.setCoverage(rule.getRuleIntervals().size());
-          ri.setId(rule.ruleNumber());
-          intervals.add(ri);
-        }
-      }
-
-      // get the coverage array
-      //
-      int[] coverageArray = new int[ts.length];
-      for (GrammarRuleRecord rule : prunedRulesSet) {
-        if (0 == rule.ruleNumber()) {
-          continue;
-        }
-        ArrayList<RuleInterval> arrPos = rule.getRuleIntervals();
-        for (RuleInterval saxPos : arrPos) {
-          int startPos = saxPos.getStart();
-          int endPos = saxPos.getEnd();
-          for (int j = startPos; j < endPos; j++) {
-            coverageArray[j] = coverageArray[j] + 1;
-          }
-        }
-      }
-
-      // look for zero-covered intervals and add those to the list
-      //
-      List<RuleInterval> zeros = GrammarVizAnomaly.getZeroIntervals(coverageArray);
-      if (zeros.size() > 0) {
-        intervals.addAll(zeros);
-      }
-
-      // run HOTSAX with this intervals set
-      //
+      // run RRA with this intervals set
       DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 10, intervals,
           normalizationThreshold);
       //

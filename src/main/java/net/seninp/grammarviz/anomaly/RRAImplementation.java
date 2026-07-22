@@ -10,6 +10,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.gi.logic.RuleInterval;
+import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
@@ -23,6 +24,9 @@ import net.seninp.jmotif.sax.discord.DiscordRecords;
  *
  */
 public class RRAImplementation {
+
+  /** Default number of discords reported by the GUI anomaly finder. */
+  public static final int DEFAULT_DISCORD_COUNT = 5;
 
   private static TSProcessor tp = new TSProcessor();
   private static EuclideanDistance ed = new EuclideanDistance();
@@ -94,9 +98,8 @@ public class RRAImplementation {
           zNormThreshold, rnd);
       Date end = new Date();
 
-      // if the discord is null we getting out of the search
-      if (bestDiscord.getNNDistance() == Integer.MIN_VALUE
-          || bestDiscord.getPosition() == Integer.MIN_VALUE) {
+      // if the discord is null, or has a duplicate elsewhere (zero NN distance), stop
+      if (!RRAValidation.isValidDiscord(bestDiscord)) {
         LOGGER.trace("breaking the outer search loop, discords found: " + discords.getSize()
             + " last seen discord: " + bestDiscord.toString());
         break;
@@ -112,13 +115,12 @@ public class RRAImplementation {
       //
       discords.add(bestDiscord);
 
-      // mark the discord discovered
-      //
+      // saxpy / jmotif-R mark symmetric exclusion band [start−length, end)
       int markStart = bestDiscord.getPosition() - bestDiscord.getLength();
-      int markEnd = bestDiscord.getPosition() + bestDiscord.getLength();
       if (markStart < 0) {
         markStart = 0;
       }
+      int markEnd = bestDiscord.getPosition() + bestDiscord.getLength();
       if (markEnd > series.length) {
         markEnd = series.length;
       }
@@ -174,6 +176,7 @@ public class RRAImplementation {
 
     // this is outer loop heuristics
     ArrayList<RuleInterval> intervals = cloneIntervals(globalIntervals);
+    // stable sort on rule frequency only (matches saxpy / jmotif-R)
     Collections.sort(intervals, new Comparator<RuleInterval>() {
       public int compare(RuleInterval c1, RuleInterval c2) {
         return Double.compare(c1.getCoverage(), c2.getCoverage());
@@ -185,7 +188,7 @@ public class RRAImplementation {
     int bestSoFarLength = Integer.MIN_VALUE;
     int bestSoFarRule = Integer.MIN_VALUE;
 
-    double bestSoFarDistance = Integer.MIN_VALUE;
+    double bestSoFarDistance = Double.NEGATIVE_INFINITY;
 
     // we will iterate over words from rarest to frequent ones - this is an OUTER LOOP of the best
     // discord search
@@ -202,7 +205,12 @@ public class RRAImplementation {
 
       RuleInterval currentEntry = intervals.get(i);
 
-      // make sure it is not a previously found discord
+      // skip degenerate candidates (e.g. one-point boundary gaps)
+      if (!GrammarVizAnomaly.isViableAnomalyCandidate(currentEntry)) {
+        continue;
+      }
+
+      // skip if this candidate start was marked by a prior discord (saxpy / jmotif-R)
       if (registry.contains(currentEntry.getStart())) {
         continue;
       }
@@ -225,12 +233,12 @@ public class RRAImplementation {
       if (markStart < 0) {
         markStart = 0;
       }
-      int markEnd = currentPos + currentEntry.getLength();
+      int markEnd = currentEntry.getEnd();
       if (markEnd > series.length) {
         markEnd = series.length;
       }
 
-      // all the candidates we are not going to try
+      // exclusion band [start−length, end) — neighbor skip uses start-in-set membership
       HashSet<Integer> alreadyVisited = new HashSet<Integer>(
           currentOccurences.size() + (markEnd - markStart));
       for (int j = markStart; j < markEnd; j++) {
@@ -249,14 +257,11 @@ public class RRAImplementation {
       for (Integer nextOccurrenceIdx : currentOccurences) {
 
         RuleInterval nextOccurrence = intervals.get(nextOccurrenceIdx);
-
-        // skip the location we standing at, check if we overlap
-        if (alreadyVisited.contains(nextOccurrence.getStart())) {
+        int occStart = nextOccurrence.getStart();
+        if (alreadyVisited.contains(occStart)) {
           continue;
         }
-        else {
-          alreadyVisited.add(nextOccurrence.getStart());
-        }
+        alreadyVisited.add(occStart);
 
         // double[] occurrenceSubsequence = extractSubsequence(series, nextOccurrence);
 
@@ -286,12 +291,20 @@ public class RRAImplementation {
         int cIndex = 0;
         for (int j = 0; j < intervals.size(); j++) {
           RuleInterval interval = intervals.get(j);
-          if (!(alreadyVisited.contains(interval.getStart()))) {
+          if (!GrammarVizAnomaly.isViableAnomalyCandidate(interval)) {
+            continue;
+          }
+          if (!alreadyVisited.contains(interval.getStart())) {
             visitArray[cIndex] = j;
             cIndex++;
           }
         }
         cIndex--;
+
+        if (cIndex < 0) {
+          // every remaining interval overlaps the exclusion band
+        }
+        else {
 
         // shuffle the visit array (rnd is supplied by the caller; an unseeded Random preserves
         // the historical non-reproducible order, a seeded one makes the trajectory reproducible)
@@ -334,9 +347,11 @@ public class RRAImplementation {
 
         } // while inner loop
 
+        } // cIndex >= 0
+
       } // end of random search branch
 
-      if (nearestNeighborDist > bestSoFarDistance) {
+      if (nearestNeighborDist < Double.MAX_VALUE && nearestNeighborDist > bestSoFarDistance) {
         LOGGER.trace(" updating discord candidate: rule " + currentEntry.getId() + " at "
             + currentEntry.getStart() + " len " + currentEntry.getLength() + " NN dist: "
             + bestSoFarDistance);
@@ -377,6 +392,11 @@ public class RRAImplementation {
   private static double normalizedDistance(double[] series, RuleInterval reference,
       RuleInterval candidate, double zNormThreshold) throws Exception {
 
+    if (reference.getLength() < GrammarVizAnomaly.MIN_ANOMALY_CANDIDATE_LENGTH
+        || candidate.getLength() < GrammarVizAnomaly.MIN_ANOMALY_CANDIDATE_LENGTH) {
+      return Double.MAX_VALUE;
+    }
+
     double[] ref = Arrays.copyOfRange(series, reference.getStart(), reference.getEnd());
     double[] cand = Arrays.copyOfRange(series, candidate.getStart(), candidate.getEnd());
     double divisor = Integer.valueOf(ref.length).doubleValue();
@@ -391,6 +411,11 @@ public class RRAImplementation {
     //
     else {
       cand = tp.paa(cand, ref.length);
+    }
+
+    // z-norm below threshold returns all zeros and makes unrelated segments look identical
+    if (tp.stDev(ref) < zNormThreshold || tp.stDev(cand) < zNormThreshold) {
+      return ed.distance(ref, cand) / divisor;
     }
 
     return ed.distance(tp.znorm(ref, zNormThreshold), tp.znorm(cand, zNormThreshold)) / divisor;

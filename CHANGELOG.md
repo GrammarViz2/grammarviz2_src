@@ -3,7 +3,49 @@
 All notable changes to GrammarViz2 are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [3.0.3] — 2026-07-22
+
+RRA anomaly discovery hardening: fixes zero NN distances, interval accounting drift,
+and GUI/CLI path inconsistencies surfaced by dual-model code audits.
+
+### Added
+- **`RRAIntervalBuilder`** — canonical candidate-interval construction (clone grammar
+  intervals, point-coverage array, filtered uncovered gaps).
+- **`RRAValidation`** — shared discord validity gate (finite positive NN distance, minimum
+  length, valid position).
+- **Regression tests:** `TestRRACrossDataset` (7 dataset/algorithm/param scenarios),
+  `TestRRAValidation`, `TestRRAMultiDiscordOverlap`, `TestAnomalyCandidateFilter`,
+  `TestSampledPointPool`, `TestRRATierBConformance` (jmotif-conformance tier-B pins).
+
+### Changed
+- **RRA search semantics aligned with saxpy / jmotif-R** — start-index neighbor exclusion
+  (not full-interval overlap), symmetric multi-discord mark `[start−length, end)`, stable
+  frequency-only sort (no start tie-break); retains validation and zero-distance guards.
+- **Zero-gap filter** — `max(2, paa_size)` via `filterZeroIntervalsForAnomalySearch` /
+  `RRAIntervalBuilder.fromGrammarRules(..., paaSize)`.
+- **GUI anomaly finder** delegates to `series2RRAAnomalies` instead of a hand-rolled outer
+  loop (single RNG lifecycle, shared validation).
+- **CLI `findRRA` / `findRRAPruned`** and tinker tools route interval construction through
+  `RRAIntervalBuilder`.
+
+### Fixed
+- **Zero NN distances in the anomaly table** — filter one-point boundary gaps; reject
+  duplicate-subsequence discords (NN distance ≤ 0); use raw distance when z-normalization is
+  degenerate (std below threshold).
+- **Uncovered-gap rule IDs (`-1`, `-2`)** — displayed as `uncovered gap #N` in the anomaly
+  table; single-point artifacts no longer rank as top anomalies.
+- **Tier-B cross-language drift** — restored saxpy/jmotif-R registry and sort semantics so
+  Java passes `jmotif-conformance` `rra_discord` cases (ecg0606 w100/w120).
+- **Sampled/experiment CLI paths** — `findRRAPruned` was called with PAA and alphabet
+  arguments swapped in `findRRASampled` / `findRRAExperiment`.
+- **GUI infinite loop on RRA exception** — replaced duplicate outer loop; empty grammar
+  guard added.
+- **`PaperDiscordFinder` / `SamplerAnomaly`** — no longer mutate grammar-owned intervals in
+  place or double-add zero-gap candidates.
+- **`RRAValidation`** — rejects non-finite NN distances (NaN/Infinity).
+- **Experiment/sampled CLI paths** — guard empty parameter grids and fall back to the full
+  sample pool when no point meets the 0.99 coverage threshold (avoids `IndexOutOfBoundsException`
+  on `res.get(0)` / `resCovered.get(0)`).
 
 ## [3.0.2] — 2026-07-22
 

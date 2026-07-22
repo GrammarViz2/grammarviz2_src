@@ -1,4 +1,4 @@
-# GrammarViz 3.0 (3.0.2 release, 2026)
+# GrammarViz 3.0 (3.0.4 release, 2026)
 
 [![build](https://github.com/GrammarViz2/grammarviz2_src/actions/workflows/maven.yml/badge.svg)](https://github.com/GrammarViz2/grammarviz2_src/actions/workflows/maven.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/net.seninp/grammarviz2)](https://central.sonatype.com/artifact/net.seninp/grammarviz2)
@@ -18,6 +18,13 @@ It is implemented in Java and is based on continuous signal discretization with 
 Cross-language checks for the shared SAX and GI layers (discord search, sliding-window SAX, RePair) live in [jmotif-conformance](https://github.com/jMotif/jmotif-conformance).
 
 In contrast with 2.0, GrammarViz 3.0 introduces an approach for the grammar rule pruning and the automated discretization parameters selection procedure based on the greedy grammar rule pruning and MDL -- by sampling a possible parameters space, it finds a parameters set which produces the most _concise_ grammar _describing_ the observed time series the best, which often is close to the optimal -- here _concise_ and _describing_ are based on other specific criteria.
+
+### What's new in the 3.0.4 release
+
+Memory and allocation lean-down for long series and deep grammars:
+
+- RRA search reuses thread-local distance buffers and a precomputed rule-occurrence index.
+- GUI clears chart/log state on reload to avoid retaining large series in memory.
 
 ### What's new in the 3.0.2 release
 
@@ -99,7 +106,7 @@ It also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**
 
 ## Building
 
-We use Maven and Java 21 to build an executable. Version **3.0.2** depends on
+We use Maven and Java 21 to build an executable. Version **3.0.4** depends on
 **`jmotif-sax` 2.0.1** and **`jmotif-gi` 2.0.1**, which are not yet on Maven Central —
 install them from sibling checkouts first:
 
@@ -147,8 +154,8 @@ $ mvn package -Psingle
 [INFO] Analyzed bundle 'GrammarViz2' with 25 classes
 [INFO]
 [INFO] --- maven-assembly-plugin:3.3.0:single (make-assembly) @ grammarviz2 ---
-[INFO] Building jar: target/grammarviz2-3.0.2.jar
-[INFO] Building jar: target/grammarviz2-3.0.2-jar-with-dependencies.jar
+[INFO] Building jar: target/grammarviz2-3.0.4.jar
+[INFO] Building jar: target/grammarviz2-3.0.4-jar-with-dependencies.jar
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
@@ -157,7 +164,7 @@ $ mvn package -Psingle
 </pre>
 
 ## Running
-To run the GrammarViz 3.0 GUI use the `net.seninp.grammarviz.GrammarVizGUI` class, or run the self-contained `jar` from the command line: `$ java -Xmx4g -jar target/grammarviz2-3.0.2-jar-with-dependencies.jar` (here I have allocated a max of 4 GB of memory for GrammarViz).
+To run the GrammarViz 3.0 GUI use the `net.seninp.grammarviz.GrammarVizGUI` class, or run the self-contained `jar` from the command line: `$ java -Xmx4g -jar target/grammarviz2-3.0.4-jar-with-dependencies.jar` (here I have allocated a max of 4 GB of memory for GrammarViz).
 
 ## CLI interface
 By using CLI as discussed in [these tutorials](https://grammarviz2.github.io/grammarviz2_site/anomaly/experience-a2/), it is possible to save the inferred grammar, motifs, and discords.

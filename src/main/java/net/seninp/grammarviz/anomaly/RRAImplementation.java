@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.grammarviz.GrammarVizAnomaly;
-import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
@@ -30,7 +29,10 @@ public class RRAImplementation {
   public static final int DEFAULT_DISCORD_COUNT = 5;
 
   private static TSProcessor tp = new TSProcessor();
-  private static EuclideanDistance ed = new EuclideanDistance();
+
+  /** Reusable buffers for {@link #normalizedDistance} (one set per worker thread). */
+  private static final ThreadLocal<DistanceScratch> DISTANCE_SCRATCH =
+      ThreadLocal.withInitial(DistanceScratch::new);
 
   // static block - we instantiate the logger
   //
@@ -404,29 +406,134 @@ public class RRAImplementation {
       return Double.MAX_VALUE;
     }
 
-    double[] ref = Arrays.copyOfRange(series, reference.getStart(), reference.getEnd());
-    double[] cand = Arrays.copyOfRange(series, candidate.getStart(), candidate.getEnd());
-    double divisor = Integer.valueOf(ref.length).doubleValue();
+    DistanceScratch scratch = DISTANCE_SCRATCH.get();
+    scratch.loadRef(series, reference.getStart(), reference.getEnd());
+    scratch.loadCand(series, candidate.getStart(), candidate.getEnd());
+    double divisor = scratch.refLen;
 
     // if the reference is the longest, we shrink it down with PAA
     //
-    if (ref.length > cand.length) {
-      ref = tp.paa(ref, cand.length);
-      divisor = Integer.valueOf(cand.length).doubleValue(); // update the normalization value
+    if (scratch.refLen > scratch.candLen) {
+      scratch.shrinkRefTo(scratch.candLen);
+      divisor = scratch.candLen;
     }
     // if the candidate is longest, we shrink it with PAA too
     //
-    else {
-      cand = tp.paa(cand, ref.length);
+    else if (scratch.candLen > scratch.refLen) {
+      scratch.shrinkCandTo(scratch.refLen);
     }
 
     // z-norm below threshold returns all zeros and makes unrelated segments look identical
-    if (tp.stDev(ref) < zNormThreshold || tp.stDev(cand) < zNormThreshold) {
-      return ed.distance(ref, cand) / divisor;
+    if (stDev(scratch.ref, scratch.refLen) < zNormThreshold
+        || stDev(scratch.cand, scratch.candLen) < zNormThreshold) {
+      return euclideanDistance(scratch.ref, scratch.cand, scratch.refLen) / divisor;
     }
 
-    return ed.distance(tp.znorm(ref, zNormThreshold), tp.znorm(cand, zNormThreshold)) / divisor;
+    scratch.znormRef(zNormThreshold);
+    scratch.znormCand(zNormThreshold);
+    return euclideanDistance(scratch.zRef, scratch.zCand, scratch.refLen) / divisor;
 
+  }
+
+  /**
+   * Thread-local scratch for RRA distance: window extraction, PAA shrink, and z-norm.
+   */
+  private static final class DistanceScratch {
+    double[] ref = new double[0];
+    double[] cand = new double[0];
+    double[] zRef = new double[0];
+    double[] zCand = new double[0];
+    int refLen;
+    int candLen;
+
+    void loadRef(double[] series, int start, int end) {
+      refLen = end - start;
+      if (ref.length != refLen) {
+        ref = new double[refLen];
+      }
+      System.arraycopy(series, start, ref, 0, refLen);
+    }
+
+    void loadCand(double[] series, int start, int end) {
+      candLen = end - start;
+      if (cand.length != candLen) {
+        cand = new double[candLen];
+      }
+      System.arraycopy(series, start, cand, 0, candLen);
+    }
+
+    void shrinkRefTo(int paaSize) throws Exception {
+      double[] paa = tp.paa(ref, paaSize);
+      if (ref.length != paaSize) {
+        ref = new double[paaSize];
+      }
+      System.arraycopy(paa, 0, ref, 0, paaSize);
+      refLen = paaSize;
+    }
+
+    void shrinkCandTo(int paaSize) throws Exception {
+      double[] paa = tp.paa(cand, paaSize);
+      if (cand.length != paaSize) {
+        cand = new double[paaSize];
+      }
+      System.arraycopy(paa, 0, cand, 0, paaSize);
+      candLen = paaSize;
+    }
+
+    void znormRef(double threshold) {
+      if (zRef.length != refLen) {
+        zRef = new double[refLen];
+      }
+      znormInto(ref, refLen, threshold, zRef);
+    }
+
+    void znormCand(double threshold) {
+      if (zCand.length != candLen) {
+        zCand = new double[candLen];
+      }
+      znormInto(cand, candLen, threshold, zCand);
+    }
+  }
+
+  private static double mean(double[] series, int len) {
+    double sum = 0D;
+    for (int i = 0; i < len; i++) {
+      sum += series[i];
+    }
+    return sum / len;
+  }
+
+  private static double stDev(double[] series, int len) {
+    double num0 = 0D;
+    double sum = 0D;
+    for (int i = 0; i < len; i++) {
+      double v = series[i];
+      num0 += v * v;
+      sum += v;
+    }
+    double n = len;
+    return Math.sqrt((n * num0 - sum * sum) / (n * n));
+  }
+
+  private static void znormInto(double[] src, int len, double threshold, double[] dest) {
+    double sd = stDev(src, len);
+    if (sd < threshold) {
+      Arrays.fill(dest, 0, len, 0.0);
+      return;
+    }
+    double avg = mean(src, len);
+    for (int i = 0; i < len; i++) {
+      dest[i] = (src[i] - avg) / sd;
+    }
+  }
+
+  private static double euclideanDistance(double[] a, double[] b, int len) {
+    double sum = 0D;
+    for (int i = 0; i < len; i++) {
+      double d = b[i] - a[i];
+      sum += d * d;
+    }
+    return Math.sqrt(sum);
   }
 
   // /**

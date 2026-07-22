@@ -5,7 +5,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-Memory and allocation lean-down for long series and deep grammars (no release tag yet).
+## [3.0.4] — 2026-07-22
+
+Memory and allocation lean-down for long series and deep grammars.
 
 ### Added
 - **`TestRRAMemoryLean`** — smoke tests on ECG and Dutch-power subsamples.
@@ -13,6 +15,8 @@ Memory and allocation lean-down for long series and deep grammars (no release ta
 ### Changed
 - **RRA discord search** — precomputed rule-occurrence index (once per discord), sort
   indices instead of cloning all `RuleInterval`s, reuse exclusion-band `HashSet`.
+- **RRA normalized distance** — thread-local scratch buffers for subsequence extraction,
+  in-place z-norm, and Euclidean distance (drops per-call `copyOfRange` / `znorm` arrays).
 - **`RRAIntervalBuilder.BuildResult`** — single-pass interval + coverage construction for CLI
   export (drops redundant `computePointCoverage` call).
 

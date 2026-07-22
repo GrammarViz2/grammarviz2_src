@@ -5,10 +5,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.2] — 2026-07-22
+
 GUI modernization and concurrency hardening: retires deprecated/abandoned UI
 dependencies, refactors the MVC wiring, and makes long GUI workflows safe on the
-Swing event-dispatch thread (EDT). No changes to the command line, output formats,
-or public artifact coordinates (`net.seninp:grammarviz2:3.0.1`).
+Swing event-dispatch thread (EDT). No changes to the command line or output formats.
 
 ### Changed
 - **Dependencies:** dropped the abandoned **SwingX** (`swingx-all` 1.6.5-1, unmaintained

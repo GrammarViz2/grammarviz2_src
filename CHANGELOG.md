@@ -5,9 +5,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-GUI modernization: retires deprecated/abandoned UI dependencies and refactors the MVC
-wiring. No changes to the command line, output formats, or public artifact coordinates
-(`net.seninp:grammarviz2:3.0.1`).
+GUI modernization and concurrency hardening: retires deprecated/abandoned UI
+dependencies, refactors the MVC wiring, and makes long GUI workflows safe on the
+Swing event-dispatch thread (EDT). No changes to the command line, output formats,
+or public artifact coordinates (`net.seninp:grammarviz2:3.0.1`).
 
 ### Changed
 - **Dependencies:** dropped the abandoned **SwingX** (`swingx-all` 1.6.5-1, unmaintained
@@ -21,12 +22,37 @@ wiring. No changes to the command line, output formats, or public artifact coord
 - **Logging hygiene:** routed stray `System.out`/`System.err`/`printStackTrace` through
   SLF4J and removed dead commented-out debug prints across the GUI/view/model classes
   (intentional CLI output and the GUI startup banner unchanged).
+- **Build / CI:** added a **PMD + SpotBugs** quality gate (`-Pquality`); dropped the
+  orphaned SonarCloud "Build and analyze" job (no `SONAR_TOKEN`, no Sonar badge).
 
 ### Fixed
 - **Anomaly search no longer freezes the GUI.** The RRA discord search runs on a
   `SwingWorker` off the event-dispatch thread; progress streams to the log pane live, a
   wait cursor is shown, and the UI stays responsive (browse rules/charts/tabs) while the
   results are computed.
+- **Workflow concurrency.** Load, discretize, prune, and cluster run on background
+  `SwingWorker`s with a single-flight `workflowBusy` latch; toolbar buttons stay disabled
+  until each operation completes. `handleMessage()` no longer re-enables buttons while a
+  long operation is still in flight.
+- **Parameter guesser** is single-flight and terminable: a `GuessPhase` state machine,
+  session-scoped sampling context, and EDT-marshalled sampler callbacks prevent overlapping
+  guess runs, infinite cancel waits, and off-EDT Swing updates. Selection is clamped to
+  series bounds; the guesser dialog resets its cancel flag before each display.
+- **Anomaly worker guards** are chart-aware: a stale search on a replaced chart no longer
+  blocks load/discretize or a new search on the current chart; duplicate searches on the
+  same chart are still rejected.
+- **Prune/cluster stale-chart guards:** `done()` skips pane refresh when the session chart
+  was replaced mid-operation; `endLongOperation()` still restores cursor and buttons.
+- **Rule-length histogram** on an empty or R0-only grammar shows an info dialog instead
+  of crashing on sort/index; the panel title is reset when there is nothing to show.
+- **Rule-density file write** runs on a named daemon thread from a defensive copy of the
+  coverage array (large/slow disk writes no longer block the EDT).
+- **Save Chart** always saves the time-series chart, not the histogram view left active
+  after "Show histogram".
+- **Duplicate Exit menu listener** registration removed (one clean shutdown path).
+- **Rule-density guard**, CLI nearest-neighbour loop bound, `--bounds` validation, and
+  pruned-RRA aliasing fixes.
+- **`getZeroIntervals()`** no longer drops trailing or all-zero coverage runs.
 - **Rule/anomaly table sizing** after the SwingX removal: capped the preferred viewport
   height so the tables panel no longer over-claims vertical space from the neighbouring
   chart and workflow rows.

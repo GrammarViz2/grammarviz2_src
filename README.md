@@ -5,7 +5,7 @@
 [![coverage](https://codecov.io/github/GrammarViz2/grammarviz2_src/graph/badge.svg?branch=master)](https://codecov.io/github/GrammarViz2/grammarviz2_src?branch=master)
 [![License](https://img.shields.io/github/license/GrammarViz2/grammarviz2_src)](https://www.gnu.org/licenses/gpl-2.0.html)
 
-GrammarViz 3.0 source code public repository. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
+GrammarViz 3.0 source repository. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
 
 > For the detailed software description, please visit our [demo site](https://grammarviz2.github.io/grammarviz2_site).
 
@@ -17,7 +17,7 @@ It is implemented in Java and is based on continuous signal discretization with 
 
 Cross-language checks for the shared SAX and GI layers (discord search, sliding-window SAX, RePair) live in [jmotif-conformance](https://github.com/jMotif/jmotif-conformance).
 
-In contrast with 2.0, GrammarViz 3.0 introduces an approach for the grammar rule pruning and the automated discretization parameters selection procedure based on the greedy grammar rule pruning and MDL -- by sampling a possible parameters space, it finds a parameters set which produces the most _concise_ grammar _describing_ the observed time series the best, which often is close to the optimal -- here _concise_ and _describing_ are based on other specific criteria.
+GrammarViz 3.0 adds grammar-rule pruning and automated discretization-parameter selection: it samples the parameter space and keeps the setting whose pruned grammar is most concise under an MDL-style score — often close to optimal in practice.
 
 ### What's new in the 3.0.4 release
 

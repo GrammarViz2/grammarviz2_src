@@ -5,6 +5,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Dependencies:** jmotif-sax and jmotif-gi bumped **2.0.1 → 2.0.2** (both on Maven
+  Central since 2026-07-26).
+- **CI:** removed the source-install of jmotif-sax/jmotif-gi from all workflows — the
+  pom's pinned versions resolve from Central, so the source-built jars were never used
+  (CI silently tested against different dependency code than local builds).
+
 ## [3.0.4] — 2026-07-22
 
 Memory and allocation lean-down for long series and deep grammars.

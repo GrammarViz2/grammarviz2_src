@@ -223,7 +223,7 @@ public class GrammarVizAnomaly {
           continue;
         }
         for (int ALPHABET_SIZE = bounds[6]; ALPHABET_SIZE < bounds[7]; ALPHABET_SIZE += bounds[8]) {
-          SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, GIAlgorithm.REPAIR,
+          SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, giImplementation,
               GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
               GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
           res.add(p);
@@ -418,7 +418,7 @@ public class GrammarVizAnomaly {
           continue;
         }
         for (int ALPHABET_SIZE = bounds[6]; ALPHABET_SIZE < bounds[7]; ALPHABET_SIZE += bounds[8]) {
-          SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, GIAlgorithm.REPAIR,
+          SampledPoint p = rp.sample(WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE, giImplementation,
               GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
               GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
           res.add(p);

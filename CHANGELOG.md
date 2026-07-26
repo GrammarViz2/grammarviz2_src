@@ -5,6 +5,16 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- **GUI: timeseries chart no longer starves the layout.** JFreeChart 1.5.x raised
+  `ChartPanel`'s default preferred size from 680×420 to 1024×768, so after the 3.0.2
+  upgrade the chart rows out-claimed the rule tables, workflow bar, and log pane. All four
+  `ChartPanel` construction sites now pin the 1.0.x-era 680×420 preferred size and let
+  MigLayout's fill/grow do the actual sizing (completes the 3.0.2-era table-viewport cap,
+  which fixed the same regression from the tables' side).
+- **CLI: `findRRASampled` / `findRRAExperiment` honor `--gi`** — the parameter-grid
+  sampler hardcoded `GIAlgorithm.REPAIR`, silently ignoring `--gi SEQUITUR`.
+
 ### Changed
 - **Dependencies:** jmotif-sax and jmotif-gi bumped **2.0.1 → 2.0.2** (both on Maven
   Central since 2026-07-26).

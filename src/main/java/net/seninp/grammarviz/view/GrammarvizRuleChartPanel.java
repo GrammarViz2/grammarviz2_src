@@ -2,6 +2,7 @@ package net.seninp.grammarviz.view;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -102,6 +103,9 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
 
     // and put it on the show
     ChartPanel chartPanel = new ChartPanel(this.chart);
+    // JFreeChart 1.5.x default preferred size is 1024x768 (1.0.x: 680x420) — pin the old
+    // one so this panel doesn't out-claim its 30% MigLayout column (see GrammarvizChartPanel)
+    chartPanel.setPreferredSize(new Dimension(680, 420));
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);

@@ -2,6 +2,7 @@ package net.seninp.grammarviz.view;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -245,6 +246,11 @@ public class GrammarvizChartPanel extends JPanel
     // instantiate and adjust the chart panel
     //
     chartPanel = new ChartPanel(this.chart);
+
+    // JFreeChart 1.5.x ChartPanel defaults to a 1024x768 preferred size (1.0.x used 680x420),
+    // which makes this row out-claim the rule tables and workflow rows in the MigLayout;
+    // restore the 1.0.x-era preferred size and let fill/grow do the actual sizing.
+    chartPanel.setPreferredSize(new Dimension(680, 420));
 
     chartPanel.setMaximumDrawHeight(this.getParent().getHeight());
     chartPanel.setMaximumDrawWidth(this.getParent().getWidth());
@@ -623,6 +629,7 @@ public class GrammarvizChartPanel extends JPanel
     this.chart.getXYPlot().setDomainAxis(myAxis);
 
     chartPanel = new ChartPanel(this.chart);
+    chartPanel.setPreferredSize(new Dimension(680, 420));
     chartPanel.setMinimumDrawWidth(0);
     chartPanel.setMinimumDrawHeight(0);
     chartPanel.setMaximumDrawWidth(1920);
@@ -721,6 +728,7 @@ public class GrammarvizChartPanel extends JPanel
     this.tsData = tsData;
     paintTheChart(tsData);
     chartPanel = new ChartPanel(this.chart);
+    chartPanel.setPreferredSize(new Dimension(680, 420));
     this.removeAll();
     this.add(chartPanel);
     revalidate();
